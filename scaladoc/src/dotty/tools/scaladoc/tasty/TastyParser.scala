@@ -169,7 +169,16 @@ object ScaladocTastyInspector:
         val withNewMembers = p1.withNewMembers(p2.members)
         if withNewMembers.docs.isEmpty then withNewMembers.withDocs(p2.docs) else withNewMembers
       )
-      basePck.withMembers((basePck.members ++ rest).sortBy(_.name))
+      // Deduplicate members coming from different parser instances by a stable key:
+      // location + member fullName + kind name + owner.
+      val combined = basePck.members ++ rest
+      def ownerOf(m: Member): String =
+        m.fullName.lastIndexOf('.') match
+          case -1    => ""
+          case idx   => m.fullName.substring(0, idx)
+      val keyed = combined.groupBy(m => s"${m.dri.location}:${m.fullName}:${m.kind.name}:${ownerOf(m)}")
+      val uniqueMembers = keyed.values.map(_.head).toList.sortBy(_.name)
+      basePck.withMembers(uniqueMembers)
     }.toList -> inspector.rootDoc
 
 end ScaladocTastyInspector
