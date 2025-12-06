@@ -264,13 +264,26 @@ def analyze_file(path: str) -> Dict[str, object]:
 def summarize_reports(reports: List[Dict[str, object]]) -> int:
     total_files = len(reports)
     total_issues = 0
+    # Track totals and how many declarations (per kind) have issues
+    kind_totals = {"class": 0, "trait": 0, "def": 0}
+    kind_issues = {"class": 0, "trait": 0, "def": 0}
     for r in reports:
         path = r["path"]
         file_issues = []
         for item in r["results"]:
+            decl = item.get("decl", {})
+            kind = decl.get("kind")
+            # count totals for relevant kinds
+            if kind in kind_totals:
+                kind_totals[kind] += 1
             if item["issues"]:
-                file_issues.append((item["line"], item["decl"], item["issues"]))
+                # record for per-file listing
+                file_issues.append((item["line"], decl, item["issues"]))
+                # total_issues counts individual issue messages (keeps previous behaviour)
                 total_issues += len(item["issues"])
+                # count declarations-with-issues per kind
+                if kind in kind_issues:
+                    kind_issues[kind] += 1
         if file_issues:
             print(f"\nFile: {path}")
             for ln, decl, issues in file_issues:
@@ -279,6 +292,14 @@ def summarize_reports(reports: List[Dict[str, object]]) -> int:
                 print(f"  At line {ln}: {kind} {name}")
                 for it in issues:
                     print(f"    - {it}")
+    # Print aggregated summary with percentages
+    print("\nSummary:")
+    for k in ("class", "trait", "def"):
+        total = kind_totals.get(k, 0)
+        bad = kind_issues.get(k, 0)
+        pct = (bad / total * 100.0) if total > 0 else 0.0
+        label = "methods" if k == "def" else (k + "s")
+        print(f"  {label.capitalize()}: {total}, with issues: {bad} ({pct:.1f}%)")
     print(f"\nScanned {total_files} files. Found {total_issues} issues.")
     return total_issues
 
