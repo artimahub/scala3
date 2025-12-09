@@ -1,0 +1,1228 @@
+=== Summary by Element Type ===
+apply     :   350 undocumented
+unapply   :   122 undocumented
+toString  :    97 undocumented
+empty     :    89 undocumented
+newBuilder:    75 undocumented
+iterator  :    71 undocumented
+knownSize :    66 undocumented
+isEmpty   :    63 undocumented
+from      :    61 undocumented
+next      :    53 undocumented
+equals    :    46 undocumented
+hashCode  :    43 undocumented
+copy      :    41 undocumented
+result    :    40 undocumented
+iterableFactory:    40 undocumented
+addOne    :    37 undocumented
+length    :    34 undocumented
+compare   :    32 undocumented
+clear     :    30 undocumented
+stepper   :    30 undocumented
+map       :    27 undocumented
+get       :    27 undocumented
+fromSpecific:    26 undocumented
+updated   :    26 undocumented
+hasNext   :    26 undocumented
+semiclone :    26 undocumented
+update    :    26 undocumented
+this      :    25 undocumented
+concat    :    24 undocumented
+flatMap   :    24 undocumented
+nextStep  :    23 undocumented
+foreach   :    22 undocumented
+elemTag   :    20 undocumented
+equiv     :    19 undocumented
+collect   :    17 undocumented
+prepended :    16 undocumented
++         :    16 undocumented
+contains  :    16 undocumented
+size      :    16 undocumented
+extract   :    16 undocumented
+add       :    16 undocumented
+mapFactory:    15 undocumented
+appended  :    14 undocumented
+max       :    14 undocumented
+min       :    14 undocumented
+filter    :    14 undocumented
+unsorted  :    13 undocumented
+drop      :    13 undocumented
+hash      :    13 undocumented
+remove    :    13 undocumented
+underlying:    12 undocumented
+tail      :    12 undocumented
+sorted    :    12 undocumented
+trySplit  :    12 undocumented
+addSeq    :    12 undocumented
+addArray  :    12 undocumented
+view      :    11 undocumented
+withFilter:    11 undocumented
+take      :    11 undocumented
+last      :    11 undocumented
+removed   :    11 undocumented
+addAll    :    11 undocumented
+sizeHint  :    11 undocumented
+resize    :    11 undocumented
+subtractOne:    11 undocumented
+plus      :    11 undocumented
+minus     :    11 undocumented
+name      :    11 undocumented
+toInt     :    11 undocumented
+toLong    :    11 undocumented
+toFloat   :    11 undocumented
+toDouble  :    11 undocumented
+abs       :    11 undocumented
+head      :    10 undocumented
+filterNot :    10 undocumented
+writeReplace:    10 undocumented
+keysIterator:    10 undocumented
+transform :    10 undocumented
+insert    :    10 undocumented
+value     :    10 undocumented
+times     :    10 undocumented
+negate    :    10 undocumented
+fromInt   :    10 undocumented
+parseString:    10 undocumented
+newWrappedArray:    10 undocumented
+newArrayBuilder:    10 undocumented
+initialize:    10 undocumented
+diff      :     9 undocumented
+reverse   :     9 undocumented
+forall    :     9 undocumented
+exists    :     9 undocumented
+canEqual  :     9 undocumented
+-         :     9 undocumented
+estimateSize:     9 undocumented
+characteristics:     9 undocumented
+valuesIterator:     9 undocumented
+getOrElse :     9 undocumented
+*         :     9 undocumented
+sign      :     9 undocumented
+runtimeClass:     9 undocumented
+ord       :     9 undocumented
+appendedAll:     8 undocumented
+zip       :     8 undocumented
+Delegate  :     8 undocumented
+slice     :     8 undocumented
+seqUnbox  :     8 undocumented
+parUnbox  :     8 undocumented
+append    :     8 undocumented
+/         :     8 undocumented
+accept    :     8 undocumented
+quot      :     8 undocumented
+rem       :     8 undocumented
+fromString:     8 undocumented
+tapEach   :     7 undocumented
+fill      :     7 undocumented
+headOption:     7 undocumented
+tryAdvance:     7 undocumented
+forEachRemaining:     7 undocumented
+foreachEntry:     7 undocumented
+signum    :     7 undocumented
+num       :     7 undocumented
+++        :     6 undocumented
+prependedAll:     6 undocumented
+loop      :     6 undocumented
+partition :     6 undocumented
+tabulate  :     6 undocumented
+takeRight :     6 undocumented
+init      :     6 undocumented
+inclusive :     6 undocumented
+clone     :     6 undocumented
+gt        :     6 undocumented
+gteq      :     6 undocumented
+lt        :     6 undocumented
+lteq      :     6 undocumented
+applyAsDouble:     6 undocumented
+applyAsInt:     6 undocumented
+applyAsLong:     6 undocumented
+<:<       :     6 undocumented
+intersect :     5 undocumented
+andThen   :     5 undocumented
+rangeImpl :     5 undocumented
+dropRight :     5 undocumented
+flatten   :     5 undocumented
+sortedMapFactory:     5 undocumented
+mkStream  :     5 undocumented
+elems     :     5 undocumented
+efficientStepper:     5 undocumented
+factory   :     5 undocumented
+test      :     5 undocumented
+ExtraImplicits:     5 undocumented
+qualifier :     5 undocumented
+tpt       :     5 undocumented
+cases     :     5 undocumented
+newArray  :     5 undocumented
+startsWith:     4 undocumented
+search    :     4 undocumented
+zipWithIndex:     4 undocumented
+++:       :     4 undocumented
+Int       :     4 undocumented
+Long      :     4 undocumented
+isDefinedAt:     4 undocumented
+ensuring  :     4 undocumented
+iteratorFrom:     4 undocumented
+IndexedSeq:     4 undocumented
+splitAt   :     4 undocumented
+scanLeft  :     4 undocumented
+keySet    :     4 undocumented
+spliterator:     4 undocumented
+javaIterator:     4 undocumented
+getOrElseUpdate:     4 undocumented
+coll      :     4 undocumented
+copyToArray:     4 undocumented
+incl      :     4 undocumented
+excl      :     4 undocumented
+WithDefault:     4 undocumented
+default   :     4 undocumented
+isInclusive:     4 undocumented
+count     :     4 undocumented
+toArray   :     4 undocumented
+put       :     4 undocumented
+Implicits :     4 undocumented
+toUnit    :     4 undocumented
+countLong :     4 undocumented
+div       :     4 undocumented
+until     :     4 undocumented
+to        :     4 undocumented
+compose   :     4 undocumented
+Boolean   :     3 undocumented
+Byte      :     3 undocumented
+Char      :     3 undocumented
+Double    :     3 undocumented
+readResolve:     3 undocumented
+Float     :     3 undocumented
+distinctBy:     3 undocumented
+grouped   :     3 undocumented
+lengthCompare:     3 undocumented
+reverseIterator:     3 undocumented
+sizeCompare:     3 undocumented
+sliding   :     3 undocumented
+tails     :     3 undocumented
+unzip     :     3 undocumented
+zipAll    :     3 undocumented
+orElse    :     3 undocumented
+charAt    :     3 undocumented
+subSequence:     3 undocumented
+self      :     3 undocumented
+Short     :     3 undocumented
+Unit      :     3 undocumented
+unfold    :     3 undocumented
+foldRight :     3 undocumented
+dropWhile :     3 undocumented
+Iterable  :     3 undocumented
+lastOption:     3 undocumented
+newSpecificBuilder:     3 undocumented
+evidenceIterableFactory:     3 undocumented
+find      :     3 undocumented
+sameElements:     3 undocumented
+addString :     3 undocumented
+SeqMap    :     3 undocumented
+SortedMap :     3 undocumented
+sortedIterableFactory:     3 undocumented
+findNext  :     3 undocumented
+hasStep   :     3 undocumented
+untagged  :     3 undocumented
+ofRef     :     3 undocumented
+ofByte    :     3 undocumented
+ofShort   :     3 undocumented
+ofChar    :     3 undocumented
+ofInt     :     3 undocumented
+ofLong    :     3 undocumented
+ofFloat   :     3 undocumented
+ofDouble  :     3 undocumented
+ofBoolean :     3 undocumented
+ofUnit    :     3 undocumented
+filterImpl:     3 undocumented
+f         :     3 undocumented
+tailDefined:     3 undocumented
+t         :     3 undocumented
+prepend   :     3 undocumented
+insertAll :     3 undocumented
+patchInPlace:     3 undocumented
+filterInPlace:     3 undocumented
+convert   :     3 undocumented
+fromProduct:     3 undocumented
+fromJava  :     3 undocumented
+fromScala :     3 undocumented
+transformTerms:     3 undocumented
+expr      :     3 undocumented
+rhs       :     3 undocumented
+body      :     3 undocumented
+bound     :     3 undocumented
+hi        :     3 undocumented
+pattern   :     3 undocumented
+arrayType :     3 undocumented
+fromDigits:     3 undocumented
+toEither  :     3 undocumented
+id        :     2 undocumented
+:++       :     2 undocumented
+distinct  :     2 undocumented
+endsWith  :     2 undocumented
+inits     :     2 undocumented
+lazyZip   :     2 undocumented
+padTo     :     2 undocumented
+partitionMap:     2 undocumented
+patch     :     2 undocumented
+unzip3    :     2 undocumented
+Selectable:     2 undocumented
+standardInterpolator:     2 undocumented
+BitSet    :     2 undocumented
+bitSetFactory:     2 undocumented
+range     :     2 undocumented
+Id        :     2 undocumented
+Appended  :     2 undocumented
+Prepended :     2 undocumented
+Concat    :     2 undocumented
+Take      :     2 undocumented
+TakeRight :     2 undocumented
+Drop      :     2 undocumented
+DropRight :     2 undocumented
+Map       :     2 undocumented
+Reverse   :     2 undocumented
+seq       :     2 undocumented
+span      :     2 undocumented
+LinearSeq :     2 undocumented
+foldLeft  :     2 undocumented
+MapView   :     2 undocumented
+Filter    :     2 undocumented
+SeqView   :     2 undocumented
+firstKey  :     2 undocumented
+lastKey   :     2 undocumented
+rangeTo   :     2 undocumented
+toIterable:     2 undocumented
+iterableEvidence:     2 undocumented
+singleton :     2 undocumented
+withValue :     2 undocumented
+bin       :     2 undocumented
+at        :     2 undocumented
+start     :     2 undocumented
+end       :     2 undocumented
+step      :     2 undocumented
+Inclusive :     2 undocumented
+Exclusive :     2 undocumented
+BigInt    :     2 undocumented
+BigDecimal:     2 undocumented
+fk        :     2 undocumented
+Seq       :     2 undocumented
+keysIteratorFrom:     2 undocumented
+Stream    :     2 undocumented
+OrderBy   :     2 undocumented
+unwrap    :     2 undocumented
+array     :     2 undocumented
+ofArray   :     2 undocumented
+IndexedBuffer:     2 undocumented
+updateWith:     2 undocumented
+subtractAll:     2 undocumented
+firstEntry:     2 undocumented
+lastEntry :     2 undocumented
+nanoseconds:     2 undocumented
+nanos     :     2 undocumented
+nanosecond:     2 undocumented
+nano      :     2 undocumented
+microseconds:     2 undocumented
+micros    :     2 undocumented
+microsecond:     2 undocumented
+micro     :     2 undocumented
+milliseconds:     2 undocumented
+millis    :     2 undocumented
+millisecond:     2 undocumented
+milli     :     2 undocumented
+seconds   :     2 undocumented
+second    :     2 undocumented
+minutes   :     2 undocumented
+minute    :     2 undocumented
+hours     :     2 undocumented
+hour      :     2 undocumented
+days      :     2 undocumented
+day       :     2 undocumented
+fromUTF8  :     2 undocumented
+toUTF8    :     2 undocumented
+fromInputStream:     2 undocumented
+future    :     2 undocumented
+dynamics  :     2 undocumented
+postfixOps:     2 undocumented
+reflectiveCalls:     2 undocumented
+implicitConversions:     2 undocumented
+higherKinds:     2 undocumented
+existentials:     2 undocumented
+macros    :     2 undocumented
+fromFunction:     2 undocumented
+by        :     2 undocumented
+Fractional:     2 undocumented
+Integral  :     2 undocumented
+Numeric   :     2 undocumented
+BigDecimalAsIfIntegral:     2 undocumented
+<         :     2 undocumented
+<=        :     2 undocumented
+>         :     2 undocumented
+>=        :     2 undocumented
+transformStatement:     2 undocumented
+transformTerm:     2 undocumented
+transformTypeTree:     2 undocumented
+transformCaseDef:     2 undocumented
+transformTypeCaseDef:     2 undocumented
+transformStats:     2 undocumented
+transformTypeTrees:     2 undocumented
+transformCaseDefs:     2 undocumented
+transformTypeCaseDefs:     2 undocumented
+cond      :     2 undocumented
+isInline  :     2 undocumented
+scrutinee :     2 undocumented
+tree      :     2 undocumented
+annotation:     2 undocumented
+tpe       :     2 undocumented
+low       :     2 undocumented
+namePos   :     2 undocumented
+binder    :     2 undocumented
+param     :     2 undocumented
+foldTree  :     2 undocumented
+rec       :     2 undocumented
+fillInStackTrace:     2 undocumented
+enqueue   :     2 undocumented
+isEnqueued:     2 undocumented
+arrayManifest:     2 undocumented
+typeArguments:     2 undocumented
+Any       :     2 undocumented
+Object    :     2 undocumented
+AnyVal    :     2 undocumented
+AnyRef    :     2 undocumented
+Nothing   :     2 undocumented
+Null      :     2 undocumented
+valueManifests:     2 undocumented
+bootstrap :     2 undocumented
+isNaN     :     2 undocumented
+isInfinity:     2 undocumented
+isFinite  :     2 undocumented
+isPosInfinity:     2 undocumented
+isNegInfinity:     2 undocumented
+round     :     2 undocumented
+ceil      :     2 undocumented
+floor     :     2 undocumented
+toBinaryString:     2 undocumented
+toHexString:     2 undocumented
+toOctalString:     2 undocumented
+assertFailed:     2 undocumented
+inner     :     2 undocumented
+fromIArray:     2 undocumented
+unapplySeq:     2 undocumented
+VarArgsBuilder:     2 undocumented
+setValue  :     2 undocumented
+enable    :     2 undocumented
+disable   :     2 undocumented
+toggle    :     2 undocumented
+out       :     2 undocumented
+err       :     2 undocumented
+buffer    :     2 undocumented
+substituteBoth:     2 undocumented
+substituteCo:     2 undocumented
+substituteContra:     2 undocumented
+liftCo    :     2 undocumented
+FromString:     2 undocumented
+toTry     :     2 undocumented
+isFailure :     2 undocumented
+isSuccess :     2 undocumented
+recover   :     2 undocumented
+recoverWith:     2 undocumented
+failed    :     2 undocumented
+toOption  :     2 undocumented
+fold      :     2 undocumented
+catchBreak:     2 undocumented
+getClass  :     1 undocumented
+unsafeExceptions:     1 undocumented
+setOutDirect:     1 undocumented
+setErrDirect:     1 undocumented
+setInDirect:     1 undocumented
+Conversion:     1 undocumented
+delayedInit:     1 undocumented
+DummyImplicit:     1 undocumented
+isValDef  :     1 undocumented
+Function1 :     1 undocumented
+:+        :     1 undocumented
+collectFirst:     1 undocumented
+combinations:     1 undocumented
+groupBy   :     1 undocumented
+groupMap  :     1 undocumented
+permutations:     1 undocumented
+transpose :     1 undocumented
++:        :     1 undocumented
+getMessage:     1 undocumented
+NamedTuple:     1 undocumented
+Option    :     1 undocumented
+runWith   :     1 undocumented
+manifest  :     1 undocumented
+optManifest:     1 undocumented
+→         :     1 undocumented
+Product1  :     1 undocumented
+Product10 :     1 undocumented
+Product11 :     1 undocumented
+Product12 :     1 undocumented
+Product13 :     1 undocumented
+Product14 :     1 undocumented
+Product15 :     1 undocumented
+Product16 :     1 undocumented
+Product17 :     1 undocumented
+Product18 :     1 undocumented
+Product19 :     1 undocumented
+Product2  :     1 undocumented
+Product20 :     1 undocumented
+Product21 :     1 undocumented
+Product22 :     1 undocumented
+Product3  :     1 undocumented
+Product4  :     1 undocumented
+Product5  :     1 undocumented
+Product6  :     1 undocumented
+Product7  :     1 undocumented
+Product8  :     1 undocumented
+Product9  :     1 undocumented
+Proxy     :     1 undocumented
+ScalaReflectionException:     1 undocumented
+Specializable:     1 undocumented
+SpecializedGroup:     1 undocumented
+Group     :     1 undocumented
+checkLengths:     1 undocumented
+s         :     1 undocumented
+StringContext:     1 undocumented
+loopCP    :     1 undocumented
+oddBackslashes:     1 undocumented
+Symbol    :     1 undocumented
+valueFromKey:     1 undocumented
+keyFromValue:     1 undocumented
+Tuple     :     1 undocumented
+fromProductTyped:     1 undocumented
+UninitializedFieldError:     1 undocumented
+byName    :     1 undocumented
+Mutable   :     1 undocumented
+Contains  :     1 undocumented
+internal  :     1 undocumented
+unsafe    :     1 undocumented
+ArrayOps  :     1 undocumented
+BitSetOps :     1 undocumented
+buffered  :     1 undocumented
+BuildFrom :     1 undocumented
+BuildFromLowPriority1:     1 undocumented
+BuildFromLowPriority2:     1 undocumented
+Factory   :     1 undocumented
+IterableFactory:     1 undocumented
+SeqFactory:     1 undocumented
+StrictOptimizedSeqFactory:     1 undocumented
+MapFactory:     1 undocumented
+EvidenceIterableFactory:     1 undocumented
+SortedIterableFactory:     1 undocumented
+ClassTagIterableFactory:     1 undocumented
+iterate   :     1 undocumented
+ClassTagSeqFactory:     1 undocumented
+StrictOptimizedClassTagSeqFactory:     1 undocumented
+SortedMapFactory:     1 undocumented
+IndexedSeqView:     1 undocumented
+Slice     :     1 undocumented
+stringPrefix:     1 undocumented
+isTraversableAgain:     1 undocumented
+Result    :     1 undocumented
+Scanner   :     1 undocumented
+IterableOps:     1 undocumented
+filtered  :     1 undocumented
+single    :     1 undocumented
+IterableOnce:     1 undocumented
+Spanner   :     1 undocumented
+reversed  :     1 undocumented
+scanRight :     1 undocumented
+nextCur   :     1 undocumented
+takeWhile :     1 undocumented
+Leading   :     1 undocumented
+finish    :     1 undocumented
+trailer   :     1 undocumented
+Partner   :     1 undocumented
+Iterator  :     1 undocumented
+asJavaIterator:     1 undocumented
+asJavaIterable:     1 undocumented
+bufferAsJavaList:     1 undocumented
+mutableSeqAsJavaList:     1 undocumented
+seqAsJavaList:     1 undocumented
+mutableSetAsJavaSet:     1 undocumented
+setAsJavaSet:     1 undocumented
+mutableMapAsJavaMap:     1 undocumented
+mapAsJavaMap:     1 undocumented
+mapAsJavaConcurrentMap:     1 undocumented
+asScalaIterator:     1 undocumented
+enumerationAsScalaIterator:     1 undocumented
+iterableAsScalaIterable:     1 undocumented
+collectionAsScalaIterable:     1 undocumented
+asScalaBuffer:     1 undocumented
+asScalaSet:     1 undocumented
+mapAsScalaMap:     1 undocumented
+mapAsScalaConcurrentMap:     1 undocumented
+dictionaryAsScalaMap:     1 undocumented
+propertiesAsScalaMap:     1 undocumented
+LazyZip2  :     1 undocumented
+LazyZip3  :     1 undocumented
+LazyZip4  :     1 undocumented
+segmentLength:     1 undocumented
+indexWhere:     1 undocumented
+lastIndexWhere:     1 undocumented
+findLast  :     1 undocumented
+MapOps    :     1 undocumented
+filterKeys:     1 undocumented
+mapValues :     1 undocumented
+MapValues :     1 undocumented
+FilterKeys:     1 undocumented
+TapEach   :     1 undocumented
+MapViewFactory:     1 undocumented
+Searching :     1 undocumented
+insertionPoint:     1 undocumented
+reverseMap:     1 undocumented
+SeqOps    :     1 undocumented
+clipR     :     1 undocumented
+clipL     :     1 undocumented
+SortedMapOps:     1 undocumented
+ordering  :     1 undocumented
+SortedSetOps:     1 undocumented
+SortedSet :     1 undocumented
+Stepper   :     1 undocumented
+AnyStepper:     1 undocumented
+AnyStepperSpliterator:     1 undocumented
+ofSeqDoubleStepper:     1 undocumented
+ofParDoubleStepper:     1 undocumented
+ofSeqIntStepper:     1 undocumented
+ofParIntStepper:     1 undocumented
+ofSeqLongStepper:     1 undocumented
+ofParLongStepper:     1 undocumented
+nextInt   :     1 undocumented
+IntStepper:     1 undocumented
+IntStepperSpliterator:     1 undocumented
+nextDouble:     1 undocumented
+DoubleStepper:     1 undocumented
+DoubleStepperSpliterator:     1 undocumented
+nextLong  :     1 undocumented
+LongStepper:     1 undocumented
+LongStepperSpliterator:     1 undocumented
+StepperShape:     1 undocumented
+StepperShapeLowPriority1:     1 undocumented
+StepperShapeLowPriority2:     1 undocumented
+anyStepperShapePrototype:     1 undocumented
+StringOps :     1 undocumented
+StringView:     1 undocumented
+LeftPartitionMapped:     1 undocumented
+RightPartitionMapped:     1 undocumented
+DropWhile :     1 undocumented
+TakeWhile :     1 undocumented
+ScanLeft  :     1 undocumented
+Updated   :     1 undocumented
+ZipWithIndex:     1 undocumented
+PadTo     :     1 undocumented
+TrieMap   :     1 undocumented
+inodeupdater:     1 undocumented
+MangledHashing:     1 undocumented
+StreamExtensions:     1 undocumented
+StreamShape:     1 undocumented
+StreamShapeLowPriority1:     1 undocumented
+StreamUnboxer:     1 undocumented
+LowPriorityAccumulatorFactoryInfo:     1 undocumented
+AccumulatorFactoryInfo:     1 undocumented
+found     :     1 undocumented
+currentValueCursor:     1 undocumented
+currentValueLength:     1 undocumented
+currentValueNode:     1 undocumented
+initRoot  :     1 undocumented
+myCurrent :     1 undocumented
+index     :     1 undocumented
+leaves    :     1 undocumented
+index1    :     1 undocumented
+twigs     :     1 undocumented
+IsIterable:     1 undocumented
+conversion:     1 undocumented
+IsIterableOnce:     1 undocumented
+IsMap     :     1 undocumented
+IsSeq     :     1 undocumented
+BitSet1   :     1 undocumented
+BitSet2   :     1 undocumented
+BitSetN   :     1 undocumented
+toBitMask :     1 undocumented
+intMapFrom:     1 undocumented
+corresponds:     1 undocumented
+partialFill:     1 undocumented
+keys      :     1 undocumented
+elem      :     1 undocumented
+Map1      :     1 undocumented
+Map2      :     1 undocumented
+Map3      :     1 undocumented
+Map4      :     1 undocumented
+unsafeRangeLength:     1 undocumented
+fitsInInteger:     1 undocumented
+containsTyped:     1 undocumented
+sum       :     1 undocumented
+FAIL      :     1 undocumented
+check     :     1 undocumented
+exclusive :     1 undocumented
+indexOutOfRange:     1 undocumented
+filterEntries:     1 undocumented
+partitionEntries:     1 undocumented
+partitioner:     1 undocumented
+union     :     1 undocumented
+difference:     1 undocumented
+IndexedSeqDefaults:     1 undocumented
+defaultApplyPreferredMaxLength:     1 undocumented
+updatedWith:     1 undocumented
+appendCursorElement:     1 undocumented
+hasDefiniteSize:     1 undocumented
+Empty     :     1 undocumented
+Cons      :     1 undocumented
+TreeSeqMap:     1 undocumented
+Builder   :     1 undocumented
+Ordering  :     1 undocumented
+format    :     1 undocumented
+a1        :     1 undocumented
+VectorBuilder:     1 undocumented
+VectorMap :     1 undocumented
+AnyRefMap :     1 undocumented
+capacity  :     1 undocumented
+prependAll:     1 undocumented
+klone     :     1 undocumented
+sortInPlace:     1 undocumented
+Buffer    :     1 undocumented
+fromNodes :     1 undocumented
+Node      :     1 undocumented
+RBNode    :     1 undocumented
+foreachNode:     1 undocumented
+Growable  :     1 undocumented
+findNode  :     1 undocumented
+keyStepper:     1 undocumented
+valueStepper:     1 undocumented
+LinkedKeySet:     1 undocumented
+findEntry :     1 undocumented
+toList    :     1 undocumented
+ListBuffer:     1 undocumented
+LongMap   :     1 undocumented
+mapValuesInPlace:     1 undocumented
+fixUp     :     1 undocumented
+fixDown   :     1 undocumented
+orderedCompanion:     1 undocumented
+PriorityQueue:     1 undocumented
+appendAll :     1 undocumented
+StringBuilder:     1 undocumented
+classTagCompanion:     1 undocumented
+UnrolledBuffer:     1 undocumented
+Platform  :     1 undocumented
+any       :     1 undocumented
+boolean   :     1 undocumented
+double    :     1 undocumented
+float     :     1 undocumented
+int       :     1 undocumented
+long      :     1 undocumented
+string    :     1 undocumented
+ErrorKind :     1 undocumented
+BlockContext:     1 undocumented
+ExecutionContext:     1 undocumented
+searchNext:     1 undocumented
+OnCompleteRunnable:     1 undocumented
+Promise   :     1 undocumented
+write     :     1 undocumented
+read      :     1 undocumented
+Deadline  :     1 undocumented
+Duration  :     1 undocumented
+Infinite  :     1 undocumented
+FiniteDuration:     1 undocumented
+toNanos   :     1 undocumented
+toMicros  :     1 undocumented
+toMillis  :     1 undocumented
+toSeconds :     1 undocumented
+toMinutes :     1 undocumented
+toHours   :     1 undocumented
+toDays    :     1 undocumented
+coarserOrThis:     1 undocumented
+DurationConversions:     1 undocumented
+durationIn:     1 undocumented
+Classifier:     1 undocumented
+Mirror    :     1 undocumented
+Singleton :     1 undocumented
+AnsiColor :     1 undocumented
+reader    :     1 undocumented
+bufferedReader:     1 undocumented
+BufferedLineIterator:     1 undocumented
+getLines  :     1 undocumented
+onMalformedInput:     1 undocumented
+onUnmappableCharacter:     1 undocumented
+decodingReplaceWith:     1 undocumented
+encodingReplaceWith:     1 undocumented
+onCodingException:     1 undocumented
+encoder   :     1 undocumented
+decoder   :     1 undocumented
+wrap      :     1 undocumented
+LowPriorityCodecImplicits:     1 undocumented
+Codec     :     1 undocumented
+fileEncodingCodec:     1 undocumented
+fromFile  :     1 undocumented
+fromBytes :     1 undocumented
+LineIterator:     1 undocumented
+isNewline :     1 undocumented
+getc      :     1 undocumented
+Positioner:     1 undocumented
+checkInput:     1 undocumented
+RelaxedPositioner:     1 undocumented
+NoPositioner:     1 undocumented
+ch        :     1 undocumented
+pos       :     1 undocumented
+withReset :     1 undocumented
+withClose :     1 undocumented
+withDescription:     1 undocumented
+withPositioning:     1 undocumented
+StdIn     :     1 undocumented
+AccumulatorFactoryShape:     1 undocumented
+LowPriorityAccumulatorFactoryShape:     1 undocumented
+AnyAccumulator:     1 undocumented
+DoubleAccumulator:     1 undocumented
+Priority3FunctionExtensions:     1 undocumented
+Priority2FunctionExtensions:     1 undocumented
+Priority1FunctionExtensions:     1 undocumented
+Priority0FunctionExtensions:     1 undocumented
+FunctionWrappers:     1 undocumented
+getAsBoolean:     1 undocumented
+getAsDouble:     1 undocumented
+getAsInt  :     1 undocumented
+getAsLong :     1 undocumented
+IntAccumulator:     1 undocumented
+LongAccumulator:     1 undocumented
+OptionShape:     1 undocumented
+languageFeature:     1 undocumented
+experimental:     1 undocumented
+defaultMathContext:     1 undocumented
+RoundingMode:     1 undocumented
+setScale  :     1 undocumented
+bigInteger:     1 undocumented
+isValidLong:     1 undocumented
+isWhole   :     1 undocumented
+LowPriorityEquiv:     1 undocumented
+Equiv     :     1 undocumented
+reference :     1 undocumented
+universal :     1 undocumented
+fromComparator:     1 undocumented
+FractionalOps:     1 undocumented
+IntegralOps:     1 undocumented
+%         :     1 undocumented
+/%        :     1 undocumented
+BigIntIsIntegral:     1 undocumented
+IntIsIntegral:     1 undocumented
+ShortIsIntegral:     1 undocumented
+ByteIsIntegral:     1 undocumented
+CharIsIntegral:     1 undocumented
+LongIsIntegral:     1 undocumented
+FloatIsFractional:     1 undocumented
+DoubleIsFractional:     1 undocumented
+BigDecimalIsConflicted:     1 undocumented
+BigDecimalIsFractional:     1 undocumented
+NumericOps:     1 undocumented
+Ordered   :     1 undocumented
+LowPriorityOrderingImplicits:     1 undocumented
+UnitOrdering:     1 undocumented
+BooleanOrdering:     1 undocumented
+ByteOrdering:     1 undocumented
+CharOrdering:     1 undocumented
+ShortOrdering:     1 undocumented
+IntOrdering:     1 undocumented
+LongOrdering:     1 undocumented
+BigIntOrdering:     1 undocumented
+BigDecimalOrdering:     1 undocumented
+StringOrdering:     1 undocumented
+SymbolOrdering:     1 undocumented
+OptionOrdering:     1 undocumented
+optionOrdering:     1 undocumented
+O         :     1 undocumented
+tryCompare:     1 undocumented
+PartialOrdering:     1 undocumented
+byteValue :     1 undocumented
+shortValue:     1 undocumented
+intValue  :     1 undocumented
+longValue :     1 undocumented
+floatValue:     1 undocumented
+doubleValue:     1 undocumented
+ExprMap   :     1 undocumented
+MapChildren:     1 undocumented
+transformDefinition:     1 undocumented
+transformTermChildren:     1 undocumented
+transformDefinitions:     1 undocumented
+Exprs     :     1 undocumented
+$         :     1 undocumented
+Quotes    :     1 undocumented
+asTerm    :     1 undocumented
+asExprOf  :     1 undocumented
+idPos     :     1 undocumented
+lhs       :     1 undocumented
+statements:     1 undocumented
+meth      :     1 undocumented
+tpeOpt    :     1 undocumented
+thenp     :     1 undocumented
+elsep     :     1 undocumented
+finalizer :     1 undocumented
+elemtpt   :     1 undocumented
+bindings  :     1 undocumented
+level     :     1 undocumented
+ref       :     1 undocumented
+refinements:     1 undocumented
+arg       :     1 undocumented
+selector  :     1 undocumented
+tparams   :     1 undocumented
+aliases   :     1 undocumented
+guard     :     1 undocumented
+patterns  :     1 undocumented
+fromName  :     1 undocumented
+fromPos   :     1 undocumented
+toName    :     1 undocumented
+toPos     :     1 undocumented
+classSymbol:     1 undocumented
+typeSymbol:     1 undocumented
+termSymbol:     1 undocumented
+isSingleton:     1 undocumented
+constant  :     1 undocumented
+isOpaqueAlias:     1 undocumented
+translucentSuperType:     1 undocumented
+thistpe   :     1 undocumented
+supertpe  :     1 undocumented
+parent    :     1 undocumented
+info      :     1 undocumented
+tycon     :     1 undocumented
+args      :     1 undocumented
+left      :     1 undocumented
+right     :     1 undocumented
+paramNum  :     1 undocumented
+tref      :     1 undocumented
+recThis   :     1 undocumented
+paramNames:     1 undocumented
+paramTypes:     1 undocumented
+resType   :     1 undocumented
+paramBounds:     1 undocumented
+upper     :     1 undocumented
+lower     :     1 undocumented
+lo        :     1 undocumented
+explanation:     1 undocumented
+foldTrees :     1 undocumented
+foldOverTree:     1 undocumented
+traverseTree:     1 undocumented
+traverseTreeChildren:     1 undocumented
+transformTree:     1 undocumented
+transformTrees:     1 undocumented
+transformSubTrees:     1 undocumented
+Expr      :     1 undocumented
+Patterns  :     1 undocumented
+ExprMatch :     1 undocumented
+ExprMatchModule:     1 undocumented
+TypeMatch :     1 undocumented
+TypeMatchModule:     1 undocumented
+QuoteMatching:     1 undocumented
+PhantomReference:     1 undocumented
+ReferenceQueue:     1 undocumented
+Wrapper   :     1 undocumented
+poll      :     1 undocumented
+ReferenceWrapper:     1 undocumented
+SoftReference:     1 undocumented
+ClassManifestDeprecatedApis:     1 undocumented
+erasure   :     1 undocumented
+arrayClass:     1 undocumented
+newArray2 :     1 undocumented
+newArray3 :     1 undocumented
+newArray4 :     1 undocumented
+newArray5 :     1 undocumented
+fromClass :     1 undocumented
+singleType:     1 undocumented
+prettyprint:     1 undocumented
+AnyValManifest:     1 undocumented
+TypeTest  :     1 undocumented
+classTag  :     1 undocumented
+AbstractFunction0:     1 undocumented
+AbstractFunction1:     1 undocumented
+AbstractFunction10:     1 undocumented
+AbstractFunction11:     1 undocumented
+AbstractFunction12:     1 undocumented
+AbstractFunction13:     1 undocumented
+AbstractFunction14:     1 undocumented
+AbstractFunction15:     1 undocumented
+AbstractFunction16:     1 undocumented
+AbstractFunction17:     1 undocumented
+AbstractFunction18:     1 undocumented
+AbstractFunction19:     1 undocumented
+AbstractFunction2:     1 undocumented
+AbstractFunction20:     1 undocumented
+AbstractFunction21:     1 undocumented
+AbstractFunction22:     1 undocumented
+AbstractFunction3:     1 undocumented
+AbstractFunction4:     1 undocumented
+AbstractFunction5:     1 undocumented
+AbstractFunction6:     1 undocumented
+AbstractFunction7:     1 undocumented
+AbstractFunction8:     1 undocumented
+AbstractFunction9:     1 undocumented
+ArrayCharSequence:     1 undocumented
+productArity:     1 undocumented
+productElement:     1 undocumented
+productElementName:     1 undocumented
+LambdaDeserialize:     1 undocumented
+nameAndDescriptorKey:     1 undocumented
+deserializeLambdaOrNull:     1 undocumented
+slashDot  :     1 undocumented
+makeCallSite:     1 undocumented
+parseDescriptor:     1 undocumented
+LazyBoolean:     1 undocumented
+LazyByte  :     1 undocumented
+LazyChar  :     1 undocumented
+LazyShort :     1 undocumented
+LazyInt   :     1 undocumented
+LazyLong  :     1 undocumented
+LazyFloat :     1 undocumented
+LazyDouble:     1 undocumented
+LazyUnit  :     1 undocumented
+throwInitializationException:     1 undocumented
+LazyValControlState:     1 undocumented
+STATE     :     1 undocumented
+CAS       :     1 undocumented
+objCAS    :     1 undocumented
+setFlag   :     1 undocumented
+wait4Notification:     1 undocumented
+getOffset :     1 undocumented
+getStaticFieldOffset:     1 undocumented
+getOffsetStatic:     1 undocumented
+Names     :     1 undocumented
+ModuleSerializationProxy:     1 undocumented
+NonLocalReturnControl:     1 undocumented
+RichBoolean:     1 undocumented
+RichByte  :     1 undocumented
+RichChar  :     1 undocumented
+asDigit   :     1 undocumented
+isControl :     1 undocumented
+isDigit   :     1 undocumented
+isLetter  :     1 undocumented
+isLetterOrDigit:     1 undocumented
+isWhitespace:     1 undocumented
+isSpaceChar:     1 undocumented
+isHighSurrogate:     1 undocumented
+isLowSurrogate:     1 undocumented
+isSurrogate:     1 undocumented
+isUnicodeIdentifierStart:     1 undocumented
+isUnicodeIdentifierPart:     1 undocumented
+isIdentifierIgnorable:     1 undocumented
+isMirrored:     1 undocumented
+isLower   :     1 undocumented
+isUpper   :     1 undocumented
+isTitleCase:     1 undocumented
+toLower   :     1 undocumented
+toUpper   :     1 undocumented
+toTitleCase:     1 undocumented
+getType   :     1 undocumented
+getNumericValue:     1 undocumented
+getDirectionality:     1 undocumented
+reverseBytes:     1 undocumented
+RichDouble:     1 undocumented
+RichFloat :     1 undocumented
+RichInt   :     1 undocumented
+RichLong  :     1 undocumented
+RichShort :     1 undocumented
+Scala3RunTime:     1 undocumented
+ScalaWholeNumberProxy:     1 undocumented
+IntegralProxy:     1 undocumented
+FractionalProxy:     1 undocumented
+OrderedProxy:     1 undocumented
+RangedProxy:     1 undocumented
+isArray   :     1 undocumented
+ensureAccessible:     1 undocumented
+_toString :     1 undocumented
+_hashCode :     1 undocumented
+stringOf  :     1 undocumented
+packageOf :     1 undocumented
+isScalaClass:     1 undocumented
+isScalaCompilerClass:     1 undocumented
+isTuple   :     1 undocumented
+isSubClassOf:     1 undocumented
+isXmlNode :     1 undocumented
+isXmlMetaData:     1 undocumented
+useOwnToString:     1 undocumented
+mapInner  :     1 undocumented
+arrayToString:     1 undocumented
+genericWrapArray:     1 undocumented
+wrapRefArray:     1 undocumented
+wrapIntArray:     1 undocumented
+wrapDoubleArray:     1 undocumented
+wrapLongArray:     1 undocumented
+wrapFloatArray:     1 undocumented
+wrapCharArray:     1 undocumented
+wrapByteArray:     1 undocumented
+wrapShortArray:     1 undocumented
+wrapBooleanArray:     1 undocumented
+wrapUnitArray:     1 undocumented
+StructuralCallSite:     1 undocumented
+ZippedIterable2:     1 undocumented
+Tuple2Zipped:     1 undocumented
+ZippedIterable3:     1 undocumented
+Tuple3Zipped:     1 undocumented
+TupleXXL  :     1 undocumented
+fromIterator:     1 undocumented
+TupledFunctions:     1 undocumented
+tupledFunction0:     1 undocumented
+tupledFunction1:     1 undocumented
+tupledFunction2:     1 undocumented
+tupledFunction3:     1 undocumented
+tupledFunction4:     1 undocumented
+tupledFunction5:     1 undocumented
+tupledFunction6:     1 undocumented
+tupledFunction7:     1 undocumented
+tupledFunction8:     1 undocumented
+tupledFunction9:     1 undocumented
+tupledFunction10:     1 undocumented
+tupledFunction11:     1 undocumented
+tupledFunction12:     1 undocumented
+tupledFunction13:     1 undocumented
+tupledFunction14:     1 undocumented
+tupledFunction15:     1 undocumented
+tupledFunction16:     1 undocumented
+tupledFunction17:     1 undocumented
+tupledFunction18:     1 undocumented
+tupledFunction19:     1 undocumented
+tupledFunction20:     1 undocumented
+tupledFunction21:     1 undocumented
+tupledFunction22:     1 undocumented
+tupledFunctionXXL:     1 undocumented
+Tuples    :     1 undocumented
+toIArray  :     1 undocumented
+productToArray:     1 undocumented
+fromArray :     1 undocumented
+cons      :     1 undocumented
+consIterator:     1 undocumented
+concatIterator:     1 undocumented
+isInstanceOfTuple:     1 undocumented
+isInstanceOfEmptyTuple:     1 undocumented
+isInstanceOfNonEmptyTuple:     1 undocumented
+generic   :     1 undocumented
+Invoker   :     1 undocumented
+measurementFile:     1 undocumented
+Predef    :     1 undocumented
+BooleanProp:     1 undocumented
+BooleanPropImpl:     1 undocumented
+ConstantImpl:     1 undocumented
+set       :     1 undocumented
+Prop      :     1 undocumented
+ShutdownHookThread:     1 undocumented
+names     :     1 undocumented
+wrapAccess:     1 undocumented
+help      :     1 undocumented
+readFully :     1 undocumented
+toSource  :     1 undocumented
+toSink    :     1 undocumented
+writeInput:     1 undocumented
+processOutput:     1 undocumented
+processError:     1 undocumented
+daemonizeThreads:     1 undocumented
+close     :     1 undocumented
+flush     :     1 undocumented
+transient :     1 undocumented
+flip      :     1 undocumented
+liftContra:     1 undocumented
+ChainingSyntax:     1 undocumented
+fromStringOption:     1 undocumented
+initialValue:     1 undocumented
+Either    :     1 undocumented
+merge     :     1 undocumented
+FromDigits:     1 undocumented
+LowPriorityNotGiven:     1 undocumented
+NotGiven  :     1 undocumented
+pickJarBasedOn:     1 undocumented
+Random    :     1 undocumented
+safeChar  :     1 undocumented
+setSeed   :     1 undocumented
+swap      :     1 undocumented
+nextAlphaNum:     1 undocumented
+Try       :     1 undocumented
+tupled    :     1 undocumented
+untupled  :     1 undocumented
+Manager   :     1 undocumented
+score     :     1 undocumented
+Releasable:     1 undocumented
+release   :     1 undocumented
+Break     :     1 undocumented
+TryBlock  :     1 undocumented
+mkCatcher :     1 undocumented
+mkThrowableCatcher:     1 undocumented
+Described :     1 undocumented
+desc      :     1 undocumented
+withDesc  :     1 undocumented
+or        :     1 undocumented
+catching  :     1 undocumented
+catchingPromiscuously:     1 undocumented
+By        :     1 undocumented
+fun       :     1 undocumented
+NoStackTrace:     1 undocumented
+ReturnThrowable:     1 undocumented
+throwReturn:     1 undocumented
+ByteswapHashing:     1 undocumented
+Hashing   :     1 undocumented
+Default   :     1 undocumented
+arrayHash :     1 undocumented
+bytesHash :     1 undocumented
+orderedHash:     1 undocumented
+stringHash:     1 undocumented
+unorderedHash:     1 undocumented
+rangeHash :     1 undocumented
+productHash:     1 undocumented
+mapHash   :     1 undocumented
+accum     :     1 undocumented
+setHash   :     1 undocumented
+ArrayHashing:     1 undocumented
+arrayHashing:     1 undocumented
+unanchored:     1 undocumented
+groupNames:     1 undocumented
+volatile  :     1 undocumented
+
+=== Summary by Package (Top 20) ===
+scala/collection                                  :   752 undocumented
+scala/collection/immutable                        :   641 undocumented
+scala/collection/mutable                          :   602 undocumented
+scala/quoted                                      :   379 undocumented
+scala/runtime                                     :   369 undocumented
+scala                                             :   302 undocumented
+scala/math                                        :   298 undocumented
+scala/jdk                                         :   181 undocumented
+scala/reflect                                     :   116 undocumented
+scala/concurrent/duration                         :   109 undocumented
+scala/runtime/java8                               :    87 undocumented
+scala/collection/convert/impl                     :    80 undocumented
+scala/util                                        :    80 undocumented
+scala/io                                          :    50 undocumented
+scala/collection/generic                          :    39 undocumented
+scala/sys                                         :    29 undocumented
+scala/util/control                                :    28 undocumented
+scala/util/hashing                                :    28 undocumented
+scala/ref                                         :    24 undocumented
+scala/collection/convert                          :    16 undocumented
+
+=== Files with Most Issues (Top 30) ===
+scala/quoted/Quotes.scala                                   :  266 undocumented
+scala/math/Numeric.scala                                    :  159 undocumented
+scala/collection/immutable/ArraySeq.scala                   :  141 undocumented
+scala/collection/mutable/ArraySeq.scala                     :  102 undocumented
+scala/collection/immutable/Map.scala                        :   90 undocumented
+scala/jdk/FunctionWrappers.scala                            :   87 undocumented
+scala/collection/Iterator.scala                             :   81 undocumented
+scala/collection/View.scala                                 :   73 undocumented
+scala/reflect/Manifest.scala                                :   73 undocumented
+scala/collection/Factory.scala                              :   70 undocumented
+scala/math/Ordering.scala                                   :   68 undocumented
+scala/IArray.scala                                          :   64 undocumented
+scala/collection/Stepper.scala                              :   63 undocumented
+scala/collection/mutable/ArrayBuilder.scala                 :   61 undocumented
+scala/runtime/VarArgsBuilder.scala                          :   61 undocumented
+scala/quoted/ToExpr.scala                                   :   59 undocumented
+scala/concurrent/duration/Duration.scala                    :   56 undocumented
+scala/collection/MapView.scala                              :   55 undocumented
+scala/collection/Iterable.scala                             :   52 undocumented
+scala/collection/SeqView.scala                              :   48 undocumented
+scala/concurrent/duration/DurationConversions.scala         :   46 undocumented
+scala/collection/mutable/CollisionProofHashMap.scala        :   42 undocumented
+scala/collection/mutable/HashMap.scala                      :   41 undocumented
+scala/collection/mutable/LinkedHashMap.scala                :   40 undocumented
+scala/util/Try.scala                                        :   40 undocumented
+scala/runtime/LazyRef.scala                                 :   38 undocumented
+scala/collection/immutable/NumericRange.scala               :   35 undocumented
+scala/collection/immutable/Range.scala                      :   35 undocumented
+scala/quoted/FromExpr.scala                                 :   35 undocumented
+scala/collection/IndexedSeqView.scala                       :   32 undocumented
+
+=== Overall Statistics ===
+Files analyzed: 649
+Files with issues: 466 (71.8%)
+Total undocumented: 4280

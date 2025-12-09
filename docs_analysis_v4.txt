@@ -1,0 +1,5219 @@
+Analyzing 649 Scala files...
+
+=== Documentation Survey Results ===
+Total files analyzed: 649
+Files with undocumented elements: 466
+Total undocumented elements: 4280
+
+
+scala/AnyVal.scala (1 undocumented):
+  Line   59: def    getClass
+
+scala/Boolean.scala (1 undocumented):
+  Line  115: object Boolean
+
+scala/Byte.scala (1 undocumented):
+  Line  451: object Byte
+
+scala/CanThrow.scala (1 undocumented):
+  Line   16: object unsafeExceptions
+
+scala/Char.scala (1 undocumented):
+  Line  451: object Char
+
+scala/Console.scala (3 undocumented):
+  Line  134: def    setOutDirect
+  Line  135: def    setErrDirect
+  Line  136: def    setInDirect
+
+scala/Conversion.scala (2 undocumented):
+  Line   37: object Conversion
+  Line   51: def    underlying
+
+scala/DelayedInit.scala (1 undocumented):
+  Line   53: def    delayedInit
+
+scala/Double.scala (1 undocumented):
+  Line  214: object Double
+
+scala/DummyImplicit.scala (1 undocumented):
+  Line   20: object DummyImplicit
+
+scala/Enumeration.scala (17 undocumented):
+  Line   93: def    this
+  Line   97: def    readResolve
+  Line  204: def    isValDef
+  Line  236: def    compare
+  Line  240: def    equals
+  Line  244: def    hashCode
+  Line  256: def    this
+  Line  257: def    this
+  Line  258: def    this
+  Line  266: def    id
+  Line  267: def    toString
+  Line  272: def    readResolve
+  Line  281: def    compare
+  Line  349: def    addOne
+  Line  350: def    clear
+  Line  351: def    result
+  Line  353: def    fromSpecific
+
+scala/Float.scala (1 undocumented):
+  Line  214: object Float
+
+scala/Function0.scala (1 undocumented):
+  Line   45: def    toString
+
+scala/Function1.scala (1 undocumented):
+  Line   19: object Function1
+
+scala/Function10.scala (1 undocumented):
+  Line   43: def    toString
+
+scala/Function11.scala (1 undocumented):
+  Line   43: def    toString
+
+scala/Function12.scala (1 undocumented):
+  Line   43: def    toString
+
+scala/Function13.scala (1 undocumented):
+  Line   43: def    toString
+
+scala/Function14.scala (1 undocumented):
+  Line   43: def    toString
+
+scala/Function15.scala (1 undocumented):
+  Line   43: def    toString
+
+scala/Function16.scala (1 undocumented):
+  Line   43: def    toString
+
+scala/Function17.scala (1 undocumented):
+  Line   43: def    toString
+
+scala/Function18.scala (1 undocumented):
+  Line   43: def    toString
+
+scala/Function19.scala (1 undocumented):
+  Line   43: def    toString
+
+scala/Function2.scala (1 undocumented):
+  Line   58: def    toString
+
+scala/Function20.scala (1 undocumented):
+  Line   43: def    toString
+
+scala/Function21.scala (1 undocumented):
+  Line   43: def    toString
+
+scala/Function22.scala (1 undocumented):
+  Line   43: def    toString
+
+scala/Function3.scala (1 undocumented):
+  Line   43: def    toString
+
+scala/Function4.scala (1 undocumented):
+  Line   43: def    toString
+
+scala/Function5.scala (1 undocumented):
+  Line   43: def    toString
+
+scala/Function6.scala (1 undocumented):
+  Line   43: def    toString
+
+scala/Function7.scala (1 undocumented):
+  Line   43: def    toString
+
+scala/Function8.scala (1 undocumented):
+  Line   43: def    toString
+
+scala/Function9.scala (1 undocumented):
+  Line   43: def    toString
+
+scala/IArray.scala (64 undocumented):
+  Line  261: def    ++
+  Line  262: def    ++
+  Line  263: def    :+ 
+  Line  264: def    :++ 
+  Line  265: def    :++ 
+  Line  266: def    appended
+  Line  267: def    appendedAll
+  Line  268: def    appendedAll
+  Line  269: def    collect
+  Line  270: def    collectFirst
+  Line  271: def    combinations
+  Line  272: def    concat
+  Line  273: def    concat
+  Line  274: def    diff
+  Line  275: def    diff
+  Line  276: def    distinct
+  Line  277: def    distinctBy
+  Line  278: def    startsWith
+  Line  279: def    startsWith
+  Line  280: def    startsWith
+  Line  281: def    startsWith
+  Line  282: def    endsWith
+  Line  283: def    endsWith
+  Line  284: def    groupBy
+  Line  285: def    groupMap
+  Line  286: def    grouped
+  Line  287: def    inits
+  Line  288: def    intersect
+  Line  289: def    intersect
+  Line  290: def    lazyZip
+  Line  291: def    lazyZip
+  Line  292: def    lengthCompare
+  Line  293: def    padTo
+  Line  294: def    partitionMap
+  Line  295: def    patch
+  Line  296: def    permutations
+  Line  297: def    prepended
+  Line  298: def    prependedAll
+  Line  299: def    reverseIterator
+  Line  300: def    search
+  Line  301: def    search
+  Line  302: def    sizeCompare
+  Line  303: def    sizeCompare
+  Line  304: def    sizeCompare
+  Line  305: def    sliding
+  Line  306: def    stepper
+  Line  307: def    tails
+  Line  308: def    tapEach
+  Line  311: def    transpose
+  Line  313: def    unzip
+  Line  314: def    unzip3
+  Line  315: def    updated
+  Line  316: def    view
+  Line  317: def    withFilter
+  Line  318: def    zip
+  Line  319: def    zip
+  Line  320: def    zipAll
+  Line  321: def    zipAll
+  Line  322: def    zipWithIndex
+  Line  325: def    ++:
+  Line  328: def    ++:
+  Line  331: def    +:
+  Line  459: def    newBuilder
+  Line  683: def    flatMap
+
+scala/Int.scala (1 undocumented):
+  Line  451: object Int
+
+scala/Long.scala (1 undocumented):
+  Line  448: object Long
+
+scala/MatchError.scala (1 undocumented):
+  Line   41: def    getMessage
+
+scala/NamedTuple.scala (4 undocumented):
+  Line    7: object NamedTuple
+  Line   19: def    apply
+  Line   21: def    unapply
+  Line  136: def    compare
+
+scala/NotImplementedError.scala (1 undocumented):
+  Line   22: def    this
+
+scala/Option.scala (7 undocumented):
+  Line   17: object Option
+  Line  361: def    map
+  Line  362: def    flatMap
+  Line  363: def    foreach
+  Line  364: def    withFilter
+  Line  621: def    get
+  Line  629: def    get
+
+scala/PartialFunction.scala (5 undocumented):
+  Line  384: def    isDefinedAt
+  Line  385: def    apply
+  Line  386: def    orElse
+  Line  387: def    andThen
+  Line  389: def    runWith
+
+scala/Predef.scala (16 undocumented):
+  Line  216: def    manifest
+  Line  219: def    optManifest
+  Line  395: def    →
+  Line  400: def    ensuring
+  Line  401: def    ensuring
+  Line  402: def    ensuring
+  Line  403: def    ensuring
+  Line  423: def    +
+  Line  428: def    length
+  Line  429: def    charAt
+  Line  430: def    subSequence
+  Line  431: def    toString
+  Line  439: def    length
+  Line  440: def    charAt
+  Line  441: def    subSequence
+  Line  442: def    toString
+
+scala/Product.scala (4 undocumented):
+  Line   43: def    hasNext
+  Line   44: def    next
+  Line   71: def    hasNext
+  Line   72: def    next
+
+scala/Product1.scala (2 undocumented):
+  Line   19: object Product1
+  Line   20: def    unapply
+
+scala/Product10.scala (2 undocumented):
+  Line   19: object Product10
+  Line   20: def    unapply
+
+scala/Product11.scala (2 undocumented):
+  Line   19: object Product11
+  Line   20: def    unapply
+
+scala/Product12.scala (2 undocumented):
+  Line   19: object Product12
+  Line   20: def    unapply
+
+scala/Product13.scala (2 undocumented):
+  Line   19: object Product13
+  Line   20: def    unapply
+
+scala/Product14.scala (2 undocumented):
+  Line   19: object Product14
+  Line   20: def    unapply
+
+scala/Product15.scala (2 undocumented):
+  Line   19: object Product15
+  Line   20: def    unapply
+
+scala/Product16.scala (2 undocumented):
+  Line   19: object Product16
+  Line   20: def    unapply
+
+scala/Product17.scala (2 undocumented):
+  Line   19: object Product17
+  Line   20: def    unapply
+
+scala/Product18.scala (2 undocumented):
+  Line   19: object Product18
+  Line   20: def    unapply
+
+scala/Product19.scala (2 undocumented):
+  Line   19: object Product19
+  Line   20: def    unapply
+
+scala/Product2.scala (2 undocumented):
+  Line   19: object Product2
+  Line   20: def    unapply
+
+scala/Product20.scala (2 undocumented):
+  Line   19: object Product20
+  Line   20: def    unapply
+
+scala/Product21.scala (2 undocumented):
+  Line   19: object Product21
+  Line   20: def    unapply
+
+scala/Product22.scala (2 undocumented):
+  Line   19: object Product22
+  Line   20: def    unapply
+
+scala/Product3.scala (2 undocumented):
+  Line   19: object Product3
+  Line   20: def    unapply
+
+scala/Product4.scala (2 undocumented):
+  Line   19: object Product4
+  Line   20: def    unapply
+
+scala/Product5.scala (2 undocumented):
+  Line   19: object Product5
+  Line   20: def    unapply
+
+scala/Product6.scala (2 undocumented):
+  Line   19: object Product6
+  Line   20: def    unapply
+
+scala/Product7.scala (2 undocumented):
+  Line   19: object Product7
+  Line   20: def    unapply
+
+scala/Product8.scala (2 undocumented):
+  Line   19: object Product8
+  Line   20: def    unapply
+
+scala/Product9.scala (2 undocumented):
+  Line   19: object Product9
+  Line   20: def    unapply
+
+scala/Proxy.scala (6 undocumented):
+  Line   30: def    self
+  Line   32: def    hashCode
+  Line   33: def    equals
+  Line   39: def    toString
+  Line   43: object Proxy
+  Line   48: def    self
+
+scala/ScalaReflectionException.scala (2 undocumented):
+  Line    8: object ScalaReflectionException
+  Line    9: def    toString
+
+scala/Selectable.scala (1 undocumented):
+  Line   28: object Selectable
+
+scala/Short.scala (1 undocumented):
+  Line  451: object Short
+
+scala/Specializable.scala (3 undocumented):
+  Line   22: object Specializable
+  Line   24: trait  SpecializedGroup
+  Line   27: class  Group
+
+scala/StringContext.scala (8 undocumented):
+  Line   64: def    checkLengths
+  Line   95: object s
+  Line  160: def    standardInterpolator
+  Line  200: object StringContext
+  Line  318: def    loop
+  Line  319: def    loopCP
+  Line  433: def    oddBackslashes
+  Line  455: def    standardInterpolator
+
+scala/Symbol.scala (4 undocumented):
+  Line   31: object Symbol
+  Line   32: def    apply
+  Line   33: def    valueFromKey
+  Line   34: def    keyFromValue
+
+scala/Tuple.scala (4 undocumented):
+  Line  114: object Tuple
+  Line  317: def    fromProductTyped
+  Line  331: def    toString
+  Line  341: def    unapply
+
+scala/Tuple1.scala (1 undocumented):
+  Line   27: def    toString
+
+scala/Tuple10.scala (1 undocumented):
+  Line   36: def    toString
+
+scala/Tuple11.scala (1 undocumented):
+  Line   37: def    toString
+
+scala/Tuple12.scala (1 undocumented):
+  Line   38: def    toString
+
+scala/Tuple13.scala (1 undocumented):
+  Line   39: def    toString
+
+scala/Tuple14.scala (1 undocumented):
+  Line   40: def    toString
+
+scala/Tuple15.scala (1 undocumented):
+  Line   41: def    toString
+
+scala/Tuple16.scala (1 undocumented):
+  Line   42: def    toString
+
+scala/Tuple17.scala (1 undocumented):
+  Line   43: def    toString
+
+scala/Tuple18.scala (1 undocumented):
+  Line   44: def    toString
+
+scala/Tuple19.scala (1 undocumented):
+  Line   45: def    toString
+
+scala/Tuple2.scala (1 undocumented):
+  Line   28: def    toString
+
+scala/Tuple20.scala (1 undocumented):
+  Line   46: def    toString
+
+scala/Tuple21.scala (1 undocumented):
+  Line   47: def    toString
+
+scala/Tuple22.scala (1 undocumented):
+  Line   48: def    toString
+
+scala/Tuple3.scala (1 undocumented):
+  Line   29: def    toString
+
+scala/Tuple4.scala (1 undocumented):
+  Line   30: def    toString
+
+scala/Tuple5.scala (1 undocumented):
+  Line   31: def    toString
+
+scala/Tuple6.scala (1 undocumented):
+  Line   32: def    toString
+
+scala/Tuple7.scala (1 undocumented):
+  Line   33: def    toString
+
+scala/Tuple8.scala (1 undocumented):
+  Line   34: def    toString
+
+scala/Tuple9.scala (1 undocumented):
+  Line   35: def    toString
+
+scala/UninitializedFieldError.scala (3 undocumented):
+  Line   24: def    this
+  Line   27: object UninitializedFieldError
+  Line   28: def    toString
+
+scala/Unit.scala (1 undocumented):
+  Line   32: object Unit
+
+scala/annotation/elidable.scala (1 undocumented):
+  Line  145: val    byName
+
+scala/annotation/experimental.scala (1 undocumented):
+  Line   11: def    this
+
+scala/annotation/unused.scala (1 undocumented):
+  Line   27: def    this
+
+scala/caps/package.scala (4 undocumented):
+  Line   99: trait  Mutable
+  Line  118: object Contains
+  Line  155: object internal
+  Line  201: object unsafe
+
+scala/collection/ArrayOps.scala (2 undocumented):
+  Line   57: object ArrayOps
+  Line  119: def    flatMap
+
+scala/collection/BitSet.scala (24 undocumented):
+  Line   41: def    empty
+  Line   44: def    unsorted
+  Line   48: object BitSet
+  Line   52: def    empty
+  Line   53: def    newBuilder
+  Line   54: def    fromSpecific
+  Line   92: def    bitSetFactory
+  Line   94: def    unsorted
+  Line  110: def    contains
+  Line  113: def    iterator
+  Line  115: def    iteratorFrom
+  Line  135: def    stepper
+  Line  146: def    size
+  Line  156: def    isEmpty
+  Line  183: def    max
+  Line  189: def    min
+  Line  194: def    foreach
+  Line  224: def    rangeImpl
+  Line  248: def    concat
+  Line  258: def    intersect
+  Line  303: def    flatMap
+  Line  305: def    collect
+  Line  307: def    partition
+  Line  313: object BitSetOps
+
+scala/collection/BufferedIterator.scala (1 undocumented):
+  Line   33: def    buffered
+
+scala/collection/BuildFrom.scala (28 undocumented):
+  Line   32: def    fromSpecific
+  Line   43: def    fromSpecific
+  Line   44: def    newBuilder
+  Line   48: object BuildFrom
+  Line   53: def    newBuilder
+  Line   54: def    fromSpecific
+  Line   59: def    newBuilder
+  Line   60: def    fromSpecific
+  Line   65: def    fromSpecific
+  Line   66: def    newBuilder
+  Line   71: def    fromSpecific
+  Line   72: def    newBuilder
+  Line   77: def    fromSpecific
+  Line   78: def    newBuilder
+  Line   83: def    fromSpecific
+  Line   84: def    newBuilder
+  Line   89: def    fromSpecific
+  Line   90: def    newBuilder
+  Line   95: trait  BuildFromLowPriority1
+  Line  102: def    newBuilder
+  Line  103: def    fromSpecific
+  Line  108: def    fromSpecific
+  Line  109: def    newBuilder
+  Line  113: trait  BuildFromLowPriority2
+  Line  117: def    newBuilder
+  Line  118: def    fromSpecific
+  Line  122: def    newBuilder
+  Line  123: def    fromSpecific
+
+scala/collection/Factory.scala (70 undocumented):
+  Line   49: object Factory
+  Line  263: object IterableFactory
+  Line  283: def    fromSpecific
+  Line  284: def    newBuilder
+  Line  288: class  Delegate
+  Line  289: def    apply
+  Line  290: def    empty
+  Line  291: def    from
+  Line  292: def    newBuilder
+  Line  304: object SeqFactory
+  Line  306: class  Delegate
+  Line  307: def    apply
+  Line  308: def    empty
+  Line  309: def    from
+  Line  310: def    newBuilder
+  Line  326: trait  StrictOptimizedSeqFactory
+  Line  328: def    fill
+  Line  339: def    tabulate
+  Line  350: def    concat
+  Line  372: def    empty
+  Line  373: def    apply
+  Line  374: def    fill
+  Line  375: def    newBuilder
+  Line  415: object MapFactory
+  Line  436: def    fromSpecific
+  Line  437: def    newBuilder
+  Line  441: class  Delegate
+  Line  442: def    apply
+  Line  443: def    from
+  Line  444: def    empty
+  Line  445: def    newBuilder
+  Line  462: def    from
+  Line  464: def    empty
+  Line  466: def    apply
+  Line  503: def    newBuilder
+  Line  508: object EvidenceIterableFactory
+  Line  534: class  Delegate
+  Line  535: def    apply
+  Line  536: def    empty
+  Line  537: def    from
+  Line  538: def    newBuilder
+  Line  547: object SortedIterableFactory
+  Line  549: class  Delegate
+  Line  664: object ClassTagIterableFactory
+  Line  666: class  Delegate
+  Line  673: def    empty
+  Line  674: def    from
+  Line  675: def    newBuilder
+  Line  676: def    apply
+  Line  677: def    iterate
+  Line  678: def    unfold
+  Line  679: def    range
+  Line  680: def    range
+  Line  681: def    fill
+  Line  682: def    tabulate
+  Line  694: object ClassTagSeqFactory
+  Line  696: class  Delegate
+  Line  706: trait  StrictOptimizedClassTagSeqFactory
+  Line  708: def    fill
+  Line  719: def    tabulate
+  Line  741: def    empty
+  Line  743: def    from
+  Line  745: def    apply
+  Line  747: def    newBuilder
+  Line  753: object SortedMapFactory
+  Line  781: class  Delegate
+  Line  782: def    apply
+  Line  783: def    from
+  Line  784: def    empty
+  Line  785: def    newBuilder
+
+scala/collection/IndexedSeq.scala (23 undocumented):
+  Line   31: def    iterableFactory
+  Line   35: object IndexedSeq
+  Line   40: def    iterator
+  Line   42: def    stepper
+  Line   53: def    reverseIterator
+  Line   67: def    foldRight
+  Line   73: def    view
+  Line   76: def    view
+  Line   81: def    prepended
+  Line   83: def    take
+  Line   85: def    takeRight
+  Line   87: def    drop
+  Line   89: def    dropRight
+  Line   91: def    map
+  Line   93: def    reverse
+  Line   95: def    slice
+  Line   97: def    sliding
+  Line  103: def    head
+  Line  112: def    headOption
+  Line  114: def    last
+  Line  127: def    knownSize
+  Line  135: def    search
+  Line  138: def    search
+
+scala/collection/IndexedSeqView.scala (32 undocumented):
+  Line   25: def    view
+  Line   28: def    view
+  Line   30: def    iterator
+  Line   31: def    reverseIterator
+  Line   33: def    appended
+  Line   34: def    prepended
+  Line   35: def    take
+  Line   36: def    takeRight
+  Line   37: def    drop
+  Line   38: def    dropRight
+  Line   39: def    map
+  Line   40: def    reverse
+  Line   41: def    slice
+  Line   42: def    tapEach
+  Line   44: def    concat
+  Line   45: def    appendedAll
+  Line   46: def    prependedAll
+  Line   52: object IndexedSeqView
+  Line  127: class  Id
+  Line  131: class  Appended
+  Line  135: class  Prepended
+  Line  139: class  Concat
+  Line  143: class  Take
+  Line  147: class  TakeRight
+  Line  151: class  Drop
+  Line  155: class  DropRight
+  Line  159: class  Map
+  Line  163: class  Reverse
+  Line  164: def    reverse
+  Line  171: class  Slice
+  Line  176: def    apply
+  Line  177: def    length
+
+scala/collection/Iterable.scala (52 undocumented):
+  Line   41: def    iterableFactory
+  Line   44: def    seq
+  Line   73: def    stringPrefix
+  Line  152: def    isTraversableAgain
+  Line  404: def    filter
+  Line  406: def    filterNot
+  Line  439: def    splitAt
+  Line  441: def    take
+  Line  460: def    span
+  Line  462: def    drop
+  Line  473: def    dropWhile
+  Line  542: def    slice
+  Line  604: class  Result
+  Line  606: def    apply
+  Line  654: def    scanLeft
+  Line  673: class  Scanner
+  Line  676: def    apply
+  Line  686: def    map
+  Line  688: def    flatMap
+  Line  690: def    flatten
+  Line  692: def    collect
+  Line  755: def    zipWithIndex
+  Line  846: def    tapEach
+  Line  858: def    ++:
+  Line  864: object IterableOps
+  Line  907: def    filtered
+  Line  910: def    map
+  Line  913: def    flatMap
+  Line  916: def    foreach
+  Line  918: def    withFilter
+  Line  926: object Iterable
+  Line  928: def    single
+  Line  932: def    headOption
+  Line  934: def    lastOption
+  Line  935: def    view
+  Line  936: def    take
+  Line  937: def    takeRight
+  Line  938: def    drop
+  Line  939: def    dropRight
+  Line  940: def    tail
+  Line  941: def    init
+  Line  956: def    fromSpecific
+  Line  957: def    newSpecificBuilder
+  Line  960: def    empty
+  Line  972: def    evidenceIterableFactory
+  Line  976: def    empty
+  Line  998: def    empty
+  Line 1000: def    withFilter
+  Line 1023: def    empty
+  Line 1029: def    withFilter
+  Line 1051: def    empty
+  Line 1055: def    withFilter
+
+scala/collection/IterableOnce.scala (5 undocumented):
+  Line  268: object IterableOnce
+  Line  570: class  Spanner
+  Line  572: def    apply
+  Line 1278: def    apply
+  Line 1534: def    reversed
+
+scala/collection/Iterator.scala (81 undocumented):
+  Line  129: def    head
+  Line  146: def    next
+  Line  273: def    next
+  Line  303: def    knownSize
+  Line  309: def    next
+  Line  318: def    hasNext
+  Line  389: def    scanLeft
+  Line  400: def    hasNext
+  Line  401: def    next
+  Line  405: def    next
+  Line  409: def    hasNext
+  Line  416: def    next
+  Line  417: def    hasNext
+  Line  421: def    scanRight
+  Line  482: def    isEmpty
+  Line  484: def    filter
+  Line  486: def    filterNot
+  Line  492: def    hasNext
+  Line  503: def    next
+  Line  524: def    collect
+  Line  534: def    apply
+  Line  578: def    hasNext
+  Line  588: def    next
+  Line  597: def    map
+  Line  600: def    next
+  Line  603: def    flatMap
+  Line  608: def    nextCur
+  Line  614: def    hasNext
+  Line  630: def    next
+  Line  638: def    flatten
+  Line  641: def    concat
+  Line  645: def    take
+  Line  647: def    takeWhile
+  Line  658: def    next
+  Line  661: def    drop
+  Line  663: def    dropWhile
+  Line  668: def    hasNext
+  Line  683: def    next
+  Line  706: class  Leading
+  Line  732: def    next
+  Line  740: def    finish
+  Line  756: def    trailer
+  Line  779: def    next
+  Line  798: def    slice
+  Line  812: def    zip
+  Line  816: def    next
+  Line  819: def    zipAll
+  Line  828: def    next
+  Line  836: def    zipWithIndex
+  Line  840: def    next
+  Line  879: class  Partner
+  Line  880: def    knownSize
+  Line  887: def    hasNext
+  Line  890: def    next
+  Line  901: def    hashCode
+  Line  902: def    equals
+  Line  941: def    hasNext
+  Line  946: def    next
+  Line  965: def    tapEach
+  Line  968: def    next
+  Line  983: def    seq
+  Line  987: object Iterator
+  Line  991: def    next
+  Line  992: def    knownSize
+  Line 1010: def    next
+  Line 1016: def    apply
+  Line 1024: def    addOne
+  Line 1035: def    knownSize
+  Line 1036: def    hasNext
+  Line 1037: def    next
+  Line 1050: def    knownSize
+  Line 1051: def    hasNext
+  Line 1052: def    next
+  Line 1072: def    hasNext
+  Line 1073: def    next
+  Line 1095: def    knownSize
+  Line 1101: def    hasNext
+  Line 1104: def    next
+  Line 1124: def    hasNext
+  Line 1125: def    next
+  Line 1153: def    next
+
+scala/collection/JavaConverters.scala (20 undocumented):
+  Line   84: def    asJavaIterator
+  Line   87: def    asJavaIterable
+  Line   90: def    bufferAsJavaList
+  Line   93: def    mutableSeqAsJavaList
+  Line   96: def    seqAsJavaList
+  Line   99: def    mutableSetAsJavaSet
+  Line  102: def    setAsJavaSet
+  Line  105: def    mutableMapAsJavaMap
+  Line  108: def    mapAsJavaMap
+  Line  111: def    mapAsJavaConcurrentMap
+  Line  115: def    asScalaIterator
+  Line  118: def    enumerationAsScalaIterator
+  Line  121: def    iterableAsScalaIterable
+  Line  124: def    collectionAsScalaIterable
+  Line  127: def    asScalaBuffer
+  Line  130: def    asScalaSet
+  Line  133: def    mapAsScalaMap
+  Line  136: def    mapAsScalaConcurrentMap
+  Line  139: def    dictionaryAsScalaMap
+  Line  142: def    propertiesAsScalaMap
+
+scala/collection/LazyZipOps.scala (3 undocumented):
+  Line  139: object LazyZip2
+  Line  279: object LazyZip3
+  Line  421: object LazyZip4
+
+scala/collection/LinearSeq.scala (26 undocumented):
+  Line   31: def    iterableFactory
+  Line   35: object LinearSeq
+  Line   59: def    headOption
+  Line   62: def    iterator
+  Line   66: def    length
+  Line   76: def    last
+  Line   89: def    lengthCompare
+  Line  102: def    lengthCompare
+  Line  126: def    isDefinedAt
+  Line  131: def    apply
+  Line  138: def    foreach
+  Line  146: def    forall
+  Line  155: def    exists
+  Line  164: def    contains
+  Line  173: def    find
+  Line  182: def    foldLeft
+  Line  192: def    sameElements
+  Line  209: def    segmentLength
+  Line  219: def    indexWhere
+  Line  232: def    lastIndexWhere
+  Line  244: def    findLast
+  Line  259: def    tails
+  Line  267: def    iterator
+  Line  270: def    next
+  Line  274: def    drop
+  Line  281: def    dropWhile
+
+scala/collection/Map.scala (25 undocumented):
+  Line   32: def    mapFactory
+  Line   34: def    canEqual
+  Line   78: def    hashCode
+  Line   82: def    - 
+  Line   84: def    - 
+  Line   89: def    toString
+  Line  109: def    view
+  Line  210: def    diff
+  Line  221: def    iterator
+  Line  223: def    contains
+  Line  224: def    size
+  Line  225: def    knownSize
+  Line  226: def    isEmpty
+  Line  247: def    knownSize
+  Line  248: def    iterator
+  Line  258: def    next
+  Line  268: def    next
+  Line  376: def    addString
+  Line  380: def    + 
+  Line  384: def    + 
+  Line  394: def    ++: 
+  Line  403: object MapOps
+  Line  415: def    map
+  Line  418: def    flatMap
+  Line  421: def    withFilter
+
+scala/collection/MapView.scala (55 undocumented):
+  Line   22: trait  MapView
+  Line   26: def    view
+  Line   57: def    filter
+  Line   59: def    filterNot
+  Line   61: def    partition
+  Line   63: def    tapEach
+  Line   65: def    mapFactory
+  Line   67: def    empty
+  Line   69: def    withFilter
+  Line   71: def    toString
+  Line   77: object MapView
+  Line   86: def    get
+  Line   87: def    iterator
+  Line   88: def    knownSize
+  Line   89: def    isEmpty
+  Line   90: def    filterKeys
+  Line   91: def    mapValues
+  Line   92: def    filter
+  Line   93: def    filterNot
+  Line   94: def    partition
+  Line   98: class  Id
+  Line   99: def    get
+  Line  100: def    iterator
+  Line  101: def    knownSize
+  Line  102: def    isEmpty
+  Line  122: class  MapValues
+  Line  123: def    iterator
+  Line  124: def    get
+  Line  125: def    knownSize
+  Line  126: def    isEmpty
+  Line  130: class  FilterKeys
+  Line  131: def    iterator
+  Line  132: def    get
+  Line  133: def    knownSize
+  Line  134: def    isEmpty
+  Line  138: class  Filter
+  Line  139: def    iterator
+  Line  140: def    get
+  Line  144: def    knownSize
+  Line  145: def    isEmpty
+  Line  149: class  TapEach
+  Line  150: def    get
+  Line  158: def    iterator
+  Line  159: def    knownSize
+  Line  160: def    isEmpty
+  Line  163: def    newBuilder
+  Line  165: def    empty
+  Line  167: def    from
+  Line  169: def    from
+  Line  174: def    apply
+  Line  177: trait  MapViewFactory
+  Line  179: def    newBuilder
+  Line  181: def    empty
+  Line  183: def    from
+  Line  185: def    apply
+
+scala/collection/Searching.scala (2 undocumented):
+  Line   21: object Searching
+  Line   45: def    insertionPoint
+
+scala/collection/Seq.scala (13 undocumented):
+  Line   35: def    iterableFactory
+  Line   37: def    canEqual
+  Line   39: def    equals
+  Line   45: def    hashCode
+  Line   47: def    toString
+  Line   84: def    view
+  Line  533: def    reverseMap
+  Line 1040: object SeqOps
+  Line 1058: def    clipR
+  Line 1059: def    clipL
+  Line 1145: def    apply
+  Line 1149: def    apply
+  Line 1166: def    apply
+
+scala/collection/SeqMap.scala (2 undocumented):
+  Line   39: def    mapFactory
+  Line   42: object SeqMap
+
+scala/collection/SeqView.scala (48 undocumented):
+  Line   24: trait  SeqView
+  Line   25: def    view
+  Line   27: def    map
+  Line   28: def    appended
+  Line   29: def    prepended
+  Line   30: def    reverse
+  Line   31: def    take
+  Line   32: def    drop
+  Line   33: def    takeRight
+  Line   34: def    dropRight
+  Line   35: def    tapEach
+  Line   37: def    concat
+  Line   38: def    appendedAll
+  Line   39: def    prependedAll
+  Line   41: def    sorted
+  Line   47: object SeqView
+  Line   55: def    apply
+  Line   56: def    length
+  Line   57: def    iterator
+  Line   58: def    knownSize
+  Line   59: def    isEmpty
+  Line   63: class  Map
+  Line   64: def    apply
+  Line   65: def    length
+  Line   69: class  Appended
+  Line   70: def    apply
+  Line   71: def    length
+  Line   75: class  Prepended
+  Line   76: def    apply
+  Line   77: def    length
+  Line   81: class  Concat
+  Line   82: def    apply
+  Line   86: def    length
+  Line   90: class  Reverse
+  Line   91: def    apply
+  Line   93: def    iterator
+  Line   94: def    knownSize
+  Line   95: def    isEmpty
+  Line   99: class  Take
+  Line  100: def    apply
+  Line  108: def    length
+  Line  112: class  TakeRight
+  Line  116: def    apply
+  Line  120: class  Drop
+  Line  123: def    apply
+  Line  124: def    drop
+  Line  128: class  DropRight
+  Line  132: def    apply
+
+scala/collection/Set.scala (10 undocumented):
+  Line   33: def    canEqual
+  Line   77: def    hashCode
+  Line   79: def    iterableFactory
+  Line   84: def    toString
+  Line   97: def    contains
+  Line  136: def    next
+  Line  213: def    - 
+  Line  216: def    - 
+  Line  243: def    + 
+  Line  246: def    + 
+
+scala/collection/SortedMap.scala (17 undocumented):
+  Line   27: def    unsorted
+  Line   29: def    sortedMapFactory
+  Line   34: def    equals
+  Line  109: def    firstKey
+  Line  110: def    lastKey
+  Line  124: def    rangeTo
+  Line  135: def    keySet
+  Line  139: def    diff
+  Line  140: def    rangeImpl
+  Line  149: def    iteratorFrom
+  Line  183: def    concat
+  Line  195: def    + 
+  Line  198: object SortedMapOps
+  Line  210: def    map
+  Line  213: def    flatMap
+  Line  216: def    withFilter
+  Line  224: object SortedMap
+
+scala/collection/SortedOps.scala (1 undocumented):
+  Line   21: def    ordering
+
+scala/collection/SortedSet.scala (13 undocumented):
+  Line   26: def    unsorted
+  Line   28: def    sortedIterableFactory
+  Line   33: def    equals
+  Line   79: def    firstKey
+  Line   80: def    lastKey
+  Line   94: def    min
+  Line  100: def    max
+  Line  106: def    rangeTo
+  Line  166: object SortedSetOps
+  Line  179: def    map
+  Line  182: def    flatMap
+  Line  185: def    withFilter
+  Line  192: object SortedSet
+
+scala/collection/Stepper.scala (63 undocumented):
+  Line   89: def    hasNext
+  Line   90: def    next
+  Line   94: object Stepper
+  Line  189: def    trySplit
+  Line  191: def    spliterator
+  Line  193: def    javaIterator
+  Line  194: def    hasNext
+  Line  195: def    next
+  Line  199: object AnyStepper
+  Line  200: class  AnyStepperSpliterator
+  Line  201: def    tryAdvance
+  Line  203: def    trySplit
+  Line  207: def    estimateSize
+  Line  208: def    characteristics
+  Line  210: def    forEachRemaining
+  Line  214: def    ofSeqDoubleStepper
+  Line  215: def    ofParDoubleStepper
+  Line  217: def    ofSeqIntStepper
+  Line  218: def    ofParIntStepper
+  Line  220: def    ofSeqLongStepper
+  Line  221: def    ofParLongStepper
+  Line  259: def    trySplit
+  Line  261: def    spliterator
+  Line  263: def    javaIterator
+  Line  264: def    hasNext
+  Line  265: def    nextInt
+  Line  268: object IntStepper
+  Line  269: class  IntStepperSpliterator
+  Line  270: def    tryAdvance
+  Line  273: def    tryAdvance
+  Line  278: def    trySplit
+  Line  282: def    estimateSize
+  Line  283: def    characteristics
+  Line  285: def    forEachRemaining
+  Line  288: def    forEachRemaining
+  Line  297: def    trySplit
+  Line  299: def    spliterator
+  Line  301: def    javaIterator
+  Line  302: def    hasNext
+  Line  303: def    nextDouble
+  Line  307: object DoubleStepper
+  Line  308: class  DoubleStepperSpliterator
+  Line  309: def    tryAdvance
+  Line  312: def    tryAdvance
+  Line  317: def    trySplit
+  Line  321: def    estimateSize
+  Line  322: def    characteristics
+  Line  324: def    forEachRemaining
+  Line  327: def    forEachRemaining
+  Line  336: def    trySplit
+  Line  338: def    spliterator
+  Line  340: def    javaIterator
+  Line  341: def    hasNext
+  Line  342: def    nextLong
+  Line  346: object LongStepper
+  Line  347: class  LongStepperSpliterator
+  Line  348: def    tryAdvance
+  Line  351: def    tryAdvance
+  Line  356: def    trySplit
+  Line  360: def    estimateSize
+  Line  361: def    characteristics
+  Line  363: def    forEachRemaining
+  Line  366: def    forEachRemaining
+
+scala/collection/StepperShape.scala (20 undocumented):
+  Line   38: object StepperShape
+  Line   57: def    seqUnbox
+  Line   58: def    parUnbox
+  Line   64: def    seqUnbox
+  Line   65: def    parUnbox
+  Line   71: def    seqUnbox
+  Line   72: def    parUnbox
+  Line   78: def    seqUnbox
+  Line   79: def    parUnbox
+  Line   85: def    seqUnbox
+  Line   86: def    parUnbox
+  Line   92: def    seqUnbox
+  Line   93: def    parUnbox
+  Line   99: def    seqUnbox
+  Line  100: def    parUnbox
+  Line  105: trait  StepperShapeLowPriority1
+  Line  109: trait  StepperShapeLowPriority2
+  Line  112: val    anyStepperShapePrototype
+  Line  114: def    seqUnbox
+  Line  115: def    parUnbox
+
+scala/collection/StrictOptimizedIterableOps.scala (15 undocumented):
+  Line   35: def    partition
+  Line   41: def    span
+  Line   61: def    unzip
+  Line   72: def    unzip3
+  Line   90: def    map
+  Line  108: def    flatMap
+  Line  139: def    collect
+  Line  160: def    flatten
+  Line  178: def    zip
+  Line  197: def    zipWithIndex
+  Line  208: def    scanLeft
+  Line  221: def    filter
+  Line  223: def    filterNot
+  Line  238: def    partitionMap
+  Line  251: def    tapEach
+
+scala/collection/StrictOptimizedMapOps.scala (5 undocumented):
+  Line   30: def    map
+  Line   33: def    flatMap
+  Line   36: def    concat
+  Line   39: def    collect
+  Line   43: def    + 
+
+scala/collection/StrictOptimizedSeqOps.scala (8 undocumented):
+  Line   25: def    distinctBy
+  Line   36: def    prepended
+  Line   44: def    appended
+  Line   52: def    appendedAll
+  Line   55: def    prependedAll
+  Line   62: def    padTo
+  Line   75: def    diff
+  Line   93: def    intersect
+
+scala/collection/StrictOptimizedSetOps.scala (1 undocumented):
+  Line   29: def    concat
+
+scala/collection/StrictOptimizedSortedMapOps.scala (5 undocumented):
+  Line   32: def    map
+  Line   35: def    flatMap
+  Line   38: def    concat
+  Line   41: def    collect
+  Line   45: def    + 
+
+scala/collection/StrictOptimizedSortedSetOps.scala (4 undocumented):
+  Line   33: def    map
+  Line   36: def    flatMap
+  Line   39: def    zip
+  Line   42: def    collect
+
+scala/collection/StringOps.scala (5 undocumented):
+  Line   29: object StringOps
+  Line 1651: def    apply
+  Line 1652: def    toString
+  Line 1655: object StringView
+  Line 1656: def    toString
+
+scala/collection/View.scala (73 undocumented):
+  Line   32: def    view
+  Line   34: def    iterableFactory
+  Line   36: def    empty
+  Line   38: def    toString
+  Line   81: def    empty
+  Line   83: def    newBuilder
+  Line   85: def    apply
+  Line   92: def    isEmpty
+  Line   98: def    iterator
+  Line   99: def    knownSize
+  Line  100: def    isEmpty
+  Line  108: def    isEmpty
+  Line  115: def    knownSize
+  Line  116: def    isEmpty
+  Line  122: def    iterator
+  Line  123: def    knownSize
+  Line  124: def    isEmpty
+  Line  130: def    iterator
+  Line  131: def    knownSize
+  Line  132: def    isEmpty
+  Line  140: def    iterator
+  Line  150: def    knownSize
+  Line  151: def    isEmpty
+  Line  154: object Filter
+  Line  155: def    apply
+  Line  169: def    iterator
+  Line  170: def    knownSize
+  Line  171: def    isEmpty
+  Line  175: class  LeftPartitionMapped
+  Line  176: def    iterator
+  Line  182: def    findNext
+  Line  191: def    next
+  Line  200: class  RightPartitionMapped
+  Line  201: def    iterator
+  Line  207: def    findNext
+  Line  216: def    next
+  Line  233: def    isEmpty
+  Line  245: def    isEmpty
+  Line  251: class  DropWhile
+  Line  253: def    knownSize
+  Line  254: def    isEmpty
+  Line  266: def    isEmpty
+  Line  278: def    isEmpty
+  Line  284: class  TakeWhile
+  Line  286: def    knownSize
+  Line  287: def    isEmpty
+  Line  291: class  ScanLeft
+  Line  293: def    knownSize
+  Line  297: def    isEmpty
+  Line  305: def    isEmpty
+  Line  312: def    knownSize
+  Line  313: def    isEmpty
+  Line  337: def    isEmpty
+  Line  353: def    isEmpty
+  Line  370: def    isEmpty
+  Line  377: def    knownSize
+  Line  381: def    isEmpty
+  Line  388: def    knownSize
+  Line  392: def    isEmpty
+  Line  396: class  Updated
+  Line  397: def    iterator
+  Line  400: def    next
+  Line  405: def    hasNext
+  Line  410: def    knownSize
+  Line  411: def    isEmpty
+  Line  428: class  ZipWithIndex
+  Line  429: def    iterator
+  Line  430: def    knownSize
+  Line  431: def    isEmpty
+  Line  435: class  PadTo
+  Line  436: def    iterator
+  Line  438: def    knownSize
+  Line  442: def    isEmpty
+
+scala/collection/concurrent/Map.scala (1 undocumented):
+  Line   96: def    getOrElseUpdate
+
+scala/collection/concurrent/TrieMap.scala (7 undocumented):
+  Line 1044: object TrieMap
+  Line 1046: def    empty
+  Line 1048: def    from
+  Line 1050: def    newBuilder
+  Line 1053: val    inodeupdater
+  Line 1055: class  MangledHashing
+  Line 1056: def    hash
+
+scala/collection/convert/StreamExtensions.scala (16 undocumented):
+  Line   48: def    stepper
+  Line  366: object StreamExtensions
+  Line  373: def    mkStream
+  Line  376: object StreamShape
+  Line  399: def    mkStream
+  Line  403: def    mkStream
+  Line  407: def    mkStream
+  Line  411: trait  StreamShapeLowPriority1
+  Line  416: def    mkStream
+  Line  424: def    apply
+  Line  426: object StreamUnboxer
+  Line  428: def    apply
+  Line  433: def    apply
+  Line  438: def    apply
+  Line  455: trait  LowPriorityAccumulatorFactoryInfo
+  Line  461: object AccumulatorFactoryInfo
+
+scala/collection/convert/impl/BinaryTreeStepper.scala (15 undocumented):
+  Line  105: def    semiclone
+  Line  107: def    characteristics
+  Line  109: def    estimateSize
+  Line  111: def    hasStep
+  Line  151: def    nextStep
+  Line  160: def    semiclone
+  Line  177: def    nextStep
+  Line  186: def    semiclone
+  Line  190: def    from
+  Line  203: def    nextStep
+  Line  212: def    semiclone
+  Line  216: def    from
+  Line  230: def    nextStep
+  Line  239: def    semiclone
+  Line  243: def    from
+
+scala/collection/convert/impl/BitSetStepper.scala (4 undocumented):
+  Line   33: var    found
+  Line   36: def    findNext
+  Line   65: def    semiclone
+  Line  100: def    nextStep
+
+scala/collection/convert/impl/ChampStepper.scala (15 undocumented):
+  Line   33: var    currentValueCursor
+  Line   34: var    currentValueLength
+  Line   35: var    currentValueNode
+  Line   47: def    initRoot
+  Line  100: def    characteristics
+  Line  102: def    estimateSize
+  Line  104: def    semiclone
+  Line  163: def    nextStep
+  Line  172: def    semiclone
+  Line  185: def    nextStep
+  Line  194: def    semiclone
+  Line  207: def    nextStep
+  Line  216: def    semiclone
+  Line  229: def    nextStep
+  Line  238: def    semiclone
+
+scala/collection/convert/impl/InOrderStepperBase.scala (4 undocumented):
+  Line   37: def    semiclone
+  Line   41: def    characteristics
+  Line   43: def    estimateSize
+  Line   45: def    trySplit
+
+scala/collection/convert/impl/NumericRangeStepper.scala (6 undocumented):
+  Line   23: def    nextStep
+  Line   24: def    semiclone
+  Line   30: def    nextStep
+  Line   31: def    semiclone
+  Line   37: def    nextStep
+  Line   38: def    semiclone
+
+scala/collection/convert/impl/RangeStepper.scala (3 undocumented):
+  Line   26: def    nextStep
+  Line   34: def    semiclone
+  Line   35: def    trySplit
+
+scala/collection/convert/impl/StringStepper.scala (7 undocumented):
+  Line   28: def    nextStep
+  Line   32: def    semiclone
+  Line   39: def    characteristics
+  Line   40: def    estimateSize
+  Line   41: def    hasStep
+  Line   42: def    nextStep
+  Line   50: def    trySplit
+
+scala/collection/convert/impl/TableStepper.scala (14 undocumented):
+  Line   25: var    myCurrent
+  Line   41: def    semiclone
+  Line   43: def    characteristics
+  Line   45: def    estimateSize
+  Line   47: def    hasStep
+  Line   49: def    trySplit
+  Line   78: def    nextStep
+  Line   86: def    semiclone
+  Line   95: def    nextStep
+  Line  103: def    semiclone
+  Line  112: def    nextStep
+  Line  120: def    semiclone
+  Line  129: def    nextStep
+  Line  137: def    semiclone
+
+scala/collection/convert/impl/VectorStepper.scala (12 undocumented):
+  Line   26: var    index
+  Line   27: var    leaves
+  Line   28: var    index1
+  Line   29: var    twigs
+  Line   65: def    nextStep
+  Line   71: def    semiclone
+  Line   83: def    nextStep
+  Line   89: def    semiclone
+  Line  101: def    nextStep
+  Line  107: def    semiclone
+  Line  119: def    nextStep
+  Line  125: def    semiclone
+
+scala/collection/generic/DefaultSerializationProxy.scala (1 undocumented):
+  Line   81: def    writeReplace
+
+scala/collection/generic/IsIterable.scala (3 undocumented):
+  Line  135: object IsIterable
+  Line  142: def    apply
+  Line  152: def    apply
+
+scala/collection/generic/IsIterableOnce.scala (3 undocumented):
+  Line   51: val    conversion
+  Line   58: object IsIterableOnce
+  Line   64: def    apply
+
+scala/collection/generic/IsMap.scala (7 undocumented):
+  Line   52: object IsMap
+  Line   68: def    apply
+  Line   77: def    apply
+  Line   87: def    apply
+  Line   96: def    apply
+  Line  105: def    apply
+  Line  114: def    apply
+
+scala/collection/generic/IsSeq.scala (25 undocumented):
+  Line   47: object IsSeq
+  Line   53: def    apply
+  Line   63: def    apply
+  Line   70: def    apply
+  Line   72: def    length
+  Line   73: def    apply
+  Line   74: def    toIterable
+  Line   75: def    coll
+  Line   76: def    fromSpecific
+  Line   77: def    iterableFactory
+  Line   78: def    empty
+  Line   79: def    newSpecificBuilder
+  Line   80: def    iterator
+  Line   88: def    apply
+  Line   95: def    apply
+  Line   97: def    apply
+  Line   98: def    length
+  Line   99: def    toIterable
+  Line  100: def    coll
+  Line  101: def    fromSpecific
+  Line  102: def    iterableFactory
+  Line  103: def    empty
+  Line  104: def    newSpecificBuilder
+  Line  105: def    iterator
+  Line  116: def    apply
+
+scala/collection/immutable/ArraySeq.scala (141 undocumented):
+  Line   51: def    iterableFactory
+  Line   59: def    evidenceIterableFactory
+  Line   60: def    iterableEvidence
+  Line   62: def    stepper
+  Line   65: def    apply
+  Line   67: def    updated
+  Line   74: def    map
+  Line   84: def    prepended
+  Line   87: def    appended
+  Line  130: def    appendedAll
+  Line  153: def    prependedAll
+  Line  177: def    zip
+  Line  187: def    take
+  Line  193: def    takeRight
+  Line  199: def    drop
+  Line  205: def    dropRight
+  Line  211: def    slice
+  Line  217: def    foldLeft
+  Line  231: def    foldRight
+  Line  245: def    tail
+  Line  247: def    reverse
+  Line  251: def    copyToArray
+  Line  261: def    sorted
+  Line  277: val    untagged
+  Line  281: def    empty
+  Line  283: def    from
+  Line  288: def    newBuilder
+  Line  291: def    fill
+  Line  293: def    tabulate
+  Line  330: class  ofRef
+  Line  331: def    elemTag
+  Line  332: def    length
+  Line  334: def    apply
+  Line  335: def    hashCode
+  Line  336: def    equals
+  Line  343: def    sorted
+  Line  351: def    iterator
+  Line  352: def    stepper
+  Line  360: class  ofByte
+  Line  362: def    elemTag
+  Line  363: def    length
+  Line  365: def    apply
+  Line  366: def    hashCode
+  Line  367: def    equals
+  Line  371: def    sorted
+  Line  378: def    iterator
+  Line  379: def    stepper
+  Line  384: def    updated
+  Line  389: def    appended
+  Line  394: def    prepended
+  Line  402: class  ofShort
+  Line  404: def    elemTag
+  Line  405: def    length
+  Line  407: def    apply
+  Line  408: def    hashCode
+  Line  409: def    equals
+  Line  413: def    sorted
+  Line  420: def    iterator
+  Line  421: def    stepper
+  Line  426: def    updated
+  Line  431: def    appended
+  Line  436: def    prepended
+  Line  444: class  ofChar
+  Line  446: def    elemTag
+  Line  447: def    length
+  Line  449: def    apply
+  Line  450: def    hashCode
+  Line  451: def    equals
+  Line  455: def    sorted
+  Line  462: def    iterator
+  Line  463: def    stepper
+  Line  468: def    updated
+  Line  473: def    appended
+  Line  478: def    prepended
+  Line  484: def    addString
+  Line  489: class  ofInt
+  Line  491: def    elemTag
+  Line  492: def    length
+  Line  494: def    apply
+  Line  495: def    hashCode
+  Line  496: def    equals
+  Line  500: def    sorted
+  Line  507: def    iterator
+  Line  508: def    stepper
+  Line  513: def    updated
+  Line  518: def    appended
+  Line  523: def    prepended
+  Line  531: class  ofLong
+  Line  533: def    elemTag
+  Line  534: def    length
+  Line  536: def    apply
+  Line  537: def    hashCode
+  Line  538: def    equals
+  Line  542: def    sorted
+  Line  549: def    iterator
+  Line  550: def    stepper
+  Line  555: def    updated
+  Line  560: def    appended
+  Line  565: def    prepended
+  Line  573: class  ofFloat
+  Line  575: def    elemTag
+  Line  576: def    length
+  Line  578: def    apply
+  Line  579: def    hashCode
+  Line  580: def    equals
+  Line  591: def    iterator
+  Line  592: def    stepper
+  Line  597: def    updated
+  Line  602: def    appended
+  Line  607: def    prepended
+  Line  615: class  ofDouble
+  Line  617: def    elemTag
+  Line  618: def    length
+  Line  620: def    apply
+  Line  621: def    hashCode
+  Line  622: def    equals
+  Line  633: def    iterator
+  Line  634: def    stepper
+  Line  639: def    updated
+  Line  644: def    appended
+  Line  649: def    prepended
+  Line  657: class  ofBoolean
+  Line  659: def    elemTag
+  Line  660: def    length
+  Line  662: def    apply
+  Line  663: def    hashCode
+  Line  664: def    equals
+  Line  668: def    sorted
+  Line  675: def    iterator
+  Line  676: def    stepper
+  Line  678: def    updated
+  Line  683: def    appended
+  Line  688: def    prepended
+  Line  696: class  ofUnit
+  Line  698: def    elemTag
+  Line  699: def    length
+  Line  701: def    apply
+  Line  702: def    hashCode
+  Line  703: def    equals
+  Line  707: def    iterator
+  Line  708: def    stepper
+
+scala/collection/immutable/BitSet.scala (25 undocumented):
+  Line   41: def    unsorted
+  Line   45: def    empty
+  Line   47: def    bitSetFactory
+  Line   51: def    incl
+  Line   60: def    excl
+  Line   72: def    map
+  Line   73: def    map
+  Line   76: def    flatMap
+  Line   77: def    flatMap
+  Line   80: def    collect
+  Line   81: def    collect
+  Line   85: def    zip
+  Line   88: def    writeReplace
+  Line  100: def    fromSpecific
+  Line  108: def    newBuilder
+  Line  137: class  BitSet1
+  Line  146: def    diff
+  Line  156: def    filterImpl
+  Line  163: class  BitSet2
+  Line  172: def    diff
+  Line  194: def    filterImpl
+  Line  209: class  BitSetN
+  Line  216: def    diff
+  Line  316: def    filterImpl
+  Line  371: def    toBitMask
+
+scala/collection/immutable/HashMap.scala (2 undocumented):
+  Line 2206: def    empty
+  Line 2209: def    from
+
+scala/collection/immutable/HashSet.scala (2 undocumented):
+  Line 1939: def    empty
+  Line 1942: def    from
+
+scala/collection/immutable/IntMap.scala (28 undocumented):
+  Line   51: def    empty
+  Line   53: def    singleton
+  Line   55: def    apply
+  Line   58: def    from
+  Line   66: def    equals
+  Line   74: def    withValue
+  Line   80: def    bin
+  Line   86: def    newBuilder
+  Line   88: def    addOne
+  Line  188: def    intMapFrom
+  Line  196: def    addOne
+  Line  199: def    empty
+  Line  226: def    foreachEntry
+  Line  232: def    keysIterator
+  Line  249: def    valuesIterator
+  Line  269: def    knownSize
+  Line  270: def    filter
+  Line  282: def    transform
+  Line  316: def    + 
+  Line  318: def    updated
+  Line  329: def    map
+  Line  331: def    flatMap
+  Line  333: def    concat
+  Line  336: def    ++ 
+  Line  338: def    collect
+  Line  369: def    removed
+  Line  481: def    ++
+  Line  504: def    writeReplace
+
+scala/collection/immutable/Iterable.scala (3 undocumented):
+  Line   31: def    iterableFactory
+  Line   35: object Iterable
+  Line   36: def    from
+
+scala/collection/immutable/LazyList.scala (12 undocumented):
+  Line  339: def    iterableFactory
+  Line  351: def    head
+  Line  356: def    tail
+  Line  442: def    writeReplace
+  Line 1220: def    unapply
+  Line 1224: def    from
+  Line 1230: def    empty
+  Line 1244: def    concat
+  Line 1292: def    fill
+  Line 1295: def    tabulate
+  Line 1296: def    at
+  Line 1303: def    unfold
+
+scala/collection/immutable/LazyListIterable.scala (14 undocumented):
+  Line  338: def    iterableFactory
+  Line  350: def    head
+  Line  355: def    tail
+  Line  361: def    length
+  Line  375: def    apply
+  Line  463: def    writeReplace
+  Line 1243: def    unapply
+  Line 1247: def    from
+  Line 1253: def    empty
+  Line 1268: def    concat
+  Line 1328: def    fill
+  Line 1331: def    tabulate
+  Line 1332: def    at
+  Line 1339: def    unfold
+
+scala/collection/immutable/List.scala (30 undocumented):
+  Line   92: def    iterableFactory
+  Line  148: def    prepended
+  Line  150: def    prependedAll
+  Line  172: def    appendedAll
+  Line  177: def    take
+  Line  193: def    slice
+  Line  199: def    takeRight
+  Line  201: def    loop
+  Line  210: def    splitAt
+  Line  222: def    updated
+  Line  413: def    last
+  Line  426: def    corresponds
+  Line  496: def    filter
+  Line  498: def    filterNot
+  Line  531: def    partialFill
+  Line  580: def    partition
+  Line  592: def    equals
+  Line  651: def    headOption
+  Line  652: def    tail
+  Line  660: def    head
+  Line  661: def    headOption
+  Line  662: def    tail
+  Line  663: def    last
+  Line  664: def    init
+  Line  665: def    knownSize
+  Line  666: def    iterator
+  Line  667: def    unzip
+  Line  682: def    from
+  Line  684: def    newBuilder
+  Line  686: def    empty
+
+scala/collection/immutable/ListMap.scala (29 undocumented):
+  Line   53: def    mapFactory
+  Line   55: def    size
+  Line   57: def    isEmpty
+  Line   59: def    knownSize
+  Line   60: def    get
+  Line   62: def    updated
+  Line   64: def    removed
+  Line   66: def    iterator
+  Line   77: def    keys
+  Line   87: def    hashCode
+  Line   93: def    isEmpty
+  Line   94: def    removed
+  Line   95: def    updated
+  Line   96: def    get
+  Line   97: def    iterator
+  Line   98: def    foreachEntry
+  Line  114: def    foldRight
+  Line  145: def    size
+  Line  151: def    isEmpty
+  Line  153: def    knownSize
+  Line  156: def    apply
+  Line  163: def    get
+  Line  170: def    contains
+  Line  177: def    updated
+  Line  233: def    removed
+  Line  237: def    last
+  Line  238: def    init
+  Line  242: def    empty
+  Line  246: def    from
+
+scala/collection/immutable/ListSet.scala (21 undocumented):
+  Line   51: def    size
+  Line   52: def    knownSize
+  Line   53: def    isEmpty
+  Line   55: def    contains
+  Line   57: def    incl
+  Line   58: def    excl
+  Line   60: def    iterator
+  Line   70: def    elem
+  Line   71: def    next
+  Line   73: def    iterableFactory
+  Line   81: def    knownSize
+  Line   86: def    isEmpty
+  Line   88: def    contains
+  Line   93: def    incl
+  Line   95: def    excl
+  Line  104: def    last
+  Line  106: def    init
+  Line  123: def    from
+  Line  135: def    empty
+  Line  137: def    newBuilder
+  Line  139: def    addOne
+
+scala/collection/immutable/LongMap.scala (26 undocumented):
+  Line   53: def    empty
+  Line   54: def    singleton
+  Line   55: def    apply
+  Line   58: def    from
+  Line   61: def    newBuilder
+  Line   63: def    addOne
+  Line   68: def    equals
+  Line   76: def    withValue
+  Line   82: def    bin
+  Line  191: def    addOne
+  Line  194: def    empty
+  Line  227: def    keysIterator
+  Line  244: def    valuesIterator
+  Line  264: def    knownSize
+  Line  265: def    filter
+  Line  277: def    transform
+  Line  311: def    + 
+  Line  313: def    updated
+  Line  352: def    removed
+  Line  463: def    ++
+  Line  480: def    map
+  Line  482: def    flatMap
+  Line  484: def    concat
+  Line  487: def    ++ 
+  Line  489: def    collect
+  Line  492: def    writeReplace
+
+scala/collection/immutable/Map.scala (90 undocumented):
+  Line   33: def    mapFactory
+  Line   70: def    coll
+  Line  146: def    keySet
+  Line  161: def    concat
+  Line  179: class  WithDefault
+  Line  183: def    get
+  Line  185: def    default
+  Line  187: def    iterableFactory
+  Line  189: def    iterator
+  Line  191: def    isEmpty
+  Line  193: def    mapFactory
+  Line  195: def    concat
+  Line  198: def    removed
+  Line  200: def    updated
+  Line  203: def    empty
+  Line  212: def    empty
+  Line  214: def    from
+  Line  240: def    newBuilder
+  Line  263: class  Map1
+  Line  264: def    size
+  Line  265: def    knownSize
+  Line  266: def    isEmpty
+  Line  267: def    apply
+  Line  268: def    contains
+  Line  269: def    get
+  Line  271: def    getOrElse
+  Line  273: def    iterator
+  Line  274: def    keysIterator
+  Line  275: def    valuesIterator
+  Line  276: def    updated
+  Line  279: def    removed
+  Line  281: def    foreach
+  Line  284: def    exists
+  Line  285: def    forall
+  Line  288: def    transform
+  Line  293: def    hashCode
+  Line  313: class  Map2
+  Line  314: def    size
+  Line  315: def    knownSize
+  Line  316: def    isEmpty
+  Line  317: def    apply
+  Line  321: def    contains
+  Line  322: def    get
+  Line  326: def    getOrElse
+  Line  330: def    iterator
+  Line  333: def    keysIterator
+  Line  336: def    valuesIterator
+  Line  355: def    updated
+  Line  359: def    removed
+  Line  363: def    foreach
+  Line  366: def    exists
+  Line  367: def    forall
+  Line  381: def    transform
+  Line  388: def    hashCode
+  Line  413: class  Map3
+  Line  414: def    size
+  Line  415: def    knownSize
+  Line  416: def    isEmpty
+  Line  417: def    apply
+  Line  422: def    contains
+  Line  423: def    get
+  Line  428: def    getOrElse
+  Line  433: def    iterator
+  Line  436: def    keysIterator
+  Line  439: def    valuesIterator
+  Line  459: def    updated
+  Line  464: def    removed
+  Line  469: def    foreach
+  Line  472: def    exists
+  Line  473: def    forall
+  Line  489: def    transform
+  Line  498: def    hashCode
+  Line  528: class  Map4
+  Line  531: def    size
+  Line  532: def    knownSize
+  Line  533: def    isEmpty
+  Line  534: def    apply
+  Line  540: def    contains
+  Line  541: def    get
+  Line  547: def    getOrElse
+  Line  553: def    iterator
+  Line  556: def    keysIterator
+  Line  559: def    valuesIterator
+  Line  580: def    updated
+  Line  586: def    removed
+  Line  592: def    foreach
+  Line  595: def    exists
+  Line  596: def    forall
+  Line  614: def    transform
+  Line  627: def    hashCode
+
+scala/collection/immutable/NumericRange.scala (35 undocumented):
+  Line   45: val    start
+  Line   46: val    end
+  Line   47: val    step
+  Line   48: val    isInclusive
+  Line   59: def    iterator
+  Line   61: def    stepper
+  Line   85: def    last
+  Line   88: def    init
+  Line   92: def    head
+  Line   93: def    tail
+  Line  110: def    apply
+  Line  116: def    foreach
+  Line  175: def    unsafeRangeLength
+  Line  186: def    fitsInInteger
+  Line  247: def    take
+  Line  253: def    drop
+  Line  259: def    splitAt
+  Line  261: def    reverse
+  Line  272: def    min
+  Line  282: def    max
+  Line  290: def    containsTyped
+  Line  293: def    contains
+  Line  297: def    sum
+  Line  355: def    equals
+  Line  365: def    toString
+  Line  381: def    FAIL
+  Line  435: def    check
+  Line  495: class  Inclusive
+  Line  497: def    copy
+  Line  500: def    exclusive
+  Line  504: class  Exclusive
+  Line  506: def    copy
+  Line  509: def    inclusive
+  Line  512: def    apply
+  Line  514: def    inclusive
+
+scala/collection/immutable/Queue.scala (14 undocumented):
+  Line   51: def    iterableFactory
+  Line   61: def    indexOutOfRange
+  Line   93: def    head
+  Line   98: def    tail
+  Line  103: def    last
+  Line  109: def    forall
+  Line  113: def    exists
+  Line  121: def    prepended
+  Line  123: def    appended
+  Line  125: def    appendedAll
+  Line  206: def    newBuilder
+  Line  208: def    from
+  Line  216: def    empty
+  Line  217: def    apply
+
+scala/collection/immutable/Range.scala (35 undocumented):
+  Line   65: val    start
+  Line   66: val    end
+  Line   67: val    step
+  Line   89: def    isInclusive
+  Line  214: def    map
+  Line  285: def    sameElements
+  Line  484: def    tails
+  Line  488: def    next
+  Line  499: def    inits
+  Line  503: def    next
+  Line  548: def    distinct
+  Line  550: def    grouped
+  Line  559: def    next
+  Line  571: def    sorted
+  Line  617: def    count
+  Line  639: class  Inclusive
+  Line  640: def    isInclusive
+  Line  644: class  Exclusive
+  Line  645: def    isInclusive
+  Line  649: object BigInt
+  Line  650: def    apply
+  Line  651: def    inclusive
+  Line  654: object Long
+  Line  655: def    apply
+  Line  656: def    inclusive
+  Line  664: object BigDecimal
+  Line  667: def    apply
+  Line  669: def    inclusive
+  Line  684: object Int
+  Line  685: def    apply
+  Line  686: def    inclusive
+  Line  706: def    knownSize
+  Line  707: def    hasNext
+  Line  709: def    next
+  Line  717: def    drop
+
+scala/collection/immutable/RedBlackTree.scala (11 undocumented):
+  Line  945: def    f
+  Line  961: def    f
+  Line  976: def    transform
+  Line  992: def    filterEntries
+  Line  993: def    fk
+  Line 1010: def    partitionEntries
+  Line 1013: object partitioner
+  Line 1015: def    fk
+  Line 1128: def    union
+  Line 1130: def    intersect
+  Line 1132: def    difference
+
+scala/collection/immutable/Seq.scala (14 undocumented):
+  Line   20: trait  Seq
+  Line   27: def    iterableFactory
+  Line   43: def    from
+  Line   57: def    canEqual
+  Line   63: def    sameElements
+  Line  102: def    iterableFactory
+  Line  105: object IndexedSeqDefaults
+  Line  106: val    defaultApplyPreferredMaxLength
+  Line  115: object IndexedSeq
+  Line  116: def    from
+  Line  127: def    slice
+  Line  142: def    iterableFactory
+  Line  146: object LinearSeq
+  Line  147: def    from
+
+scala/collection/immutable/SeqMap.scala (5 undocumented):
+  Line   43: def    mapFactory
+  Line   47: object SeqMap
+  Line   48: def    empty
+  Line   50: def    from
+  Line   64: def    newBuilder
+
+scala/collection/immutable/Set.scala (5 undocumented):
+  Line   28: def    iterableFactory
+  Line   82: def    concat
+  Line   98: def    empty
+  Line  100: def    from
+  Line  119: def    newBuilder
+
+scala/collection/immutable/SortedMap.scala (23 undocumented):
+  Line   62: def    unsorted
+  Line   64: def    sortedMapFactory
+  Line   92: def    coll
+  Line   94: def    unsorted
+  Line   96: def    keySet
+  Line  100: def    rangeImpl
+  Line  104: def    incl
+  Line  105: def    excl
+  Line  109: def    updated
+  Line  111: def    updatedWith
+  Line  121: def    transform
+  Line  129: def    concat
+  Line  138: object SortedMap
+  Line  140: def    from
+  Line  145: class  WithDefault
+  Line  152: def    sortedMapFactory
+  Line  154: def    iteratorFrom
+  Line  156: def    keysIteratorFrom
+  Line  158: def    rangeImpl
+  Line  164: def    updated
+  Line  167: def    concat
+  Line  170: def    removed
+  Line  172: def    empty
+
+scala/collection/immutable/SortedSet.scala (4 undocumented):
+  Line   27: def    unsorted
+  Line   29: def    sortedIterableFactory
+  Line   40: def    unsorted
+  Line   56: def    from
+
+scala/collection/immutable/Stream.scala (27 undocumented):
+  Line   30: class  Stream
+  Line   35: def    tail
+  Line   48: def    iterableFactory
+  Line   78: def    take
+  Line  126: def    scanLeft
+  Line  150: def    partition
+  Line  152: def    filter
+  Line  154: def    filterNot
+  Line  224: def    tailDefined
+  Line  251: def    appendCursorElement
+  Line  335: def    hasDefiniteSize
+  Line  358: object Stream
+  Line  377: object Empty
+  Line  378: def    isEmpty
+  Line  379: def    head
+  Line  380: def    tail
+  Line  391: def    knownSize
+  Line  392: def    tailDefined
+  Line  396: class  Cons
+  Line  397: def    isEmpty
+  Line  400: def    tailDefined
+  Line  401: def    tail
+  Line  452: def    unapply
+  Line  456: def    from
+  Line  474: def    empty
+  Line  476: def    newBuilder
+  Line  568: def    readResolve
+
+scala/collection/immutable/StrictOptimizedSeqOps.scala (4 undocumented):
+  Line   30: def    distinctBy
+  Line   45: def    updated
+  Line   67: def    patch
+  Line   85: def    sorted
+
+scala/collection/immutable/TreeMap.scala (4 undocumented):
+  Line  313: def    empty
+  Line  315: def    from
+  Line  321: var    t
+  Line  330: def    newBuilder
+
+scala/collection/immutable/TreeSeqMap.scala (15 undocumented):
+  Line  292: object TreeSeqMap
+  Line  293: trait  OrderBy
+  Line  294: object OrderBy
+  Line  302: def    empty
+  Line  303: def    empty
+  Line  308: def    from
+  Line  316: def    newBuilder
+  Line  317: def    newBuilder
+  Line  319: class  Builder
+  Line  326: def    addOne
+  Line  327: def    addOne
+  Line  348: def    clear
+  Line  355: def    result
+  Line  471: class  Ordering
+  Line  482: def    format
+
+scala/collection/immutable/TreeSet.scala (4 undocumented):
+  Line  243: def    empty
+  Line  245: def    from
+  Line  257: var    t
+  Line  263: def    newBuilder
+
+scala/collection/immutable/Vector.scala (11 undocumented):
+  Line   39: def    empty
+  Line   41: def    from
+  Line   48: val    a1
+  Line   68: def    newBuilder
+  Line 1400: class  VectorBuilder
+  Line 1417: def    knownSize
+  Line 1423: def    clear
+  Line 1704: def    addOne
+  Line 1823: def    addAll
+  Line 1894: def    result
+  Line 1984: def    toString
+
+scala/collection/immutable/VectorMap.scala (4 undocumented):
+  Line  224: object VectorMap
+  Line  236: def    empty
+  Line  238: def    from
+  Line  244: def    newBuilder
+
+scala/collection/immutable/WrappedString.scala (3 undocumented):
+  Line  129: def    fromSpecific
+  Line  136: def    newBuilder
+  Line  140: def    unwrap
+
+scala/collection/mutable/AnyRefMap.scala (6 undocumented):
+  Line  530: object AnyRefMap
+  Line  547: def    addOne
+  Line  551: def    clear
+  Line  552: def    result
+  Line  553: def    knownSize
+  Line  559: def    newBuilder
+
+scala/collection/mutable/ArrayBuffer.scala (4 undocumented):
+  Line  298: def    from
+  Line  310: def    newBuilder
+  Line  311: def    sizeHint
+  Line  314: def    empty
+
+scala/collection/mutable/ArrayBuilder.scala (61 undocumented):
+  Line   29: var    capacity
+  Line   30: def    elems
+  Line   31: var    size
+  Line   46: def    clear
+  Line   48: def    resize
+  Line   70: def    addAll
+  Line  116: var    elems
+  Line  124: def    resize
+  Line  129: def    addOne
+  Line  136: def    result
+  Line  146: def    clear
+  Line  151: def    equals
+  Line  156: def    toString
+  Line  171: def    resize
+  Line  176: def    addOne
+  Line  183: def    result
+  Line  193: def    equals
+  Line  198: def    toString
+  Line  213: def    resize
+  Line  218: def    addOne
+  Line  225: def    result
+  Line  235: def    equals
+  Line  240: def    toString
+  Line  255: def    resize
+  Line  260: def    addOne
+  Line  267: def    result
+  Line  277: def    equals
+  Line  282: def    toString
+  Line  297: def    resize
+  Line  302: def    addOne
+  Line  309: def    result
+  Line  319: def    equals
+  Line  324: def    toString
+  Line  339: def    resize
+  Line  344: def    addOne
+  Line  351: def    result
+  Line  361: def    equals
+  Line  366: def    toString
+  Line  381: def    resize
+  Line  386: def    addOne
+  Line  393: def    result
+  Line  403: def    equals
+  Line  408: def    toString
+  Line  423: def    resize
+  Line  428: def    addOne
+  Line  435: def    result
+  Line  445: def    equals
+  Line  450: def    toString
+  Line  466: def    resize
+  Line  471: def    addOne
+  Line  478: def    result
+  Line  488: def    equals
+  Line  493: def    toString
+  Line  500: def    elems
+  Line  502: def    addOne
+  Line  509: def    addAll
+  Line  516: def    addAll
+  Line  523: def    result
+  Line  530: def    equals
+  Line  535: def    resize
+  Line  537: def    toString
+
+scala/collection/mutable/ArrayDeque.scala (30 undocumented):
+  Line   42: var    array
+  Line   65: def    this
+  Line   67: def    knownSize
+  Line   70: def    stepper
+  Line   72: def    apply
+  Line   77: def    update
+  Line   82: def    addOne
+  Line   87: def    prepend
+  Line  104: def    prependAll
+  Line  136: def    addAll
+  Line  146: def    insert
+  Line  182: def    insertAll
+  Line  236: def    remove
+  Line  278: def    remove
+  Line  284: def    subtractOne
+  Line  443: def    iterableFactory
+  Line  466: def    ofArray
+  Line  469: def    copyToArray
+  Line  477: def    toArray
+  Line  532: def    from
+  Line  542: def    newBuilder
+  Line  544: def    sizeHint
+  Line  549: def    empty
+  Line  574: def    array
+  Line  578: def    klone
+  Line  580: def    ofArray
+  Line  612: def    reverse
+  Line  623: def    slice
+  Line  638: def    sliding
+  Line  641: def    grouped
+
+scala/collection/mutable/ArraySeq.scala (102 undocumented):
+  Line   45: def    iterableFactory
+  Line   54: def    empty
+  Line   69: def    stepper
+  Line   76: def    copyToArray
+  Line   84: def    equals
+  Line   91: def    sorted
+  Line   94: def    sortInPlace
+  Line  104: val    untagged
+  Line  108: def    empty
+  Line  110: def    from
+  Line  112: def    newBuilder
+  Line  141: class  ofRef
+  Line  142: def    elemTag
+  Line  143: def    length
+  Line  144: def    apply
+  Line  145: def    update
+  Line  146: def    hashCode
+  Line  147: def    equals
+  Line  154: def    iterator
+  Line  155: def    stepper
+  Line  163: class  ofByte
+  Line  165: def    elemTag
+  Line  166: def    length
+  Line  167: def    apply
+  Line  168: def    update
+  Line  169: def    hashCode
+  Line  170: def    equals
+  Line  174: def    iterator
+  Line  175: def    stepper
+  Line  183: class  ofShort
+  Line  185: def    elemTag
+  Line  186: def    length
+  Line  187: def    apply
+  Line  188: def    update
+  Line  189: def    hashCode
+  Line  190: def    equals
+  Line  194: def    iterator
+  Line  195: def    stepper
+  Line  203: class  ofChar
+  Line  205: def    elemTag
+  Line  206: def    length
+  Line  207: def    apply
+  Line  208: def    update
+  Line  209: def    hashCode
+  Line  210: def    equals
+  Line  214: def    iterator
+  Line  215: def    stepper
+  Line  221: def    addString
+  Line  244: class  ofInt
+  Line  246: def    elemTag
+  Line  247: def    length
+  Line  248: def    apply
+  Line  249: def    update
+  Line  250: def    hashCode
+  Line  251: def    equals
+  Line  255: def    iterator
+  Line  256: def    stepper
+  Line  264: class  ofLong
+  Line  266: def    elemTag
+  Line  267: def    length
+  Line  268: def    apply
+  Line  269: def    update
+  Line  270: def    hashCode
+  Line  271: def    equals
+  Line  275: def    iterator
+  Line  276: def    stepper
+  Line  284: class  ofFloat
+  Line  286: def    elemTag
+  Line  287: def    length
+  Line  288: def    apply
+  Line  289: def    update
+  Line  290: def    hashCode
+  Line  291: def    equals
+  Line  301: def    iterator
+  Line  302: def    stepper
+  Line  310: class  ofDouble
+  Line  312: def    elemTag
+  Line  313: def    length
+  Line  314: def    apply
+  Line  315: def    update
+  Line  316: def    hashCode
+  Line  317: def    equals
+  Line  327: def    iterator
+  Line  328: def    stepper
+  Line  336: class  ofBoolean
+  Line  338: def    elemTag
+  Line  339: def    length
+  Line  340: def    apply
+  Line  341: def    update
+  Line  342: def    hashCode
+  Line  343: def    equals
+  Line  347: def    iterator
+  Line  348: def    stepper
+  Line  353: class  ofUnit
+  Line  355: def    elemTag
+  Line  356: def    length
+  Line  357: def    apply
+  Line  358: def    update
+  Line  359: def    hashCode
+  Line  360: def    equals
+  Line  364: def    iterator
+  Line  365: def    stepper
+
+scala/collection/mutable/BitSet.scala (4 undocumented):
+  Line  364: object BitSet
+  Line  366: def    fromSpecific
+  Line  368: def    empty
+  Line  370: def    newBuilder
+
+scala/collection/mutable/Buffer.scala (7 undocumented):
+  Line   33: def    iterableFactory
+  Line   35: def    knownSize
+  Line  254: trait  IndexedBuffer
+  Line  259: def    iterableFactory
+  Line  298: def    patchInPlace
+  Line  314: object Buffer
+  Line  317: object IndexedBuffer
+
+scala/collection/mutable/Builder.scala (6 undocumented):
+  Line   99: def    addOne
+  Line  100: def    clear
+  Line  101: def    addAll
+  Line  102: def    sizeHint
+  Line  103: def    result
+  Line  104: def    knownSize
+
+scala/collection/mutable/Cloneable.scala (1 undocumented):
+  Line   23: def    clone
+
+scala/collection/mutable/CollisionProofHashMap.scala (42 undocumented):
+  Line   46: def    this
+  Line   60: def    size
+  Line   72: def    empty
+  Line   74: def    contains
+  Line   76: def    get
+  Line   85: def    apply
+  Line   93: def    getOrElse
+  Line  110: def    sizeHint
+  Line  118: def    update
+  Line  120: def    put
+  Line  125: def    addOne
+  Line  179: def    addAll
+  Line  258: def    keysIterator
+  Line  261: def    extract
+  Line  262: def    extract
+  Line  266: def    iterator
+  Line  269: def    extract
+  Line  270: def    extract
+  Line  346: def    clear
+  Line  351: def    remove
+  Line  356: def    subtractOne
+  Line  358: def    knownSize
+  Line  360: def    isEmpty
+  Line  362: def    foreach
+  Line  375: def    foreachEntry
+  Line  388: def    writeReplace
+  Line  392: def    getOrElseUpdate
+  Line  448: def    concat
+  Line  461: def    + 
+  Line  711: def    fromNodes
+  Line  713: def    f
+  Line  749: def    from
+  Line  755: def    empty
+  Line  757: def    newBuilder
+  Line  759: def    newBuilder
+  Line  761: def    sizeHint
+  Line  790: class  Node
+  Line  794: class  RBNode
+  Line  803: def    toString
+  Line  814: def    foreach
+  Line  820: def    foreachEntry
+  Line  826: def    foreachNode
+
+scala/collection/mutable/Growable.scala (1 undocumented):
+  Line   81: object Growable
+
+scala/collection/mutable/GrowableBuilder.scala (5 undocumented):
+  Line   30: def    clear
+  Line   32: def    result
+  Line   34: def    addOne
+  Line   36: def    addAll
+  Line   38: def    knownSize
+
+scala/collection/mutable/HashMap.scala (41 undocumented):
+  Line   51: def    this
+  Line   63: def    size
+  Line   95: def    sizeHint
+  Line  100: def    addAll
+  Line  133: def    updateWith
+  Line  147: def    findNode
+  Line  191: def    subtractAll
+  Line  329: def    iterator
+  Line  332: def    extract
+  Line  335: def    keysIterator
+  Line  338: def    extract
+  Line  341: def    valuesIterator
+  Line  344: def    extract
+  Line  352: def    extract
+  Line  355: def    stepper
+  Line  360: def    keyStepper
+  Line  371: def    valueStepper
+  Line  434: def    clear
+  Line  439: def    get
+  Line  445: def    apply
+  Line  450: def    getOrElse
+  Line  461: def    getOrElseUpdate
+  Line  485: def    put
+  Line  490: def    remove
+  Line  495: def    update
+  Line  497: def    addOne
+  Line  499: def    subtractOne
+  Line  501: def    knownSize
+  Line  503: def    isEmpty
+  Line  505: def    foreach
+  Line  515: def    foreachEntry
+  Line  525: def    writeReplace
+  Line  527: def    filterInPlace
+  Line  576: def    mapFactory
+  Line  581: def    hashCode
+  Line  586: def    hashCode
+  Line  605: def    empty
+  Line  607: def    from
+  Line  613: def    newBuilder
+  Line  615: def    newBuilder
+  Line  617: def    sizeHint
+
+scala/collection/mutable/HashSet.scala (23 undocumented):
+  Line   41: def    this
+  Line   58: def    size
+  Line   86: def    sizeHint
+  Line   91: def    add
+  Line   96: def    addAll
+  Line  120: def    subtractAll
+  Line  204: def    remove
+  Line  234: def    iterator
+  Line  243: def    stepper
+  Line  299: def    filterInPlace
+  Line  359: def    clear
+  Line  364: def    iterableFactory
+  Line  370: def    knownSize
+  Line  372: def    isEmpty
+  Line  374: def    foreach
+  Line  384: def    writeReplace
+  Line  388: def    hashCode
+  Line  394: def    hashCode
+  Line  412: def    from
+  Line  418: def    empty
+  Line  420: def    newBuilder
+  Line  422: def    newBuilder
+  Line  424: def    sizeHint
+
+scala/collection/mutable/ImmutableBuilder.scala (4 undocumented):
+  Line   26: var    elems
+  Line   28: def    clear
+  Line   30: def    result
+  Line   32: def    knownSize
+
+scala/collection/mutable/IndexedSeq.scala (3 undocumented):
+  Line   19: trait  IndexedSeq
+  Line   24: def    iterableFactory
+  Line   28: object IndexedSeq
+
+scala/collection/mutable/Iterable.scala (2 undocumented):
+  Line   19: trait  Iterable
+  Line   24: def    iterableFactory
+
+scala/collection/mutable/LinkedHashMap.scala (40 undocumented):
+  Line   47: def    mapFactory
+  Line   57: var    firstEntry
+  Line   60: var    lastEntry
+  Line   73: def    last
+  Line   77: def    lastOption
+  Line   81: def    head
+  Line   85: def    headOption
+  Line   90: def    knownSize
+  Line   91: def    isEmpty
+  Line   93: def    get
+  Line   98: def    sizeHint
+  Line  103: def    contains
+  Line  110: def    put
+  Line  115: def    update
+  Line  117: def    remove
+  Line  122: def    getOrElse
+  Line  133: def    getOrElseUpdate
+  Line  212: def    addOne
+  Line  217: def    subtractOne
+  Line  231: def    iterator
+  Line  234: def    extract
+  Line  237: class  LinkedKeySet
+  Line  238: def    iterableFactory
+  Line  241: def    keySet
+  Line  243: def    keysIterator
+  Line  246: def    extract
+  Line  252: def    extract
+  Line  258: def    updateWith
+  Line  272: def    findEntry
+  Line  314: def    valuesIterator
+  Line  317: def    extract
+  Line  321: def    foreach
+  Line  329: def    foreachEntry
+  Line  337: def    clear
+  Line  458: def    hashCode
+  Line  463: def    hashCode
+  Line  464: def    extract
+  Line  483: def    empty
+  Line  485: def    from
+  Line  492: def    newBuilder
+
+scala/collection/mutable/LinkedHashSet.scala (27 undocumented):
+  Line   43: def    iterableFactory
+  Line   51: var    firstEntry
+  Line   54: var    lastEntry
+  Line   67: def    last
+  Line   71: def    lastOption
+  Line   75: def    head
+  Line   79: def    headOption
+  Line   83: def    size
+  Line   84: def    knownSize
+  Line   85: def    isEmpty
+  Line   87: def    contains
+  Line   89: def    sizeHint
+  Line   94: def    add
+  Line  100: def    addOne
+  Line  105: def    subtractOne
+  Line  110: def    remove
+  Line  121: def    iterator
+  Line  122: def    extract
+  Line  126: def    extract
+  Line  129: def    foreach
+  Line  137: def    clear
+  Line  294: def    hashCode
+  Line  300: def    hashCode
+  Line  301: def    extract
+  Line  321: def    empty
+  Line  323: def    from
+  Line  330: def    newBuilder
+
+scala/collection/mutable/ListBuffer.scala (19 undocumented):
+  Line   59: def    iterator
+  Line   61: def    iterableFactory
+  Line   64: def    apply
+  Line   69: def    isEmpty
+  Line   86: def    toList
+  Line   95: def    result
+  Line  110: def    clear
+  Line  160: def    subtractOne
+  Line  209: def    update
+  Line  229: def    insert
+  Line  241: def    prepend
+  Line  257: def    insertAll
+  Line  270: def    remove
+  Line  286: def    remove
+  Line  369: def    patchInPlace
+  Line  417: object ListBuffer
+  Line  419: def    from
+  Line  421: def    newBuilder
+  Line  423: def    empty
+
+scala/collection/mutable/ListMap.scala (8 undocumented):
+  Line   43: def    mapFactory
+  Line   48: def    get
+  Line   49: def    iterator
+  Line   69: def    knownSize
+  Line   70: def    isEmpty
+  Line   82: def    empty
+  Line   83: def    from
+  Line   84: def    newBuilder
+
+scala/collection/mutable/LongMap.scala (6 undocumented):
+  Line  591: object LongMap
+  Line  605: def    addOne
+  Line  609: def    clear
+  Line  610: def    result
+  Line  611: def    knownSize
+  Line  644: def    newBuilder
+
+scala/collection/mutable/Map.scala (18 undocumented):
+  Line   30: def    mapFactory
+  Line   78: def    result
+  Line  166: def    clear
+  Line  168: def    clone
+  Line  224: def    updated
+  Line  227: def    knownSize
+  Line  239: class  WithDefault
+  Line  243: def    default
+  Line  245: def    iterator
+  Line  246: def    isEmpty
+  Line  247: def    knownSize
+  Line  248: def    mapFactory
+  Line  250: def    clear
+  Line  252: def    get
+  Line  254: def    subtractOne
+  Line  256: def    addOne
+  Line  258: def    concat
+  Line  261: def    empty
+
+scala/collection/mutable/OpenHashMap.scala (20 undocumented):
+  Line   32: def    empty
+  Line   33: def    from
+  Line   35: def    newBuilder
+  Line   46: var    hash
+  Line   47: var    value
+  Line   82: def    mapFactory
+  Line  102: def    knownSize
+  Line  104: def    isEmpty
+  Line  156: def    update
+  Line  159: def    addOne
+  Line  162: def    subtractOne
+  Line  164: def    put
+  Line  201: def    remove
+  Line  210: def    get
+  Line  237: def    keysIterator
+  Line  240: def    valuesIterator
+  Line  264: def    clone
+  Line  287: def    foreachEntry
+  Line  299: def    mapValuesInPlace
+  Line  304: def    filterInPlace
+
+scala/collection/mutable/PriorityQueue.scala (20 undocumented):
+  Line  111: def    size
+  Line  112: def    knownSize
+  Line  113: def    isEmpty
+  Line  118: def    empty
+  Line  131: def    result
+  Line  134: def    fixUp
+  Line  143: def    fixDown
+  Line  176: def    addAll
+  Line  339: def    hasNext
+  Line  340: def    next
+  Line  380: def    copyToArray
+  Line  389: def    orderedCompanion
+  Line  391: def    writeReplace
+  Line  398: object PriorityQueue
+  Line  399: def    newBuilder
+  Line  402: def    addOne
+  Line  403: def    result
+  Line  404: def    clear
+  Line  408: def    empty
+  Line  410: def    from
+
+scala/collection/mutable/Queue.scala (5 undocumented):
+  Line   41: def    this
+  Line   44: def    iterableFactory
+  Line  134: def    from
+  Line  136: def    empty
+  Line  138: def    newBuilder
+
+scala/collection/mutable/Seq.scala (3 undocumented):
+  Line   19: trait  Seq
+  Line   25: def    iterableFactory
+  Line   45: def    clone
+
+scala/collection/mutable/SeqMap.scala (2 undocumented):
+  Line   38: def    mapFactory
+  Line   41: object SeqMap
+
+scala/collection/mutable/Set.scala (5 undocumented):
+  Line   26: def    iterableFactory
+  Line   41: def    result
+  Line   82: def    diff
+  Line  109: def    clone
+  Line  111: def    knownSize
+
+scala/collection/mutable/SortedMap.scala (14 undocumented):
+  Line   29: def    unsorted
+  Line   31: def    sortedMapFactory
+  Line   60: def    unsorted
+  Line   63: def    updated
+  Line   68: object SortedMap
+  Line   71: class  WithDefault
+  Line   77: def    sortedMapFactory
+  Line   79: def    iteratorFrom
+  Line   81: def    keysIteratorFrom
+  Line   85: def    rangeImpl
+  Line   90: def    subtractOne
+  Line   92: def    addOne
+  Line   94: def    empty
+  Line   96: def    concat
+
+scala/collection/mutable/SortedSet.scala (3 undocumented):
+  Line   28: def    unsorted
+  Line   30: def    sortedIterableFactory
+  Line   41: def    unsorted
+
+scala/collection/mutable/Stack.scala (5 undocumented):
+  Line   47: def    this
+  Line   50: def    iterableFactory
+  Line  138: def    from
+  Line  140: def    empty
+  Line  142: def    newBuilder
+
+scala/collection/mutable/StringBuilder.scala (26 undocumented):
+  Line   62: def    this
+  Line   84: def    apply
+  Line   92: def    empty
+  Line   98: def    knownSize
+  Line  100: def    addOne
+  Line  102: def    clear
+  Line  110: def    result
+  Line  112: def    toString
+  Line  114: def    toArray
+  Line  133: def    appendAll
+  Line  236: def    append
+  Line  237: def    append
+  Line  238: def    append
+  Line  239: def    append
+  Line  240: def    append
+  Line  241: def    append
+  Line  242: def    append
+  Line  341: def    insert
+  Line  342: def    insert
+  Line  343: def    insert
+  Line  344: def    insert
+  Line  345: def    insert
+  Line  346: def    insert
+  Line  347: def    insert
+  Line  358: def    update
+  Line  494: object StringBuilder
+
+scala/collection/mutable/TreeMap.scala (3 undocumented):
+  Line  252: def    from
+  Line  255: def    empty
+  Line  257: def    newBuilder
+
+scala/collection/mutable/TreeSet.scala (7 undocumented):
+  Line  197: def    empty
+  Line  199: def    from
+  Line  209: val    t
+  Line  215: def    newBuilder
+  Line  217: def    addOne
+  Line  218: def    result
+  Line  219: def    clear
+
+scala/collection/mutable/UnrolledBuffer.scala (25 undocumented):
+  Line   72: def    evidenceIterableFactory
+  Line   73: def    iterableEvidence
+  Line   75: def    iterableFactory
+  Line   94: def    classTagCompanion
+  Line  119: def    addOne
+  Line  125: def    clear
+  Line  131: def    iterator
+  Line  145: def    next
+  Line  153: def    foreach
+  Line  155: def    result
+  Line  159: def    knownSize
+  Line  161: def    apply
+  Line  165: def    update
+  Line  179: def    remove
+  Line  191: def    prepend
+  Line  197: def    insert
+  Line  200: def    insertAll
+  Line  205: def    subtractOne
+  Line  212: def    patchInPlace
+  Line  239: def    clone
+  Line  246: object UnrolledBuffer
+  Line  248: val    untagged
+  Line  250: def    empty
+  Line  252: def    from
+  Line  254: def    newBuilder
+
+scala/collection/mutable/WeakHashMap.scala (4 undocumented):
+  Line   42: def    mapFactory
+  Line   53: def    empty
+  Line   54: def    from
+  Line   55: def    newBuilder
+
+scala/compat/Platform.scala (1 undocumented):
+  Line   19: object Platform
+
+scala/compiletime/ops/any.scala (1 undocumented):
+  Line    6: object any
+
+scala/compiletime/ops/boolean.scala (1 undocumented):
+  Line    6: object boolean
+
+scala/compiletime/ops/double.scala (1 undocumented):
+  Line    6: object double
+
+scala/compiletime/ops/float.scala (1 undocumented):
+  Line    6: object float
+
+scala/compiletime/ops/int.scala (1 undocumented):
+  Line    6: object int
+
+scala/compiletime/ops/long.scala (1 undocumented):
+  Line    6: object long
+
+scala/compiletime/ops/string.scala (1 undocumented):
+  Line    6: object string
+
+scala/compiletime/testing/ErrorKind.scala (1 undocumented):
+  Line    8: object ErrorKind
+
+scala/concurrent/BlockContext.scala (1 undocumented):
+  Line   62: object BlockContext
+
+scala/concurrent/ExecutionContext.scala (2 undocumented):
+  Line   72: trait  ExecutionContext
+  Line  242: object Implicits
+
+scala/concurrent/Future.scala (2 undocumented):
+  Line  775: def    searchNext
+  Line  893: trait  OnCompleteRunnable
+
+scala/concurrent/Promise.scala (1 undocumented):
+  Line  121: object Promise
+
+scala/concurrent/SyncChannel.scala (2 undocumented):
+  Line   29: def    write
+  Line   54: def    read
+
+scala/concurrent/duration/Deadline.scala (2 undocumented):
+  Line   72: object Deadline
+  Line   84: def    compare
+
+scala/concurrent/duration/Duration.scala (56 undocumented):
+  Line   19: object Duration
+  Line  180: def    toString
+  Line  181: def    equals
+  Line  182: def    +
+  Line  183: def    -
+  Line  184: def    *
+  Line  185: def    /
+  Line  186: def    /
+  Line  187: def    compare
+  Line  189: def    toUnit
+  Line  193: class  Infinite
+  Line  194: def    +
+  Line  199: def    -
+  Line  205: def    *
+  Line  209: def    /
+  Line  213: def    /
+  Line  240: def    toString
+  Line  241: def    compare
+  Line  247: def    toUnit
+  Line  257: def    toString
+  Line  258: def    compare
+  Line  260: def    toUnit
+  Line  303: def    compare
+  Line  504: def    gt
+  Line  505: def    gteq
+  Line  506: def    lt
+  Line  507: def    lteq
+  Line  547: object FiniteDuration
+  Line  550: def    compare
+  Line  553: def    apply
+  Line  554: def    apply
+  Line  592: def    toNanos
+  Line  593: def    toMicros
+  Line  594: def    toMillis
+  Line  595: def    toSeconds
+  Line  596: def    toMinutes
+  Line  597: def    toHours
+  Line  598: def    toDays
+  Line  599: def    toUnit
+  Line  607: def    toString
+  Line  609: def    compare
+  Line  626: def    +
+  Line  630: def    -
+  Line  635: def    *
+  Line  641: def    /
+  Line  648: def    /
+  Line  655: def    +
+  Line  656: def    -
+  Line  657: def    plus
+  Line  658: def    minus
+  Line  659: def    min
+  Line  660: def    max
+  Line  717: def    loop
+  Line  718: def    coarserOrThis
+  Line  738: def    equals
+  Line  742: def    hashCode
+
+scala/concurrent/duration/DurationConversions.scala (46 undocumented):
+  Line   20: trait  DurationConversions
+  Line   21: def    durationIn
+  Line   23: def    nanoseconds
+  Line   24: def    nanos
+  Line   25: def    nanosecond
+  Line   26: def    nano
+  Line   28: def    microseconds
+  Line   29: def    micros
+  Line   30: def    microsecond
+  Line   31: def    micro
+  Line   33: def    milliseconds
+  Line   34: def    millis
+  Line   35: def    millisecond
+  Line   36: def    milli
+  Line   38: def    seconds
+  Line   39: def    second
+  Line   41: def    minutes
+  Line   42: def    minute
+  Line   44: def    hours
+  Line   45: def    hour
+  Line   47: def    days
+  Line   48: def    day
+  Line   50: def    nanoseconds
+  Line   51: def    nanos
+  Line   52: def    nanosecond
+  Line   53: def    nano
+  Line   55: def    microseconds
+  Line   56: def    micros
+  Line   57: def    microsecond
+  Line   58: def    micro
+  Line   60: def    milliseconds
+  Line   61: def    millis
+  Line   62: def    millisecond
+  Line   63: def    milli
+  Line   65: def    seconds
+  Line   66: def    second
+  Line   68: def    minutes
+  Line   69: def    minute
+  Line   71: def    hours
+  Line   72: def    hour
+  Line   74: def    days
+  Line   75: def    day
+  Line   82: trait  Classifier
+  Line   84: def    convert
+  Line   89: def    convert
+  Line   94: def    convert
+
+scala/concurrent/duration/package.scala (5 undocumented):
+  Line   76: def    *
+  Line   77: def    *
+  Line   81: def    *
+  Line   82: def    *
+  Line   86: def    *
+
+scala/deriving/Mirror.scala (4 undocumented):
+  Line   19: object Mirror
+  Line   34: trait  Singleton
+  Line   39: def    fromProduct
+  Line   48: def    fromProduct
+
+scala/io/AnsiColor.scala (1 undocumented):
+  Line  178: object AnsiColor
+
+scala/io/BufferedSource.scala (6 undocumented):
+  Line   25: def    this
+  Line   26: def    reader
+  Line   27: def    bufferedReader
+  Line   68: class  BufferedLineIterator
+  Line   78: def    next
+  Line   88: def    getLines
+
+scala/io/Codec.scala (20 undocumented):
+  Line   52: def    onMalformedInput
+  Line   53: def    onUnmappableCharacter
+  Line   54: def    decodingReplaceWith
+  Line   55: def    encodingReplaceWith
+  Line   56: def    onCodingException
+  Line   58: def    name
+  Line   59: def    encoder
+  Line   66: def    decoder
+  Line   74: def    wrap
+  Line   78: trait  LowPriorityCodecImplicits
+  Line   85: object Codec
+  Line   95: def    fileEncodingCodec
+  Line   96: def    default
+  Line   98: def    apply
+  Line   99: def    apply
+  Line  100: def    apply
+  Line  106: def    fromUTF8
+  Line  107: def    fromUTF8
+  Line  117: def    toUTF8
+  Line  125: def    toUTF8
+
+scala/io/Source.scala (22 undocumented):
+  Line   87: def    fromFile
+  Line  113: def    fromBytes
+  Line  170: def    fromInputStream
+  Line  173: def    fromInputStream
+  Line  219: class  LineIterator
+  Line  223: def    isNewline
+  Line  224: def    getc
+  Line  238: def    hasNext
+  Line  239: def    next
+  Line  261: class  Positioner
+  Line  262: def    this
+  Line  276: def    next
+  Line  296: def    checkInput
+  Line  298: object RelaxedPositioner
+  Line  299: object NoPositioner
+  Line  300: def    next
+  Line  302: def    ch
+  Line  303: def    pos
+  Line  353: def    withReset
+  Line  357: def    withClose
+  Line  361: def    withDescription
+  Line  370: def    withPositioning
+
+scala/io/StdIn.scala (1 undocumented):
+  Line  242: object StdIn
+
+scala/jdk/Accumulator.scala (13 undocumented):
+  Line  114: def    efficientStepper
+  Line  372: def    factory
+  Line  373: def    empty
+  Line  376: object AccumulatorFactoryShape
+  Line  378: def    factory
+  Line  379: def    empty
+  Line  383: def    factory
+  Line  384: def    empty
+  Line  388: def    factory
+  Line  389: def    empty
+  Line  397: trait  LowPriorityAccumulatorFactoryShape
+  Line  401: def    factory
+  Line  402: def    empty
+
+scala/jdk/AnyAccumulator.scala (10 undocumented):
+  Line   38: def    efficientStepper
+  Line  123: def    clear
+  Line  142: def    update
+  Line  150: def    update
+  Line  155: def    countLong
+  Line  221: def    iterableFactory
+  Line  226: object AnyAccumulator
+  Line  251: def    from
+  Line  256: def    empty
+  Line  258: def    newBuilder
+
+scala/jdk/DoubleAccumulator.scala (20 undocumented):
+  Line   38: def    efficientStepper
+  Line  134: def    clear
+  Line  152: def    update
+  Line  160: def    update
+  Line  165: def    foreach
+  Line  170: def    map
+  Line  178: def    flatMap
+  Line  186: def    collect
+  Line  206: def    filter
+  Line  208: def    filterNot
+  Line  210: def    forall
+  Line  217: def    exists
+  Line  224: def    count
+  Line  232: def    countLong
+  Line  295: def    iterableFactory
+  Line  297: def    empty
+  Line  302: object DoubleAccumulator
+  Line  329: def    fromSpecific
+  Line  336: def    empty
+  Line  338: def    newBuilder
+
+scala/jdk/FunctionExtensions.scala (4 undocumented):
+  Line   21: trait  Priority3FunctionExtensions
+  Line   31: trait  Priority2FunctionExtensions
+  Line   51: trait  Priority1FunctionExtensions
+  Line   87: trait  Priority0FunctionExtensions
+
+scala/jdk/FunctionWrappers.scala (87 undocumented):
+  Line   20: object FunctionWrappers
+  Line   22: def    apply
+  Line   33: def    accept
+  Line   49: def    apply
+  Line   60: def    apply
+  Line   76: def    apply
+  Line   87: def    test
+  Line  103: def    apply
+  Line  114: def    apply
+  Line  130: def    apply
+  Line  141: def    getAsBoolean
+  Line  153: def    apply
+  Line  164: def    accept
+  Line  180: def    apply
+  Line  191: def    applyAsDouble
+  Line  203: def    apply
+  Line  214: def    accept
+  Line  226: def    apply
+  Line  237: def    apply
+  Line  253: def    apply
+  Line  264: def    test
+  Line  276: def    apply
+  Line  287: def    getAsDouble
+  Line  299: def    apply
+  Line  310: def    applyAsInt
+  Line  322: def    apply
+  Line  333: def    applyAsLong
+  Line  345: def    apply
+  Line  356: def    applyAsDouble
+  Line  368: def    apply
+  Line  379: def    apply
+  Line  395: def    apply
+  Line  406: def    applyAsInt
+  Line  418: def    apply
+  Line  429: def    accept
+  Line  441: def    apply
+  Line  452: def    apply
+  Line  468: def    apply
+  Line  479: def    test
+  Line  491: def    apply
+  Line  502: def    getAsInt
+  Line  514: def    apply
+  Line  525: def    applyAsDouble
+  Line  537: def    apply
+  Line  548: def    applyAsLong
+  Line  560: def    apply
+  Line  571: def    applyAsInt
+  Line  583: def    apply
+  Line  594: def    applyAsLong
+  Line  606: def    apply
+  Line  617: def    accept
+  Line  629: def    apply
+  Line  640: def    apply
+  Line  656: def    apply
+  Line  667: def    test
+  Line  679: def    apply
+  Line  690: def    getAsLong
+  Line  702: def    apply
+  Line  713: def    applyAsDouble
+  Line  725: def    apply
+  Line  736: def    applyAsInt
+  Line  748: def    apply
+  Line  759: def    applyAsLong
+  Line  771: def    apply
+  Line  782: def    accept
+  Line  798: def    apply
+  Line  809: def    accept
+  Line  825: def    apply
+  Line  836: def    accept
+  Line  852: def    apply
+  Line  863: def    test
+  Line  879: def    apply
+  Line  890: def    get
+  Line  906: def    apply
+  Line  917: def    applyAsDouble
+  Line  933: def    apply
+  Line  944: def    applyAsDouble
+  Line  960: def    apply
+  Line  971: def    applyAsInt
+  Line  987: def    apply
+  Line  998: def    applyAsInt
+  Line 1014: def    apply
+  Line 1025: def    applyAsLong
+  Line 1041: def    apply
+  Line 1052: def    applyAsLong
+  Line 1068: def    apply
+  Line 1079: def    apply
+
+scala/jdk/IntAccumulator.scala (20 undocumented):
+  Line   39: def    efficientStepper
+  Line  140: def    clear
+  Line  158: def    update
+  Line  166: def    update
+  Line  171: def    foreach
+  Line  176: def    map
+  Line  184: def    flatMap
+  Line  192: def    collect
+  Line  212: def    filter
+  Line  214: def    filterNot
+  Line  216: def    forall
+  Line  223: def    exists
+  Line  230: def    count
+  Line  238: def    countLong
+  Line  301: def    iterableFactory
+  Line  303: def    empty
+  Line  308: object IntAccumulator
+  Line  335: def    fromSpecific
+  Line  342: def    empty
+  Line  344: def    newBuilder
+
+scala/jdk/LongAccumulator.scala (20 undocumented):
+  Line   39: def    efficientStepper
+  Line  135: def    clear
+  Line  153: def    update
+  Line  161: def    update
+  Line  166: def    foreach
+  Line  171: def    map
+  Line  179: def    flatMap
+  Line  187: def    collect
+  Line  207: def    filter
+  Line  209: def    filterNot
+  Line  211: def    forall
+  Line  218: def    exists
+  Line  225: def    count
+  Line  233: def    countLong
+  Line  296: def    iterableFactory
+  Line  298: def    empty
+  Line  303: object LongAccumulator
+  Line  330: def    fromSpecific
+  Line  337: def    empty
+  Line  339: def    newBuilder
+
+scala/jdk/OptionShape.scala (7 undocumented):
+  Line   35: object OptionShape
+  Line   37: def    fromJava
+  Line   40: def    fromScala
+  Line   48: def    fromJava
+  Line   51: def    fromScala
+  Line   59: def    fromJava
+  Line   62: def    fromScala
+
+scala/language.scala (1 undocumented):
+  Line  445: object future
+
+scala/languageFeature.scala (16 undocumented):
+  Line   18: object languageFeature
+  Line   21: trait  dynamics
+  Line   22: object dynamics
+  Line   25: trait  postfixOps
+  Line   26: object postfixOps
+  Line   29: trait  reflectiveCalls
+  Line   30: object reflectiveCalls
+  Line   33: trait  implicitConversions
+  Line   34: object implicitConversions
+  Line   38: trait  higherKinds
+  Line   40: object higherKinds
+  Line   43: trait  existentials
+  Line   44: object existentials
+  Line   46: object experimental
+  Line   48: trait  macros
+  Line   49: object macros
+
+scala/math/BigDecimal.scala (6 undocumented):
+  Line   26: object BigDecimal
+  Line   32: val    defaultMathContext
+  Line   37: object RoundingMode
+  Line  360: def    this
+  Line  470: def    underlying
+  Line  595: def    setScale
+
+scala/math/BigInt.scala (5 undocumented):
+  Line   24: object BigInt
+  Line  224: def    bigInteger
+  Line  252: def    isValidLong
+  Line  291: def    isWhole
+  Line  292: def    underlying
+
+scala/math/Equiv.scala (23 undocumented):
+  Line   41: trait  LowPriorityEquiv
+  Line   58: object Equiv
+  Line   59: def    reference
+  Line   60: def    universal
+  Line   61: def    fromComparator
+  Line   64: def    fromFunction
+  Line   67: def    by
+  Line   97: trait  ExtraImplicits
+  Line  112: def    equiv
+  Line  116: def    equiv
+  Line  120: def    equiv
+  Line  124: def    equiv
+  Line  128: def    equiv
+  Line  132: def    equiv
+  Line  136: def    equiv
+  Line  161: def    equiv
+  Line  174: def    equiv
+  Line  208: def    equiv
+  Line  221: def    equiv
+  Line  233: def    equiv
+  Line  237: def    equiv
+  Line  241: def    equiv
+  Line  245: def    equiv
+
+scala/math/Fractional.scala (7 undocumented):
+  Line   19: trait  Fractional
+  Line   20: def    div
+  Line   22: class  FractionalOps
+  Line   23: def    /
+  Line   29: object Fractional
+  Line   32: trait  ExtraImplicits
+  Line   35: object Implicits
+
+scala/math/Integral.scala (10 undocumented):
+  Line   19: trait  Integral
+  Line   20: def    quot
+  Line   21: def    rem
+  Line   23: class  IntegralOps
+  Line   24: def    /
+  Line   25: def    %
+  Line   26: def    /%
+  Line   31: object Integral
+  Line   34: trait  ExtraImplicits
+  Line   41: object Implicits
+
+scala/math/Numeric.scala (159 undocumented):
+  Line   21: object Numeric
+  Line   24: trait  ExtraImplicits
+  Line   34: object Implicits
+  Line   36: trait  BigIntIsIntegral
+  Line   37: def    plus
+  Line   38: def    minus
+  Line   39: def    times
+  Line   40: def    quot
+  Line   41: def    rem
+  Line   42: def    negate
+  Line   43: def    fromInt
+  Line   44: def    parseString
+  Line   45: def    toInt
+  Line   46: def    toLong
+  Line   47: def    toFloat
+  Line   48: def    toDouble
+  Line   52: trait  IntIsIntegral
+  Line   53: def    plus
+  Line   54: def    minus
+  Line   55: def    times
+  Line   56: def    quot
+  Line   57: def    rem
+  Line   58: def    negate
+  Line   59: def    fromInt
+  Line   60: def    parseString
+  Line   61: def    toInt
+  Line   62: def    toLong
+  Line   63: def    toFloat
+  Line   64: def    toDouble
+  Line   65: def    signum
+  Line   66: def    sign
+  Line   70: trait  ShortIsIntegral
+  Line   71: def    plus
+  Line   72: def    minus
+  Line   73: def    times
+  Line   74: def    quot
+  Line   75: def    rem
+  Line   76: def    negate
+  Line   77: def    fromInt
+  Line   78: def    parseString
+  Line   79: def    toInt
+  Line   80: def    toLong
+  Line   81: def    toFloat
+  Line   82: def    toDouble
+  Line   83: def    signum
+  Line   84: def    sign
+  Line   88: trait  ByteIsIntegral
+  Line   89: def    plus
+  Line   90: def    minus
+  Line   91: def    times
+  Line   92: def    quot
+  Line   93: def    rem
+  Line   94: def    negate
+  Line   95: def    fromInt
+  Line   96: def    parseString
+  Line   97: def    toInt
+  Line   98: def    toLong
+  Line   99: def    toFloat
+  Line  100: def    toDouble
+  Line  101: def    signum
+  Line  102: def    sign
+  Line  106: trait  CharIsIntegral
+  Line  107: def    plus
+  Line  108: def    minus
+  Line  109: def    times
+  Line  110: def    quot
+  Line  111: def    rem
+  Line  112: def    negate
+  Line  113: def    fromInt
+  Line  114: def    parseString
+  Line  115: def    toInt
+  Line  116: def    toLong
+  Line  117: def    toFloat
+  Line  118: def    toDouble
+  Line  119: def    signum
+  Line  120: def    sign
+  Line  124: trait  LongIsIntegral
+  Line  125: def    plus
+  Line  126: def    minus
+  Line  127: def    times
+  Line  128: def    quot
+  Line  129: def    rem
+  Line  130: def    negate
+  Line  131: def    fromInt
+  Line  132: def    parseString
+  Line  133: def    toInt
+  Line  134: def    toLong
+  Line  135: def    toFloat
+  Line  136: def    toDouble
+  Line  137: def    signum
+  Line  138: def    sign
+  Line  142: trait  FloatIsFractional
+  Line  143: def    plus
+  Line  144: def    minus
+  Line  145: def    times
+  Line  146: def    negate
+  Line  147: def    fromInt
+  Line  148: def    parseString
+  Line  149: def    toInt
+  Line  150: def    toLong
+  Line  151: def    toFloat
+  Line  152: def    toDouble
+  Line  153: def    div
+  Line  155: def    abs
+  Line  157: def    sign
+  Line  161: trait  DoubleIsFractional
+  Line  162: def    plus
+  Line  163: def    minus
+  Line  164: def    times
+  Line  165: def    negate
+  Line  166: def    fromInt
+  Line  167: def    parseString
+  Line  168: def    toInt
+  Line  169: def    toLong
+  Line  170: def    toFloat
+  Line  171: def    toDouble
+  Line  172: def    div
+  Line  174: def    abs
+  Line  176: def    sign
+  Line  180: trait  BigDecimalIsConflicted
+  Line  182: def    plus
+  Line  186: def    minus
+  Line  191: def    times
+  Line  195: def    negate
+  Line  196: def    fromInt
+  Line  197: def    parseString
+  Line  198: def    toInt
+  Line  199: def    toLong
+  Line  200: def    toFloat
+  Line  201: def    toDouble
+  Line  208: trait  BigDecimalIsFractional
+  Line  209: def    div
+  Line  211: trait  BigDecimalAsIfIntegral
+  Line  212: def    quot
+  Line  213: def    rem
+  Line  219: object BigDecimalAsIfIntegral
+  Line  222: trait  Numeric
+  Line  223: def    plus
+  Line  224: def    minus
+  Line  225: def    times
+  Line  226: def    negate
+  Line  227: def    fromInt
+  Line  228: def    parseString
+  Line  229: def    toInt
+  Line  230: def    toLong
+  Line  231: def    toFloat
+  Line  232: def    toDouble
+  Line  237: def    abs
+  Line  243: def    sign
+  Line  248: class  NumericOps
+  Line  249: def    +
+  Line  250: def    -
+  Line  251: def    *
+  Line  253: def    abs
+  Line  255: def    sign
+  Line  256: def    toInt
+  Line  257: def    toLong
+  Line  258: def    toFloat
+  Line  259: def    toDouble
+
+scala/math/Ordered.scala (1 undocumented):
+  Line   98: object Ordered
+
+scala/math/Ordering.scala (68 undocumented):
+  Line  141: def    compare
+  Line  193: def    <
+  Line  194: def    <=
+  Line  195: def    >
+  Line  196: def    >=
+  Line  197: def    equiv
+  Line  198: def    max
+  Line  199: def    min
+  Line  208: trait  LowPriorityOrderingImplicits
+  Line  219: def    compare
+  Line  223: def    compare
+  Line  290: trait  ExtraImplicits
+  Line  316: def    compare
+  Line  318: def    lt
+  Line  319: def    gt
+  Line  320: def    gteq
+  Line  321: def    lteq
+  Line  335: def    compare
+  Line  336: def    lt
+  Line  337: def    gt
+  Line  338: def    gteq
+  Line  339: def    lteq
+  Line  342: trait  UnitOrdering
+  Line  343: def    compare
+  Line  348: trait  BooleanOrdering
+  Line  349: def    compare
+  Line  354: trait  ByteOrdering
+  Line  355: def    compare
+  Line  360: trait  CharOrdering
+  Line  361: def    compare
+  Line  366: trait  ShortOrdering
+  Line  367: def    compare
+  Line  372: trait  IntOrdering
+  Line  373: def    compare
+  Line  378: trait  LongOrdering
+  Line  379: def    compare
+  Line  438: def    compare
+  Line  460: def    compare
+  Line  462: def    lteq
+  Line  463: def    gteq
+  Line  464: def    lt
+  Line  465: def    gt
+  Line  466: def    equiv
+  Line  467: def    max
+  Line  468: def    min
+  Line  535: def    compare
+  Line  557: def    compare
+  Line  559: def    lteq
+  Line  560: def    gteq
+  Line  561: def    lt
+  Line  562: def    gt
+  Line  563: def    equiv
+  Line  564: def    max
+  Line  565: def    min
+  Line  580: trait  BigIntOrdering
+  Line  581: def    compare
+  Line  586: trait  BigDecimalOrdering
+  Line  587: def    compare
+  Line  592: trait  StringOrdering
+  Line  593: def    compare
+  Line  598: trait  SymbolOrdering
+  Line  599: def    compare
+  Line  604: trait  OptionOrdering
+  Line  605: def    optionOrdering
+  Line  606: def    compare
+  Line  613: def    equals
+  Line  618: def    hashCode
+  Line  622: class  O
+
+scala/math/PartialOrdering.scala (8 undocumented):
+  Line   77: def    reverse
+  Line   79: def    tryCompare
+  Line   80: def    lteq
+  Line   81: def    gteq
+  Line   82: def    lt
+  Line   83: def    gt
+  Line   84: def    equiv
+  Line   88: object PartialOrdering
+
+scala/math/PartiallyOrdered.scala (4 undocumented):
+  Line   33: def    < 
+  Line   39: def    > 
+  Line   45: def    <= 
+  Line   51: def    >= 
+
+scala/math/ScalaNumericConversions.scala (7 undocumented):
+  Line   22: def    underlying
+  Line   32: def    byteValue
+  Line   33: def    shortValue
+  Line   34: def    intValue
+  Line   35: def    longValue
+  Line   36: def    floatValue
+  Line   37: def    doubleValue
+
+scala/package.scala (3 undocumented):
+  Line   43: def    toString
+  Line   94: def    unapply
+  Line   97: def    unapply
+
+scala/quoted/ExprMap.scala (16 undocumented):
+  Line    5: trait  ExprMap
+  Line   13: class  MapChildren
+  Line   15: def    transformStatement
+  Line   26: def    transformDefinition
+  Line   43: def    transformTermChildren
+  Line  101: def    transformTerm
+  Line  119: def    transformTypeTree
+  Line  121: def    transformCaseDef
+  Line  124: def    transformTypeCaseDef
+  Line  127: def    transformStats
+  Line  130: def    transformDefinitions
+  Line  133: def    transformTerms
+  Line  141: def    transformTerms
+  Line  144: def    transformTypeTrees
+  Line  147: def    transformCaseDefs
+  Line  150: def    transformTypeCaseDefs
+
+scala/quoted/Exprs.scala (1 undocumented):
+  Line    5: object Exprs
+
+scala/quoted/FromExpr.scala (35 undocumented):
+  Line  106: def    unapply
+  Line  119: def    unapply
+  Line  130: def    unapply
+  Line  142: def    unapply
+  Line  154: def    unapply
+  Line  165: def    unapply
+  Line  177: def    unapply
+  Line  190: def    unapply
+  Line  202: def    unapply
+  Line  214: def    unapply
+  Line  226: def    unapply
+  Line  238: def    unapply
+  Line  250: def    unapply
+  Line  262: def    unapply
+  Line  274: def    unapply
+  Line  286: def    unapply
+  Line  298: def    unapply
+  Line  310: def    unapply
+  Line  322: def    unapply
+  Line  334: def    unapply
+  Line  346: def    unapply
+  Line  358: def    unapply
+  Line  370: def    unapply
+  Line  382: def    unapply
+  Line  394: def    unapply
+  Line  406: def    unapply
+  Line  418: def    unapply
+  Line  431: def    unapply
+  Line  445: def    unapply
+  Line  458: def    unapply
+  Line  474: def    unapply
+  Line  489: def    unapply
+  Line  504: def    unapply
+  Line  516: def    unapply
+  Line  527: def    unapply
+
+scala/quoted/Quotes.scala (266 undocumented):
+  Line   43: def    $
+  Line   45: trait  Quotes
+  Line  277: def    asTerm
+  Line  317: def    asExprOf
+  Line  609: def    copy
+  Line  610: def    unapply
+  Line  686: def    copy
+  Line  687: def    unapply
+  Line  770: def    apply
+  Line  771: def    copy
+  Line  772: def    unapply
+  Line  959: def    apply
+  Line  961: def    copy
+  Line 1023: def    copy
+  Line 1059: def    copy
+  Line 1091: def    copy
+  Line 1126: def    copy
+  Line 1158: def    copy
+  Line 1194: def    copy
+  Line 1246: def    copy
+  Line 1312: def    copy
+  Line 1324: def    qualifier
+  Line 1325: def    id
+  Line 1326: def    idPos
+  Line 1349: def    copy
+  Line 1361: def    expr
+  Line 1362: def    tpt
+  Line 1381: def    copy
+  Line 1393: def    lhs
+  Line 1394: def    rhs
+  Line 1413: def    copy
+  Line 1425: def    statements
+  Line 1426: def    expr
+  Line 1450: def    apply
+  Line 1452: def    copy
+  Line 1454: def    unapply
+  Line 1463: def    meth
+  Line 1464: def    tpeOpt
+  Line 1541: def    copy
+  Line 1553: def    cond
+  Line 1554: def    thenp
+  Line 1555: def    elsep
+  Line 1556: def    isInline
+  Line 1575: def    copy
+  Line 1587: def    scrutinee
+  Line 1588: def    cases
+  Line 1589: def    isInline
+  Line 1608: def    copy
+  Line 1620: def    cases
+  Line 1639: def    copy
+  Line 1651: def    body
+  Line 1652: def    cases
+  Line 1653: def    finalizer
+  Line 1672: def    copy
+  Line 1684: def    expr
+  Line 1685: def    from
+  Line 1738: def    elems
+  Line 1739: def    elemtpt
+  Line 1766: def    bindings
+  Line 1767: def    body
+  Line 1782: def    apply
+  Line 1783: def    copy
+  Line 1784: def    unapply
+  Line 1793: def    qualifier
+  Line 1794: def    name
+  Line 1795: def    level
+  Line 1814: def    copy
+  Line 1826: def    cond
+  Line 1827: def    body
+  Line 1846: def    copy
+  Line 1858: def    tree
+  Line 1859: def    tpt
+  Line 1908: def    apply
+  Line 1924: def    apply
+  Line 1925: def    copy
+  Line 1926: def    unapply
+  Line 1935: def    name
+  Line 1950: def    apply
+  Line 1951: def    copy
+  Line 1952: def    unapply
+  Line 1961: def    qualifier
+  Line 1962: def    name
+  Line 1977: def    apply
+  Line 1978: def    copy
+  Line 1979: def    unapply
+  Line 1988: def    qualifier
+  Line 1989: def    name
+  Line 2004: def    apply
+  Line 2005: def    copy
+  Line 2006: def    unapply
+  Line 2015: def    ref
+  Line 2037: def    copy
+  Line 2038: def    unapply
+  Line 2047: def    tpt
+  Line 2048: def    refinements
+  Line 2074: def    tpt
+  Line 2090: def    apply
+  Line 2091: def    copy
+  Line 2092: def    unapply
+  Line 2101: def    arg
+  Line 2102: def    annotation
+  Line 2117: def    apply
+  Line 2118: def    copy
+  Line 2119: def    unapply
+  Line 2128: def    bound
+  Line 2129: def    selector
+  Line 2130: def    cases
+  Line 2145: def    apply
+  Line 2146: def    copy
+  Line 2147: def    unapply
+  Line 2156: def    result
+  Line 2182: def    tparams
+  Line 2208: def    name
+  Line 2224: def    apply
+  Line 2225: def    copy
+  Line 2226: def    unapply
+  Line 2235: def    aliases
+  Line 2236: def    tpt
+  Line 2253: def    apply
+  Line 2254: def    copy
+  Line 2255: def    unapply
+  Line 2264: def    tpe
+  Line 2265: def    low
+  Line 2266: def    hi
+  Line 2284: def    apply
+  Line 2295: def    tpe
+  Line 2312: def    apply
+  Line 2313: def    copy
+  Line 2314: def    unapply
+  Line 2323: def    pattern
+  Line 2324: def    guard
+  Line 2325: def    rhs
+  Line 2340: def    apply
+  Line 2341: def    copy
+  Line 2342: def    unapply
+  Line 2351: def    pattern
+  Line 2352: def    rhs
+  Line 2369: def    apply
+  Line 2370: def    copy
+  Line 2371: def    unapply
+  Line 2380: def    name
+  Line 2381: def    pattern
+  Line 2434: def    apply
+  Line 2435: def    copy
+  Line 2436: def    unapply
+  Line 2445: def    patterns
+  Line 2501: def    apply
+  Line 2502: def    unapply
+  Line 2539: def    apply
+  Line 2540: def    unapply
+  Line 2583: def    unapply
+  Line 2592: def    name
+  Line 2593: def    namePos
+  Line 2609: def    unapply
+  Line 2618: def    fromName
+  Line 2619: def    fromPos
+  Line 2620: def    toName
+  Line 2621: def    toPos
+  Line 2637: def    unapply
+  Line 2646: def    name
+  Line 2647: def    namePos
+  Line 2662: def    unapply
+  Line 2671: def    bound
+  Line 2764: def    classSymbol
+  Line 2765: def    typeSymbol
+  Line 2766: def    termSymbol
+  Line 2767: def    isSingleton
+  Line 2856: def    apply
+  Line 2857: def    unapply
+  Line 2866: def    constant
+  Line 2882: def    qualifier
+  Line 2883: def    name
+  Line 2898: def    apply
+  Line 2899: def    unapply
+  Line 2913: def    unapply
+  Line 2922: def    isOpaqueAlias
+  Line 2923: def    translucentSuperType
+  Line 2938: def    apply
+  Line 2939: def    unapply
+  Line 2948: def    thistpe
+  Line 2949: def    supertpe
+  Line 2964: def    apply
+  Line 2965: def    unapply
+  Line 2974: def    parent
+  Line 2975: def    name
+  Line 2976: def    info
+  Line 2993: def    unapply
+  Line 3002: def    tycon
+  Line 3003: def    args
+  Line 3018: def    apply
+  Line 3019: def    unapply
+  Line 3028: def    underlying
+  Line 3029: def    annotation
+  Line 3046: def    left
+  Line 3047: def    right
+  Line 3062: def    apply
+  Line 3063: def    unapply
+  Line 3077: def    apply
+  Line 3078: def    unapply
+  Line 3092: def    apply
+  Line 3093: def    unapply
+  Line 3102: def    bound
+  Line 3103: def    scrutinee
+  Line 3104: def    cases
+  Line 3133: def    apply
+  Line 3134: def    unapply
+  Line 3143: def    underlying
+  Line 3158: def    unapply
+  Line 3167: def    binder
+  Line 3168: def    paramNum
+  Line 3183: def    unapply
+  Line 3192: def    tref
+  Line 3207: def    unapply
+  Line 3216: def    binder
+  Line 3242: def    unapply
+  Line 3251: def    underlying
+  Line 3252: def    recThis
+  Line 3268: def    paramNames
+  Line 3269: def    paramTypes
+  Line 3270: def    resType
+  Line 3300: def    apply
+  Line 3301: def    apply
+  Line 3302: def    unapply
+  Line 3326: def    param
+  Line 3341: def    apply
+  Line 3342: def    unapply
+  Line 3351: def    param
+  Line 3352: def    paramBounds
+  Line 3367: def    apply
+  Line 3368: def    unapply
+  Line 3404: def    apply
+  Line 3406: def    unapply
+  Line 3436: def    apply
+  Line 3437: def    unapply
+  Line 3438: def    empty
+  Line 3439: def    upper
+  Line 3440: def    lower
+  Line 3449: def    low
+  Line 3450: def    hi
+  Line 3467: def    unapply
+  Line 3483: def    apply
+  Line 3484: def    unapply
+  Line 3493: def    underlying
+  Line 3494: def    lo
+  Line 3495: def    hi
+  Line 3777: def    tree
+  Line 3792: def    explanation
+  Line 5135: def    foldTree
+  Line 5137: def    foldTrees
+  Line 5139: def    foldOverTree
+  Line 5247: def    traverseTree
+  Line 5249: def    foldTree
+  Line 5251: def    traverseTreeChildren
+  Line 5276: def    transformTree
+  Line 5307: def    transformStatement
+  Line 5344: def    transformTerm
+  Line 5393: def    transformTypeTree
+  Line 5422: def    transformCaseDef
+  Line 5426: def    transformTypeCaseDef
+  Line 5430: def    transformStats
+  Line 5433: def    transformTrees
+  Line 5436: def    transformTerms
+  Line 5439: def    transformTypeTrees
+  Line 5442: def    transformCaseDefs
+  Line 5445: def    transformTypeCaseDefs
+  Line 5448: def    transformSubTrees
+
+scala/quoted/ToExpr.scala (59 undocumented):
+  Line   24: def    apply
+  Line   31: def    apply
+  Line   38: def    apply
+  Line   45: def    apply
+  Line   52: def    apply
+  Line   59: def    apply
+  Line   66: def    apply
+  Line   73: def    apply
+  Line   80: def    apply
+  Line   87: def    apply
+  Line   95: def    apply
+  Line  101: def    apply
+  Line  107: def    apply
+  Line  114: def    apply
+  Line  121: def    apply
+  Line  128: def    apply
+  Line  135: def    apply
+  Line  142: def    apply
+  Line  149: def    apply
+  Line  156: def    apply
+  Line  163: def    apply
+  Line  169: def    apply
+  Line  175: def    apply
+  Line  181: def    apply
+  Line  187: def    apply
+  Line  193: def    apply
+  Line  199: def    apply
+  Line  207: def    apply
+  Line  213: def    apply
+  Line  219: def    apply
+  Line  226: def    apply
+  Line  232: def    apply
+  Line  238: def    apply
+  Line  244: def    apply
+  Line  250: def    apply
+  Line  256: def    apply
+  Line  262: def    apply
+  Line  268: def    apply
+  Line  276: def    apply
+  Line  284: def    apply
+  Line  292: def    apply
+  Line  300: def    apply
+  Line  308: def    apply
+  Line  316: def    apply
+  Line  324: def    apply
+  Line  332: def    apply
+  Line  340: def    apply
+  Line  348: def    apply
+  Line  356: def    apply
+  Line  364: def    apply
+  Line  372: def    apply
+  Line  380: def    apply
+  Line  388: def    apply
+  Line  396: def    apply
+  Line  404: def    apply
+  Line  412: def    apply
+  Line  420: def    apply
+  Line  426: def    apply
+  Line  433: def    apply
+
+scala/quoted/Type.scala (1 undocumented):
+  Line   77: def    rec
+
+scala/quoted/Varargs.scala (1 undocumented):
+  Line   49: def    rec
+
+scala/quoted/runtime/Expr.scala (1 undocumented):
+  Line    9: object Expr
+
+scala/quoted/runtime/Patterns.scala (1 undocumented):
+  Line    9: object Patterns
+
+scala/quoted/runtime/QuoteMatching.scala (5 undocumented):
+  Line   10: val    ExprMatch
+  Line   12: trait  ExprMatchModule
+  Line   35: val    TypeMatch
+  Line   37: trait  TypeMatchModule
+  Line   48: object QuoteMatching
+
+scala/quoted/runtime/StopMacroExpansion.scala (1 undocumented):
+  Line   11: def    fillInStackTrace
+
+scala/ref/PhantomReference.scala (2 undocumented):
+  Line   17: class  PhantomReference
+  Line   18: val    underlying
+
+scala/ref/Reference.scala (4 undocumented):
+  Line   25: def    toString
+  Line   26: def    clear
+  Line   27: def    enqueue
+  Line   28: def    isEnqueued
+
+scala/ref/ReferenceQueue.scala (6 undocumented):
+  Line   17: class  ReferenceQueue
+  Line   20: def    toString
+  Line   22: def    Wrapper
+  Line   28: def    poll
+  Line   29: def    remove
+  Line   30: def    remove
+
+scala/ref/ReferenceWrapper.scala (7 undocumented):
+  Line   19: trait  ReferenceWrapper
+  Line   20: val    underlying
+  Line   22: def    apply
+  Line   27: def    clear
+  Line   28: def    enqueue
+  Line   29: def    isEnqueued
+  Line   30: def    self
+
+scala/ref/SoftReference.scala (3 undocumented):
+  Line   17: class  SoftReference
+  Line   18: def    this
+  Line   20: val    underlying
+
+scala/ref/WeakReference.scala (2 undocumented):
+  Line   23: def    this
+  Line   24: val    underlying
+
+scala/reflect/ClassManifestDeprecatedApis.scala (17 undocumented):
+  Line   23: trait  ClassManifestDeprecatedApis
+  Line   28: def    erasure
+  Line   32: def    loop
+  Line   93: def    canEqual
+  Line   98: def    arrayClass
+  Line  102: def    arrayManifest
+  Line  106: def    newArray2
+  Line  111: def    newArray3
+  Line  116: def    newArray4
+  Line  121: def    newArray5
+  Line  126: def    newWrappedArray
+  Line  131: def    newArrayBuilder
+  Line  136: def    typeArguments
+  Line  174: def    fromClass
+  Line  187: def    singleType
+  Line  210: def    arrayType
+  Line  246: def    toString
+
+scala/reflect/ClassTag.scala (22 undocumented):
+  Line   82: def    canEqual
+  Line   83: def    equals
+  Line   84: def    hashCode
+  Line   85: def    toString
+  Line   86: def    prettyprint
+  Line  103: val    Byte
+  Line  104: val    Short
+  Line  105: val    Char
+  Line  106: val    Int
+  Line  107: val    Long
+  Line  108: val    Float
+  Line  109: val    Double
+  Line  110: val    Boolean
+  Line  111: val    Unit
+  Line  112: val    Any
+  Line  113: val    Object
+  Line  114: val    AnyVal
+  Line  115: val    AnyRef
+  Line  116: val    Nothing
+  Line  117: val    Null
+  Line  154: def    apply
+  Line  168: def    unapply
+
+scala/reflect/Manifest.scala (73 undocumented):
+  Line   52: def    typeArguments
+  Line   54: def    arrayManifest
+  Line   57: def    canEqual
+  Line   68: def    hashCode
+  Line   83: def    valueManifests
+  Line   86: val    Byte
+  Line   87: val    Short
+  Line   88: val    Char
+  Line   89: val    Int
+  Line   90: val    Long
+  Line   91: val    Float
+  Line   92: val    Double
+  Line   93: val    Boolean
+  Line   94: val    Unit
+  Line   96: val    Any
+  Line   97: val    Object
+  Line   98: val    AnyRef
+  Line   99: val    AnyVal
+  Line  100: val    Null
+  Line  101: val    Nothing
+  Line  128: def    arrayType
+  Line  151: class  AnyValManifest
+  Line  152: def    <:<
+  Line  154: def    canEqual
+  Line  158: def    equals
+  Line  172: def    valueManifests
+  Line  177: def    runtimeClass
+  Line  179: def    newWrappedArray
+  Line  180: def    newArrayBuilder
+  Line  181: def    unapply
+  Line  193: def    runtimeClass
+  Line  195: def    newWrappedArray
+  Line  196: def    newArrayBuilder
+  Line  197: def    unapply
+  Line  209: def    runtimeClass
+  Line  211: def    newWrappedArray
+  Line  212: def    newArrayBuilder
+  Line  213: def    unapply
+  Line  225: def    runtimeClass
+  Line  227: def    newWrappedArray
+  Line  228: def    newArrayBuilder
+  Line  229: def    unapply
+  Line  241: def    runtimeClass
+  Line  243: def    newWrappedArray
+  Line  244: def    newArrayBuilder
+  Line  245: def    unapply
+  Line  257: def    runtimeClass
+  Line  259: def    newWrappedArray
+  Line  260: def    newArrayBuilder
+  Line  261: def    unapply
+  Line  273: def    runtimeClass
+  Line  275: def    newWrappedArray
+  Line  276: def    newArrayBuilder
+  Line  278: def    unapply
+  Line  290: def    runtimeClass
+  Line  292: def    newWrappedArray
+  Line  293: def    newArrayBuilder
+  Line  294: def    unapply
+  Line  306: def    runtimeClass
+  Line  308: def    newWrappedArray
+  Line  309: def    newArrayBuilder
+  Line  313: def    unapply
+  Line  329: def    newArray
+  Line  330: def    <:<
+  Line  337: def    newArray
+  Line  338: def    <:<
+  Line  347: def    newArray
+  Line  348: def    <:<
+  Line  355: def    newArray
+  Line  356: def    <:<
+  Line  364: def    newArray
+  Line  365: def    <:<
+  Line  421: def    arrayType
+
+scala/reflect/NoManifest.scala (1 undocumented):
+  Line   23: def    toString
+
+scala/reflect/Selectable.scala (1 undocumented):
+  Line   44: object Selectable
+
+scala/reflect/TypeTest.scala (1 undocumented):
+  Line   28: object TypeTest
+
+scala/reflect/package.scala (1 undocumented):
+  Line   53: def    classTag
+
+scala/runtime/AbstractFunction0.scala (1 undocumented):
+  Line   19: class  AbstractFunction0
+
+scala/runtime/AbstractFunction1.scala (1 undocumented):
+  Line   19: class  AbstractFunction1
+
+scala/runtime/AbstractFunction10.scala (1 undocumented):
+  Line   19: class  AbstractFunction10
+
+scala/runtime/AbstractFunction11.scala (1 undocumented):
+  Line   19: class  AbstractFunction11
+
+scala/runtime/AbstractFunction12.scala (1 undocumented):
+  Line   19: class  AbstractFunction12
+
+scala/runtime/AbstractFunction13.scala (1 undocumented):
+  Line   19: class  AbstractFunction13
+
+scala/runtime/AbstractFunction14.scala (1 undocumented):
+  Line   19: class  AbstractFunction14
+
+scala/runtime/AbstractFunction15.scala (1 undocumented):
+  Line   19: class  AbstractFunction15
+
+scala/runtime/AbstractFunction16.scala (1 undocumented):
+  Line   19: class  AbstractFunction16
+
+scala/runtime/AbstractFunction17.scala (1 undocumented):
+  Line   19: class  AbstractFunction17
+
+scala/runtime/AbstractFunction18.scala (1 undocumented):
+  Line   19: class  AbstractFunction18
+
+scala/runtime/AbstractFunction19.scala (1 undocumented):
+  Line   19: class  AbstractFunction19
+
+scala/runtime/AbstractFunction2.scala (1 undocumented):
+  Line   19: class  AbstractFunction2
+
+scala/runtime/AbstractFunction20.scala (1 undocumented):
+  Line   19: class  AbstractFunction20
+
+scala/runtime/AbstractFunction21.scala (1 undocumented):
+  Line   19: class  AbstractFunction21
+
+scala/runtime/AbstractFunction22.scala (1 undocumented):
+  Line   19: class  AbstractFunction22
+
+scala/runtime/AbstractFunction3.scala (1 undocumented):
+  Line   19: class  AbstractFunction3
+
+scala/runtime/AbstractFunction4.scala (1 undocumented):
+  Line   19: class  AbstractFunction4
+
+scala/runtime/AbstractFunction5.scala (1 undocumented):
+  Line   19: class  AbstractFunction5
+
+scala/runtime/AbstractFunction6.scala (1 undocumented):
+  Line   19: class  AbstractFunction6
+
+scala/runtime/AbstractFunction7.scala (1 undocumented):
+  Line   19: class  AbstractFunction7
+
+scala/runtime/AbstractFunction8.scala (1 undocumented):
+  Line   19: class  AbstractFunction8
+
+scala/runtime/AbstractFunction9.scala (1 undocumented):
+  Line   19: class  AbstractFunction9
+
+scala/runtime/ArrayCharSequence.scala (5 undocumented):
+  Line   20: class  ArrayCharSequence
+  Line   27: def    length
+  Line   28: def    charAt
+  Line   33: def    subSequence
+  Line   43: def    toString
+
+scala/runtime/EnumValue.scala (4 undocumented):
+  Line    6: def    canEqual
+  Line    7: def    productArity
+  Line    8: def    productElement
+  Line   10: def    productElementName
+
+scala/runtime/FunctionXXL.scala (1 undocumented):
+  Line   11: def    toString
+
+scala/runtime/LambdaDeserialize.scala (3 undocumented):
+  Line   37: object LambdaDeserialize
+  Line   39: def    bootstrap
+  Line   45: def    nameAndDescriptorKey
+
+scala/runtime/LambdaDeserializer.scala (4 undocumented):
+  Line   53: def    deserializeLambdaOrNull
+  Line   56: def    slashDot
+  Line   61: def    makeCallSite
+  Line   63: def    parseDescriptor
+
+scala/runtime/LazyRef.scala (38 undocumented):
+  Line   25: def    value
+  Line   26: def    initialize
+  Line   32: def    toString
+  Line   36: class  LazyBoolean
+  Line   41: def    value
+  Line   42: def    initialize
+  Line   48: def    toString
+  Line   52: class  LazyByte
+  Line   58: def    value
+  Line   60: def    initialize
+  Line   66: def    toString
+  Line   70: class  LazyChar
+  Line   75: def    value
+  Line   76: def    initialize
+  Line   82: def    toString
+  Line   86: class  LazyShort
+  Line   91: def    value
+  Line   92: def    initialize
+  Line   98: def    toString
+  Line  102: class  LazyInt
+  Line  107: def    value
+  Line  108: def    initialize
+  Line  114: def    toString
+  Line  118: class  LazyLong
+  Line  123: def    value
+  Line  124: def    initialize
+  Line  130: def    toString
+  Line  134: class  LazyFloat
+  Line  139: def    value
+  Line  140: def    initialize
+  Line  146: def    toString
+  Line  150: class  LazyDouble
+  Line  155: def    value
+  Line  156: def    initialize
+  Line  162: def    toString
+  Line  166: class  LazyUnit
+  Line  170: def    initialize
+  Line  172: def    toString
+
+scala/runtime/LazyVals.scala (12 undocumented):
+  Line   14: def    throwInitializationException
+  Line   50: trait  LazyValControlState
+  Line   88: def    STATE
+  Line   95: def    CAS
+  Line  103: def    objCAS
+  Line  109: def    setFlag
+  Line  129: def    wait4Notification
+  Line  148: def    get
+  Line  155: def    getOffset
+  Line  163: def    getStaticFieldOffset
+  Line  171: def    getOffsetStatic
+  Line  179: object Names
+
+scala/runtime/MethodCache.scala (4 undocumented):
+  Line   53: def    find
+  Line   56: def    add
+  Line   77: def    find
+  Line   82: def    add
+
+scala/runtime/ModuleSerializationProxy.scala (1 undocumented):
+  Line   42: class  ModuleSerializationProxy
+
+scala/runtime/NonLocalReturnControl.scala (1 undocumented):
+  Line   20: class  NonLocalReturnControl
+
+scala/runtime/RichBoolean.scala (2 undocumented):
+  Line   18: class  RichBoolean
+  Line   19: def    ord
+
+scala/runtime/RichByte.scala (6 undocumented):
+  Line   18: class  RichByte
+  Line   19: def    num
+  Line   20: def    ord
+  Line   34: def    abs
+  Line   35: def    max
+  Line   36: def    min
+
+scala/runtime/RichChar.scala (30 undocumented):
+  Line   18: class  RichChar
+  Line   19: def    num
+  Line   20: def    ord
+  Line   34: def    abs
+  Line   35: def    max
+  Line   36: def    min
+  Line   38: def    asDigit
+  Line   40: def    isControl
+  Line   41: def    isDigit
+  Line   42: def    isLetter
+  Line   43: def    isLetterOrDigit
+  Line   44: def    isWhitespace
+  Line   45: def    isSpaceChar
+  Line   46: def    isHighSurrogate
+  Line   47: def    isLowSurrogate
+  Line   48: def    isSurrogate
+  Line   49: def    isUnicodeIdentifierStart
+  Line   50: def    isUnicodeIdentifierPart
+  Line   51: def    isIdentifierIgnorable
+  Line   52: def    isMirrored
+  Line   54: def    isLower
+  Line   55: def    isUpper
+  Line   56: def    isTitleCase
+  Line   58: def    toLower
+  Line   59: def    toUpper
+  Line   60: def    toTitleCase
+  Line   62: def    getType
+  Line   63: def    getNumericValue
+  Line   64: def    getDirectionality
+  Line   65: def    reverseBytes
+
+scala/runtime/RichDouble.scala (15 undocumented):
+  Line   18: class  RichDouble
+  Line   19: def    num
+  Line   20: def    ord
+  Line   41: def    isNaN
+  Line   42: def    isInfinity
+  Line   43: def    isFinite
+  Line   44: def    isPosInfinity
+  Line   45: def    isNegInfinity
+  Line   50: def    abs
+  Line   51: def    max
+  Line   52: def    min
+  Line   54: def    signum
+  Line   56: def    round
+  Line   57: def    ceil
+  Line   58: def    floor
+
+scala/runtime/RichFloat.scala (15 undocumented):
+  Line   18: class  RichFloat
+  Line   19: def    num
+  Line   20: def    ord
+  Line   41: def    isNaN
+  Line   42: def    isInfinity
+  Line   43: def    isFinite
+  Line   44: def    isPosInfinity
+  Line   45: def    isNegInfinity
+  Line   50: def    abs
+  Line   51: def    max
+  Line   52: def    min
+  Line   54: def    signum
+  Line   56: def    round
+  Line   57: def    ceil
+  Line   58: def    floor
+
+scala/runtime/RichInt.scala (9 undocumented):
+  Line   21: class  RichInt
+  Line   22: def    num
+  Line   23: def    ord
+  Line   44: def    abs
+  Line   45: def    max
+  Line   46: def    min
+  Line   52: def    toBinaryString
+  Line   53: def    toHexString
+  Line   54: def    toOctalString
+
+scala/runtime/RichLong.scala (9 undocumented):
+  Line   18: class  RichLong
+  Line   19: def    num
+  Line   20: def    ord
+  Line   40: def    abs
+  Line   41: def    max
+  Line   42: def    min
+  Line   48: def    toBinaryString
+  Line   49: def    toHexString
+  Line   50: def    toOctalString
+
+scala/runtime/RichShort.scala (6 undocumented):
+  Line   18: class  RichShort
+  Line   19: def    num
+  Line   20: def    ord
+  Line   34: def    abs
+  Line   35: def    max
+  Line   36: def    min
+
+scala/runtime/Scala3RunTime.scala (3 undocumented):
+  Line    5: object Scala3RunTime
+  Line    9: def    assertFailed
+  Line   12: def    assertFailed
+
+scala/runtime/ScalaNumberProxy.scala (15 undocumented):
+  Line   52: trait  ScalaWholeNumberProxy
+  Line   56: trait  IntegralProxy
+  Line   60: def    until
+  Line   61: def    until
+  Line   62: def    to
+  Line   63: def    to
+  Line   65: trait  FractionalProxy
+  Line   72: trait  OrderedProxy
+  Line   73: def    ord
+  Line   75: def    compare
+  Line   79: trait  RangedProxy
+  Line   82: def    until
+  Line   83: def    until
+  Line   84: def    to
+  Line   85: def    to
+
+scala/runtime/ScalaRunTime.scala (31 undocumented):
+  Line   31: def    isArray
+  Line   38: def    drop
+  Line  111: def    copy
+  Line  138: def    toArray
+  Line  154: def    ensureAccessible
+  Line  158: def    _toString
+  Line  165: def    _hashCode
+  Line  173: def    next
+  Line  194: def    stringOf
+  Line  195: def    packageOf
+  Line  199: def    isScalaClass
+  Line  200: def    isScalaCompilerClass
+  Line  203: def    isTuple
+  Line  206: def    isSubClassOf
+  Line  214: def    isXmlNode
+  Line  215: def    isXmlMetaData
+  Line  218: def    useOwnToString
+  Line  238: def    mapInner
+  Line  244: def    arrayToString
+  Line  255: def    inner
+  Line  297: def    genericWrapArray
+  Line  298: def    wrapRefArray
+  Line  299: def    wrapIntArray
+  Line  300: def    wrapDoubleArray
+  Line  301: def    wrapLongArray
+  Line  302: def    wrapFloatArray
+  Line  303: def    wrapCharArray
+  Line  304: def    wrapByteArray
+  Line  305: def    wrapShortArray
+  Line  306: def    wrapBooleanArray
+  Line  307: def    wrapUnitArray
+
+scala/runtime/StructuralCallSite.scala (2 undocumented):
+  Line   42: object StructuralCallSite
+  Line   43: def    bootstrap
+
+scala/runtime/Tuple2Zipped.scala (6 undocumented):
+  Line   30: def    iterator
+  Line   31: def    isEmpty
+  Line   34: object ZippedIterable2
+  Line   37: def    iterator
+  Line   38: def    isEmpty
+  Line  121: object Tuple2Zipped
+
+scala/runtime/Tuple3Zipped.scala (6 undocumented):
+  Line   28: def    iterator
+  Line   29: def    isEmpty
+  Line   32: object ZippedIterable3
+  Line   35: def    iterator
+  Line   36: def    isEmpty
+  Line  130: object Tuple3Zipped
+
+scala/runtime/TupleXXL.scala (5 undocumented):
+  Line   49: object TupleXXL
+  Line   50: def    fromIterator
+  Line   51: def    fromIArray
+  Line   52: def    apply
+  Line   53: def    unapplySeq
+
+scala/runtime/TupledFunctions.scala (26 undocumented):
+  Line    9: object TupledFunctions
+  Line   11: def    tupledFunction0
+  Line   16: def    tupledFunction1
+  Line   21: def    tupledFunction2
+  Line   26: def    tupledFunction3
+  Line   31: def    tupledFunction4
+  Line   36: def    tupledFunction5
+  Line   41: def    tupledFunction6
+  Line   48: def    tupledFunction7
+  Line   55: def    tupledFunction8
+  Line   62: def    tupledFunction9
+  Line   69: def    tupledFunction10
+  Line   76: def    tupledFunction11
+  Line   83: def    tupledFunction12
+  Line   90: def    tupledFunction13
+  Line   97: def    tupledFunction14
+  Line  104: def    tupledFunction15
+  Line  111: def    tupledFunction16
+  Line  118: def    tupledFunction17
+  Line  125: def    tupledFunction18
+  Line  132: def    tupledFunction19
+  Line  139: def    tupledFunction20
+  Line  146: def    tupledFunction21
+  Line  153: def    tupledFunction22
+  Line  160: def    tupledFunctionXXL
+  Line  163: def    apply
+
+scala/runtime/Tuples.scala (26 undocumented):
+  Line    5: object Tuples
+  Line    9: def    toArray
+  Line   15: def    toIArray
+  Line   21: def    productToArray
+  Line   31: def    fromArray
+  Line   58: def    fromIArray
+  Line   62: def    fromProduct
+  Line  251: def    cons
+  Line  256: def    concat
+  Line  283: def    size
+  Line  355: def    tail
+  Line  430: def    append
+  Line  508: def    reverse
+  Line  563: def    init
+  Line  568: def    last
+  Line  572: def    apply
+  Line  586: def    zip
+  Line  600: def    map
+  Line  605: def    take
+  Line  626: def    drop
+  Line  648: def    splitAt
+  Line  671: def    consIterator
+  Line  674: def    concatIterator
+  Line  677: def    isInstanceOfTuple
+  Line  708: def    isInstanceOfEmptyTuple
+  Line  710: def    isInstanceOfNonEmptyTuple
+
+scala/runtime/VarArgsBuilder.scala (61 undocumented):
+  Line    6: class  VarArgsBuilder
+  Line    7: def    add
+  Line    8: def    addSeq
+  Line    9: def    addArray
+  Line   10: def    result
+  Line   12: object VarArgsBuilder
+  Line   14: def    generic
+  Line   16: def    result
+  Line   18: def    add
+  Line   22: def    addSeq
+  Line   27: def    addArray
+  Line   33: def    ofRef
+  Line   35: def    result
+  Line   37: def    add
+  Line   41: def    addSeq
+  Line   46: def    addArray
+  Line   52: def    ofByte
+  Line   54: def    result
+  Line   56: def    add
+  Line   60: def    addSeq
+  Line   65: def    addArray
+  Line   71: def    ofShort
+  Line   73: def    result
+  Line   75: def    add
+  Line   79: def    addSeq
+  Line   84: def    addArray
+  Line   90: def    ofChar
+  Line   92: def    result
+  Line   94: def    add
+  Line   98: def    addSeq
+  Line  103: def    addArray
+  Line  109: def    ofInt
+  Line  111: def    result
+  Line  113: def    add
+  Line  117: def    addSeq
+  Line  122: def    addArray
+  Line  128: def    ofLong
+  Line  130: def    result
+  Line  132: def    add
+  Line  136: def    addSeq
+  Line  141: def    addArray
+  Line  147: def    ofFloat
+  Line  149: def    result
+  Line  151: def    add
+  Line  155: def    addSeq
+  Line  160: def    addArray
+  Line  166: def    ofDouble
+  Line  168: def    result
+  Line  170: def    add
+  Line  174: def    addSeq
+  Line  179: def    addArray
+  Line  185: def    ofBoolean
+  Line  187: def    result
+  Line  189: def    add
+  Line  193: def    addSeq
+  Line  198: def    addArray
+  Line  204: def    ofUnit
+  Line  206: def    result
+  Line  208: def    add
+  Line  212: def    addSeq
+  Line  217: def    addArray
+
+scala/runtime/coverage/Invoker.scala (2 undocumented):
+  Line   13: object Invoker
+  Line   54: def    measurementFile
+
+scala/runtime/java8/JFunction0$mcB$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction0$mcC$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction0$mcD$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction0$mcF$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction0$mcI$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction0$mcJ$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction0$mcS$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction0$mcV$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction0$mcZ$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction1$mcDD$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction1$mcDF$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction1$mcDI$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction1$mcDJ$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction1$mcFD$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction1$mcFF$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction1$mcFI$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction1$mcFJ$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction1$mcID$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction1$mcIF$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction1$mcII$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction1$mcIJ$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction1$mcJD$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction1$mcJF$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction1$mcJI$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction1$mcJJ$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction1$mcVD$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction1$mcVF$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction1$mcVI$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction1$mcVJ$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction1$mcZD$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction1$mcZF$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction1$mcZI$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction1$mcZJ$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction2$mcDDD$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction2$mcDDI$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction2$mcDDJ$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction2$mcDID$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction2$mcDII$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction2$mcDIJ$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction2$mcDJD$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction2$mcDJI$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction2$mcDJJ$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction2$mcFDD$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction2$mcFDI$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction2$mcFDJ$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction2$mcFID$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction2$mcFII$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction2$mcFIJ$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction2$mcFJD$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction2$mcFJI$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction2$mcFJJ$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction2$mcIDD$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction2$mcIDI$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction2$mcIDJ$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction2$mcIID$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction2$mcIII$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction2$mcIIJ$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction2$mcIJD$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction2$mcIJI$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction2$mcIJJ$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction2$mcJDD$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction2$mcJDI$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction2$mcJDJ$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction2$mcJID$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction2$mcJII$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction2$mcJIJ$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction2$mcJJD$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction2$mcJJI$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction2$mcJJJ$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction2$mcVDD$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction2$mcVDI$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction2$mcVDJ$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction2$mcVID$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction2$mcVII$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction2$mcVIJ$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction2$mcVJD$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction2$mcVJI$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction2$mcVJJ$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction2$mcZDD$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction2$mcZDI$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction2$mcZDJ$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction2$mcZID$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction2$mcZII$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction2$mcZIJ$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction2$mcZJD$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction2$mcZJI$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/java8/JFunction2$mcZJJ$sp.scala (1 undocumented):
+  Line   19: def    apply
+
+scala/runtime/stdLibPatches/Predef.scala (1 undocumented):
+  Line    8: object Predef
+
+scala/runtime/stdLibPatches/language.scala (1 undocumented):
+  Line  252: object future
+
+scala/specialized.scala (2 undocumented):
+  Line   34: def    this
+  Line   35: def    this
+
+scala/sys/BooleanProp.scala (14 undocumented):
+  Line   39: object BooleanProp
+  Line   41: class  BooleanPropImpl
+  Line   42: def    setValue
+  Line   46: def    enable
+  Line   47: def    disable
+  Line   48: def    toggle
+  Line   51: class  ConstantImpl
+  Line   53: def    set
+  Line   54: def    setValue
+  Line   55: def    get
+  Line   59: def    clear
+  Line   60: def    enable
+  Line   61: def    disable
+  Line   62: def    toggle
+
+scala/sys/Prop.scala (2 undocumented):
+  Line   78: object Prop
+  Line   94: def    apply
+
+scala/sys/ShutdownHookThread.scala (1 undocumented):
+  Line   25: object ShutdownHookThread
+
+scala/sys/SystemProperties.scala (12 undocumented):
+  Line   34: def    empty
+  Line   35: def    default
+  Line   37: def    iterator
+  Line   42: def    isEmpty
+  Line   43: def    names
+  Line   47: def    get
+  Line   49: def    contains
+  Line   52: def    clear
+  Line   53: def    subtractOne
+  Line   54: def    addOne
+  Line   57: def    wrapAccess
+  Line   81: def    help
+
+scala/sys/process/BasicIO.scala (1 undocumented):
+  Line  202: def    readFully
+
+scala/sys/process/ProcessBuilder.scala (2 undocumented):
+  Line  437: def    toSource
+  Line  463: def    toSink
+
+scala/sys/process/ProcessIO.scala (5 undocumented):
+  Line   55: val    writeInput
+  Line   56: val    processOutput
+  Line   57: val    processError
+  Line   58: val    daemonizeThreads
+  Line   60: def    this
+
+scala/sys/process/ProcessLogger.scala (8 undocumented):
+  Line   73: def    out
+  Line   74: def    err
+  Line   75: def    buffer
+  Line   76: def    close
+  Line   77: def    flush
+  Line  102: def    out
+  Line  103: def    err
+  Line  104: def    buffer
+
+scala/throws.scala (1 undocumented):
+  Line   29: def    this
+
+scala/transient.scala (1 undocumented):
+  Line   19: class  transient
+
+scala/typeConstraints.scala (20 undocumented):
+  Line  116: def    compose
+  Line  125: def    andThen
+  Line  150: def    substituteBoth
+  Line  151: def    substituteCo
+  Line  152: def    substituteContra
+  Line  153: def    apply
+  Line  154: def    flip
+  Line  155: def    compose
+  Line  156: def    compose
+  Line  157: def    compose
+  Line  158: def    andThen
+  Line  159: def    andThen
+  Line  160: def    andThen
+  Line  161: def    liftCo
+  Line  162: def    liftContra
+  Line  163: def    toString
+  Line  207: def    substituteBoth
+  Line  208: def    substituteCo
+  Line  213: def    substituteContra
+  Line  238: def    liftCo
+
+scala/util/ChainingOps.scala (1 undocumented):
+  Line   19: trait  ChainingSyntax
+
+scala/util/CommandLineParser.scala (11 undocumented):
+  Line   47: trait  FromString
+  Line   51: def    fromStringOption
+  Line   58: object FromString
+  Line   60: def    fromString
+  Line   63: def    fromString
+  Line   66: def    fromString
+  Line   69: def    fromString
+  Line   72: def    fromString
+  Line   75: def    fromString
+  Line   78: def    fromString
+  Line   81: def    fromString
+
+scala/util/DynamicVariable.scala (2 undocumented):
+  Line   44: def    initialValue
+  Line   69: def    toString
+
+scala/util/Either.scala (3 undocumented):
+  Line  438: def    toTry
+  Line  496: object Either
+  Line  523: def    merge
+
+scala/util/FromDigits.scala (4 undocumented):
+  Line   25: object FromDigits
+  Line   31: def    fromDigits
+  Line  162: def    fromDigits
+  Line  166: def    fromDigits
+
+scala/util/NotGiven.scala (2 undocumented):
+  Line   29: trait  LowPriorityNotGiven
+  Line   34: object NotGiven
+
+scala/util/Properties.scala (1 undocumented):
+  Line   24: def    pickJarBasedOn
+
+scala/util/Random.scala (7 undocumented):
+  Line   23: class  Random
+  Line  114: def    loop
+  Line  174: def    loop
+  Line  193: def    safeChar
+  Line  220: def    setSeed
+  Line  229: def    swap
+  Line  248: def    nextAlphaNum
+
+scala/util/Sorting.scala (1 undocumented):
+  Line   57: def    inner
+
+scala/util/Try.scala (40 undocumented):
+  Line  139: def    map
+  Line  140: def    flatMap
+  Line  141: def    foreach
+  Line  142: def    withFilter
+  Line  205: object Try
+  Line  226: def    isFailure
+  Line  227: def    isSuccess
+  Line  228: def    get
+  Line  229: def    getOrElse
+  Line  230: def    orElse
+  Line  232: def    flatMap
+  Line  233: def    flatten
+  Line  234: def    foreach
+  Line  235: def    transform
+  Line  237: def    map
+  Line  238: def    collect
+  Line  239: def    filter
+  Line  240: def    recover
+  Line  247: def    recoverWith
+  Line  254: def    failed
+  Line  255: def    toOption
+  Line  256: def    toEither
+  Line  257: def    fold
+  Line  261: def    isFailure
+  Line  262: def    isSuccess
+  Line  264: def    getOrElse
+  Line  265: def    orElse
+  Line  266: def    flatMap
+  Line  268: def    flatten
+  Line  269: def    foreach
+  Line  270: def    transform
+  Line  271: def    map
+  Line  272: def    collect
+  Line  280: def    filter
+  Line  284: def    recover
+  Line  285: def    recoverWith
+  Line  286: def    failed
+  Line  287: def    toOption
+  Line  288: def    toEither
+  Line  289: def    fold
+
+scala/util/TupledFunction.scala (2 undocumented):
+  Line   16: def    tupled
+  Line   17: def    untupled
+
+scala/util/Using.scala (4 undocumented):
+  Line  228: object Manager
+  Line  266: def    score
+  Line  425: object Releasable
+  Line  430: def    release
+
+scala/util/boundary.scala (2 undocumented):
+  Line   45: object Break
+  Line   47: def    apply
+
+scala/util/control/Breaks.scala (3 undocumented):
+  Line   81: trait  TryBlock
+  Line   82: def    catchBreak
+  Line   98: def    catchBreak
+
+scala/util/control/ControlThrowable.scala (1 undocumented):
+  Line   48: def    this
+
+scala/util/control/Exception.scala (19 undocumented):
+  Line  157: def    mkCatcher
+  Line  162: def    isDefinedAt
+  Line  163: def    apply
+  Line  166: def    mkThrowableCatcher
+  Line  182: trait  Described
+  Line  185: def    desc
+  Line  186: def    withDesc
+  Line  190: def    toString
+  Line  224: def    or
+  Line  263: def    isDefinedAt
+  Line  264: def    apply
+  Line  271: def    toEither
+  Line  272: def    toTry
+  Line  307: def    catching
+  Line  315: def    catchingPromiscuously
+  Line  335: class  By
+  Line  336: def    by
+  Line  348: def    fun
+  Line  362: def    unwrap
+
+scala/util/control/NoStackTrace.scala (2 undocumented):
+  Line   26: def    fillInStackTrace
+  Line   31: object NoStackTrace
+
+scala/util/control/NonLocalReturns.scala (3 undocumented):
+  Line   27: class  ReturnThrowable
+  Line   29: def    throwReturn
+  Line   33: def    result
+
+scala/util/hashing/ByteswapHashing.scala (2 undocumented):
+  Line   22: def    hash
+  Line   27: object ByteswapHashing
+
+scala/util/hashing/Hashing.scala (6 undocumented):
+  Line   30: def    hash
+  Line   33: object Hashing
+  Line   34: class  Default
+  Line   35: def    hash
+  Line   40: def    fromFunction
+  Line   41: def    hash
+
+scala/util/hashing/MurmurHash3.scala (20 undocumented):
+  Line  360: def    arrayHash
+  Line  361: def    bytesHash
+  Line  362: def    orderedHash
+  Line  363: def    stringHash
+  Line  364: def    unorderedHash
+  Line  365: def    rangeHash
+  Line  368: def    productHash
+  Line  411: def    mapHash
+  Line  414: class  accum
+  Line  417: def    apply
+  Line  436: def    setHash
+  Line  438: class  ArrayHashing
+  Line  439: def    hash
+  Line  442: def    arrayHashing
+  Line  445: def    hash
+  Line  449: def    hash
+  Line  454: def    hash
+  Line  458: def    hash
+  Line  462: def    hash
+  Line  466: def    hash
+
+scala/util/matching/Regex.scala (6 undocumented):
+  Line  608: def    unanchored
+  Line  731: val    groupNames
+  Line  771: def    unapply
+  Line  786: def    unapplySeq
+  Line  873: def    next
+  Line  880: def    next
+
+scala/volatile.scala (1 undocumented):
+  Line   19: class  volatile

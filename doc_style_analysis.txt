@@ -1,0 +1,153 @@
+Analyzing scaladoc comments in 649 files...
+
+Found 3412 scaladoc comments
+
+================================================================================
+SCALADOC STYLE ANALYSIS REPORT
+================================================================================
+
+Total scaladoc comments analyzed: 3412
+
+================================================================================
+1. DOCUMENTATION BY ELEMENT TYPE
+================================================================================
+  def       :  2737 ( 80.2%)
+  trait     :   388 ( 11.4%)
+  val       :   130 (  3.8%)
+  object    :    88 (  2.6%)
+  class     :    62 (  1.8%)
+  var       :     6 (  0.2%)
+  enum      :     1 (  0.0%)
+
+================================================================================
+2. VERB TENSE AND STYLE INCONSISTENCIES
+================================================================================
+
+Third-person singular (Returns, Creates, etc.): 638 (18.7%)
+Base form imperative (Return, Create, etc.):    247 (7.2%)
+Noun phrases (The..., A..., etc.):              775 (22.7%)
+
+** INCONSISTENCY: Mix of verb tenses/styles **
+   Recommendation: Standardize on third-person singular (e.g., 'Returns')
+
+Examples of third-person singular style:
+  scala/Long.scala:46
+    "Returns this value, unmodified."
+  scala/Long.scala:48
+    "Returns the negation of this value."
+  scala/Long.scala:54
+    "Returns this value bit-shifted left by the specified number of bits, filling in ..."
+
+Examples of base form style:
+  scala/Array.scala:62
+    "Build an array from the iterable collection."
+  scala/Console.scala:181
+    "Set the default error stream for the duration of execution of one thunk."
+  scala/IArray.scala:443
+    "Build an array from the iterable collection."
+
+================================================================================
+3. SENTENCE COMPLETENESS
+================================================================================
+
+Complete sentences (ending with ./?/!): 2663 (78.0%)
+Incomplete sentences:                    749 (22.0%)
+
+** INCONSISTENCY: Many incomplete sentences **
+   Recommendation: Ensure all documentation ends with proper punctuation
+
+================================================================================
+4. TAG USAGE
+================================================================================
+
+With @example:    260 (7.6%)
+With @param:      0 (0.0%)
+With @return:     0 (0.0%)
+With @throws:     37 (1.1%)
+With @see:        0 (0.0%)
+With @since:      0 (0.0%)
+With @deprecated: 92 (2.7%)
+
+** INCONSISTENCY: Low usage of @example, @throws, @see tags **
+   Recommendation: Add examples to complex methods, document exceptions
+
+All tags used (top 15):
+  @deprecated     :   171
+  @inline         :   136
+  @SerialVersionUID:    66
+  @tailrec        :    47
+  @throws         :    41
+  @nowarn         :    14
+  @annotation     :    13
+  @deprecatedOverriding:    13
+  @implicitNotFound:    12
+  @transient      :    10
+  @experimental   :    10
+  @volatile       :     4
+  @compileTimeOnly:     3
+  @untrackedCaptures:     3
+  @scala          :     2
+
+================================================================================
+5. DOCUMENTATION LENGTH
+================================================================================
+
+Short (< 50 chars):     387 (11.3%)
+Medium (50-200 chars):  1465 (42.9%)
+Long (> 200 chars):     1560 (45.7%)
+
+Single-line:  809 (23.7%)
+Multi-line:   2603 (76.3%)
+
+================================================================================
+6. MOST COMMON STARTING WORDS
+================================================================================
+
+Top 20 words used to start documentation:
+  a              :   458
+  returns        :   278
+  the            :   212
+  create         :   134
+  creates        :   131
+  methods        :   112
+  an             :   105
+  converts       :    90
+  makes          :    84
+  note:          :    79
+  is             :    74
+  this           :    61
+  @group         :    57
+  produces       :    53
+  return         :    43
+  type           :    38
+  convert        :    37
+  constructs     :    37
+  apply          :    35
+  builds         :    35
+
+================================================================================
+7. KEY RECOMMENDATIONS FOR CONSISTENCY
+================================================================================
+
+1. VERB TENSE: Standardize on third-person singular present tense
+   - Use: "Returns", "Creates", "Computes"
+   - Avoid: "Return", "Create", "Compute"
+
+2. SENTENCE STRUCTURE: Always use complete sentences with proper punctuation
+   - Good: "Returns the sum of two numbers."
+   - Bad: "The sum of two numbers"
+
+3. TAGS: Increase usage of documentation tags where appropriate
+   - Add @example for complex methods (currently only 7.6%)
+   - Add @throws for methods that throw exceptions (currently only 1.1%)
+   - Add @param descriptions for all parameters
+   - Add @return descriptions for non-obvious return values
+
+4. LENGTH: Expand terse documentation with more context
+   - 11% of docs are very short (< 50 chars)
+   - Consider adding usage examples and edge case descriptions
+
+5. EXAMPLES: Add code examples to demonstrate usage
+   - Currently only 7.6% of methods have examples
+   - Especially important for complex APIs
+
