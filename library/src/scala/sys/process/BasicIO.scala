@@ -215,7 +215,7 @@ object BasicIO {
     readFully()
   }
 
-  /** Copy contents of stdin to the `OutputStream`. */
+  /** Copies contents of stdin to the `OutputStream`. */
   def connectToIn(o: OutputStream): Unit = transferFully(Uncloseable protect stdin, o)
 
   /** Returns a function `OutputStream => Unit` that either reads the content
@@ -246,7 +246,7 @@ object BasicIO {
    */
   def toStdOut = (in: InputStream) => transferFully(in, stdout)
 
-  /** Copy all input from the input stream to the output stream. Closes the
+  /** Copies all input from the input stream to the output stream. Closes the
     * input stream once it's all read.
     */
   def transferFully(in: InputStream, out: OutputStream): Unit =

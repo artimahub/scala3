@@ -53,7 +53,7 @@ class Stack[A] protected (array: Array[AnyRef | Null], start: Int, end: Int)
   override protected def stringPrefix = "Stack"
 
   /**
-    * Add elements to the top of this stack
+    * Adds elements to the top of this stack
     *
     * @param elem
     * @return
@@ -85,7 +85,7 @@ class Stack[A] protected (array: Array[AnyRef | Null], start: Int, end: Int)
     })
 
   /**
-    * Removes the top element from this stack and return it
+    * Removes the top element from this stack and returns it
     *
     * @return
     * @throws NoSuchElementException when stack is empty
@@ -100,7 +100,7 @@ class Stack[A] protected (array: Array[AnyRef | Null], start: Int, end: Int)
   def popAll(): scala.collection.Seq[A] = removeAll()
 
   /**
-    * Returns and removes all elements from the top of this stack which satisfy the given predicate
+    * Returns and removes all elements from the top of this stack which satisfy the given predicate.
     *
     *  @param f   the predicate used for choosing elements
     *  @return The removed elements

@@ -282,7 +282,7 @@ final class LongAccumulator
   }
 
   /**
-   * Copy the elements in this `LongAccumulator` to a specified collection.
+   * Copies the elements in this `LongAccumulator` to a specified collection.
    * Note that the target collection is not specialized.
    * Usage example: `acc.to(Vector)`
    */

@@ -268,7 +268,7 @@ transparent trait MapOps[K, +V, +CC[_, _] <: IterableOps[?, AnyConstr, ?], +C]
     def next() = iter.next()._2
   }
 
-  /** Apply `f` to each key/value pair for its side effects
+  /** Applies `f` to each key/value pair for its side effects
    *  Note: [U] parameter needed to help scalac's type inference.
    */
   def foreachEntry[U](f: (K, V) => U): Unit = {

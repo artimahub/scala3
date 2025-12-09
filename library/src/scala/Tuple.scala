@@ -9,60 +9,60 @@ import compiletime.ops.int.*
 sealed trait Tuple extends Product {
   import Tuple.*
 
-  /** Create a copy of this tuple as an Array */
+  /** Creates a copy of this tuple as an Array */
   inline def toArray: Array[Object] =
     runtime.Tuples.toArray(this)
 
-  /** Create a copy of this tuple as a List */
+  /** Creates a copy of this tuple as a List */
   inline def toList: List[Union[this.type]] =
     this.productIterator.toList
       .asInstanceOf[List[Union[this.type]]]
 
-  /** Create a copy of this tuple as an IArray */
+  /** Creates a copy of this tuple as an IArray */
   inline def toIArray: IArray[Object] =
     runtime.Tuples.toIArray(this)
 
-  /** Return a copy of `this` tuple with an element appended */
+  /** Returns a copy of `this` tuple with an element appended */
   inline def :* [This >: this.type <: Tuple, L] (x: L): This :* L =
     runtime.Tuples.append(x, this).asInstanceOf[This :* L]
 
-  /** Return a new tuple by prepending the element to `this` tuple.
+  /** Returns a new tuple by prepending the element to `this` tuple.
    *  This operation is O(this.size)
    */
   inline def *: [H, This >: this.type <: Tuple] (x: H): H *: This =
     runtime.Tuples.cons(x, this).asInstanceOf[H *: This]
 
-  /** Get the i-th element of this tuple.
+  /** Gets the i-th element of this tuple.
    *  Equivalent to productElement but with a precise return type.
    */
   inline def apply[This >: this.type <: Tuple](n: Int): Elem[This, n.type] =
     runtime.Tuples.apply(this, n).asInstanceOf[Elem[This, n.type]]
 
-  /** Get the head of this tuple */
+  /** Gets the head of this tuple */
   inline def head[This >: this.type <: Tuple]: Head[This] =
     runtime.Tuples.apply(this, 0).asInstanceOf[Head[This]]
 
-  /** Get the initial part of the tuple without its last element */
+  /** Gets the initial part of the tuple without its last element */
   inline def init[This >: this.type <: Tuple]: Init[This] =
     runtime.Tuples.init(this).asInstanceOf[Init[This]]
 
-  /** Get the last of this tuple */
+  /** Gets the last of this tuple */
   inline def last[This >: this.type <: Tuple]: Last[This] =
     runtime.Tuples.last(this).asInstanceOf[Last[This]]
 
-  /** Get the tail of this tuple.
+  /** Gets the tail of this tuple.
    *  This operation is O(this.size)
    */
   inline def tail[This >: this.type <: Tuple]: Tail[This] =
     runtime.Tuples.tail(this).asInstanceOf[Tail[This]]
 
-  /** Return a new tuple by concatenating `this` tuple with `that` tuple.
+  /** Returns a new tuple by concatenating `this` tuple with `that` tuple.
    *  This operation is O(this.size + that.size)
    */
   inline def ++ [This >: this.type <: Tuple](that: Tuple): This ++ that.type =
     runtime.Tuples.concat(this, that).asInstanceOf[This ++ that.type]
 
-  /** Return the size (or arity) of the tuple */
+  /** Returns the size (or arity) of the tuple */
   inline def size[This >: this.type <: Tuple]: Size[This] =
     runtime.Tuples.size(this).asInstanceOf[Size[This]]
 
@@ -169,7 +169,7 @@ object Tuple {
     case x *: xs => S[Size[xs]]
   }
 
-  /** Fold a tuple `(T1, ..., Tn)` into `F[T1, F[... F[Tn, Z]...]]]` */
+  /** Folds a tuple `(T1, ..., Tn)` into `F[T1, F[... F[Tn, Z]...]]]` */
   type Fold[Tup <: Tuple, Z, F[_, _]] = Tup match
     case EmptyTuple => Z
     case h *: t => F[h, Fold[t, Z, F]]
@@ -291,7 +291,7 @@ object Tuple {
   /** Matches an empty tuple. */
   def unapply(x: EmptyTuple): true = true
 
-  /** Convert an array into a tuple of unknown arity and types */
+  /** Converts an array into a tuple of unknown arity and types */
   def fromArray[T](xs: Array[T]): Tuple = {
     val xs2 = xs match {
       case xs: Array[Object] => xs
@@ -300,7 +300,7 @@ object Tuple {
     runtime.Tuples.fromArray(xs2)
   }
 
-  /** Convert an immutable array into a tuple of unknown arity and types */
+  /** Converts an immutable array into a tuple of unknown arity and types */
   def fromIArray[T](xs: IArray[T]): Tuple = {
     val xs2: IArray[Object] = xs match {
       case xs: IArray[Object] @unchecked => xs
@@ -310,7 +310,7 @@ object Tuple {
     runtime.Tuples.fromIArray(xs2)
   }
 
-  /** Convert a Product into a tuple of unknown arity and types */
+  /** Converts a Product into a tuple of unknown arity and types */
   def fromProduct(product: Product): Tuple =
     runtime.Tuples.fromProduct(product)
 

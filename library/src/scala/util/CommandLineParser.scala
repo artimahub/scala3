@@ -11,7 +11,7 @@ object CommandLineParser {
     */
   class ParseError(val idx: Int, val msg: String) extends Exception
 
-  /** Parse command line argument `s`, which has index `n`, as a value of type `T`
+  /** Parses command line argument `s`, which has index `n`, as a value of type `T`
    *  @throws ParseError if argument cannot be converted to type `T`.
    */
   def parseString[T](str: String, n: Int)(using fs: FromString[T]^): T = {
@@ -21,14 +21,14 @@ object CommandLineParser {
     }
   }
 
-  /** Parse `n`'th argument in `args` (counting from 0) as a value of type `T`
+  /** Parses `n`'th argument in `args` (counting from 0) as a value of type `T`
    *  @throws ParseError if argument does not exist or cannot be converted to type `T`.
    */
   def parseArgument[T](args: Array[String], n: Int)(using fs: FromString[T]^): T =
     if n < args.length then parseString(args(n), n)
     else throw ParseError(n, "more arguments expected")
 
-  /** Parse all arguments from `n`'th one (counting from 0) as a list of values of type `T`
+  /** Parses all arguments from `n`'th one (counting from 0) as a list of values of type `T`
    *  @throws ParseError if some of the arguments cannot be converted to type `T`.
    */
   def parseRemainingArguments[T](args: Array[String], n: Int)(using fs: FromString[T]^): List[T] =

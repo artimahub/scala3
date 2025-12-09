@@ -14,7 +14,7 @@ import language.experimental.captureChecking
  */
 trait FromExpr[T] {
 
-  /** Return the value of the expression.
+  /** Returns the value of the expression.
    *
    *  Returns `None` if the expression does not represent a value or possibly contains side effects.
    *  Otherwise returns the `Some` of the value.

@@ -361,7 +361,7 @@ class LinkedHashMap[K, V]
     e
   }
 
-  /** Delete the entry from the LinkedHashMap, set the `earlier` and `later` pointers correctly */
+  /** Deletes the entry from the LinkedHashMap, set the `earlier` and `later` pointers correctly */
   private def deleteEntry(e: Entry): Unit = {
     if (e.earlier eq null) firstEntry = e.later
     else e.earlier.nn.later = e.later

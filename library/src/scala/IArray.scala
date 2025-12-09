@@ -48,15 +48,15 @@ object IArray:
   extension [T](arr: IArray[T]) def contains(elem: T): Boolean =
     genericArrayOps(arr).contains(elem.asInstanceOf)
 
-  /** Copy elements of this array to another array. */
+  /** Copies elements of this array to another array. */
   extension [T](arr: IArray[T]) def copyToArray[U >: T](xs: Array[U]): Int =
     genericArrayOps(arr).copyToArray(xs)
 
-  /** Copy elements of this array to another array. */
+  /** Copies elements of this array to another array. */
   extension [T](arr: IArray[T]) def copyToArray[U >: T](xs: Array[U], start: Int): Int =
     genericArrayOps(arr).copyToArray(xs, start)
 
-  /** Copy elements of this array to another array. */
+  /** Copies elements of this array to another array. */
   extension [T](arr: IArray[T]) def copyToArray[U >: T](xs: Array[U], start: Int, len: Int): Int =
     genericArrayOps(arr).copyToArray(xs, start, len)
 
@@ -120,7 +120,7 @@ object IArray:
   extension [T](arr: IArray[T]) def forall(p: T => Boolean): Boolean =
     genericArrayOps(arr).forall(p)
 
-  /** Apply `f` to each element for its side effects. */
+  /** Applies `f` to each element for its side effects. */
   extension [T](arr: IArray[T]) def foreach[U](f: T => U): Unit =
     genericArrayOps(arr).foreach(f)
 
@@ -391,7 +391,7 @@ object IArray:
   implicit def wrapUnitIArray(arr: IArray[Unit]): ArraySeq.ofUnit =
     mapNull(arr, new ArraySeq.ofUnit(arr.asInstanceOf[Array[Unit]]))
 
-  /** Convert an array into an immutable array without copying, the original array
+  /** Converts an array into an immutable array without copying, the original array
    *   must _not_ be mutated after this or the guaranteed immutablity of IArray will
    *   be violated.
    */
@@ -440,7 +440,7 @@ object IArray:
   /** An immutable array with given elements. */
   def apply(x: Unit, xs: Unit*): IArray[Unit] = Array(x, xs*)
 
-  /** Build an array from the iterable collection.
+  /** Builds an array from the iterable collection.
    *
    *  {{{
    *  scala> val a = IArray.from(Seq(1, 5))
@@ -607,7 +607,7 @@ object IArray:
    */
   def iterate[T: ClassTag](start: T, len: Int)(f: T => T): IArray[T] = Array.iterate(start, len)(f)
 
-  /** Compare two arrays per element.
+  /** Compares two arrays per element.
    *
    *  A more efficient version of `xs.sameElements(ys)`.
    *
@@ -630,7 +630,7 @@ object IArray:
   /** A lazy filtered array. No filtering is applied until one of `foreach`, `map` or `flatMap` is called. */
   class WithFilter[T](p: T => Boolean, xs: IArray[T]):
 
-    /** Apply `f` to each element for its side effects.
+    /** Applies `f` to each element for its side effects.
       * Note: [U] parameter needed to help scalac's type inference.
       */
     def foreach[U](f: T => U): Unit = {

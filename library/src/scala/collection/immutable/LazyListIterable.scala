@@ -427,7 +427,7 @@ final class LazyListIterable[+A] private (lazyState: LazyListIterable.EmptyMarke
     if (knownIsEmpty) Iterator.empty
     else new LazyIterator(this)
 
-  /** Apply the given function `f` to each element of this linear sequence
+  /** Applies the given function `f` to each element of this linear sequence
     * (while respecting the order of the elements).
     *
     *  @param f The treatment to apply to each element.
@@ -1229,11 +1229,11 @@ object LazyListIterable extends IterableFactory[LazyListIterable] {
   implicit def toDeferrer[A](l: => LazyListIterable[A]^): Deferrer[A]^{l} = new Deferrer[A](() => l)
 
   final class Deferrer[A] private[LazyListIterable] (private val l: () => LazyListIterable[A]^) extends AnyVal { self: Deferrer[A]^ =>
-    /** Construct a LazyListIterable consisting of a given first element followed by elements
+    /** Constructs a LazyListIterable consisting of a given first element followed by elements
       *  from another LazyListIterable.
       */
     def #:: [B >: A](elem: => B): LazyListIterable[B]^{this, elem} = newLL(eagerCons(elem, newLL(l())))
-    /** Construct a LazyListIterable consisting of the concatenation of the given LazyListIterable and
+    /** Constructs a LazyListIterable consisting of the concatenation of the given LazyListIterable and
       *  another LazyListIterable.
       */
     def #:::[B >: A](prefix: LazyListIterable[B]^): LazyListIterable[B]^{this, prefix} = prefix lazyAppendedAll l()
@@ -1298,7 +1298,7 @@ object LazyListIterable extends IterableFactory[LazyListIterable] {
     }
 
   /**
-    * Create an infinite LazyListIterable starting at `start` and incrementing by
+    * Creates an infinite LazyListIterable starting at `start` and incrementing by
     * step `step`.
     *
     * @param start the start value of the LazyListIterable
@@ -1309,7 +1309,7 @@ object LazyListIterable extends IterableFactory[LazyListIterable] {
     newLL(eagerCons(start, from(start + step, step)))
 
   /**
-    * Create an infinite LazyListIterable starting at `start` and incrementing by `1`.
+    * Creates an infinite LazyListIterable starting at `start` and incrementing by `1`.
     *
     * @param start the start value of the LazyListIterable
     * @return the LazyListIterable starting at value `start`.
@@ -1317,7 +1317,7 @@ object LazyListIterable extends IterableFactory[LazyListIterable] {
   def from(start: Int): LazyListIterable[Int] = from(start, 1)
 
   /**
-    * Create an infinite LazyListIterable containing the given element expression (which
+    * Creates an infinite LazyListIterable containing the given element expression (which
     * is computed for each occurrence).
     *
     * @param elem the element composing the resulting LazyListIterable

@@ -98,7 +98,7 @@ class SyncVar[A] {
     setVal(x)
   }
 
-  /** Check whether a value is stored in the synchronized variable. */
+  /** Checks whether a value is stored in the synchronized variable. */
   def isSet: Boolean = synchronized {
     isDefined
   }

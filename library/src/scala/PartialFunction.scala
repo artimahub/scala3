@@ -405,7 +405,7 @@ object PartialFunction {
    */
   def cond[A](x: A)(pf: PartialFunction[A, Boolean]^): Boolean = pf.applyOrElse(x, constFalse)
 
-  /** Apply the function to the given value if defined, and return the result
+  /** Applies the function to the given value if defined, and return the result
    *  in a `Some`; otherwise, return `None`.
    *
    *  @param  x     the value to test

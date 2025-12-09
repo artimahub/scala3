@@ -65,7 +65,7 @@ sealed abstract class BitSet
     } else this
   }
 
-  /** Update word at index `idx`; enlarge set if `idx` outside range of set.
+  /** Updates word at index `idx`; enlarge set if `idx` outside range of set.
     */
   protected def updateWord(idx: Int, w: Long): BitSet
 

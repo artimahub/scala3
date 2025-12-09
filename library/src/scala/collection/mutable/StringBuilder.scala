@@ -225,7 +225,7 @@ final class StringBuilder(val underlying: java.lang.StringBuilder) extends Abstr
     this
   }
 
-  /** Append the String representation of the given primitive type
+  /** Appends the String representation of the given primitive type
     *  to this sequence.  The argument is converted to a String with
     *  String.valueOf.
     *
@@ -241,7 +241,7 @@ final class StringBuilder(val underlying: java.lang.StringBuilder) extends Abstr
   def append(x: Double): this.type = { underlying.append(x) ; this }
   def append(x: Char): this.type = { underlying.append(x) ; this }
 
-  /** Remove a subsequence of Chars from this sequence, starting at the
+  /** Removes a subsequence of Chars from this sequence, starting at the
     *  given start index (inclusive) and extending to the end index (exclusive)
     *  or to the end of the String, whichever comes first.
     *
@@ -411,7 +411,7 @@ final class StringBuilder(val underlying: java.lang.StringBuilder) extends Abstr
     this
   }
 
-  /** Update the sequence at the given index to hold the specified Char.
+  /** Updates the sequence at the given index to hold the specified Char.
    *
    *  @param  index   the index to modify.
    *  @param  ch      the new Char.

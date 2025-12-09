@@ -180,7 +180,7 @@ class LinkedHashSet[A]
     e
   }
 
-  /** Delete the entry from the LinkedHashSet, set the `earlier` and `later` pointers correctly */
+  /** Deletes the entry from the LinkedHashSet, set the `earlier` and `later` pointers correctly */
   private def deleteEntry(e: Entry): Unit = {
     if (e.earlier eq null) firstEntry = e.later
     else e.earlier.later = e.later
