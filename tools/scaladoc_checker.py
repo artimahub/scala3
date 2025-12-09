@@ -209,11 +209,21 @@ def split_by_commas_top_level(s: str) -> List[str]:
         parts.append(last)
     return parts
 
-def analyze_file(path: str) -> Dict[str, object]:
+def analyze_file(path: str, fix: bool = False) -> Dict[str, object]:
+    """
+    Analyze a single file for scaladoc issues. If fix=True, also insert missing
+    @tparam/@param/@return tags into the scaladoc blocks in the file.
+    """
     with open(path, "r", encoding="utf-8") as f:
         text = f.read()
+
     results = []
-    for start, end, block in extract_scaladoc_blocks(text):
+    # We'll build a modified version of the text if --fix is requested.
+    new_text = text
+    offset = 0  # difference between new_text and original text indices when replacing
+    for m in SCALADOC_RE.finditer(text):
+        start, end = m.start(), m.end()
+        block = m.group(1)
         tags = extract_tags(block)
         chunk, line = get_declaration_after(text, end)
         decl = parse_declaration(chunk)
@@ -251,6 +261,36 @@ def analyze_file(path: str) -> Dict[str, object]:
             else:
                 # unknown return: if no @return, skip
                 pass
+
+        # If requested, insert missing tags into the comment
+        if fix:
+            insert_lines: List[str] = []
+            # Insert missing tparams first
+            for tp in missing_tparam:
+                insert_lines.append(f"* @tparam {tp} TODO FILL IN TPARAM")
+            # Then missing params
+            for p in missing_param:
+                insert_lines.append(f"* @param {p} TODO FILL IN PARAM")
+            # Then return if needed
+            if decl.get("kind") == "def" and ret and not documented_return and not (ret.strip().startswith("Unit")):
+                insert_lines.append(f"* @return TODO FILL IN RETURN")
+            if insert_lines:
+                # Build new inner block preserving existing content formatting.
+                inner = block
+                # Ensure inner ends with a newline so appended lines align
+                if not inner.endswith("\n"):
+                    inner = inner + "\n"
+                # Normalize each inserted line to start with a space and star like other lines: " * ..."
+                addition = ""
+                for ln in insert_lines:
+                    addition += " " + ln + "\n"
+                # Construct new full comment (match uses /** ... */)
+                new_full = "/**" + inner + addition + "*/"
+                # Replace in new_text, accounting for previous replacements via offset
+                new_text = new_text[:start + offset] + new_full + new_text[end + offset:]
+                # Update offset for subsequent replacements
+                offset += len(new_full) - (end - start)
+
         # Package result
         results.append({
             "line": line,
@@ -259,6 +299,15 @@ def analyze_file(path: str) -> Dict[str, object]:
             "issues": issues,
             "scaladoc_excerpt": block.strip().splitlines()[0:3]
         })
+
+    # If we modified the text, write back to file
+    if fix and new_text != text:
+        try:
+            with open(path, "w", encoding="utf-8") as f:
+                f.write(new_text)
+        except Exception as e:
+            print(f"Error writing fixes to {path}: {e}", file=sys.stderr)
+
     return {"path": path, "results": results}
 
 def summarize_reports(reports: List[Dict[str, object]]) -> int:
@@ -307,6 +356,7 @@ def main():
     p = argparse.ArgumentParser(description="Scaladoc tag checker")
     p.add_argument("folder", help="Root folder to scan")
     p.add_argument("--json", action="store_true", help="Output full JSON report")
+    p.add_argument("--fix", action="store_true", help="Insert missing tags into source files")
     args = p.parse_args()
     folder = args.folder
     if not os.path.isdir(folder):
@@ -316,7 +366,7 @@ def main():
     reports = []
     for f in files:
         try:
-            reports.append(analyze_file(f))
+            reports.append(analyze_file(f, args.fix))
         except Exception as e:
             print(f"Error analyzing {f}: {e}", file=sys.stderr)
     if args.json:
