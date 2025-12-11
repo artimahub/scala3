@@ -307,7 +307,14 @@ private[collection] final class INode[K, V](bn: MainNode[K, V] | Null, g: Gen, e
     *                       current value associated with `k` (Always, FullEquals, or ReferenceEq)
     *
     *  @return              null if not successful, an Option[V] indicating the previous value otherwise
-    */
+    
+ * @param k TODO FILL IN PARAM
+ * @param v TODO FILL IN PARAM
+ * @param lev TODO FILL IN PARAM
+ * @param parent TODO FILL IN PARAM
+ * @param startgen TODO FILL IN PARAM
+ * @param ct TODO FILL IN PARAM
+*/
   def rec_remove(
     k: K,
     v: V,
@@ -587,7 +594,11 @@ private[collection] final class CNode[K, V](val bitmap: Int, val array: Array[Ba
 
   /** Returns a copy of this cnode such that all the i-nodes below it are copied
     *  to the specified generation `ngen`.
-    */
+    
+ * @param ngen TODO FILL IN PARAM
+ * @param ct TODO FILL IN PARAM
+ * @return TODO FILL IN RETURN
+*/
   def renewed(ngen: Gen, ct: TrieMap[K, V]) = {
     var i = 0
     val arr = array
@@ -855,7 +866,9 @@ final class TrieMap[K, V] private (r: AnyRef, rtupd: AtomicReferenceFieldUpdater
     *  This means that the work of rebuilding both the snapshot and this
     *  TrieMap is distributed across all the threads doing updates or accesses
     *  subsequent to the snapshot creation.
-    */
+    
+ * @return TODO FILL IN RETURN
+*/
   @tailrec def snapshot(): TrieMap[K, V] = {
     val r = RDCSS_READ_ROOT()
     val expmain = r.gcasRead(this)
@@ -874,7 +887,9 @@ final class TrieMap[K, V] private (r: AnyRef, rtupd: AtomicReferenceFieldUpdater
     *  the `snapshot` method, but the obtained snapshot cannot be modified.
     *
     *  This method is used by other methods such as `size` and `iterator`.
-    */
+    
+ * @return TODO FILL IN RETURN
+*/
   @tailrec def readOnlySnapshot(): scala.collection.Map[K, V] = {
     val r = RDCSS_READ_ROOT()
     val expmain = r.gcasRead(this)
@@ -1161,7 +1176,9 @@ private[collection] class TrieMapIterator[K, V](var level: Int, private var ct: 
 
   /** Returns a sequence of iterators over subsets of this iterator.
     *  It's used to ease the implementation of splitters for a parallel version of the TrieMap.
-    */
+    
+ * @return TODO FILL IN RETURN
+*/
   protected def subdivide(): Seq[Iterator[(K, V)]] = if (subiter ne null) {
     // the case where an LNode is being iterated
     val it = newIterator(level + 1, ct, _mustInit = false)
