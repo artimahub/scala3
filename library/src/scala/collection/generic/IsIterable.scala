@@ -127,7 +127,11 @@ transparent trait IsIterable[Repr] extends IsIterableOnce[Repr] {
   @untrackedCaptures
   override val conversion: Repr => IterableOps[A, Iterable, C] = apply(_)
 
-  /** A conversion from the type `Repr` to `IterableOps[A, Iterable, C]` */
+  /**
+   * A conversion from the type `Repr` to `IterableOps[A, Iterable, C]`
+   * @param coll TODO FILL IN PARAM
+   * @return TODO FILL IN RETURN
+   */
   def apply(coll: Repr): IterableOps[A, Iterable, C]
 
 }

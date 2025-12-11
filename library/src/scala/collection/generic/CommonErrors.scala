@@ -19,12 +19,18 @@ import language.experimental.captureChecking
 /** Some precomputed common errors to reduce the generated code size.
   */
 private[collection] object CommonErrors {
-  /** IndexOutOfBounds exception with a known max index */
+  /**
+   * IndexOutOfBounds exception with a known max index
+   * @return TODO FILL IN RETURN
+   */
   @noinline
   def indexOutOfBounds(index: Int, max: Int): IndexOutOfBoundsException = 
     new IndexOutOfBoundsException(s"$index is out of bounds (min 0, max ${max})")
 
-  /** IndexOutOfBounds exception with an unknown max index. */
+  /**
+   * IndexOutOfBounds exception with an unknown max index.
+   * @return TODO FILL IN RETURN
+   */
   @noinline
   def indexOutOfBounds(index: Int): IndexOutOfBoundsException = 
     new IndexOutOfBoundsException(s"$index is out of bounds (min 0, max unknown)")

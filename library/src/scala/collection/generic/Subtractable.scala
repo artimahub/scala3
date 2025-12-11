@@ -29,8 +29,11 @@ import language.experimental.captureChecking
 @deprecated("Subtractable is deprecated. This is now implemented as part of SetOps, MapOps, etc.", "2.13.0")
 trait Subtractable[A, +Repr <: Subtractable[A, Repr]] { self =>
 
-  /** The representation object of type `Repr` which contains the collection's elements
-    */
+  /**
+   * The representation object of type `Repr` which contains the collection's elements
+   * 
+   * @return TODO FILL IN RETURN
+   */
   protected def repr: Repr
 
   /** Creates a new $coll from this $coll with an element removed.

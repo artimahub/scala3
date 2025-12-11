@@ -48,7 +48,11 @@ transparent trait IsIterableOnce[Repr] {
   @untrackedCaptures
   val conversion: Repr => IterableOnce[A] = apply(_)
 
-  /** A conversion from the representation type `Repr` to a `IterableOnce[A]`. */
+  /**
+   * A conversion from the representation type `Repr` to a `IterableOnce[A]`.
+   * @param coll TODO FILL IN PARAM
+   * @return TODO FILL IN RETURN
+   */
   def apply(coll: Repr): IterableOnce[A]
 
 }

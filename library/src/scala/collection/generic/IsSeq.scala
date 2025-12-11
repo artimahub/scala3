@@ -35,12 +35,16 @@ transparent trait IsSeq[Repr] extends IsIterable[Repr] {
   @untrackedCaptures
   override val conversion: Repr => SeqOps[A, Iterable, C] = apply(_)
 
-  /** A conversion from the type `Repr` to `SeqOps[A, Iterable, C]`
-    *
-    * @note The second type parameter of the returned `SeqOps` value is
-    *       still `Iterable` (and not `Seq`) because `SeqView[A]` only
-    *       extends `SeqOps[A, View, View[A]]`.
-    */
+  /**
+   * A conversion from the type `Repr` to `SeqOps[A, Iterable, C]`
+   *
+   * @note The second type parameter of the returned `SeqOps` value is
+   *       still `Iterable` (and not `Seq`) because `SeqView[A]` only
+   *       extends `SeqOps[A, View, View[A]]`.
+   * 
+   * @param coll TODO FILL IN PARAM
+   * @return TODO FILL IN RETURN
+   */
   def apply(coll: Repr): SeqOps[A, Iterable, C]
 }
 
