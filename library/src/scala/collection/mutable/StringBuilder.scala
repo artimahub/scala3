@@ -382,7 +382,7 @@ final class StringBuilder(val underlying: java.lang.StringBuilder) extends Abstr
    */
   def capacity: Int = underlying.capacity
 
-  /** Ensure that the capacity is at least the given argument.
+  /** Ensures that the capacity is at least the given argument.
    *  If the argument is greater than the current capacity, new
    *  storage will be allocated with size equal to the given
    *  argument or to `(2 * capacity + 2)`, whichever is larger.

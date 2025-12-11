@@ -45,7 +45,7 @@ object Conversion:
   @preview
   opaque type into[+T] >: T = T
 
-  /** Unwrap an `into` */
+  /** Unwraps an `into` */
   extension [T](x: into[T])
     @preview
     def underlying: T = x

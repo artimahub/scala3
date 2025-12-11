@@ -35,7 +35,7 @@ object CommandLineParser {
     if n < args.length then parseString(args(n), n) :: parseRemainingArguments(args, n + 1)
     else Nil
 
-  /** Print error message explaining given ParserError */
+  /** Prints error message explaining given ParserError */
   def showError(err: ParseError): Unit = {
     val where =
       if err.idx == 0 then ""

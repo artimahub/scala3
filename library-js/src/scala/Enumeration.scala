@@ -149,7 +149,7 @@ abstract class Enumeration (initial: Int) extends Serializable {
    */
   final def apply(x: Int): Value = vmap(x)
 
-  /** Return a `Value` from this `Enumeration` whose name matches
+  /** Returns a `Value` from this `Enumeration` whose name matches
    *  the argument `s`.  The names are determined automatically via reflection.
    *
    * @param  s an `Enumeration` name
@@ -222,7 +222,7 @@ abstract class Enumeration (initial: Int) extends Serializable {
     }
     override def hashCode: Int = id.##
 
-    /** Create a ValueSet which contains this value and another one */
+    /** Creates a ValueSet which contains this value and another one */
     def + (v: Value) = ValueSet(this, v)
   }
 

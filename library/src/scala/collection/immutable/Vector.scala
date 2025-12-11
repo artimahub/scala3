@@ -1348,7 +1348,7 @@ private final class VectorSliceBuilder(lo: Int, hi: Int) {
     }
   }
 
-  /** Ensure prefix is not empty */
+  /** Ensures prefix is not empty */
   private def balancePrefix(n: Int): Unit = {
     if(slices(prefixIdx(n)) eq null) {
       if(n == maxDim) {
@@ -1369,7 +1369,7 @@ private final class VectorSliceBuilder(lo: Int, hi: Int) {
     }
   }
 
-  /** Ensure suffix is not empty */
+  /** Ensures suffix is not empty */
   private def balanceSuffix(n: Int): Unit = {
     if(slices(suffixIdx(n)) eq null) {
       if(n == maxDim) {

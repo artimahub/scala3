@@ -60,7 +60,7 @@ class Stack[A] protected (array: Array[AnyRef | Null], start: Int, end: Int)
     */
   def push(elem: A): this.type = prepend(elem)
 
-  /** Push two or more elements onto the stack. The last element
+  /** Pushes two or more elements onto the stack. The last element
     *  of the sequence will be on top of the new stack.
     *
     *  @param   elems      the element sequence.
@@ -72,7 +72,7 @@ class Stack[A] protected (array: Array[AnyRef | Null], start: Int, end: Int)
     prepend(elem1).prepend(elem2).pushAll(elems)
   }
 
-  /** Push all elements in the given iterable object onto the stack. The
+  /** Pushes all elements in the given iterable object onto the stack. The
     *  last element in the iterable object will be on top of the new stack.
     *
     *  @param elems the iterable object.

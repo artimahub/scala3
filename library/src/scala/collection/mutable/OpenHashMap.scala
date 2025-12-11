@@ -267,7 +267,7 @@ class OpenHashMap[Key, Value](initialSize : Int)
     it
   }
 
-  /** Loop over the key, value mappings of this map.
+  /** Loops over the key, value mappings of this map.
     *
     *  The behaviour of modifying the map during an iteration is as follows:
     *  - Deleting a mapping is always permitted.

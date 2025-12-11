@@ -687,7 +687,7 @@ final class Array[T](_length: Int) extends java.io.Serializable with java.lang.C
    */
   def update(i: Int, x: T): Unit = { throw new Error() }
 
-  /** Clone the Array.
+  /** Clones the Array.
    *
    *  @return A clone of the Array.
    */

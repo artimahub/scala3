@@ -236,12 +236,12 @@ object BasicIO {
   /** Returns a `ProcessIO` connected to stdout, stderr and the provided `in` */
   def standard(in: OutputStream => Unit): ProcessIO = new ProcessIO(in, toStdOut, toStdErr)
 
-  /** Send all the input from the stream to stderr, and closes the input stream
+  /** Sends all the input from the stream to stderr, and closes the input stream
    * afterwards.
    */
   def toStdErr = (in: InputStream) => transferFully(in, stderr)
 
-  /** Send all the input from the stream to stdout, and closes the input stream
+  /** Sends all the input from the stream to stdout, and closes the input stream
    * afterwards.
    */
   def toStdOut = (in: InputStream) => transferFully(in, stdout)

@@ -46,7 +46,7 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
 
   // Extension methods for `Expr[T]`
   extension [T](self: Expr[T])
-    /** Show a source code like representation of this expression */
+    /** Shows a source code like representation of this expression */
     def show: String
 
     /** Pattern matches `this` against `that`. Effectively performing a deep equality check.
@@ -1014,10 +1014,10 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
       */
       def unique(qualifier: Term, name: String): Select
 
-      /** Call an overloaded method with the given type and term parameters */
+      /** Calls an overloaded method with the given type and term parameters */
       def overloaded(qualifier: Term, name: String, targs: List[TypeRepr], args: List[Term]): Term
 
-      /** Call an overloaded method with the given type and term parameters */
+      /** Calls an overloaded method with the given type and term parameters */
       def overloaded(qualifier: Term, name: String, targs: List[TypeRepr], args: List[Term], returnType: TypeRepr): Term
 
       def copy(original: Tree)(qualifier: Term, name: String): Select
@@ -2832,7 +2832,7 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
         /** The current type applied to given type arguments: `this[targ0, ..., targN]` */
         def appliedTo(targs: List[TypeRepr]): TypeRepr
 
-        /** Substitute all types that refer in their symbol attribute to
+        /** Substitutes all types that refer in their symbol attribute to
          *  one of the symbols in `from` by the corresponding types in `to`.
          */
         def substituteTypes(from: List[Symbol], to: List[TypeRepr]): TypeRepr
@@ -5452,7 +5452,7 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
 
     /** Type class used in `show` methods to provide customizable `String` representations */
     trait Printer[T]:
-      /** Show the arguments as a `String` */
+      /** Shows the arguments as a `String` */
       def show(x: T): String
     end Printer
 
