@@ -37,7 +37,11 @@ trait StreamExtensions {
     /** Create a sequential [[java.util.stream.Stream Java Stream]] for this collection. If the
       * collection contains primitive values, a corresponding specialized Stream is returned (e.g.,
       * [[java.util.stream.IntStream `IntStream`]]).
-      */
+      
+ * @tparam S < TODO FILL IN TPARAM
+ * @tparam ? TODO FILL IN TPARAM
+ * @return TODO FILL IN RETURN
+*/
     def asJavaSeqStream[S <: BaseStream[?, ?], St <: Stepper[?]](implicit s: StreamShape[A, S, St], st: StepperShape[A, St]): S =
       s.fromStepper(cc.stepper, par = false)
   }
@@ -51,7 +55,11 @@ trait StreamExtensions {
     /** Create a parallel [[java.util.stream.Stream Java Stream]] for this collection. If the
       * collection contains primitive values, a corresponding specialized Stream is returned (e.g.,
       * [[java.util.stream.IntStream `IntStream`]]).
-      */
+      
+ * @tparam S < TODO FILL IN TPARAM
+ * @tparam ? TODO FILL IN TPARAM
+ * @return TODO FILL IN RETURN
+*/
     def asJavaParStream[S <: BaseStream[?, ?], St <: Stepper[?]](implicit
         s: StreamShape[A, S, St],
         st: StepperShape[A, St],
@@ -66,21 +74,33 @@ trait StreamExtensions {
     /** Create a sequential [[java.util.stream.Stream Java Stream]] for the keys of this map. If
       * the keys are primitive values, a corresponding specialized Stream is returned (e.g.,
       * [[java.util.stream.IntStream `IntStream`]]).
-      */
+      
+ * @tparam S < TODO FILL IN TPARAM
+ * @tparam ? TODO FILL IN TPARAM
+ * @return TODO FILL IN RETURN
+*/
     def asJavaSeqKeyStream[S <: BaseStream[?, ?], St <: Stepper[?]](implicit s: StreamShape[K, S, St], st: StepperShape[K, St]): S =
       s.fromStepper(cc.keyStepper, par = false)
 
     /** Create a sequential [[java.util.stream.Stream Java Stream]] for the values of this map. If
       * the values are primitives, a corresponding specialized Stream is returned (e.g.,
       * [[java.util.stream.IntStream `IntStream`]]).
-      */
+      
+ * @tparam S < TODO FILL IN TPARAM
+ * @tparam ? TODO FILL IN TPARAM
+ * @return TODO FILL IN RETURN
+*/
     def asJavaSeqValueStream[S <: BaseStream[?, ?], St <: Stepper[?]](implicit s: StreamShape[V, S, St], st: StepperShape[V, St]): S =
       s.fromStepper(cc.valueStepper, par = false)
 
     // The asJavaSeqStream extension method for IterableOnce doesn't apply because its `CC` takes a single type parameter, whereas the one here takes two
     /** Create a sequential [[java.util.stream.Stream Java Stream]] for the `(key, value)` pairs of
       * this map.
-      */
+      
+ * @tparam S < TODO FILL IN TPARAM
+ * @tparam ? TODO FILL IN TPARAM
+ * @return TODO FILL IN RETURN
+*/
     def asJavaSeqStream[S <: BaseStream[?, ?], St <: Stepper[?]](implicit s: StreamShape[(K, V), S, St], st: StepperShape[(K, V), St]): S =
       s.fromStepper(cc.stepper, par = false)
   }
@@ -94,7 +114,11 @@ trait StreamExtensions {
     /** Create a parallel [[java.util.stream.Stream Java Stream]] for the keys of this map. If
       * the keys are primitive values, a corresponding specialized Stream is returned (e.g.,
       * [[java.util.stream.IntStream `IntStream`]]).
-      */
+      
+ * @tparam S < TODO FILL IN TPARAM
+ * @tparam ? TODO FILL IN TPARAM
+ * @return TODO FILL IN RETURN
+*/
     def asJavaParKeyStream[S <: BaseStream[?, ?], St <: Stepper[?]](implicit
         s: StreamShape[K, S, St],
         st: StepperShape[K, St],
@@ -105,7 +129,11 @@ trait StreamExtensions {
     /** Create a parallel [[java.util.stream.Stream Java Stream]] for the values of this map. If
       * the values are primitives, a corresponding specialized Stream is returned (e.g.,
       * [[java.util.stream.IntStream `IntStream`]]).
-      */
+      
+ * @tparam S < TODO FILL IN TPARAM
+ * @tparam ? TODO FILL IN TPARAM
+ * @return TODO FILL IN RETURN
+*/
     def asJavaParValueStream[S <: BaseStream[?, ?], St <: Stepper[?]](implicit
         s: StreamShape[V, S, St],
         st: StepperShape[V, St],
@@ -116,7 +144,11 @@ trait StreamExtensions {
     // The asJavaParStream extension method for IterableOnce doesn't apply because its `CC` takes a single type parameter, whereas the one here takes two
     /** Create a parallel [[java.util.stream.Stream Java Stream]] for the `(key, value)` pairs of
       * this map.
-      */
+      
+ * @tparam S < TODO FILL IN TPARAM
+ * @tparam ? TODO FILL IN TPARAM
+ * @return TODO FILL IN RETURN
+*/
     def asJavaParStream[S <: BaseStream[?, ?], St <: Stepper[?]](implicit
         s: StreamShape[(K, V), S, St],
         st: StepperShape[(K, V), St],
@@ -131,7 +163,11 @@ trait StreamExtensions {
     /** Create a sequential [[java.util.stream.Stream Java Stream]] for this stepper. If the
       * stepper yields primitive values, a corresponding specialized Stream is returned (e.g.,
       * [[java.util.stream.IntStream `IntStream`]]).
-      */
+      
+ * @tparam S < TODO FILL IN TPARAM
+ * @tparam ? TODO FILL IN TPARAM
+ * @return TODO FILL IN RETURN
+*/
     def asJavaSeqStream[S <: BaseStream[?, ?], St <: Stepper[?]](implicit s: StreamShape[A, S, St], st: StepperShape[A, St]): S = {
       val sStepper = stepper match {
         case as: AnyStepper[A] => st.seqUnbox(as)
@@ -145,7 +181,11 @@ trait StreamExtensions {
     /** Create a parallel [[java.util.stream.Stream Java Stream]] for this stepper. If the
       * stepper yields primitive values, a corresponding specialized Stream is returned (e.g.,
       * [[java.util.stream.IntStream `IntStream`]]).
-      */
+      
+ * @tparam S < TODO FILL IN TPARAM
+ * @tparam ? TODO FILL IN TPARAM
+ * @return TODO FILL IN RETURN
+*/
     def asJavaParStream[S <: BaseStream[?, ?], St <: Stepper[?]](implicit s: StreamShape[A, S, St], st: StepperShape[A, St]): S = {
       val sStepper = (stepper: @unchecked) match {
         case as: (AnyStepper[A] & EfficientSplit) => st.parUnbox(as)
@@ -162,58 +202,90 @@ trait StreamExtensions {
   // JDK spliterators only for double/int/long/reference.
 
   implicit class DoubleArrayHasSeqParStream(a: Array[Double]) {
-    /** Create a sequential [[java.util.stream.DoubleStream Java DoubleStream]] for this array. */
+    /** Create a sequential [[java.util.stream.DoubleStream Java DoubleStream]] for this array. 
+ * @return TODO FILL IN RETURN
+*/
     def asJavaSeqStream: DoubleStream = java.util.Arrays.stream(a)
-    /** Create a parallel [[java.util.stream.DoubleStream Java DoubleStream]] for this array. */
+    /** Create a parallel [[java.util.stream.DoubleStream Java DoubleStream]] for this array. 
+ * @return TODO FILL IN RETURN
+*/
     def asJavaParStream: DoubleStream = asJavaSeqStream.parallel
   }
 
   implicit class IntArrayHasSeqParStream(a: Array[Int]) {
-    /** Create a sequential [[java.util.stream.IntStream Java IntStream]] for this array. */
+    /** Create a sequential [[java.util.stream.IntStream Java IntStream]] for this array. 
+ * @return TODO FILL IN RETURN
+*/
     def asJavaSeqStream: IntStream = java.util.Arrays.stream(a)
-    /** Create a parallel [[java.util.stream.IntStream Java IntStream]] for this array. */
+    /** Create a parallel [[java.util.stream.IntStream Java IntStream]] for this array. 
+ * @return TODO FILL IN RETURN
+*/
     def asJavaParStream: IntStream = asJavaSeqStream.parallel
   }
 
   implicit class LongArrayHasSeqParStream(a: Array[Long]) {
-    /** Create a sequential [[java.util.stream.LongStream Java LongStream]] for this array. */
+    /** Create a sequential [[java.util.stream.LongStream Java LongStream]] for this array. 
+ * @return TODO FILL IN RETURN
+*/
     def asJavaSeqStream: LongStream = java.util.Arrays.stream(a)
-    /** Create a parallel [[java.util.stream.LongStream Java LongStream]] for this array. */
+    /** Create a parallel [[java.util.stream.LongStream Java LongStream]] for this array. 
+ * @return TODO FILL IN RETURN
+*/
     def asJavaParStream: LongStream = asJavaSeqStream.parallel
   }
 
   implicit class AnyArrayHasSeqParStream[A <: AnyRef](a: Array[A]) {
-    /** Create a sequential [[java.util.stream.Stream Java Stream]] for this array. */
+    /** Create a sequential [[java.util.stream.Stream Java Stream]] for this array. 
+ * @return TODO FILL IN RETURN
+*/
     def asJavaSeqStream: Stream[A] = java.util.Arrays.stream(a)
-    /** Create a parallel [[java.util.stream.Stream Java Stream]] for this array. */
+    /** Create a parallel [[java.util.stream.Stream Java Stream]] for this array. 
+ * @return TODO FILL IN RETURN
+*/
     def asJavaParStream: Stream[A] = asJavaSeqStream.parallel
   }
 
   implicit class ByteArrayHasSeqParStream(a: Array[Byte]) {
-    /** Create a sequential [[java.util.stream.IntStream Java IntStream]] for this array. */
+    /** Create a sequential [[java.util.stream.IntStream Java IntStream]] for this array. 
+ * @return TODO FILL IN RETURN
+*/
     def asJavaSeqStream: IntStream = a.stepper.asJavaSeqStream
-    /** Create a parallel [[java.util.stream.IntStream Java IntStream]] for this array. */
+    /** Create a parallel [[java.util.stream.IntStream Java IntStream]] for this array. 
+ * @return TODO FILL IN RETURN
+*/
     def asJavaParStream: IntStream = a.stepper.asJavaParStream
   }
 
   implicit class ShortArrayHasSeqParStream(a: Array[Short]) {
-    /** Create a sequential [[java.util.stream.IntStream Java IntStream]] for this array. */
+    /** Create a sequential [[java.util.stream.IntStream Java IntStream]] for this array. 
+ * @return TODO FILL IN RETURN
+*/
     def asJavaSeqStream: IntStream = a.stepper.asJavaSeqStream
-    /** Create a parallel [[java.util.stream.IntStream Java IntStream]] for this array. */
+    /** Create a parallel [[java.util.stream.IntStream Java IntStream]] for this array. 
+ * @return TODO FILL IN RETURN
+*/
     def asJavaParStream: IntStream = a.stepper.asJavaParStream
   }
 
   implicit class CharArrayHasSeqParStream(a: Array[Char]) {
-    /** Create a sequential [[java.util.stream.IntStream Java IntStream]] for this array. */
+    /** Create a sequential [[java.util.stream.IntStream Java IntStream]] for this array. 
+ * @return TODO FILL IN RETURN
+*/
     def asJavaSeqStream: IntStream = a.stepper.asJavaSeqStream
-    /** Create a parallel [[java.util.stream.IntStream Java IntStream]] for this array. */
+    /** Create a parallel [[java.util.stream.IntStream Java IntStream]] for this array. 
+ * @return TODO FILL IN RETURN
+*/
     def asJavaParStream: IntStream = a.stepper.asJavaParStream
   }
 
   implicit class FloatArrayHasSeqParStream(a: Array[Float]) {
-    /** Create a sequential [[java.util.stream.DoubleStream Java DoubleStream]] for this array. */
+    /** Create a sequential [[java.util.stream.DoubleStream Java DoubleStream]] for this array. 
+ * @return TODO FILL IN RETURN
+*/
     def asJavaSeqStream: DoubleStream = a.stepper.asJavaSeqStream
-    /** Create a parallel [[java.util.stream.DoubleStream Java DoubleStream]] for this array. */
+    /** Create a parallel [[java.util.stream.DoubleStream Java DoubleStream]] for this array. 
+ * @return TODO FILL IN RETURN
+*/
     def asJavaParStream: DoubleStream = a.stepper.asJavaParStream
   }
 
@@ -225,22 +297,34 @@ trait StreamExtensions {
     /**
      * A sequential stream on the characters of a string, same as [[asJavaSeqCharStream]]. See also
      * [[asJavaSeqCodePointStream]].
-     */
+     
+ * @return TODO FILL IN RETURN
+*/
     def asJavaSeqStream: IntStream = StreamSupport.intStream(s.stepper.spliterator, /* par = */ false)
     /**
      * A parallel stream on the characters of a string, same as [[asJavaParCharStream]]. See also
      * [[asJavaParCodePointStream]].
-     */
+     
+ * @return TODO FILL IN RETURN
+*/
     def asJavaParStream: IntStream = StreamSupport.intStream(s.stepper.spliterator, /* par = */ true)
 
-    /** A sequential stream on the characters of a string. See also  [[asJavaSeqCodePointStream]]. */
+    /** A sequential stream on the characters of a string. See also  [[asJavaSeqCodePointStream]]. 
+ * @return TODO FILL IN RETURN
+*/
     def asJavaSeqCharStream: IntStream = StreamSupport.intStream(s.charStepper.spliterator, /* par = */ false)
-    /** A parallel stream on the characters of a string. See also [[asJavaParCodePointStream]]. */
+    /** A parallel stream on the characters of a string. See also [[asJavaParCodePointStream]]. 
+ * @return TODO FILL IN RETURN
+*/
     def asJavaParCharStream: IntStream = StreamSupport.intStream(s.charStepper.spliterator, /* par = */ true)
 
-    /** A sequential stream on the code points of a string. See also [[asJavaSeqCharStream]]. */
+    /** A sequential stream on the code points of a string. See also [[asJavaSeqCharStream]]. 
+ * @return TODO FILL IN RETURN
+*/
     def asJavaSeqCodePointStream: IntStream = StreamSupport.intStream(s.codePointStepper.spliterator, /* par = */ false)
-    /** A parallel stream on the code points of a string. See also [[asJavaParCharStream]]. */
+    /** A parallel stream on the code points of a string. See also [[asJavaParCharStream]]. 
+ * @return TODO FILL IN RETURN
+*/
     def asJavaParCodePointStream: IntStream = StreamSupport.intStream(s.codePointStepper.spliterator, /* par = */ true)
   }
 
@@ -263,7 +347,11 @@ trait StreamExtensions {
      *
      * Sequential streams are directly converted to the target collection. If the target collection
      * is lazy, the conversion is lazy as well.
-     */
+     
+ * @tparam C1 TODO FILL IN TPARAM
+ * @param factory TODO FILL IN PARAM
+ * @return TODO FILL IN RETURN
+*/
     def toScala[C1](factory: collection.Factory[A, C1])(implicit info: AccumulatorFactoryInfo[A, C1]): C1 = {
 
       def anyAcc = stream.collect(AnyAccumulator.supplier[A], AnyAccumulator.adder[A], AnyAccumulator.merger[A])
@@ -277,7 +365,11 @@ trait StreamExtensions {
 
     /** Convert a generic Java Stream wrapping a primitive type to a corresponding primitive
       * Stream.
-      */
+      
+ * @tparam S TODO FILL IN TPARAM
+ * @param unboxer: TODO FILL IN PARAM
+ * @return TODO FILL IN RETURN
+*/
     def asJavaPrimitiveStream[S](implicit unboxer: StreamUnboxer[A, S]): S = unboxer(stream)
   }
 
@@ -298,7 +390,11 @@ trait StreamExtensions {
      *
      * Sequential streams are directly converted to the target collection. If the target collection
      * is lazy, the conversion is lazy as well.
-     */
+     
+ * @tparam C1 TODO FILL IN TPARAM
+ * @param factory TODO FILL IN PARAM
+ * @return TODO FILL IN RETURN
+*/
     def toScala[C1](factory: collection.Factory[Int, C1])(implicit info: AccumulatorFactoryInfo[Int, C1]): C1 = {
       def intAcc = stream.collect(IntAccumulator.supplier, IntAccumulator.adder, IntAccumulator.merger)
       if (info.companion == AnyAccumulator) stream.collect(AnyAccumulator.supplier[Int], AnyAccumulator.unboxedIntAdder, AnyAccumulator.merger[Int]).asInstanceOf[C1]
@@ -325,7 +421,11 @@ trait StreamExtensions {
      *
      * Sequential streams are directly converted to the target collection. If the target collection
      * is lazy, the conversion is lazy as well.
-     */
+     
+ * @tparam C1 TODO FILL IN TPARAM
+ * @param factory TODO FILL IN PARAM
+ * @return TODO FILL IN RETURN
+*/
     def toScala[C1](factory: collection.Factory[Long, C1])(implicit info: AccumulatorFactoryInfo[Long, C1]): C1 = {
       def longAcc = stream.collect(LongAccumulator.supplier, LongAccumulator.adder, LongAccumulator.merger)
       if (info.companion == AnyAccumulator) stream.collect(AnyAccumulator.supplier[Long], AnyAccumulator.unboxedLongAdder, AnyAccumulator.merger[Long]).asInstanceOf[C1]
@@ -352,7 +452,11 @@ trait StreamExtensions {
      *
      * Sequential streams are directly converted to the target collection. If the target collection
      * is lazy, the conversion is lazy as well.
-     */
+     
+ * @tparam C1 TODO FILL IN TPARAM
+ * @param factory TODO FILL IN PARAM
+ * @return TODO FILL IN RETURN
+*/
     def toScala[C1](factory: collection.Factory[Double, C1])(implicit info: AccumulatorFactoryInfo[Double, C1]): C1 = {
       def doubleAcc = stream.collect(DoubleAccumulator.supplier, DoubleAccumulator.adder, DoubleAccumulator.merger)
       if (info.companion == AnyAccumulator) stream.collect(AnyAccumulator.supplier[Double], AnyAccumulator.unboxedDoubleAdder, AnyAccumulator.merger[Double]).asInstanceOf[C1]
@@ -448,7 +552,10 @@ object StreamExtensions {
     *
     * When converting to a collection other than `Accumulator`, the generic
     * `noAccumulatorFactoryInfo` is passed.
-    */
+    
+ * @tparam A TODO FILL IN TPARAM
+ * @tparam C TODO FILL IN TPARAM
+*/
   trait AccumulatorFactoryInfo[A, C] {
     val companion: AnyRef | Null
   }

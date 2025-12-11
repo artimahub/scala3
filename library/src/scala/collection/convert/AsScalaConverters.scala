@@ -45,7 +45,9 @@ trait AsScalaConverters {
    *
    * @param i The Java `Iterator` to be converted.
    * @return  A Scala `Iterator` view of the argument.
-   */
+   
+ * @tparam A TODO FILL IN TPARAM
+*/
   def asScala[A](i: ju.Iterator[A]): Iterator[A] = (i: ju.Iterator[A] | Null) match {
     case null                            => null.asInstanceOf[Iterator[A]]
     case wrapper: IteratorWrapper[A @uc] => wrapper.underlying.unsafeAssumePure // TODO: Remove when pattern matching recognizes this is safe
@@ -63,7 +65,9 @@ trait AsScalaConverters {
    *
    * @param e The Java `Enumeration` to be converted.
    * @return  A Scala `Iterator` view of the argument.
-   */
+   
+ * @tparam A TODO FILL IN TPARAM
+*/
   def asScala[A](e: ju.Enumeration[A]): Iterator[A] = (e: ju.Enumeration[A] | Null) match {
     case null                            => null.asInstanceOf[Iterator[A]]
     case wrapper: IteratorWrapper[A @uc] => wrapper.underlying.unsafeAssumePure // TODO: Remove when pattern matching recognizes this is safe
@@ -81,7 +85,9 @@ trait AsScalaConverters {
    *
    * @param i The Java `Iterable` to be converted.
    * @return  A Scala `Iterable` view of the argument.
-   */
+   
+ * @tparam A TODO FILL IN TPARAM
+*/
   def asScala[A](i: jl.Iterable[A]): Iterable[A] = (i: jl.Iterable[A] | Null) match {
     case null                            => null.asInstanceOf[Iterable[A]]
     case wrapper: IterableWrapper[A @uc] => wrapper.underlying.unsafeAssumePure // TODO: Remove when pattern matching recognizes this is safe
@@ -96,7 +102,9 @@ trait AsScalaConverters {
    *
    * @param c The Java `Collection` to be converted.
    * @return  A Scala `Iterable` view of the argument.
-   */
+   
+ * @tparam A TODO FILL IN TPARAM
+*/
   def asScala[A](c: ju.Collection[A]): Iterable[A] = (c: ju.Collection[A] | Null) match {
     case null                            => null.asInstanceOf[Iterable[A]]
     case wrapper: IterableWrapper[A @uc] => wrapper.underlying.unsafeAssumePure // TODO: Remove when pattern matching recognizes this is safe
@@ -114,7 +122,9 @@ trait AsScalaConverters {
    *
    * @param l The Java `List` to be converted.
    * @return A Scala mutable `Buffer` view of the argument.
-   */
+   
+ * @tparam A TODO FILL IN TPARAM
+*/
   def asScala[A](l: ju.List[A]): mutable.Buffer[A] = (l: ju.List[A] | Null) match {
     case null                                 => null.asInstanceOf[mutable.Buffer[A]]
     case wrapper: MutableBufferWrapper[A @uc] => wrapper.underlying
@@ -132,7 +142,9 @@ trait AsScalaConverters {
    *
    * @param s The Java `Set` to be converted.
    * @return  A Scala mutable `Set` view of the argument.
-   */
+   
+ * @tparam A TODO FILL IN TPARAM
+*/
   def asScala[A](s: ju.Set[A]): mutable.Set[A] = (s: ju.Set[A] | Null) match {
     case null                              => null.asInstanceOf[mutable.Set[A]]
     case wrapper: MutableSetWrapper[A @uc] => wrapper.underlying
@@ -155,7 +167,10 @@ trait AsScalaConverters {
    *
    * @param m The Java `Map` to be converted.
    * @return  A Scala mutable `Map` view of the argument.
-   */
+   
+ * @tparam K TODO FILL IN TPARAM
+ * @tparam V TODO FILL IN TPARAM
+*/
   def asScala[K, V](m: ju.Map[K, V]): mutable.Map[K, V] = (m: ju.Map[K, V] | Null) match {
     case null                                     => null.asInstanceOf[mutable.Map[K, V]]
     case wrapper: MutableMapWrapper[K @uc, V @uc] => wrapper.underlying
@@ -174,7 +189,10 @@ trait AsScalaConverters {
    *
    * @param m The Java `ConcurrentMap` to be converted.
    * @return  A Scala mutable `ConcurrentMap` view of the argument.
-   */
+   
+ * @tparam K TODO FILL IN TPARAM
+ * @tparam V TODO FILL IN TPARAM
+*/
   def asScala[K, V](m: juc.ConcurrentMap[K, V]): concurrent.Map[K, V] = (m: juc.ConcurrentMap[K, V] | Null) match {
     case null                                        => null.asInstanceOf[concurrent.Map[K, V]]
     case wrapper: ConcurrentMapWrapper[K @uc, V @uc] => wrapper.underlyingConcurrentMap
@@ -192,7 +210,10 @@ trait AsScalaConverters {
    *
    * @param d The Java `Dictionary` to be converted.
    * @return  A Scala mutable `Map` view of the argument.
-   */
+   
+ * @tparam K TODO FILL IN TPARAM
+ * @tparam V TODO FILL IN TPARAM
+*/
   def asScala[K, V](d: ju.Dictionary[K, V]): mutable.Map[K, V] = (d: ju.Dictionary[K, V] | Null) match {
     case null                                     => null.asInstanceOf[mutable.Map[K, V]]
     case wrapper: DictionaryWrapper[K @uc, V @uc] => wrapper.underlying

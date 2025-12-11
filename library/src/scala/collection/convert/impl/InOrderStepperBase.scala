@@ -26,12 +26,16 @@ import scala.collection.Stepper.EfficientSplit
 private[convert] abstract class InOrderStepperBase[Sub, Semi <: Sub](protected var i0: Int, protected var iN: Int)
 extends EfficientSplit {
   /** Set `true` if the element at `i0` is known to be there.  `false` if either not known or is a gap.
-    */
+    
+ * @return TODO FILL IN RETURN
+*/
   protected def found: Boolean
 
   /** Advance `i0` over any gaps, updating internal state so `found` is correct at the new position.
     * Returns the new value of `found`.
-    */
+    
+ * @return TODO FILL IN RETURN
+*/
   protected def findNext(): Boolean
 
   protected def semiclone(half: Int): Semi

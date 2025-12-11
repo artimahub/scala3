@@ -54,7 +54,9 @@ extends EfficientSplit {
   /** Unrolls a subtree onto the stack starting from a particular node, returning
     * the last node found.  This final node is _not_ placed on the stack, and
     * may have things to its right.
-    */
+    
+ * @return TODO FILL IN RETURN
+*/
   @tailrec protected final def unroll(from: T): T = {
     val l = left(from)
     if (l eq null) from
@@ -122,7 +124,9 @@ extends EfficientSplit {
     * detaching the root, and leaving the right-hand side of the root unrolled.
     *
     * If the tree is empty or only has one element left, it returns `null` instead of splitting.
-    */
+    
+ * @return TODO FILL IN RETURN
+*/
   def trySplit(): Sub | Null =
     if (!hasStep || index < 0) null
     else {
