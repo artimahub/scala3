@@ -21,7 +21,9 @@ import scala.annotation.{nowarn, tailrec}
 /** Base trait for linearly accessed sequences that have efficient `head` and
   *  `tail` operations.
   *  Known subclasses: List, LazyList
-  */
+  
+ * @tparam +A TODO FILL IN TPARAM
+*/
 trait LinearSeq[+A] extends Seq[A]
   with LinearSeqOps[A, LinearSeq, LinearSeq[A]]
   with IterableFactoryDefaults[A, LinearSeq] {
@@ -41,19 +43,25 @@ transparent trait LinearSeqOps[+A, +CC[X] <: LinearSeq[X], +C <: LinearSeq[A] & 
    *
    *  Note: *Must* be overridden in subclasses. The default implementation that is inherited from [[SeqOps]]
    *     uses `lengthCompare`, which is defined here to use `isEmpty`.
-   */
+   
+ * @return TODO FILL IN RETURN
+*/
   override def isEmpty: Boolean
 
   /** @inheritdoc
    *
    *  Note: *Must* be overridden in subclasses. The default implementation is inherited from [[IterableOps]].
-   */
+   
+ * @return TODO FILL IN RETURN
+*/
   def head: A
 
   /** @inheritdoc
    *
    *  Note: *Must* be overridden in subclasses. The default implementation is inherited from [[IterableOps]].
-   */
+   
+ * @return TODO FILL IN RETURN
+*/
   def tail: C
 
   override def headOption: Option[A] =

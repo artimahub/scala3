@@ -17,11 +17,15 @@ import language.experimental.captureChecking
 
 /** Buffered iterators are iterators which provide a method `head`
  *  that inspects the next element without discarding it.
- */
+ 
+ * @tparam +A TODO FILL IN TPARAM
+*/
 trait BufferedIterator[+A] extends Iterator[A] {
 
   /** Returns next element of iterator without advancing beyond it.
-   */
+   
+ * @return TODO FILL IN RETURN
+*/
   def head: A
 
   /** Returns an option of the next element of an iterator without advancing beyond it.

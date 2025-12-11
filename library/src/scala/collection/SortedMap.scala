@@ -18,7 +18,10 @@ import language.experimental.captureChecking
 
 import scala.annotation.{implicitNotFound, nowarn}
 
-/** A Map whose keys are sorted according to a [[scala.math.Ordering]]*/
+/** A Map whose keys are sorted according to a [[scala.math.Ordering]]
+ * @tparam K TODO FILL IN TPARAM
+ * @tparam +V TODO FILL IN TPARAM
+*/
 trait SortedMap[K, +V]
   extends Map[K, V]
     with SortedMapOps[K, V, SortedMap, SortedMap[K, V]]
@@ -60,7 +63,9 @@ transparent trait SortedMapOps[K, +V, +CC[X, Y] <: Map[X, Y] & SortedMapOps[X, Y
     * @note When implementing a custom collection type and refining `CC` to the new type, this
     *       method needs to be overridden to return a factory for the new type (the compiler will
     *       issue an error otherwise).
-    */
+    
+ * @return TODO FILL IN RETURN
+*/
   def sortedMapFactory: SortedMapFactory[CC]
 
   /** Similar to `mapFromIterable`, but returns a SortedMap collection type.
@@ -79,7 +84,9 @@ transparent trait SortedMapOps[K, +V, +CC[X, Y] <: Map[X, Y] & SortedMapOps[X, Y
     *
     * @param start The lower bound (inclusive)
     * on the keys to be returned
-    */
+    
+ * @return TODO FILL IN RETURN
+*/
   def iteratorFrom(start: K): Iterator[(K, V)]
 
   /**
@@ -91,7 +98,9 @@ transparent trait SortedMapOps[K, +V, +CC[X, Y] <: Map[X, Y] & SortedMapOps[X, Y
     *
     * @param start The lower bound (inclusive)
     * on the keys to be returned
-    */
+    
+ * @return TODO FILL IN RETURN
+*/
   def keysIteratorFrom(start: K): Iterator[K]
 
   /**
@@ -103,7 +112,9 @@ transparent trait SortedMapOps[K, +V, +CC[X, Y] <: Map[X, Y] & SortedMapOps[X, Y
     *
     * @param start The lower bound (inclusive)
     * on the keys to be returned
-    */
+    
+ * @return TODO FILL IN RETURN
+*/
   def valuesIteratorFrom(start: K): Iterator[V] = iteratorFrom(start).map(_._2)
 
   def firstKey: K = head._1
@@ -155,7 +166,10 @@ transparent trait SortedMapOps[K, +V, +CC[X, Y] <: Map[X, Y] & SortedMapOps[X, Y
     *  @param f      the function to apply to each element.
     *  @return       a new $coll resulting from applying the given function
     *                `f` to each element of this $coll and collecting the results.
-    */
+    
+ * @tparam K2 TODO FILL IN TPARAM
+ * @tparam V2 TODO FILL IN TPARAM
+*/
   def map[K2, V2](f: ((K, V)) => (K2, V2))(implicit @implicitNotFound(SortedMapOps.ordMsg) ordering: Ordering[K2]): CC[K2, V2] =
     sortedMapFactory.from(new View.Map[(K, V), (K2, V2)](this, f))
 
@@ -165,7 +179,10 @@ transparent trait SortedMapOps[K, +V, +CC[X, Y] <: Map[X, Y] & SortedMapOps[X, Y
     *  @param f      the function to apply to each element.
     *  @return       a new $coll resulting from applying the given collection-valued function
     *                `f` to each element of this $coll and concatenating the results.
-    */
+    
+ * @tparam K2 TODO FILL IN TPARAM
+ * @tparam V2 TODO FILL IN TPARAM
+*/
   def flatMap[K2, V2](f: ((K, V)) => IterableOnce[(K2, V2)]^)(implicit @implicitNotFound(SortedMapOps.ordMsg) ordering: Ordering[K2]): CC[K2, V2] =
     sortedMapFactory.from(new View.FlatMap(this, f))
 
@@ -176,7 +193,10 @@ transparent trait SortedMapOps[K, +V, +CC[X, Y] <: Map[X, Y] & SortedMapOps[X, Y
     *  @return       a new $coll resulting from applying the given partial function
     *                `pf` to each element on which it is defined and collecting the results.
     *                The order of the elements is preserved.
-    */
+    
+ * @tparam K2 TODO FILL IN TPARAM
+ * @tparam V2 TODO FILL IN TPARAM
+*/
   def collect[K2, V2](pf: PartialFunction[(K, V), (K2, V2)]^)(implicit @implicitNotFound(SortedMapOps.ordMsg) ordering: Ordering[K2]): CC[K2, V2] =
     sortedMapFactory.from(new View.Collect(this, pf))
 
@@ -201,7 +221,11 @@ object SortedMapOps {
   /** Specializes `MapWithFilter` for sorted Map collections
     *
     * @define coll sorted map collection
-    */
+    
+ * @tparam K TODO FILL IN TPARAM
+ * @tparam +V TODO FILL IN TPARAM
+ * @tparam +IterableCC[_ TODO FILL IN TPARAM
+*/
   class WithFilter[K, +V, +IterableCC[_], +MapCC[X, Y] <: Map[X, Y], +CC[X, Y] <: Map[X, Y] & SortedMapOps[X, Y, CC, ?]](
     self: SortedMapOps[K, V, CC, ?] & MapOps[K, V, MapCC, ?] & IterableOps[(K, V), IterableCC, ?],
     p: ((K, V)) => Boolean

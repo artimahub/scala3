@@ -18,7 +18,9 @@ import language.experimental.captureChecking
 import scala.annotation.{implicitNotFound, nowarn}
 import scala.annotation.unchecked.uncheckedVariance
 
-/** Base type of sorted sets */
+/** Base type of sorted sets 
+ * @tparam A TODO FILL IN TPARAM
+*/
 trait SortedSet[A] extends Set[A]
     with SortedSetOps[A, SortedSet, SortedSet[A]]
     with SortedSetFactoryDefaults[A, SortedSet, Set] {
@@ -57,10 +59,14 @@ transparent trait SortedSetOps[A, +CC[X] <: SortedSet[X], +C <: SortedSetOps[A, 
     * @note When implementing a custom collection type and refining `CC` to the new type, this
     *       method needs to be overridden to return a factory for the new type (the compiler will
     *       issue an error otherwise).
-    */
+    
+ * @return TODO FILL IN RETURN
+*/
   def sortedIterableFactory: SortedIterableFactory[CC]
 
-  /** Widens the type of this set to its unsorted counterpart. */
+  /** Widens the type of this set to its unsorted counterpart. 
+ * @return TODO FILL IN RETURN
+*/
   def unsorted: Set[A]
 
   /**
@@ -70,7 +76,9 @@ transparent trait SortedSetOps[A, +CC[X] <: SortedSet[X], +C <: SortedSetOps[A, 
     * be more efficient than x.from(y).iterator
     *
     * @param start The lower-bound (inclusive) of the iterator
-    */
+    
+ * @return TODO FILL IN RETURN
+*/
   def iteratorFrom(start: A): Iterator[A]
   
   @deprecated("Use `iteratorFrom` instead.", "2.13.0")
@@ -170,7 +178,10 @@ object SortedSetOps {
   /** Specialize `WithFilter` for sorted collections
     *
     * @define coll sorted collection
-    */
+    
+ * @tparam +A TODO FILL IN TPARAM
+ * @tparam +IterableCC[_ TODO FILL IN TPARAM
+*/
   class WithFilter[+A, +IterableCC[_], +CC[X] <: SortedSet[X]](
     self: SortedSetOps[A, CC, ?] & IterableOps[A, IterableCC, ?],
     p: A => Boolean

@@ -21,7 +21,10 @@ import scala.collection.generic.DefaultSerializable
 import scala.collection.mutable.StringBuilder
 import scala.util.hashing.MurmurHash3
 
-/** Base Map type */
+/** Base Map type 
+ * @tparam K TODO FILL IN TPARAM
+ * @tparam +V TODO FILL IN TPARAM
+*/
 trait Map[K, +V]
   extends Iterable[(K, V)]
     with MapOps[K, V, Map, Map[K, V]]
@@ -108,7 +111,10 @@ transparent trait MapOps[K, +V, +CC[_, _] <: IterableOps[?, AnyConstr, ?], +C]
 
   override def view: MapView[K, V]^{this} = new MapView.Id(this)
 
-  /** Returns a [[Stepper]] for the keys of this map. See method [[stepper]]. */
+  /** Returns a [[Stepper]] for the keys of this map. See method [[stepper]]. 
+ * @tparam S < TODO FILL IN TPARAM
+ * @return TODO FILL IN RETURN
+*/
   def keyStepper[S <: Stepper[?]](implicit shape: StepperShape[K, S]): S = {
     import convert.impl._
     val s = shape.shape match {
@@ -120,7 +126,10 @@ transparent trait MapOps[K, +V, +CC[_, _] <: IterableOps[?, AnyConstr, ?], +C]
     s.asInstanceOf[S]
   }
 
-  /** Returns a [[Stepper]] for the values of this map. See method [[stepper]]. */
+  /** Returns a [[Stepper]] for the values of this map. See method [[stepper]]. 
+ * @tparam S < TODO FILL IN TPARAM
+ * @return TODO FILL IN RETURN
+*/
   def valueStepper[S <: Stepper[?]](implicit shape: StepperShape[V, S]): S = {
     import convert.impl._
     val s = shape.shape match {
@@ -142,7 +151,9 @@ transparent trait MapOps[K, +V, +CC[_, _] <: IterableOps[?, AnyConstr, ?], +C]
     * @note When implementing a custom collection type and refining `CC` to the new type, this
     *       method needs to be overridden to return a factory for the new type (the compiler will
     *       issue an error otherwise).
-    */
+    
+ * @return TODO FILL IN RETURN
+*/
   def mapFactory: MapFactory[CC]
 
   /** Optionally returns the value associated with a key.
@@ -160,7 +171,9 @@ transparent trait MapOps[K, +V, +CC[_, _] <: IterableOps[?, AnyConstr, ?], +C]
    *   @tparam  V1       the result type of the default computation.
    *   @return  the value associated with `key` if it exists,
    *            otherwise the result of the `default` computation.
-   */
+   
+ * @tparam V1 > TODO FILL IN TPARAM
+*/
   def getOrElse[V1 >: V](key: K, default: => V1): V1 = get(key) match {
     case Some(v) => v
     case None => default
@@ -270,7 +283,11 @@ transparent trait MapOps[K, +V, +CC[_, _] <: IterableOps[?, AnyConstr, ?], +C]
 
   /** Apply `f` to each key/value pair for its side effects
    *  Note: [U] parameter needed to help scalac's type inference.
-   */
+   
+ * @tparam U TODO FILL IN TPARAM
+ * @param f TODO FILL IN PARAM
+ * @return TODO FILL IN RETURN
+*/
   def foreachEntry[U](f: (K, V) => U): Unit = {
     val it = iterator
     while (it.hasNext) {
@@ -330,7 +347,10 @@ transparent trait MapOps[K, +V, +CC[_, _] <: IterableOps[?, AnyConstr, ?], +C]
     *  @param f      the function to apply to each element.
     *  @return       a new $coll resulting from applying the given function
     *                `f` to each element of this $coll and collecting the results.
-    */
+    
+ * @tparam K2 TODO FILL IN TPARAM
+ * @tparam V2 TODO FILL IN TPARAM
+*/
   def map[K2, V2](f: ((K, V)) => (K2, V2)): CC[K2, V2]^{this, f} = mapFactory.from(new View.Map(this, f))
 
   /** Builds a new collection by applying a partial function to all elements of this $coll
@@ -352,7 +372,10 @@ transparent trait MapOps[K, +V, +CC[_, _] <: IterableOps[?, AnyConstr, ?], +C]
     *  @param f      the function to apply to each element.
     *  @return       a new $coll resulting from applying the given collection-valued function
     *                `f` to each element of this $coll and concatenating the results.
-    */
+    
+ * @tparam K2 TODO FILL IN TPARAM
+ * @tparam V2 TODO FILL IN TPARAM
+*/
   def flatMap[K2, V2](f: ((K, V)) => IterableOnce[(K2, V2)]^): CC[K2, V2]^{this, f} = mapFactory.from(new View.FlatMap(this, f))
 
   /** Returns a new $coll containing the elements from the left hand operand followed by the elements from the
@@ -362,7 +385,9 @@ transparent trait MapOps[K, +V, +CC[_, _] <: IterableOps[?, AnyConstr, ?], +C]
     *  @param suffix   the iterable to append.
     *  @return       a new $coll which contains all elements
     *                of this $coll followed by all elements of `suffix`.
-    */
+    
+ * @tparam V2 > TODO FILL IN TPARAM
+*/
   def concat[V2 >: V](suffix: collection.IterableOnce[(K, V2)]^): CC[K, V2]^{this, suffix} = mapFactory.from(suffix match {
     case it: Iterable[(K, V2)] => new View.Concat(this, it)
     case _ => iterator.concat(suffix.iterator)

@@ -33,7 +33,9 @@ object Searching {
     * */
   sealed abstract class SearchResult {
     /** The index corresponding to the element searched for in the sequence, if it was found,
-      * or the index where the element would be inserted in the sequence, if it was not in the sequence */
+      * or the index where the element would be inserted in the sequence, if it was not in the sequence 
+ * @return TODO FILL IN RETURN
+*/
     def insertionPoint: Int
   }
 

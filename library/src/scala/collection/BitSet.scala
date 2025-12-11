@@ -210,7 +210,9 @@ transparent trait BitSetOps[+C <: BitSet & BitSetOps[C]]
   }
 
   /** Creates a bit mask for this set as a new array of longs
-    */
+    
+ * @return TODO FILL IN RETURN
+*/
   def toBitMask: Array[Long] = {
     val a = new Array[Long](nwords)
     var i = a.length

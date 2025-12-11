@@ -20,10 +20,14 @@ transparent trait SortedOps[A, +C] {
 
   def ordering: Ordering[A]
 
-  /** Returns the first key of the collection. */
+  /** Returns the first key of the collection. 
+ * @return TODO FILL IN RETURN
+*/
   def firstKey: A
 
-  /** Returns the last key of the collection. */
+  /** Returns the last key of the collection. 
+ * @return TODO FILL IN RETURN
+*/
   def lastKey: A
 
   /** Comparison function that orders keys. */
@@ -42,7 +46,9 @@ transparent trait SortedOps[A, +C] {
     *               `None` if there is no lower bound.
     *  @param until The upper-bound (exclusive) of the ranged projection.
     *               `None` if there is no upper bound.
-    */
+    
+ * @return TODO FILL IN RETURN
+*/
   def rangeImpl(from: Option[A], until: Option[A]): C
 
   /** Creates a ranged projection of this collection with both a lower-bound
@@ -50,7 +56,9 @@ transparent trait SortedOps[A, +C] {
     *
     *  @param from The lower-bound (inclusive) of the ranged projection.
     *  @param until The upper-bound (exclusive) of the ranged projection.
-    */
+    
+ * @return TODO FILL IN RETURN
+*/
   def range(from: A, until: A): C = rangeImpl(Some(from), Some(until))
 
   /** Creates a ranged projection of this collection with no upper-bound.
@@ -63,7 +71,9 @@ transparent trait SortedOps[A, +C] {
   /** Creates a ranged projection of this collection with no upper-bound.
    *
    *  @param from The lower-bound (inclusive) of the ranged projection.
-   */
+   
+ * @return TODO FILL IN RETURN
+*/
   def rangeFrom(from: A): C = rangeImpl(Some(from), None)
 
   /** Creates a ranged projection of this collection with no lower-bound.
@@ -76,7 +86,9 @@ transparent trait SortedOps[A, +C] {
   /** Creates a ranged projection of this collection with no lower-bound.
    *
    *  @param until The upper-bound (exclusive) of the ranged projection.
-   */
+   
+ * @return TODO FILL IN RETURN
+*/
   def rangeUntil(until: A): C = rangeImpl(None, Some(until))
 
   /** Create a range projection of this collection with no lower-bound.
@@ -87,6 +99,8 @@ transparent trait SortedOps[A, +C] {
 
   /** Create a range projection of this collection with no lower-bound.
     *  @param to The upper-bound (inclusive) of the ranged projection.
-    */
+    
+ * @return TODO FILL IN RETURN
+*/
   def rangeTo(to: A): C
 }

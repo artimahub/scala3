@@ -19,7 +19,9 @@ import language.experimental.captureChecking
 import scala.annotation.nowarn
 
 
-/** View defined in terms of indexing a range */
+/** View defined in terms of indexing a range 
+ * @tparam +A TODO FILL IN TPARAM
+*/
 trait IndexedSeqView[+A] extends IndexedSeqOps[A, View, View[A]] with SeqView[A] {
 
   override def view: IndexedSeqView[A]^{this} = this

@@ -31,7 +31,10 @@ import scala.reflect.ClassTag
   *
   * @tparam A Type of elements (e.g. `Int`, `Boolean`, etc.)
   * @tparam C Type of collection (e.g. `List[Int]`, `TreeMap[Int, String]`, etc.)
-  */
+  
+ * @tparam -A TODO FILL IN TPARAM
+ * @tparam +C TODO FILL IN TPARAM
+*/
 trait Factory[-A, +C] extends Any { self =>
 
   /**
@@ -42,7 +45,9 @@ trait Factory[-A, +C] extends Any { self =>
   def fromSpecific(it: IterableOnce[A]^): C^{it}
 
   /** Get a Builder for the collection. For non-strict collection types this will use an intermediate buffer.
-    * Building collections with `fromSpecific` is preferred because it can be lazy for lazy collections. */
+    * Building collections with `fromSpecific` is preferred because it can be lazy for lazy collections. 
+ * @return TODO FILL IN RETURN
+*/
   def newBuilder: Builder[A, C]
 }
 
@@ -82,7 +87,9 @@ object Factory {
   *
   * @define coll collection
   * @define Coll `Iterable`
-  */
+  
+ * @tparam +CC[_ TODO FILL IN TPARAM
+*/
 trait IterableFactory[+CC[_]] extends Serializable, caps.Pure {
 
   /** Creates a target $coll from an existing source collection
@@ -95,7 +102,9 @@ trait IterableFactory[+CC[_]] extends Serializable, caps.Pure {
 
   /** An empty $coll
     * @tparam A      the type of the ${coll}'s elements
-    */
+    
+ * @return TODO FILL IN RETURN
+*/
   def empty[A]: CC[A]
 
   /** Creates a $coll with the specified elements.
@@ -111,7 +120,9 @@ trait IterableFactory[+CC[_]] extends Serializable, caps.Pure {
     *  @param len   the number of elements contained in the $coll
     *  @param f     the function that's repeatedly applied
     *  @return      a $coll with `len` values in the sequence `start, f(start), f(f(start)), ...`
-    */
+    
+ * @tparam A TODO FILL IN TPARAM
+*/
   def iterate[A](start: A, len: Int)(f: A => A): CC[A]^{f} = from(new View.Iterate(start, len)(f))
 
   /** Produces a $coll that uses a function `f` to produce elements of type `A`
@@ -131,7 +142,9 @@ trait IterableFactory[+CC[_]] extends Serializable, caps.Pure {
     *  @param start the first element of the $coll
     *  @param end   the end value of the $coll (the first value NOT contained)
     *  @return  a $coll with values `start, start + 1, ..., end - 1`
-    */
+    
+ * @tparam A TODO FILL IN TPARAM
+*/
   def range[A : Integral](start: A, end: A): CC[A] = from(NumericRange(start, end, implicitly[Integral[A]].one))
 
   /** Produces a $coll containing equally spaced values in some integer interval.
@@ -139,7 +152,9 @@ trait IterableFactory[+CC[_]] extends Serializable, caps.Pure {
     *  @param end   the end value of the $coll (the first value NOT contained)
     *  @param step  the difference between successive elements of the $coll (must be positive or negative)
     *  @return      a $coll with values `start, start + step, ...` up to, but excluding `end`
-    */
+    
+ * @tparam A TODO FILL IN TPARAM
+*/
   def range[A : Integral](start: A, end: A, step: A): CC[A] = from(NumericRange(start, end, step))
 
   /**
@@ -152,7 +167,9 @@ trait IterableFactory[+CC[_]] extends Serializable, caps.Pure {
    *  @param   n  the number of elements contained in the $coll.
    *  @param   elem the element computation
    *  @return  A $coll that contains the results of `n` evaluations of `elem`.
-   */
+   
+ * @tparam A TODO FILL IN TPARAM
+*/
   def fill[A](n: Int)(elem: => A): CC[A]^{elem} = from(new View.Fill(n)(elem))
 
   /** Produces a two-dimensional $coll containing the results of some element computation a number of times.
@@ -160,7 +177,9 @@ trait IterableFactory[+CC[_]] extends Serializable, caps.Pure {
     *  @param   n2  the number of elements in the 2nd dimension
     *  @param   elem the element computation
     *  @return  A $coll that contains the results of `n1 x n2` evaluations of `elem`.
-    */
+    
+ * @tparam A TODO FILL IN TPARAM
+*/
   def fill[A](n1: Int, n2: Int)(elem: => A): CC[(CC[A]^{elem}) @uncheckedVariance]^{elem} = fill(n1)(fill(n2)(elem))
 
   /** Produces a three-dimensional $coll containing the results of some element computation a number of times.
@@ -169,7 +188,9 @@ trait IterableFactory[+CC[_]] extends Serializable, caps.Pure {
     *  @param   n3  the number of elements in the 3rd dimension
     *  @param   elem the element computation
     *  @return  A $coll that contains the results of `n1 x n2 x n3` evaluations of `elem`.
-    */
+    
+ * @tparam A TODO FILL IN TPARAM
+*/
   def fill[A](n1: Int, n2: Int, n3: Int)(elem: => A): CC[(CC[CC[A]^{elem}]^{elem}) @uncheckedVariance]^{elem} = fill(n1)(fill(n2, n3)(elem))
 
   /** Produces a four-dimensional $coll containing the results of some element computation a number of times.
@@ -179,7 +200,9 @@ trait IterableFactory[+CC[_]] extends Serializable, caps.Pure {
     *  @param   n4  the number of elements in the 4th dimension
     *  @param   elem the element computation
     *  @return  A $coll that contains the results of `n1 x n2 x n3 x n4` evaluations of `elem`.
-    */
+    
+ * @tparam A TODO FILL IN TPARAM
+*/
   def fill[A](n1: Int, n2: Int, n3: Int, n4: Int)(elem: => A): CC[(CC[CC[CC[A]^{elem}]^{elem}]^{elem}) @uncheckedVariance]^{elem} =
     fill(n1)(fill(n2, n3, n4)(elem))
 
@@ -191,7 +214,9 @@ trait IterableFactory[+CC[_]] extends Serializable, caps.Pure {
     *  @param   n5  the number of elements in the 5th dimension
     *  @param   elem the element computation
     *  @return  A $coll that contains the results of `n1 x n2 x n3 x n4 x n5` evaluations of `elem`.
-    */
+    
+ * @tparam A TODO FILL IN TPARAM
+*/
   def fill[A](n1: Int, n2: Int, n3: Int, n4: Int, n5: Int)(elem: => A): CC[(CC[CC[CC[CC[A]^{elem}]^{elem}]^{elem}]^{elem}) @uncheckedVariance]^{elem} =
     fill(n1)(fill(n2, n3, n4, n5)(elem))
 
@@ -199,7 +224,9 @@ trait IterableFactory[+CC[_]] extends Serializable, caps.Pure {
     *  @param  n   The number of elements in the $coll
     *  @param  f   The function computing element values
     *  @return A $coll consisting of elements `f(0), ..., f(n -1)`
-    */
+    
+ * @tparam A TODO FILL IN TPARAM
+*/
   def tabulate[A](n: Int)(f: Int => A): CC[A]^{f} = from(new View.Tabulate(n)(f))
 
   /** Produces a two-dimensional $coll containing values of a given function over ranges of integer values starting from 0.
@@ -208,7 +235,9 @@ trait IterableFactory[+CC[_]] extends Serializable, caps.Pure {
     *  @param   f   The function computing element values
     *  @return A $coll consisting of elements `f(i1, i2)`
     *          for `0 <= i1 < n1` and `0 <= i2 < n2`.
-    */
+    
+ * @tparam A TODO FILL IN TPARAM
+*/
   def tabulate[A](n1: Int, n2: Int)(f: (Int, Int) => A): CC[(CC[A]^{f}) @uncheckedVariance]^{f} =
     tabulate(n1)(i1 => tabulate(n2)(f(i1, _)))
 
@@ -219,7 +248,9 @@ trait IterableFactory[+CC[_]] extends Serializable, caps.Pure {
     *  @param   f   The function computing element values
     *  @return A $coll consisting of elements `f(i1, i2, i3)`
     *          for `0 <= i1 < n1`, `0 <= i2 < n2`, and `0 <= i3 < n3`.
-    */
+    
+ * @tparam A TODO FILL IN TPARAM
+*/
   def tabulate[A](n1: Int, n2: Int, n3: Int)(f: (Int, Int, Int) => A): CC[(CC[CC[A]^{f}]^{f}) @uncheckedVariance]^{f} =
     tabulate(n1)(i1 => tabulate(n2, n3)(f(i1, _, _)))
 
@@ -231,7 +262,9 @@ trait IterableFactory[+CC[_]] extends Serializable, caps.Pure {
     *  @param   f   The function computing element values
     *  @return A $coll consisting of elements `f(i1, i2, i3, i4)`
     *          for `0 <= i1 < n1`, `0 <= i2 < n2`, `0 <= i3 < n3`, and `0 <= i4 < n4`.
-    */
+    
+ * @tparam A TODO FILL IN TPARAM
+*/
   def tabulate[A](n1: Int, n2: Int, n3: Int, n4: Int)(f: (Int, Int, Int, Int) => A): CC[(CC[CC[CC[A]^{f}]^{f}]^{f}) @uncheckedVariance]^{f} =
     tabulate(n1)(i1 => tabulate(n2, n3, n4)(f(i1, _, _, _)))
 
@@ -244,7 +277,9 @@ trait IterableFactory[+CC[_]] extends Serializable, caps.Pure {
     *  @param   f   The function computing element values
     *  @return A $coll consisting of elements `f(i1, i2, i3, i4, i5)`
     *          for `0 <= i1 < n1`, `0 <= i2 < n2`, `0 <= i3 < n3`, `0 <= i4 < n4`, and `0 <= i5 < n5`.
-    */
+    
+ * @tparam A TODO FILL IN TPARAM
+*/
   def tabulate[A](n1: Int, n2: Int, n3: Int, n4: Int, n5: Int)(f: (Int, Int, Int, Int, Int) => A): CC[(CC[CC[CC[CC[A]^{f}]^{f}]^{f}]^{f}) @uncheckedVariance]^{f} =
     tabulate(n1)(i1 => tabulate(n2, n3, n4, n5)(f(i1, _, _, _, _)))
 
@@ -252,7 +287,9 @@ trait IterableFactory[+CC[_]] extends Serializable, caps.Pure {
    *
    *  @param xss the collections that are to be concatenated.
    *  @return the concatenation of all the collections.
-   */
+   
+ * @tparam A TODO FILL IN TPARAM
+*/
   def concat[A](xss: Iterable[A]*): CC[A] = {
     from(xss.foldLeft(View.empty[A])(_ ++ _))
   }
@@ -295,7 +332,9 @@ object IterableFactory {
 
 /**
   * @tparam CC Collection type constructor (e.g. `List`)
-  */
+  
+ * @tparam +CC[A TODO FILL IN TPARAM
+*/
 trait SeqFactory[+CC[A] <: SeqOps[A, Seq, Seq[A]] & caps.Pure] extends IterableFactory[CC] {
   import SeqFactory.UnapplySeqWrapper
   final def unapplySeq[A](x: CC[A] @uncheckedVariance): UnapplySeqWrapper[A] = new UnapplySeqWrapper(x) // TODO is uncheckedVariance sound here?
@@ -367,7 +406,10 @@ trait StrictOptimizedSeqFactory[+CC[A] <: SeqOps[A, Seq, Seq[A]] & caps.Pure] ex
   *
   * @define coll collection
   * @define Coll `Iterable`
-  */
+  
+ * @tparam -A TODO FILL IN TPARAM
+ * @tparam +C TODO FILL IN TPARAM
+*/
 trait SpecificIterableFactory[-A, +C] extends Factory[A, C] {
   def empty: C
   def apply(xs: A*): C = fromSpecific(xs)
@@ -383,32 +425,55 @@ trait SpecificIterableFactory[-A, +C] extends Factory[A, C] {
   *
   * @define coll collection
   * @define Coll `Iterable`
-  */
+  
+ * @tparam +CC[_ TODO FILL IN TPARAM
+ * @tparam _ TODO FILL IN TPARAM
+*/
 trait MapFactory[+CC[_, _]] extends Serializable { self =>
 
   /**
    * An empty Map
-   */
+   
+ * @tparam K TODO FILL IN TPARAM
+ * @tparam V TODO FILL IN TPARAM
+ * @return TODO FILL IN RETURN
+*/
   def empty[K, V]: CC[K, V]
 
   /**
    * A collection of type Map generated from given iterable object.
-   */
+   
+ * @tparam K TODO FILL IN TPARAM
+ * @tparam V TODO FILL IN TPARAM
+ * @param it TODO FILL IN PARAM
+ * @return TODO FILL IN RETURN
+*/
   def from[K, V](it: IterableOnce[(K, V)]^): CC[K, V]^{it}
 
   /**
    * A collection of type Map that contains given key/value bindings.
-   */
+   
+ * @tparam K TODO FILL IN TPARAM
+ * @tparam V TODO FILL IN TPARAM
+ * @param elems TODO FILL IN PARAM
+ * @return TODO FILL IN RETURN
+*/
   def apply[K, V](elems: (K, V)*): CC[K, V] = from(elems)
 
   /**
    * The default builder for Map objects.
-   */
+   
+ * @tparam K TODO FILL IN TPARAM
+ * @tparam V TODO FILL IN TPARAM
+ * @return TODO FILL IN RETURN
+*/
   def newBuilder[K, V]: Builder[(K, V), CC[K, V]]
 
   /**
    * The default Factory instance for maps.
-   */
+   
+ * @return TODO FILL IN RETURN
+*/
   implicit def mapFactory[K, V]: Factory[(K, V), CC[K, V]] = MapFactory.toFactory(this)
 }
 
@@ -456,7 +521,9 @@ object MapFactory {
   *
   * @define coll collection
   * @define Coll `Iterable`
-  */
+  
+ * @tparam +CC[_ TODO FILL IN TPARAM
+*/
 trait EvidenceIterableFactory[+CC[_], Ev[_]] extends Serializable, caps.Pure {
 
   def from[E : Ev](it: IterableOnce[E]^): CC[E]
@@ -469,14 +536,18 @@ trait EvidenceIterableFactory[+CC[_], Ev[_]] extends Serializable, caps.Pure {
     *  @param   n  the number of elements contained in the $coll.
     *  @param   elem the element computation
     *  @return  A $coll that contains the results of `n` evaluations of `elem`.
-    */
+    
+ * @tparam A TODO FILL IN TPARAM
+*/
   def fill[A : Ev](n: Int)(elem: => A): CC[A] = from(new View.Fill(n)(elem))
 
   /** Produces a $coll containing values of a given function over a range of integer values starting from 0.
     *  @param  n   The number of elements in the $coll
     *  @param  f   The function computing element values
     *  @return A $coll consisting of elements `f(0), ..., f(n -1)`
-    */
+    
+ * @tparam A TODO FILL IN TPARAM
+*/
   def tabulate[A : Ev](n: Int)(f: Int => A): CC[A] = from(new View.Tabulate(n)(f))
 
   /** Produces a $coll containing repeated applications of a function to a start value.
@@ -485,7 +556,9 @@ trait EvidenceIterableFactory[+CC[_], Ev[_]] extends Serializable, caps.Pure {
     *  @param len   the number of elements contained in the $coll
     *  @param f     the function that's repeatedly applied
     *  @return      a $coll with `len` values in the sequence `start, f(start), f(f(start)), ...`
-    */
+    
+ * @tparam A TODO FILL IN TPARAM
+*/
   def iterate[A : Ev](start: A, len: Int)(f: A => A): CC[A] = from(new View.Iterate(start, len)(f))
 
   /** Produces a $coll that uses a function `f` to produce elements of type `A`
@@ -541,7 +614,9 @@ object EvidenceIterableFactory {
 
 /** Base trait for companion objects of collections that require an implicit `Ordering`.
   * @tparam CC Collection type constructor (e.g. `SortedSet`)
-  */
+  
+ * @tparam +CC[_ TODO FILL IN TPARAM
+*/
 trait SortedIterableFactory[+CC[_]] extends EvidenceIterableFactory[CC, Ordering]
 
 object SortedIterableFactory {
@@ -552,7 +627,9 @@ object SortedIterableFactory {
 
 /** Base trait for companion objects of collections that require an implicit `ClassTag`.
   * @tparam CC Collection type constructor (e.g. `ArraySeq`)
-  */
+  
+ * @tparam +CC[_ TODO FILL IN TPARAM
+*/
 trait ClassTagIterableFactory[+CC[_]] extends EvidenceIterableFactory[CC, ClassTag] {
 
   @`inline` private implicit def ccClassTag[X]: ClassTag[CC[X]] =
@@ -563,7 +640,9 @@ trait ClassTagIterableFactory[+CC[_]] extends EvidenceIterableFactory[CC, ClassT
     *  @param start the first element of the $coll
     *  @param end   the end value of the $coll (the first value NOT contained)
     *  @return  a $coll with values `start, start + 1, ..., end - 1`
-    */
+    
+ * @tparam A TODO FILL IN TPARAM
+*/
   def range[A : Integral : ClassTag](start: A, end: A): CC[A] = from(NumericRange(start, end, implicitly[Integral[A]].one))
 
   /** Produces a $coll containing equally spaced values in some integer interval.
@@ -571,7 +650,9 @@ trait ClassTagIterableFactory[+CC[_]] extends EvidenceIterableFactory[CC, ClassT
     *  @param end   the end value of the $coll (the first value NOT contained)
     *  @param step  the difference between successive elements of the $coll (must be positive or negative)
     *  @return      a $coll with values `start, start + step, ...` up to, but excluding `end`
-    */
+    
+ * @tparam A TODO FILL IN TPARAM
+*/
   def range[A : Integral : ClassTag](start: A, end: A, step: A): CC[A] = from(NumericRange(start, end, step))
 
   /** Produces a two-dimensional $coll containing the results of some element computation a number of times.
@@ -579,7 +660,9 @@ trait ClassTagIterableFactory[+CC[_]] extends EvidenceIterableFactory[CC, ClassT
     *  @param   n2  the number of elements in the 2nd dimension
     *  @param   elem the element computation
     *  @return  A $coll that contains the results of `n1 x n2` evaluations of `elem`.
-    */
+    
+ * @tparam A TODO FILL IN TPARAM
+*/
   def fill[A : ClassTag](n1: Int, n2: Int)(elem: => A): CC[CC[A] @uncheckedVariance] = fill(n1)(fill(n2)(elem))
 
   /** Produces a three-dimensional $coll containing the results of some element computation a number of times.
@@ -588,7 +671,9 @@ trait ClassTagIterableFactory[+CC[_]] extends EvidenceIterableFactory[CC, ClassT
     *  @param   n3  the number of elements in the 3rd dimension
     *  @param   elem the element computation
     *  @return  A $coll that contains the results of `n1 x n2 x n3` evaluations of `elem`.
-    */
+    
+ * @tparam A TODO FILL IN TPARAM
+*/
   def fill[A : ClassTag](n1: Int, n2: Int, n3: Int)(elem: => A): CC[CC[CC[A]] @uncheckedVariance] = fill(n1)(fill(n2, n3)(elem))
 
   /** Produces a four-dimensional $coll containing the results of some element computation a number of times.
@@ -598,7 +683,9 @@ trait ClassTagIterableFactory[+CC[_]] extends EvidenceIterableFactory[CC, ClassT
     *  @param   n4  the number of elements in the 4th dimension
     *  @param   elem the element computation
     *  @return  A $coll that contains the results of `n1 x n2 x n3 x n4` evaluations of `elem`.
-    */
+    
+ * @tparam A TODO FILL IN TPARAM
+*/
   def fill[A : ClassTag](n1: Int, n2: Int, n3: Int, n4: Int)(elem: => A): CC[CC[CC[CC[A]]] @uncheckedVariance] =
     fill(n1)(fill(n2, n3, n4)(elem))
 
@@ -610,7 +697,9 @@ trait ClassTagIterableFactory[+CC[_]] extends EvidenceIterableFactory[CC, ClassT
     *  @param   n5  the number of elements in the 5th dimension
     *  @param   elem the element computation
     *  @return  A $coll that contains the results of `n1 x n2 x n3 x n4 x n5` evaluations of `elem`.
-    */
+    
+ * @tparam A TODO FILL IN TPARAM
+*/
   def fill[A : ClassTag](n1: Int, n2: Int, n3: Int, n4: Int, n5: Int)(elem: => A): CC[CC[CC[CC[CC[A]]]] @uncheckedVariance] =
     fill(n1)(fill(n2, n3, n4, n5)(elem))
 
@@ -620,7 +709,9 @@ trait ClassTagIterableFactory[+CC[_]] extends EvidenceIterableFactory[CC, ClassT
     *  @param   f   The function computing element values
     *  @return A $coll consisting of elements `f(i1, i2)`
     *          for `0 <= i1 < n1` and `0 <= i2 < n2`.
-    */
+    
+ * @tparam A TODO FILL IN TPARAM
+*/
   def tabulate[A : ClassTag](n1: Int, n2: Int)(f: (Int, Int) => A): CC[CC[A] @uncheckedVariance] =
     tabulate(n1)(i1 => tabulate(n2)(f(i1, _)))
 
@@ -631,7 +722,9 @@ trait ClassTagIterableFactory[+CC[_]] extends EvidenceIterableFactory[CC, ClassT
     *  @param   f   The function computing element values
     *  @return A $coll consisting of elements `f(i1, i2, i3)`
     *          for `0 <= i1 < n1`, `0 <= i2 < n2`, and `0 <= i3 < n3`.
-    */
+    
+ * @tparam A TODO FILL IN TPARAM
+*/
   def tabulate[A : ClassTag](n1: Int, n2: Int, n3: Int)(f: (Int, Int, Int) => A): CC[CC[CC[A]] @uncheckedVariance] =
     tabulate(n1)(i1 => tabulate(n2, n3)(f(i1, _, _)))
 
@@ -643,7 +736,9 @@ trait ClassTagIterableFactory[+CC[_]] extends EvidenceIterableFactory[CC, ClassT
     *  @param   f   The function computing element values
     *  @return A $coll consisting of elements `f(i1, i2, i3, i4)`
     *          for `0 <= i1 < n1`, `0 <= i2 < n2`, `0 <= i3 < n3`, and `0 <= i4 < n4`.
-    */
+    
+ * @tparam A TODO FILL IN TPARAM
+*/
   def tabulate[A : ClassTag](n1: Int, n2: Int, n3: Int, n4: Int)(f: (Int, Int, Int, Int) => A): CC[CC[CC[CC[A]]] @uncheckedVariance] =
     tabulate(n1)(i1 => tabulate(n2, n3, n4)(f(i1, _, _, _)))
 
@@ -656,7 +751,9 @@ trait ClassTagIterableFactory[+CC[_]] extends EvidenceIterableFactory[CC, ClassT
     *  @param   f   The function computing element values
     *  @return A $coll consisting of elements `f(i1, i2, i3, i4, i5)`
     *          for `0 <= i1 < n1`, `0 <= i2 < n2`, `0 <= i3 < n3`, `0 <= i4 < n4`, and `0 <= i5 < n5`.
-    */
+    
+ * @tparam A TODO FILL IN TPARAM
+*/
   def tabulate[A : ClassTag](n1: Int, n2: Int, n3: Int, n4: Int, n5: Int)(f: (Int, Int, Int, Int, Int) => A): CC[CC[CC[CC[CC[A]]]] @uncheckedVariance] =
     tabulate(n1)(i1 => tabulate(n2, n3, n4, n5)(f(i1, _, _, _, _)))
 }
@@ -685,7 +782,9 @@ object ClassTagIterableFactory {
 
 /**
   * @tparam CC Collection type constructor (e.g. `ArraySeq`)
-  */
+  
+ * @tparam +CC[A TODO FILL IN TPARAM
+*/
 trait ClassTagSeqFactory[+CC[A] <: SeqOps[A, Seq, Seq[A]]] extends ClassTagIterableFactory[CC] {
   import SeqFactory.UnapplySeqWrapper
   final def unapplySeq[A](x: CC[A] @uncheckedVariance): UnapplySeqWrapper[A] = new UnapplySeqWrapper(x) // TODO is uncheckedVariance sound here?
@@ -735,7 +834,10 @@ trait StrictOptimizedClassTagSeqFactory[+CC[A] <: SeqOps[A, Seq, Seq[A]]] extend
   *
   * @define coll collection
   * @define Coll `Iterable`
-  */
+  
+ * @tparam +CC[_ TODO FILL IN TPARAM
+ * @tparam _ TODO FILL IN TPARAM
+*/
 trait SortedMapFactory[+CC[_, _]] extends Serializable { this: SortedMapFactory[CC] =>
 
   def empty[K : Ordering, V]: CC[K, V]

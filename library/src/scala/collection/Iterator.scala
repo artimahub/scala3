@@ -74,7 +74,9 @@ import caps.unsafe.untrackedCaptures
   *  is undefined, subject to change, and may result in changes to the new
   *  iterators as well.
   * @define coll iterator
-  */
+  
+ * @tparam +A TODO FILL IN TPARAM
+*/
 trait Iterator[+A] extends IterableOnce[A] with IterableOnceOps[A, Iterator, Iterator[A]] {
   self: Iterator[A]^ =>
 
@@ -157,7 +159,12 @@ trait Iterator[+A] extends IterableOnce[A] with IterableOnceOps[A, Iterator, Ite
    *
    *  A `GroupedIterator` is yielded by `grouped` and by `sliding`,
    *  where the `step` may differ from the group `size`.
-   */
+   
+ * @tparam B > TODO FILL IN TPARAM
+ * @param self TODO FILL IN PARAM
+ * @param size TODO FILL IN PARAM
+ * @param step TODO FILL IN PARAM
+*/
   class GroupedIterator[B >: A](self: Iterator[B]^, size: Int, step: Int) extends AbstractIterator[immutable.Seq[B]] {
 
     require(size >= 1 && step >= 1, f"size=$size%d and step=$step%d, but both must be positive")
@@ -226,7 +233,9 @@ trait Iterator[+A] extends IterableOnce[A] with IterableOnceOps[A, Iterator, Ite
      *  If unable to deliver size, then pad if padding enabled, otherwise drop segment.
      *  Returns true if successful in delivering `count` elements,
      *  or padded segment, or partial segment.
-     */
+     
+ * @return TODO FILL IN RETURN
+*/
     private def fulfill(): Boolean = {
       val builder = newBuilder
       var done = false
@@ -296,7 +305,9 @@ trait Iterator[+A] extends IterableOnce[A] with IterableOnceOps[A, Iterator, Ite
    *  @return a new $coll consisting of
    *          all elements of this $coll followed by the minimal number of occurrences of `elem` so
    *          that the resulting collection has a length of at least `len`.
-   */
+   
+ * @tparam B > TODO FILL IN TPARAM
+*/
   def padTo[B >: A](len: Int, elem: B): Iterator[B]^{this} = new AbstractIterator[B] {
     private var i = 0
 
@@ -346,7 +357,11 @@ trait Iterator[+A] extends IterableOnce[A] with IterableOnceOps[A, Iterator, Ite
    *  }}}
    *
    *  @note Reuse: $consumesAndProducesIterator
-   */
+   
+ * @tparam B > TODO FILL IN TPARAM
+ * @param size TODO FILL IN PARAM
+ * @return TODO FILL IN RETURN
+*/
   def grouped[B >: A](size: Int): GroupedIterator[B]^{this} =
     new GroupedIterator[B](self, size, size)
 
@@ -382,7 +397,9 @@ trait Iterator[+A] extends IterableOnce[A] with IterableOnceOps[A, Iterator, Ite
    *          This behavior can be configured.
    *
    *  @note Reuse: $consumesAndProducesIterator
-   */
+   
+ * @tparam B > TODO FILL IN TPARAM
+*/
   def sliding[B >: A](size: Int, step: Int = 1): GroupedIterator[B]^{this} =
     new GroupedIterator[B](self, size, step)
 
@@ -448,7 +465,9 @@ trait Iterator[+A] extends IterableOnce[A] with IterableOnceOps[A, Iterator, Ite
     *  @return the index of the first occurrence of `elem` in the values produced by this iterator,
     *          or -1 if such an element does not exist until the end of the iterator is reached.
     *  @note   Reuse: $consumesIterator
-    */
+    
+ * @tparam B > TODO FILL IN TPARAM
+*/
   def indexOf[B >: A](elem: B): Int = indexOf(elem, 0)
 
   /** Returns the index of the first occurrence of the specified object in this iterable object
@@ -461,7 +480,9 @@ trait Iterator[+A] extends IterableOnce[A] with IterableOnceOps[A, Iterator, Ite
     *          iterator, or -1 if such an element does not exist until the end of the iterator is
     *          reached.
     *  @note   Reuse: $consumesIterator
-    */
+    
+ * @tparam B > TODO FILL IN TPARAM
+*/
   def indexOf[B >: A](elem: B, from: Int): Int = {
     var i = 0
     while (i < from && hasNext) {
@@ -695,7 +716,10 @@ trait Iterator[+A] extends IterableOnce[A] with IterableOnceOps[A, Iterator, Ite
     * @inheritdoc
     *
     * @note    Reuse: $consumesOneAndProducesTwoIterators
-    */
+    
+ * @param p TODO FILL IN PARAM
+ * @return TODO FILL IN RETURN
+*/
   def span(p: A => Boolean): (Iterator[A]^{this, p}, Iterator[A]^{this, p}) = {
     /*
      * Giving a name to following iterator (as opposed to trailing) because
@@ -797,7 +821,9 @@ trait Iterator[+A] extends IterableOnce[A] with IterableOnceOps[A, Iterator, Ite
 
   def slice(from: Int, until: Int): Iterator[A]^{this} = sliceIterator(from, until max 0)
 
-  /** Creates an optionally bounded slice, unbounded if `until` is negative. */
+  /** Creates an optionally bounded slice, unbounded if `until` is negative. 
+ * @return TODO FILL IN RETURN
+*/
   protected def sliceIterator(from: Int, until: Int): Iterator[A]^{this} = {
     val lo = from max 0
     val rest =
@@ -850,7 +876,9 @@ trait Iterator[+A] extends IterableOnce[A] with IterableOnceOps[A, Iterator, Ite
    *  @param that  the collection to compare
    *  @tparam B    the type of the elements of collection `that`.
    *  @return `true` if both collections contain equal elements in the same order, `false` otherwise.
-   */
+   
+ * @tparam B > TODO FILL IN TPARAM
+*/
   def sameElements[B >: A](that: IterableOnce[B]^): Boolean = {
     val those = that.iterator
     while (hasNext) {
@@ -872,7 +900,10 @@ trait Iterator[+A] extends IterableOnce[A] with IterableOnceOps[A, Iterator, Ite
     *  @note   The implementation may allocate temporary storage for elements
     *          iterated by one iterator but not yet by the other.
     *  @note   Reuse: $consumesOneAndProducesTwoIterators
-    */
+    
+ * @param Iterator[A]^{this} TODO FILL IN PARAM
+ * @param Iterator[A]^{this} TODO FILL IN PARAM
+*/
   def duplicate: (Iterator[A]^{this}, Iterator[A]^{this}) = {
     val gap = new scala.collection.mutable.Queue[A]
     var ahead: (Iterator[A]^) | Null = null
@@ -916,7 +947,10 @@ trait Iterator[+A] extends IterableOnce[A] with IterableOnceOps[A, Iterator, Ite
     *  @param patchElems The iterator of patch values
     *  @param replaced   The number of values in the original iterator that are replaced by the patch.
     *  @note           Reuse: $consumesTwoAndProducesOneIterator
-    */
+    
+ * @tparam B > TODO FILL IN TPARAM
+ * @return TODO FILL IN RETURN
+*/
   def patch[B >: A](from: Int, patchElems: Iterator[B]^, replaced: Int): Iterator[B]^{this, patchElems} =
     new AbstractIterator[B] {
       // TODO We should be able to prove that origElems is safe even though it is
@@ -1117,7 +1151,9 @@ object Iterator extends IterableFactory[Iterator] {
     *  @param start the start value of the iterator
     *  @param f     the function that's repeatedly applied
     *  @return      the iterator producing the infinite sequence of values `start, f(start), f(f(start)), ...`
-    */
+    
+ * @tparam T TODO FILL IN TPARAM
+*/
   def iterate[T](start: T)(f: T => T): Iterator[T]^{f} = new AbstractIterator[T] {
     private var first = true
     private var acc = start
@@ -1147,7 +1183,9 @@ object Iterator extends IterableFactory[Iterator] {
     *
     *  @param elem the element computation.
     *  @return the iterator containing an infinite number of results of evaluating `elem`.
-    */
+    
+ * @tparam A TODO FILL IN TPARAM
+*/
   def continually[A](elem: => A): Iterator[A]^{elem} = new AbstractIterator[A] {
     def hasNext = true
     def next() = elem

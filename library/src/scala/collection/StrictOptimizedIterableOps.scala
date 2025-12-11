@@ -255,7 +255,9 @@ transparent trait StrictOptimizedIterableOps[+A, +CC[_], +C]
 
   /** A collection containing the last `n` elements of this collection.
     * $willForceEvaluation
-    */
+    
+ * @return TODO FILL IN RETURN
+*/
   override def takeRight(n: Int): C = {
     val b = newSpecificBuilder
     b.sizeHintBounded(n, toIterable: @nowarn("cat=deprecation"))
@@ -272,7 +274,9 @@ transparent trait StrictOptimizedIterableOps[+A, +CC[_], +C]
   /** The rest of the collection without its `n` last elements. For
     *  linear, immutable collections this should avoid making a copy.
     *  $willForceEvaluation
-    */
+    
+ * @return TODO FILL IN RETURN
+*/
   override def dropRight(n: Int): C = {
     val b = newSpecificBuilder
     if (n >= 0) b.sizeHint(this, delta = -n)

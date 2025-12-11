@@ -57,7 +57,9 @@ abstract class WithFilter[+A, +CC[_]] extends Serializable {
     *  @tparam  U  the type parameter describing the result of function `f`.
     *              This result will always be ignored. Typically `U` is `Unit`,
     *              but this is not necessary.
-    */
+    
+ * @return TODO FILL IN RETURN
+*/
   def foreach[U](f: A => U): Unit
 
   /** Further refines the filter for this `filtered` $coll.

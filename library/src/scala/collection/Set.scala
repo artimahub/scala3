@@ -22,7 +22,9 @@ import java.lang.String
 import scala.annotation.nowarn
 
 /** Base trait for set collections.
-  */
+  
+ * @tparam A TODO FILL IN TPARAM
+*/
 trait Set[A]
   extends Iterable[A]
     with SetOps[A, Set, Set[A]]

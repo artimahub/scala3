@@ -27,7 +27,9 @@ import scala.collection.View.{LeftPartitionMapped, RightPartitionMapped}
   *
   * @define Coll `Iterable`
   * @define coll iterable collection
-  */
+  
+ * @tparam +A TODO FILL IN TPARAM
+*/
 trait Iterable[+A] extends IterableOnce[A]
   with IterableOps[A, Iterable, Iterable[A]]
   with IterableFactoryDefaults[A, Iterable] {
@@ -176,7 +178,9 @@ transparent trait IterableOps[+A, +CC[_], +C] extends Any with IterableOnce[A] w
     *       might be unsound. However, as long as it is called with an
     *       `Iterable[A]` obtained from `this` collection (as it is the case in the
     *       implementations of operations where we use a `View[A]`), it is safe.
-    */
+    
+ * @return TODO FILL IN RETURN
+*/
   protected def fromSpecific(coll: IterableOnce[A @uncheckedVariance]^): C^{coll}
 
   /** The companion object of this ${coll}, providing various factory methods.
@@ -184,7 +188,9 @@ transparent trait IterableOps[+A, +CC[_], +C] extends Any with IterableOnce[A] w
     * @note When implementing a custom collection type and refining `CC` to the new type, this
     *       method needs to be overridden to return a factory for the new type (the compiler will
     *       issue an error otherwise).
-    */
+    
+ * @return TODO FILL IN RETURN
+*/
   def iterableFactory: IterableFactory[CC]
 
   @deprecated("Use iterableFactory instead", "2.13.0")
@@ -253,7 +259,9 @@ transparent trait IterableOps[+A, +CC[_], +C] extends Any with IterableOnce[A] w
    */
   def lastOption: Option[A] = if (isEmpty) None else Some(last)
 
-  /** A view over the elements of this collection. */
+  /** A view over the elements of this collection. 
+ * @return TODO FILL IN RETURN
+*/
   def view: View[A]^{this} = View.fromIteratorProvider(() => iterator)
 
   /** Compares the size of this $coll to a test value.
@@ -302,7 +310,9 @@ transparent trait IterableOps[+A, +CC[_], +C] extends Any with IterableOnce[A] w
     * this.sizeIs >= size    // this.sizeCompare(size) >= 0
     * this.sizeIs > size     // this.sizeCompare(size) > 0
     * }}}
-    */
+    
+ * @return TODO FILL IN RETURN
+*/
   @inline final def sizeIs: IterableOps.SizeCompareOps^{this} = new IterableOps.SizeCompareOps(caps.unsafe.unsafeAssumePure(this) /* see comment in SizeCompareOps*/)
 
   /** Compares the size of this $coll to the size of another `Iterable`.
@@ -379,7 +389,9 @@ transparent trait IterableOps[+A, +CC[_], +C] extends Any with IterableOnce[A] w
    *          the ''n''th column of this $coll.
    *  @throws IllegalArgumentException if all collections in this $coll
    *          are not of the same size.
-   */
+   
+ * @param asIterable: TODO FILL IN PARAM
+*/
   def transpose[B](implicit asIterable: A -> /*<:<!!!*/ Iterable[B]): CC[(CC[B]^{this}) @uncheckedVariance]^{this} = {
     if (isEmpty)
       return iterableFactory.empty[CC[B]^{this}]
@@ -429,7 +441,10 @@ transparent trait IterableOps[+A, +CC[_], +C] extends Any with IterableOnce[A] w
    *  The default implementation provided here needs to traverse the collection twice.
    *  Strict collections have an overridden version of `partition` in `StrictOptimizedIterableOps`,
    *  which requires only a single traversal.
-   */
+   
+ * @param p TODO FILL IN PARAM
+ * @return TODO FILL IN RETURN
+*/
   def partition(p: A => Boolean): (C^{this, p}, C^{this, p}) = {
     val first = new View.Filter(this, p, isFlipped = false)
     val second = new View.Filter(this, p, isFlipped = true)
@@ -525,7 +540,9 @@ transparent trait IterableOps[+A, +CC[_], +C] extends Any with IterableOnce[A] w
   def sliding(size: Int, step: Int): Iterator[C^{this}]^{this} =
     iterator.sliding(size, step).map(fromSpecific)
 
-  /** The rest of the collection without its first element. */
+  /** The rest of the collection without its first element. 
+ * @return TODO FILL IN RETURN
+*/
   def tail: C^{this} = {
     if (isEmpty) throw new UnsupportedOperationException
     drop(1)
@@ -533,7 +550,9 @@ transparent trait IterableOps[+A, +CC[_], +C] extends Any with IterableOnce[A] w
 
   /** The initial part of the collection without its last element.
     * $willForceEvaluation
-    */
+    
+ * @return TODO FILL IN RETURN
+*/
   def init: C^{this} = {
     if (isEmpty) throw new UnsupportedOperationException
     dropRight(1)
@@ -593,7 +612,9 @@ transparent trait IterableOps[+A, +CC[_], +C] extends Any with IterableOnce[A] w
     * @param f the element transformation function
     * @tparam K the type of keys returned by the discriminator function
     * @tparam B the type of values returned by the transformation function
-    */
+    
+ * @return TODO FILL IN RETURN
+*/
   def groupMap[K, B](key: A => K)(f: A => B): immutable.Map[K, CC[B]] = {
     val m = mutable.Map.empty[K, Builder[B, CC[B]]]
     for (elem <- this) {
@@ -624,7 +645,12 @@ transparent trait IterableOps[+A, +CC[_], +C] extends Any with IterableOnce[A] w
     * }}}
     *
     * $willForceEvaluation
-    */
+    
+ * @tparam K TODO FILL IN TPARAM
+ * @tparam B TODO FILL IN TPARAM
+ * @param key TODO FILL IN PARAM
+ * @return TODO FILL IN RETURN
+*/
   def groupMapReduce[K, B](key: A => K)(f: A => B)(reduce: (B, B) => B): immutable.Map[K, B] = {
     val m = mutable.Map.empty[K, B]
     for (elem <- this) {
@@ -648,7 +674,9 @@ transparent trait IterableOps[+A, +CC[_], +C] extends Any with IterableOnce[A] w
     *  @param op         the associative operator for the scan
     *
     *  @return           a new $coll containing the prefix scan of the elements in this $coll
-    */
+    
+ * @tparam B > TODO FILL IN TPARAM
+*/
   def scan[B >: A](z: B)(op: (B, B) => B): CC[B]^{this, op} = scanLeft(z)(op)
 
   def scanLeft[B](z: B)(op: (B, A) => B): CC[B]^{this, op} = iterableFactory.from(new View.ScanLeft(this, z, op))
@@ -727,7 +755,9 @@ transparent trait IterableOps[+A, +CC[_], +C] extends Any with IterableOnce[A] w
    *  @tparam B     the element type of the returned collection.
    *  @return       a new $coll which contains all elements
    *                of this $coll followed by all elements of `suffix`.
-   */
+   
+ * @tparam B > TODO FILL IN TPARAM
+*/
   def concat[B >: A](suffix: IterableOnce[B]^): CC[B]^{this, suffix} = iterableFactory.from {
     suffix match {
       case suffix: Iterable[B] => new View.Concat(this, suffix)
@@ -735,7 +765,9 @@ transparent trait IterableOps[+A, +CC[_], +C] extends Any with IterableOnce[A] w
     }
   }
 
-  /** Alias for `concat` */
+  /** Alias for `concat` 
+ * @return TODO FILL IN RETURN
+*/
   @inline final def ++ [B >: A](suffix: IterableOnce[B]^): CC[B]^{this, suffix} = concat(suffix)
 
   /** Returns a $ccoll formed from this $coll and another iterable collection
@@ -767,7 +799,10 @@ transparent trait IterableOps[+A, +CC[_], +C] extends Any with IterableOnce[A] w
     *                 of the returned collection is the maximum of the lengths of this $coll and `that`.
     *                 If this $coll is shorter than `that`, `thisElem` values are used to pad the result.
     *                 If `that` is shorter than this $coll, `thatElem` values are used to pad the result.
-    */
+    
+ * @tparam A1 > TODO FILL IN TPARAM
+ * @tparam B TODO FILL IN TPARAM
+*/
   def zipAll[A1 >: A, B](that: Iterable[B]^, thisElem: A1, thatElem: B): CC[(A1, B)]^{this, that} = iterableFactory.from(new View.ZipAll(this, that, thisElem, thatElem))
 
   /** Converts this $coll of pairs into two collections of the first and second
@@ -788,7 +823,9 @@ transparent trait IterableOps[+A, +CC[_], +C] extends Any with IterableOnce[A] w
     *                of this $coll is a pair.
     *  @return       a pair of ${coll}s, containing the first, respectively second
     *                half of each element pair of this $coll.
-    */
+    
+ * @param asPair: TODO FILL IN PARAM
+*/
   def unzip[A1, A2](implicit asPair: A -> (A1, A2)): (CC[A1]^{this}, CC[A2]^{this}) = {
     val first: View[A1]^{this} = new View.Map[A, A1](this, asPair(_)._1)
     val second: View[A2]^{this} = new View.Map[A, A2](this, asPair(_)._2)
@@ -815,7 +852,9 @@ transparent trait IterableOps[+A, +CC[_], +C] extends Any with IterableOnce[A] w
     *                   of this $coll is a triple.
     *  @return          a triple of ${coll}s, containing the first, second, respectively
     *                   third member of each element triple of this $coll.
-    */
+    
+ * @param asTriple: TODO FILL IN PARAM
+*/
   def unzip3[A1, A2, A3](implicit asTriple: A -> (A1, A2, A3)): (CC[A1]^{this}, CC[A2]^{this}, CC[A3]^{this}) = {
     val first: View[A1]^{this} = new View.Map[A, A1](this, asTriple(_)._1)
     val second: View[A2]^{this} = new View.Map[A, A2](this, asTriple(_)._2)
@@ -876,17 +915,29 @@ object IterableOps {
     // is pending/pos-custom-args/captures/SizeCompareOps-redux.scala.
     // Without the `^`s, the `sizeIs` method needs an unsafeAssumePure.
 
-    /** Tests if the size of the collection is less than some value. */
+    /** Tests if the size of the collection is less than some value. 
+ * @return TODO FILL IN RETURN
+*/
     @inline def <(size: Int): Boolean = it.sizeCompare(size) < 0
-    /** Tests if the size of the collection is less than or equal to some value. */
+    /** Tests if the size of the collection is less than or equal to some value. 
+ * @return TODO FILL IN RETURN
+*/
     @inline def <=(size: Int): Boolean = it.sizeCompare(size) <= 0
-    /** Tests if the size of the collection is equal to some value. */
+    /** Tests if the size of the collection is equal to some value. 
+ * @return TODO FILL IN RETURN
+*/
     @inline def ==(size: Int): Boolean = it.sizeCompare(size) == 0
-    /** Tests if the size of the collection is not equal to some value. */
+    /** Tests if the size of the collection is not equal to some value. 
+ * @return TODO FILL IN RETURN
+*/
     @inline def !=(size: Int): Boolean = it.sizeCompare(size) != 0
-    /** Tests if the size of the collection is greater than or equal to some value. */
+    /** Tests if the size of the collection is greater than or equal to some value. 
+ * @return TODO FILL IN RETURN
+*/
     @inline def >=(size: Int): Boolean = it.sizeCompare(size) >= 0
-    /** Tests if the size of the collection is greater than some value. */
+    /** Tests if the size of the collection is greater than some value. 
+ * @return TODO FILL IN RETURN
+*/
     @inline def >(size: Int): Boolean = it.sizeCompare(size) > 0
   }
 
@@ -951,7 +1002,10 @@ abstract class AbstractIterable[+A] extends Iterable[A]
   *
   * The default implementations in this trait can be used in the common case when `CC[A]` is the
   * same as `C`.
-  */
+  
+ * @tparam +A TODO FILL IN TPARAM
+ * @tparam +CC[x TODO FILL IN TPARAM
+*/
 trait IterableFactoryDefaults[+A, +CC[x] <: IterableOps[x, CC, CC[x]]] extends IterableOps[A, CC, CC[A @uncheckedVariance]] {
   protected def fromSpecific(coll: IterableOnce[A @uncheckedVariance]^): CC[A @uncheckedVariance]^{coll} = iterableFactory.from(coll)
   protected def newSpecificBuilder: Builder[A @uncheckedVariance, CC[A @uncheckedVariance]] = iterableFactory.newBuilder[A]
@@ -967,7 +1021,10 @@ trait IterableFactoryDefaults[+A, +CC[x] <: IterableOps[x, CC, CC[x]]] extends I
   *
   * The default implementations in this trait can be used in the common case when `CC[A]` is the
   * same as `C`.
-  */
+  
+ * @tparam +A TODO FILL IN TPARAM
+ * @tparam +CC[x TODO FILL IN TPARAM
+*/
 trait EvidenceIterableFactoryDefaults[+A, +CC[x] <: IterableOps[x, CC, CC[x]], Ev[_]] extends IterableOps[A, CC, CC[A @uncheckedVariance]] {
   protected def evidenceIterableFactory: EvidenceIterableFactory[CC, Ev]
   implicit protected def iterableEvidence: Ev[A @uncheckedVariance]
@@ -987,7 +1044,10 @@ trait EvidenceIterableFactoryDefaults[+A, +CC[x] <: IterableOps[x, CC, CC[x]], E
   *
   * The default implementations in this trait can be used in the common case when `CC[A]` is the
   * same as `C`.
-  */
+  
+ * @tparam +A TODO FILL IN TPARAM
+ * @tparam +CC[X TODO FILL IN TPARAM
+*/
 trait SortedSetFactoryDefaults[+A,
     +CC[X] <: SortedSet[X] & SortedSetOps[X, CC, CC[X]],
     +WithFilterCC[x] <: IterableOps[x, WithFilterCC, WithFilterCC[x]] & Set[x]] extends SortedSetOps[A @uncheckedVariance, CC, CC[A @uncheckedVariance]] {
@@ -1013,7 +1073,12 @@ trait SortedSetFactoryDefaults[+A,
   *
   * The default implementations in this trait can be used in the common case when `CC[A]` is the
   * same as `C`.
-  */
+  
+ * @tparam K TODO FILL IN TPARAM
+ * @tparam +V TODO FILL IN TPARAM
+ * @tparam +CC[x TODO FILL IN TPARAM
+ * @tparam y TODO FILL IN TPARAM
+*/
 trait MapFactoryDefaults[K, +V,
     +CC[x, y] <: IterableOps[(x, y), Iterable, Iterable[(x, y)]],
     +WithFilterCC[x] <: IterableOps[x, WithFilterCC, WithFilterCC[x]] & Iterable[x]] extends MapOps[K, V, CC, CC[K, V @uncheckedVariance]] with IterableOps[(K, V), WithFilterCC, CC[K, V @uncheckedVariance]] {
@@ -1041,7 +1106,12 @@ trait MapFactoryDefaults[K, +V,
   *
   * The default implementations in this trait can be used in the common case when `CC[A]` is the
   * same as `C`.
-  */
+  
+ * @tparam K TODO FILL IN TPARAM
+ * @tparam +V TODO FILL IN TPARAM
+ * @tparam +CC[x TODO FILL IN TPARAM
+ * @tparam y TODO FILL IN TPARAM
+*/
 trait SortedMapFactoryDefaults[K, +V,
     +CC[x, y] <:  Map[x, y] & SortedMapOps[x, y, CC, CC[x, y]] & UnsortedCC[x, y],
     +WithFilterCC[x] <: IterableOps[x, WithFilterCC, WithFilterCC[x]] & Iterable[x],

@@ -46,7 +46,9 @@ import IterableOnce.elemsToCopyToArray
   *
   * @define coll collection
   * @define ccoll $coll
-  */
+  
+ * @tparam +A TODO FILL IN TPARAM
+*/
 trait IterableOnce[+A] extends Any { this: IterableOnce[A]^ =>
 
   /** An [[scala.collection.Iterator]] over the elements of this $coll.
@@ -54,7 +56,9 @@ trait IterableOnce[+A] extends Any { this: IterableOnce[A]^ =>
     * If an `IterableOnce` object is in fact an [[scala.collection.Iterator]], this method always returns itself,
     * in its current state, but if it is an [[scala.collection.Iterable]], this method always returns a new
     * [[scala.collection.Iterator]].
-    */
+    
+ * @return TODO FILL IN RETURN
+*/
   def iterator: Iterator[A]^{this}
 
   /** Returns a [[scala.collection.Stepper]] for the elements of this collection.
@@ -76,7 +80,10 @@ trait IterableOnce[+A] extends Any { this: IterableOnce[A]^ =>
     * [[scala.collection.Stepper.EfficientSplit]], the converters in [[scala.jdk.StreamConverters]]
     * allow creating parallel streams, whereas bare Steppers can be converted only to sequential
     * streams.
-    */
+    
+ * @tparam S < TODO FILL IN TPARAM
+ * @return TODO FILL IN RETURN
+*/
   def stepper[S <: Stepper[?]](implicit shape: StepperShape[A, S]): S^{this} = {
     import convert.impl._
     val s: Any = shape.shape match {
@@ -90,7 +97,9 @@ trait IterableOnce[+A] extends Any { this: IterableOnce[A]^ =>
 
   /** The number of elements in this $coll, if it can be cheaply computed,
    *  -1 otherwise. Cheaply usually means: Not requiring a collection traversal.
-   */
+   
+ * @return TODO FILL IN RETURN
+*/
   def knownSize: Int = -1
 }
 
@@ -520,7 +529,9 @@ transparent trait IterableOnceOps[+A, +CC[_], +C] extends Any { this: IterableOn
    *  @param asIterable an implicit conversion which asserts that the element
    *          type of this $coll is an `Iterable`.
    *  @return a new $ccoll resulting from concatenating all element collections.
-   */
+   
+ * @param asIterable: TODO FILL IN PARAM
+*/
   def flatten[B](implicit asIterable: A -> IterableOnce[B]): CC[B]^{this}
 
   /** Builds a new $ccoll by applying a partial function to all elements of this $coll
@@ -627,7 +638,11 @@ transparent trait IterableOnceOps[+A, +CC[_], +C] extends Any { this: IterableOn
 
   /** Applies `f` to each element for its side effects.
    *  Note: `U` parameter needed to help scalac's type inference.
-   */
+   
+ * @tparam U TODO FILL IN TPARAM
+ * @param f TODO FILL IN PARAM
+ * @return TODO FILL IN RETURN
+*/
   def foreach[U](f: A => U): Unit = {
     val it = iterator
     while(it.hasNext) f(it.next())
@@ -802,7 +817,9 @@ transparent trait IterableOnceOps[+A, +CC[_], +C] extends Any { this: IterableOn
    *                 same across runs.
    *  @return        The result of applying `op` between all the elements and `z`, or `z`
    *                 if this $coll is empty.
-   */
+   
+ * @tparam A1 > TODO FILL IN TPARAM
+*/
   def fold[A1 >: A](z: A1)(op: (A1, A1) => A1): A1 = foldLeft(z)(op)
 
   /** Applies the given binary operator `op` to all elements of this $coll.
@@ -822,7 +839,9 @@ transparent trait IterableOnceOps[+A, +CC[_], +C] extends Any { this: IterableOn
    *  @return        The result of applying `op` between all the elements if the $coll is
    *                 nonempty.
    *  @throws        UnsupportedOperationException if this $coll is empty.
-   */
+   
+ * @tparam B > TODO FILL IN TPARAM
+*/
   def reduce[B >: A](op: (B, B) => B): B = reduceLeft(op)
 
   /** If this $coll is nonempty, reduces it with the given binary operator `op`.
@@ -838,7 +857,9 @@ transparent trait IterableOnceOps[+A, +CC[_], +C] extends Any { this: IterableOn
    *                 same across runs.
    *  @return        The result of reducing this $coll with `op` if the $coll is nonempty,
    *                 inside a `Some`, and `None` otherwise.
-   */
+   
+ * @tparam B > TODO FILL IN TPARAM
+*/
   def reduceOption[B >: A](op: (B, B) => B): Option[B] = reduceLeftOption(op)
 
   /** Applies the given binary operator `op` to all elements of this $coll, going left to
@@ -861,7 +882,9 @@ transparent trait IterableOnceOps[+A, +CC[_], +C] extends Any { this: IterableOn
    *  @return           The result of applying `op` to all elements of this $coll, going
    *                    left to right.
    *  @throws UnsupportedOperationException if this $coll is empty.
-   */
+   
+ * @tparam B > TODO FILL IN TPARAM
+*/
   def reduceLeft[B >: A](op: (B, A) => B): B = this match {
     case seq: IndexedSeq[A @unchecked] if seq.length > 0 => foldl(seq, 1, seq(0), op)
     case _ if knownSize == 0 => throw new UnsupportedOperationException("empty.reduceLeft")
@@ -898,7 +921,9 @@ transparent trait IterableOnceOps[+A, +CC[_], +C] extends Any { this: IterableOn
    *  @return           The result of applying `op` to all elements of this $coll, going
    *                    right to left.
    *  @throws UnsupportedOperationException if this $coll is empty.
-   */
+   
+ * @tparam B > TODO FILL IN TPARAM
+*/
   def reduceRight[B >: A](op: (A, B) => B): B = this match {
     case seq: IndexedSeq[A @unchecked] if seq.length > 0 => foldr[A, B](seq, op)
     case _ if knownSize == 0 => throw new UnsupportedOperationException("empty.reduceRight")
@@ -918,7 +943,9 @@ transparent trait IterableOnceOps[+A, +CC[_], +C] extends Any { this: IterableOn
    *  @tparam   B       The result type of the binary operator, a supertype of `A`.
    *  @return           The result of reducing this $coll with `op` going left to right if
    *                    the $coll is nonempty, inside a `Some`, and `None` otherwise.
-   */
+   
+ * @tparam B > TODO FILL IN TPARAM
+*/
   def reduceLeftOption[B >: A](op: (B, A) => B): Option[B] =
     knownSize match {
       case -1 => reduceLeftOptionIterator[B](op)
@@ -949,7 +976,9 @@ transparent trait IterableOnceOps[+A, +CC[_], +C] extends Any { this: IterableOn
    *  @tparam   B       The result type of the binary operator, a supertype of `A`.
    *  @return           The result of reducing this $coll with `op` going right to left if
    *                    the $coll is nonempty, inside a `Some`, and `None` otherwise.
-   */
+   
+ * @tparam B > TODO FILL IN TPARAM
+*/
   def reduceRightOption[B >: A](op: (A, B) => B): Option[B] =
     knownSize match {
       case -1 => reduceOptionIterator[A, B](reversed.iterator)((x, y) => op(y, x))
@@ -1049,7 +1078,10 @@ transparent trait IterableOnceOps[+A, +CC[_], +C] extends Any { this: IterableOn
    *  @return        the number of elements written to the array
    *
    *  @note    Reuse: $consumesIterator
-   */
+   
+ * @tparam B > TODO FILL IN TPARAM
+ * @param @deprecatedName("xs", TODO FILL IN PARAM
+*/
   def copyToArray[B >: A](
     @deprecatedName("xs", since="2.13.17") dest: Array[B],
     start: Int,
@@ -1079,7 +1111,10 @@ transparent trait IterableOnceOps[+A, +CC[_], +C] extends Any { this: IterableOn
    *                 which includes the `+` operator to be used in forming the sum.
    *   @tparam  B    the result type of the `+` operator.
    *   @return       the sum of all elements of this $coll with respect to the `+` operator in `num`.
-   */
+   
+ * @tparam B > TODO FILL IN TPARAM
+ * @param num: TODO FILL IN PARAM
+*/
   def sum[B >: A](implicit num: Numeric[B]): B =
     knownSize match {
       case -1 => foldLeft(num.zero)(num.plus)
@@ -1097,7 +1132,10 @@ transparent trait IterableOnceOps[+A, +CC[_], +C] extends Any { this: IterableOn
    *                 which includes the `*` operator to be used in forming the product.
    *   @tparam  B   the result type of the `*` operator.
    *   @return       the product of all elements of this $coll with respect to the `*` operator in `num`.
-   */
+   
+ * @tparam B > TODO FILL IN TPARAM
+ * @param num: TODO FILL IN PARAM
+*/
   def product[B >: A](implicit num: Numeric[B]): B =
     knownSize match {
       case -1 => foldLeft(num.one)(num.times)
@@ -1114,7 +1152,10 @@ transparent trait IterableOnceOps[+A, +CC[_], +C] extends Any { this: IterableOn
    *  @throws   UnsupportedOperationException if this $coll is empty.
    *  @return   the smallest element of this $coll with respect to the ordering `ord`.
    *
-   */
+   
+ * @tparam B > TODO FILL IN TPARAM
+ * @param ord: TODO FILL IN PARAM
+*/
   def min[B >: A](implicit ord: Ordering[B]): A =
     knownSize match {
       case -1 => reduceLeftIterator[A](throw new UnsupportedOperationException("empty.min"))(ord.min)
@@ -1130,7 +1171,10 @@ transparent trait IterableOnceOps[+A, +CC[_], +C] extends Any { this: IterableOn
    *  @tparam   B    The type over which the ordering is defined.
    *  @return   an option value containing the smallest element of this $coll
    *            with respect to the ordering `ord`.
-   */
+   
+ * @tparam B > TODO FILL IN TPARAM
+ * @param ord: TODO FILL IN PARAM
+*/
   def minOption[B >: A](implicit ord: Ordering[B]): Option[A] =
     knownSize match {
       case -1 => reduceLeftOptionIterator[A](ord.min)
@@ -1146,7 +1190,10 @@ transparent trait IterableOnceOps[+A, +CC[_], +C] extends Any { this: IterableOn
    *  @tparam   B    The type over which the ordering is defined.
    *  @throws   UnsupportedOperationException if this $coll is empty.
    *  @return   the largest element of this $coll with respect to the ordering `ord`.
-   */
+   
+ * @tparam B > TODO FILL IN TPARAM
+ * @param ord: TODO FILL IN PARAM
+*/
   def max[B >: A](implicit ord: Ordering[B]): A =
     knownSize match {
       case -1 => reduceLeftIterator[A](throw new UnsupportedOperationException("empty.max"))(ord.max)
@@ -1162,7 +1209,10 @@ transparent trait IterableOnceOps[+A, +CC[_], +C] extends Any { this: IterableOn
    *  @tparam   B    The type over which the ordering is defined.
    *  @return   an option value containing the largest element of this $coll with
    *            respect to the ordering `ord`.
-   */
+   
+ * @tparam B > TODO FILL IN TPARAM
+ * @param ord: TODO FILL IN PARAM
+*/
   def maxOption[B >: A](implicit ord: Ordering[B]): Option[A] =
     knownSize match {
       case -1 => reduceLeftOptionIterator[A](ord.max)
@@ -1270,7 +1320,9 @@ transparent trait IterableOnceOps[+A, +CC[_], +C] extends Any { this: IterableOn
    *  @return     an option value containing pf applied to the first
    *              value for which it is defined, or `None` if none exists.
    *  @example    `Seq("a", 1, 5L).collectFirst { case x: Int => x*10 } = Some(10)`
-   */
+   
+ * @tparam B TODO FILL IN TPARAM
+*/
   def collectFirst[B](pf: PartialFunction[A, B]^): Option[B] = {
     // Presumably the fastest way to get in and out of a partial function is for a sentinel function to return itself
     // (Tested to be lower-overhead than runWith.  Would be better yet to not need to (formally) allocate it)
@@ -1459,7 +1511,11 @@ transparent trait IterableOnceOps[+A, +CC[_], +C] extends Any { this: IterableOn
    *      xs.to(ArrayBuffer)
    *      xs.to(BitSet) // for xs: Iterable[Int]
    *  }}}
-   */
+   
+ * @tparam C1 TODO FILL IN TPARAM
+ * @param factory TODO FILL IN PARAM
+ * @return TODO FILL IN RETURN
+*/
   def to[C1](factory: Factory[A, C1]): C1^{this} = factory.fromSpecific(this)
 
   @deprecated("Use .iterator instead of .toIterator", "2.13.0")
@@ -1483,7 +1539,9 @@ transparent trait IterableOnceOps[+A, +CC[_], +C] extends Any { this: IterableOn
     * @tparam V The value type for the resulting map.
     * @param ev An implicit coercion from `A` to `[K, V]`.
     * @return This $coll as a `Map[K, V]`.
-    */
+    
+ * @param ev: TODO FILL IN PARAM
+*/
   def toMap[K, V](implicit ev: A <:< (K, V)): immutable.Map[K, V] =
     immutable.Map.from(this.asInstanceOf[IterableOnce[(K, V)]])
 
@@ -1491,11 +1549,15 @@ transparent trait IterableOnceOps[+A, +CC[_], +C] extends Any { this: IterableOn
     *
     * @tparam B The type of elements of the result, a supertype of `A`.
     * @return This $coll as a `Set[B]`.
-    */
+    
+ * @tparam B > TODO FILL IN TPARAM
+*/
   def toSet[B >: A]: immutable.Set[B] = immutable.Set.from(this)
 
   /** @return This $coll as a `Seq[A]`. This is equivalent to `to(Seq)` but might be faster.
-   */
+   
+ * @return TODO FILL IN RETURN
+*/
   def toSeq: immutable.Seq[A] = immutable.Seq.from(this)
 
   /** Converts this $coll to an `IndexedSeq`.
@@ -1520,7 +1582,9 @@ transparent trait IterableOnceOps[+A, +CC[_], +C] extends Any { this: IterableOn
     *
     * @tparam B The type of elements of the result, a supertype of `A`.
     * @return This $coll as an `Array[B]`.
-    */
+    
+ * @tparam B > TODO FILL IN TPARAM
+*/
   def toArray[B >: A: ClassTag]: Array[B] =
     if (knownSize >= 0) {
       val destination = new Array[B](knownSize)

@@ -65,7 +65,10 @@ package object collection {
   object +: {
     /** Splits a sequence into head +: tail.
       * @return Some((head, tail)) if sequence is non-empty. None otherwise.
-      */
+      
+ * @tparam A TODO FILL IN TPARAM
+ * @tparam CC[_ TODO FILL IN TPARAM
+*/
     def unapply[A, CC[_] <: Seq[?], C <: SeqOps[A, CC, C]](t: (C & SeqOps[A, CC, C])^): Option[(A, C^{t})] =
       if(t.isEmpty) None
       else Some(t.head -> t.tail)
@@ -75,7 +78,10 @@ package object collection {
   object :+ {
     /** Splits a sequence into init :+ last.
       * @return Some((init, last)) if sequence is non-empty. None otherwise.
-      */
+      
+ * @tparam A TODO FILL IN TPARAM
+ * @tparam CC[_ TODO FILL IN TPARAM
+*/
     def unapply[A, CC[_] <: Seq[?], C <: SeqOps[A, CC, C]](t: (C & SeqOps[A, CC, C])^): Option[(C^{t}, A)] =
       if(t.isEmpty) None
       else Some(t.init -> t.last)

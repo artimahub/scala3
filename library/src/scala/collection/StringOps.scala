@@ -64,12 +64,19 @@ object StringOps {
     }
   }
 
-  /** A lazy filtered string. No filtering is applied until one of `foreach`, `map` or `flatMap` is called. */
+  /** A lazy filtered string. No filtering is applied until one of `foreach`, `map` or `flatMap` is called. 
+ * @param p TODO FILL IN PARAM
+ * @param s TODO FILL IN PARAM
+*/
   class WithFilter(p: Char => Boolean, s: String) {
 
     /** Apply `f` to each element for its side effects.
       * Note: [U] parameter needed to help scalac's type inference.
-      */
+      
+ * @tparam U TODO FILL IN TPARAM
+ * @param f TODO FILL IN PARAM
+ * @return TODO FILL IN RETURN
+*/
     def foreach[U](f: Char => U): Unit = {
       val len = s.length
       var i = 0
@@ -85,7 +92,9 @@ object StringOps {
       *  @param f      the function to apply to each char.
       *  @return       a new collection resulting from applying the given function
       *                `f` to each char of this string and collecting the results.
-      */
+      
+ * @tparam B TODO FILL IN TPARAM
+*/
     def map[B](f: Char => B): immutable.IndexedSeq[B] = {
       val len = s.length
       val b = immutable.IndexedSeq.newBuilder[B]
@@ -123,7 +132,9 @@ object StringOps {
       *  @param f      the function to apply to each char.
       *  @return       a new collection resulting from applying the given collection-valued function
       *                `f` to each char of this string and concatenating the results.
-      */
+      
+ * @tparam B TODO FILL IN TPARAM
+*/
     def flatMap[B](f: Char => IterableOnce[B]^): immutable.IndexedSeq[B] = {
       val len = s.length
       val b = immutable.IndexedSeq.newBuilder[B]
@@ -155,7 +166,10 @@ object StringOps {
       sb.toString
     }
 
-    /** Creates a new non-strict filter which combines this filter with the given predicate. */
+    /** Creates a new non-strict filter which combines this filter with the given predicate. 
+ * @param q TODO FILL IN PARAM
+ * @return TODO FILL IN RETURN
+*/
     def withFilter(q: Char => Boolean): WithFilter^{this, q} = new WithFilter(a => p(a) && q(a), s)
   }
 
@@ -187,7 +201,9 @@ final class StringOps(private val s: String) extends AnyVal { self =>
 
   @inline def knownSize: Int = s.length
 
-  /** Get the char at the specified index. */
+  /** Get the char at the specified index. 
+ * @return TODO FILL IN RETURN
+*/
   @inline def apply(i: Int): Char = s.charAt(i)
 
   def sizeCompare(otherSize: Int): Int = Integer.compare(s.length, otherSize)
@@ -203,7 +219,9 @@ final class StringOps(private val s: String) extends AnyVal { self =>
     *  @param f      the function to apply to each char.
     *  @return       a new collection resulting from applying the given function
     *                `f` to each char of this string and collecting the results.
-    */
+    
+ * @tparam B TODO FILL IN TPARAM
+*/
   def map[B](f: Char => B): immutable.IndexedSeq[B] = {
     val len = s.length
     val dst = new Array[AnyRef](len)
@@ -238,7 +256,9 @@ final class StringOps(private val s: String) extends AnyVal { self =>
     *  @param f      the function to apply to each char.
     *  @return       a new collection resulting from applying the given collection-valued function
     *                `f` to each char of this string and concatenating the results.
-    */
+    
+ * @tparam B TODO FILL IN TPARAM
+*/
   def flatMap[B](f: Char => IterableOnce[B]^): immutable.IndexedSeq[B] = {
     val len = s.length
     val b = immutable.IndexedSeq.newBuilder[B]
@@ -313,7 +333,9 @@ final class StringOps(private val s: String) extends AnyVal { self =>
     *  @param suffix the collection to append.
     *  @return       a new collection which contains all chars
     *                of this string followed by all elements of `suffix`.
-    */
+    
+ * @tparam B > TODO FILL IN TPARAM
+*/
   def concat[B >: Char](suffix: IterableOnce[B]^): immutable.IndexedSeq[B] = {
     val b = immutable.IndexedSeq.newBuilder[B]
     val k = suffix.knownSize
@@ -347,13 +369,20 @@ final class StringOps(private val s: String) extends AnyVal { self =>
     */
   @inline def concat(suffix: String): String = s + suffix
 
-  /** Alias for `concat` */
+  /** Alias for `concat` 
+ * @return TODO FILL IN RETURN
+*/
   @inline def ++[B >: Char](suffix: Iterable[B]^): immutable.IndexedSeq[B] = concat(suffix)
 
-  /** Alias for `concat` */
+  /** Alias for `concat` 
+ * @return TODO FILL IN RETURN
+*/
   @inline def ++(suffix: IterableOnce[Char]^): String = concat(suffix)
 
-  /** Alias for `concat` */
+  /** Alias for `concat` 
+ * @param xs TODO FILL IN PARAM
+ * @return TODO FILL IN RETURN
+*/
   def ++(xs: String): String = concat(xs)
 
   /** Returns a collection with an element appended until a given target length is reached.
@@ -363,7 +392,9 @@ final class StringOps(private val s: String) extends AnyVal { self =>
     *  @return a collection consisting of
     *          this string followed by the minimal number of occurrences of `elem` so
     *          that the resulting collection has a length of at least `len`.
-    */
+    
+ * @tparam B > TODO FILL IN TPARAM
+*/
   def padTo[B >: Char](len: Int, elem: B): immutable.IndexedSeq[B]  = {
     val sLen = s.length
     if (sLen >= len) new WrappedString(s) else {
@@ -397,7 +428,11 @@ final class StringOps(private val s: String) extends AnyVal { self =>
     }
   }
 
-  /** A copy of the string with an element prepended */
+  /** A copy of the string with an element prepended 
+ * @tparam B > TODO FILL IN TPARAM
+ * @param elem TODO FILL IN PARAM
+ * @return TODO FILL IN RETURN
+*/
   def prepended[B >: Char](elem: B): immutable.IndexedSeq[B] = {
     val b = immutable.IndexedSeq.newBuilder[B]
     b.sizeHint(s.length + 1)
@@ -406,17 +441,28 @@ final class StringOps(private val s: String) extends AnyVal { self =>
     b.result()
   }
 
-  /** Alias for `prepended` */
+  /** Alias for `prepended` 
+ * @return TODO FILL IN RETURN
+*/
   @inline def +: [B >: Char] (elem: B): immutable.IndexedSeq[B] = prepended(elem)
 
-  /** A copy of the string with an char prepended */
+  /** A copy of the string with an char prepended 
+ * @param c TODO FILL IN PARAM
+ * @return TODO FILL IN RETURN
+*/
   def prepended(c: Char): String =
     new JStringBuilder(s.length + 1).append(c).append(s).toString
 
-  /** Alias for `prepended` */
+  /** Alias for `prepended` 
+ * @return TODO FILL IN RETURN
+*/
   @inline def +: (c: Char): String = prepended(c)
 
-  /** A copy of the string with all elements from a collection prepended */
+  /** A copy of the string with all elements from a collection prepended 
+ * @tparam B > TODO FILL IN TPARAM
+ * @param prefix TODO FILL IN PARAM
+ * @return TODO FILL IN RETURN
+*/
   def prependedAll[B >: Char](prefix: IterableOnce[B]^): immutable.IndexedSeq[B] = {
     val b = immutable.IndexedSeq.newBuilder[B]
     val k = prefix.knownSize
@@ -426,16 +472,27 @@ final class StringOps(private val s: String) extends AnyVal { self =>
     b.result()
   }
 
-  /** Alias for `prependedAll` */
+  /** Alias for `prependedAll` 
+ * @return TODO FILL IN RETURN
+*/
   @inline def ++: [B >: Char] (prefix: IterableOnce[B]^): immutable.IndexedSeq[B] = prependedAll(prefix)
 
-  /** A copy of the string with another string prepended */
+  /** A copy of the string with another string prepended 
+ * @param prefix TODO FILL IN PARAM
+ * @return TODO FILL IN RETURN
+*/
   def prependedAll(prefix: String): String = prefix + s
 
-  /** Alias for `prependedAll` */
+  /** Alias for `prependedAll` 
+ * @return TODO FILL IN RETURN
+*/
   @inline def ++: (prefix: String): String = prependedAll(prefix)
 
-  /** A copy of the string with an element appended */
+  /** A copy of the string with an element appended 
+ * @tparam B > TODO FILL IN TPARAM
+ * @param elem TODO FILL IN PARAM
+ * @return TODO FILL IN RETURN
+*/
   def appended[B >: Char](elem: B): immutable.IndexedSeq[B] = {
     val b = immutable.IndexedSeq.newBuilder[B]
     b.sizeHint(s.length + 1)
@@ -444,28 +501,43 @@ final class StringOps(private val s: String) extends AnyVal { self =>
     b.result()
   }
 
-  /** Alias for `appended` */
+  /** Alias for `appended` 
+ * @return TODO FILL IN RETURN
+*/
   @inline def :+ [B >: Char](elem: B): immutable.IndexedSeq[B] = appended(elem)
 
-  /** A copy of the string with an element appended */
+  /** A copy of the string with an element appended 
+ * @param c TODO FILL IN PARAM
+ * @return TODO FILL IN RETURN
+*/
   def appended(c: Char): String =
     new JStringBuilder(s.length + 1).append(s).append(c).toString
 
-  /** Alias for `appended` */
+  /** Alias for `appended` 
+ * @return TODO FILL IN RETURN
+*/
   @inline def :+ (c: Char): String = appended(c)
 
-  /** A copy of the string with all elements from a collection appended */
+  /** A copy of the string with all elements from a collection appended 
+ * @return TODO FILL IN RETURN
+*/
   @inline def appendedAll[B >: Char](suffix: IterableOnce[B]^): immutable.IndexedSeq[B] =
     concat(suffix)
 
-  /** Alias for `appendedAll` */
+  /** Alias for `appendedAll` 
+ * @return TODO FILL IN RETURN
+*/
   @inline def :++ [B >: Char](suffix: IterableOnce[B]^): immutable.IndexedSeq[B] =
     concat(suffix)
 
-  /** A copy of the string with another string appended */
+  /** A copy of the string with another string appended 
+ * @return TODO FILL IN RETURN
+*/
   @inline def appendedAll(suffix: String): String = s + suffix
 
-  /** Alias for `appendedAll` */
+  /** Alias for `appendedAll` 
+ * @return TODO FILL IN RETURN
+*/
   @inline def :++ (suffix: String): String = s + suffix
 
   /** Produces a new collection where a slice of characters in this string is replaced by another collection.
@@ -480,7 +552,9 @@ final class StringOps(private val s: String) extends AnyVal { self =>
     *  @return          a new collection consisting of all chars of this string
     *                   except that `replaced` chars starting from `from` are replaced
     *                   by `other`.
-    */
+    
+ * @tparam B > TODO FILL IN TPARAM
+*/
   def patch[B >: Char](from: Int, other: IterableOnce[B]^, replaced: Int): immutable.IndexedSeq[B] = {
     val len = s.length
     @inline def slc(off: Int, length: Int): WrappedString =
@@ -585,17 +659,25 @@ final class StringOps(private val s: String) extends AnyVal { self =>
     if (sep.isEmpty || s.length < 2) s
     else mkString("", sep, "")
 
-  /** Returns this string */
+  /** Returns this string 
+ * @return TODO FILL IN RETURN
+*/
   @inline final def mkString: String = s
 
-  /** Appends this string to a string builder. */
+  /** Appends this string to a string builder. 
+ * @return TODO FILL IN RETURN
+*/
   @inline final def addString(b: StringBuilder): b.type = b.append(s)
 
-  /** Appends this string to a string builder using a separator string. */
+  /** Appends this string to a string builder using a separator string. 
+ * @return TODO FILL IN RETURN
+*/
   @inline final def addString(b: StringBuilder, sep: String): b.type =
     addString(b, "", sep, "")
 
-  /** Appends this string to a string builder using start, end and separator strings. */
+  /** Appends this string to a string builder using start, end and separator strings. 
+ * @return TODO FILL IN RETURN
+*/
   final def addString(b: StringBuilder, start: String, sep: String, end: String): b.type = {
     val jsb = b.underlying
     if (start.length != 0) jsb.append(start)
@@ -640,7 +722,10 @@ final class StringOps(private val s: String) extends AnyVal { self =>
 
   // Note: String.repeat is added in JDK 11.
   /** Return the current string concatenated `n` times.
-   */
+   
+ * @param n TODO FILL IN PARAM
+ * @return TODO FILL IN RETURN
+*/
   def *(n: Int): String =
     if (n <= 0) {
       ""
@@ -659,7 +744,9 @@ final class StringOps(private val s: String) extends AnyVal { self =>
 
   /** Strip the trailing line separator from this string if there is one.
    *  The line separator is taken as `"\n"`, `"\r"`, or `"\r\n"`.
-   */
+   
+ * @return TODO FILL IN RETURN
+*/
   def stripLineEnd: String =
     if (s.isEmpty) s
     else {
@@ -676,13 +763,17 @@ final class StringOps(private val s: String) extends AnyVal { self =>
    *  including trailing line separator characters.
    *
    *  The empty string yields an empty iterator.
-   */
+   
+ * @return TODO FILL IN RETURN
+*/
   def linesWithSeparators: Iterator[String] = linesSeparated(stripped = false)
 
   /** Lines in this string, where a line is terminated by
    *  `"\n"`, `"\r"`, `"\r\n"`, or the end of the string.
    *  A line may be empty. Line terminators are removed.
-   */
+   
+ * @return TODO FILL IN RETURN
+*/
   def linesIterator: Iterator[String] = linesSeparated(stripped = true)
 
   // if `stripped`, exclude the line separators
@@ -717,21 +808,29 @@ final class StringOps(private val s: String) extends AnyVal { self =>
   /** Returns this string with first character converted to upper case.
     * If the first character of the string is capitalized, it is returned unchanged.
     * This method does not convert characters outside the Basic Multilingual Plane (BMP).
-    */
+    
+ * @return TODO FILL IN RETURN
+*/
   def capitalize: String =
     if (s == null || s.length == 0 || !s.charAt(0).isLower) s
     else updated(0, s.charAt(0).toUpper)
 
   /** Returns this string with the given `prefix` stripped. If this string does not
     *  start with `prefix`, it is returned unchanged.
-    */
+    
+ * @param prefix TODO FILL IN PARAM
+ * @return TODO FILL IN RETURN
+*/
   def stripPrefix(prefix: String): String =
     if (s.startsWith(prefix)) s.substring(prefix.length)
     else s
 
   /** Returns this string with the given `suffix` stripped. If this string does not
     *  end with `suffix`, it is returned unchanged.
-    */
+    
+ * @param suffix TODO FILL IN PARAM
+ * @return TODO FILL IN RETURN
+*/
   def stripSuffix(suffix: String): String =
     if (s.endsWith(suffix)) s.substring(0, s.length - suffix.length)
     else s
@@ -750,7 +849,10 @@ final class StringOps(private val s: String) extends AnyVal { self =>
     *
     *  Strip a leading prefix consisting of blanks or control characters
     *  followed by `marginChar` from the line.
-    */
+    
+ * @param marginChar TODO FILL IN PARAM
+ * @return TODO FILL IN RETURN
+*/
   def stripMargin(marginChar: Char): String = {
     val sb = new JStringBuilder(s.length)
     for (line <- linesWithSeparators) {
@@ -769,7 +871,9 @@ final class StringOps(private val s: String) extends AnyVal { self =>
     *
     *  Strip a leading prefix consisting of blanks or control characters
     *  followed by `|` from the line.
-    */
+    
+ * @return TODO FILL IN RETURN
+*/
   def stripMargin: String = stripMargin('|')
 
   private def escape(ch: Char): String = if (
@@ -826,7 +930,9 @@ final class StringOps(private val s: String) extends AnyVal { self =>
     *  }}}
     *
     * @param separator the character used as a delimiter
-    */
+    
+ * @return TODO FILL IN RETURN
+*/
   def split(separator: Char): Array[String] = s.split(escape(separator))
 
   @throws(classOf[java.util.regex.PatternSyntaxException])
@@ -842,7 +948,9 @@ final class StringOps(private val s: String) extends AnyVal { self =>
     *  `"""(?<month>\d\d)-(?<day>\d\d)-(?<year>\d\d\d\d)""".r` matches dates
     *  and provides its subcomponents through groups named "month", "day" and
     *  "year".
-    */
+    
+ * @return TODO FILL IN RETURN
+*/
   def r: Regex = new Regex(s)
 
   /** You can follow a string with `.r(g1, ... , gn)`, turning it into a `Regex`,
@@ -859,7 +967,9 @@ final class StringOps(private val s: String) extends AnyVal { self =>
 
   /**
    * @throws java.lang.IllegalArgumentException  If the string does not contain a parsable `Boolean`.
-   */
+   
+ * @return TODO FILL IN RETURN
+*/
   def toBoolean: Boolean               = toBooleanImpl(s)
 
   /**
@@ -874,7 +984,9 @@ final class StringOps(private val s: String) extends AnyVal { self =>
   /**
     * Parse as a `Byte` (string must contain only decimal digits and optional leading `-` or `+`).
     * @throws java.lang.NumberFormatException  If the string does not contain a parsable `Byte`.
-    */
+    
+ * @return TODO FILL IN RETURN
+*/
   def toByte: Byte                     = java.lang.Byte.parseByte(s)
 
   /**
@@ -887,7 +999,9 @@ final class StringOps(private val s: String) extends AnyVal { self =>
   /**
     * Parse as a `Short` (string must contain only decimal digits and optional leading `-` or `+`).
     * @throws java.lang.NumberFormatException  If the string does not contain a parsable `Short`.
-    */
+    
+ * @return TODO FILL IN RETURN
+*/
   def toShort: Short                   = java.lang.Short.parseShort(s)
 
   /**
@@ -900,7 +1014,9 @@ final class StringOps(private val s: String) extends AnyVal { self =>
   /**
     * Parse as an `Int` (string must contain only decimal digits and optional leading `-` or `+`).
     * @throws java.lang.NumberFormatException  If the string does not contain a parsable `Int`.
-    */
+    
+ * @return TODO FILL IN RETURN
+*/
   def toInt: Int                       = java.lang.Integer.parseInt(s)
 
   /**
@@ -913,7 +1029,9 @@ final class StringOps(private val s: String) extends AnyVal { self =>
   /**
     * Parse as a `Long` (string must contain only decimal digits and optional leading `-` or `+`).
     * @throws java.lang.NumberFormatException  If the string does not contain a parsable `Long`.
-    */
+    
+ * @return TODO FILL IN RETURN
+*/
   def toLong: Long                     = java.lang.Long.parseLong(s)
 
   /**
@@ -927,7 +1045,9 @@ final class StringOps(private val s: String) extends AnyVal { self =>
     * Parse as a `Float` (surrounding whitespace is removed with a `trim`).
     * @throws java.lang.NumberFormatException  If the string does not contain a parsable `Float`.
     * @throws java.lang.NullPointerException  If the string is null.
-    */
+    
+ * @return TODO FILL IN RETURN
+*/
   def toFloat: Float                   = java.lang.Float.parseFloat(s)
 
   /**
@@ -941,7 +1061,9 @@ final class StringOps(private val s: String) extends AnyVal { self =>
     * Parse as a `Double` (surrounding whitespace is removed with a `trim`).
     * @throws java.lang.NumberFormatException  If the string does not contain a parsable `Double`.
     * @throws java.lang.NullPointerException  If the string is null.
-    */
+    
+ * @return TODO FILL IN RETURN
+*/
   def toDouble: Double                 = java.lang.Double.parseDouble(s)
 
   /**
@@ -980,7 +1102,9 @@ final class StringOps(private val s: String) extends AnyVal { self =>
    *
    *  @param args the arguments used to instantiating the pattern.
    *  @throws java.util.IllegalFormatException if the format contains syntax or conversion errors
-   */
+   
+ * @return TODO FILL IN RETURN
+*/
   def format(args: Any*): String =
     java.lang.String.format(s, args.map(unwrapArg)*)
 
@@ -996,25 +1120,42 @@ final class StringOps(private val s: String) extends AnyVal { self =>
    *  @param l    an instance of `java.util.Locale`
    *  @param args the arguments used to instantiating the pattern.
    *  @throws java.util.IllegalFormatException if the format contains syntax or conversion errors
-   */
+   
+ * @return TODO FILL IN RETURN
+*/
   def formatLocal(l: java.util.Locale, args: Any*): String =
     java.lang.String.format(l, s, args.map(unwrapArg)*)
 
   def compare(that: String): Int = s.compareTo(that)
 
-  /** Returns true if `this` is less than `that` */
+  /** Returns true if `this` is less than `that` 
+ * @param that TODO FILL IN PARAM
+ * @return TODO FILL IN RETURN
+*/
   def < (that: String): Boolean = compare(that) <  0
 
-  /** Returns true if `this` is greater than `that`. */
+  /** Returns true if `this` is greater than `that`. 
+ * @param that TODO FILL IN PARAM
+ * @return TODO FILL IN RETURN
+*/
   def > (that: String): Boolean = compare(that) >  0
 
-  /** Returns true if `this` is less than or equal to `that`. */
+  /** Returns true if `this` is less than or equal to `that`. 
+ * @param that TODO FILL IN PARAM
+ * @return TODO FILL IN RETURN
+*/
   def <= (that: String): Boolean = compare(that) <= 0
 
-  /** Returns true if `this` is greater than or equal to `that`. */
+  /** Returns true if `this` is greater than or equal to `that`. 
+ * @param that TODO FILL IN PARAM
+ * @return TODO FILL IN RETURN
+*/
   def >= (that: String): Boolean = compare(that) >= 0
 
-  /** Counts the number of chars in this string which satisfy a predicate */
+  /** Counts the number of chars in this string which satisfy a predicate 
+ * @param p TODO FILL IN PARAM
+ * @return TODO FILL IN RETURN
+*/
   def count(p: (Char) => Boolean): Int = {
     var i, res = 0
     val len = s.length
@@ -1027,7 +1168,11 @@ final class StringOps(private val s: String) extends AnyVal { self =>
 
   /** Apply `f` to each element for its side effects.
     * Note: [U] parameter needed to help scalac's type inference.
-    */
+    
+ * @tparam U TODO FILL IN TPARAM
+ * @param f TODO FILL IN PARAM
+ * @return TODO FILL IN RETURN
+*/
   def foreach[U](f: Char => U): Unit = {
     val len = s.length
     var i = 0
@@ -1042,7 +1187,9 @@ final class StringOps(private val s: String) extends AnyVal { self =>
     *  @param   p     the predicate used to test elements.
     *  @return        `true` if this string is empty or the given predicate `p`
     *                 holds for all chars of this string, otherwise `false`.
-    */
+    
+ * @param @deprecatedName("f", TODO FILL IN PARAM
+*/
   def forall(@deprecatedName("f", "2.13.3") p: Char => Boolean): Boolean = {
     var i = 0
     val len = s.length
@@ -1146,29 +1293,41 @@ final class StringOps(private val s: String) extends AnyVal { self =>
     */
   def indices: Range = Range(0, s.length)
 
-  /** Iterator can be used only once */
+  /** Iterator can be used only once 
+ * @return TODO FILL IN RETURN
+*/
   def iterator: Iterator[Char] = new StringIterator(s)
 
   /** Stepper can be used with Java 8 Streams. This method is equivalent to a call to
     * [[charStepper]]. See also [[codePointStepper]].
-    */
+    
+ * @return TODO FILL IN RETURN
+*/
   @inline def stepper: IntStepper & EfficientSplit = charStepper
 
   /** Steps over characters in this string. Values are packed in `Int` for efficiency
     * and compatibility with Java 8 Streams which have an efficient specialization for `Int`.
-    */
+    
+ * @return TODO FILL IN RETURN
+*/
   @inline def charStepper: IntStepper & EfficientSplit = new CharStringStepper(s, 0, s.length)
 
   /** Steps over code points in this string.
-    */
+    
+ * @return TODO FILL IN RETURN
+*/
   @inline def codePointStepper: IntStepper & EfficientSplit = new CodePointStringStepper(s, 0, s.length)
 
-  /** Tests whether the string is not empty. */
+  /** Tests whether the string is not empty. 
+ * @return TODO FILL IN RETURN
+*/
   @inline def nonEmpty: Boolean = !s.isEmpty
 
   /** Returns new sequence with elements in reversed order.
     * @note $unicodeunaware
-    */
+    
+ * @return TODO FILL IN RETURN
+*/
   def reverse: String = new JStringBuilder(s).reverse().toString
 
   /** An iterator yielding chars in reversed order.
@@ -1197,33 +1356,49 @@ final class StringOps(private val s: String) extends AnyVal { self =>
   /** The rest of the string without its first char.
    *  @throws UnsupportedOperationException if the string is empty.
    *  @note $unicodeunaware
-   */
+   
+ * @return TODO FILL IN RETURN
+*/
   def tail: String = if(s.isEmpty) throw new UnsupportedOperationException("tail of empty String") else slice(1, s.length)
 
   /** The initial part of the string without its last char.
    *  @throws UnsupportedOperationException if the string is empty.
    * @note $unicodeunaware
-   */
+   
+ * @return TODO FILL IN RETURN
+*/
   def init: String = if(s.isEmpty) throw new UnsupportedOperationException("init of empty String") else slice(0, s.length-1)
 
   /** A string containing the first `n` chars of this string.
     * @note $unicodeunaware
-    */
+    
+ * @param n TODO FILL IN PARAM
+ * @return TODO FILL IN RETURN
+*/
   def take(n: Int): String = slice(0, min(n, s.length))
 
   /** The rest of the string without its `n` first chars.
     * @note $unicodeunaware
-    */
+    
+ * @param n TODO FILL IN PARAM
+ * @return TODO FILL IN RETURN
+*/
   def drop(n: Int): String = slice(min(n, s.length), s.length)
 
   /** A string containing the last `n` chars of this string.
     * @note $unicodeunaware
-    */
+    
+ * @param n TODO FILL IN PARAM
+ * @return TODO FILL IN RETURN
+*/
   def takeRight(n: Int): String = drop(s.length - max(n, 0))
 
   /** The rest of the string without its `n` last chars.
     * @note $unicodeunaware
-    */
+    
+ * @param n TODO FILL IN PARAM
+ * @return TODO FILL IN RETURN
+*/
   def dropRight(n: Int): String = take(s.length - max(n, 0))
 
   /** Iterates over the tails of this string. The first value will be this
@@ -1248,7 +1423,10 @@ final class StringOps(private val s: String) extends AnyVal { self =>
   private def iterateUntilEmpty(f: String => String): Iterator[String]^{f} =
     Iterator.iterate(s)(f).takeWhile(x => !x.isEmpty) ++ Iterator.single("")
 
-  /** Selects all chars of this string which satisfy a predicate. */
+  /** Selects all chars of this string which satisfy a predicate. 
+ * @param pred TODO FILL IN PARAM
+ * @return TODO FILL IN RETURN
+*/
   def filter(pred: Char => Boolean): String = {
     val len = s.length
     val sb = new JStringBuilder(len)
@@ -1261,7 +1439,9 @@ final class StringOps(private val s: String) extends AnyVal { self =>
     if(len == sb.length()) s else sb.toString
   }
 
-  /** Selects all chars of this string which do not satisfy a predicate. */
+  /** Selects all chars of this string which do not satisfy a predicate. 
+ * @return TODO FILL IN RETURN
+*/
   @inline def filterNot(pred: Char => Boolean): String = filter(c => !pred(c))
 
   /** Copy chars of this string to an array.
@@ -1270,7 +1450,9 @@ final class StringOps(private val s: String) extends AnyVal { self =>
     * or the end of the array is reached
     *
     *  @param  xs     the array to fill.
-    */
+    
+ * @return TODO FILL IN RETURN
+*/
   @inline def copyToArray(xs: Array[Char]): Int =
     copyToArray(xs, 0, Int.MaxValue)
 
@@ -1281,7 +1463,9 @@ final class StringOps(private val s: String) extends AnyVal { self =>
     *
     *  @param  xs     the array to fill.
     *  @param  start  the starting index.
-    */
+    
+ * @return TODO FILL IN RETURN
+*/
   @inline def copyToArray(xs: Array[Char], start: Int): Int =
     copyToArray(xs, start, Int.MaxValue)
 
@@ -1293,7 +1477,9 @@ final class StringOps(private val s: String) extends AnyVal { self =>
     *  @param  xs     the array to fill.
     *  @param  start  the starting index.
     *  @param  len    the maximal number of elements to copy.
-    */
+    
+ * @return TODO FILL IN RETURN
+*/
   def copyToArray(xs: Array[Char], start: Int, len: Int): Int = {
     val copied = IterableOnce.elemsToCopyToArray(s.length, xs.length, start, len)
     if (copied > 0) {
@@ -1336,7 +1522,10 @@ final class StringOps(private val s: String) extends AnyVal { self =>
     -1
   }
 
-  /** Tests whether a predicate holds for at least one char of this string. */
+  /** Tests whether a predicate holds for at least one char of this string. 
+ * @param p TODO FILL IN PARAM
+ * @return TODO FILL IN RETURN
+*/
   def exists(p: Char => Boolean): Boolean = indexWhere(p) != -1
 
   /** Finds the first char of the string satisfying a predicate, if any.
@@ -1361,7 +1550,10 @@ final class StringOps(private val s: String) extends AnyVal { self =>
     case i => s.substring(i)
   }
 
-  /** Takes longest prefix of chars that satisfy a predicate. */
+  /** Takes longest prefix of chars that satisfy a predicate. 
+ * @param p TODO FILL IN PARAM
+ * @return TODO FILL IN RETURN
+*/
   def takeWhile(p: Char => Boolean): String = indexWhere(c => !p(c)) match {
     case -1 => s
     case i => s.substring(0, i)
@@ -1402,7 +1594,10 @@ final class StringOps(private val s: String) extends AnyVal { self =>
     */
   def grouped(size: Int): Iterator[String] = new StringOps.GroupedIterator(s, size)
 
-  /** A pair of, first, all chars that satisfy predicate `p` and, second, all chars that do not. */
+  /** A pair of, first, all chars that satisfy predicate `p` and, second, all chars that do not. 
+ * @param p TODO FILL IN PARAM
+ * @return TODO FILL IN RETURN
+*/
   def partition(p: Char => Boolean): (String, String) = {
     val res1, res2 = new JStringBuilder
     var i = 0
@@ -1482,7 +1677,9 @@ final class StringOps(private val s: String) extends AnyVal { self =>
     *                ''n'' times in `that`, then the first ''n'' occurrences of `x` will not form
     *                part of the result, but any following occurrences will.
     *  @note         $unicodeunaware
-    */
+    
+ * @tparam B > TODO FILL IN TPARAM
+*/
   def diff[B >: Char](that: Seq[B]): String = new WrappedString(s).diff(that).unwrap
 
   /** Computes the multiset intersection between this string and another sequence.
@@ -1494,13 +1691,17 @@ final class StringOps(private val s: String) extends AnyVal { self =>
     *                ''n'' times in `that`, then the first ''n'' occurrences of `x` will be retained
     *                in the result, but any following occurrences will be omitted.
     * @note          $unicodeunaware
-    */
+    
+ * @tparam B > TODO FILL IN TPARAM
+*/
   def intersect[B >: Char](that: Seq[B]): String = new WrappedString(s).intersect(that).unwrap
 
   /** Selects all distinct chars of this string ignoring the duplicates.
     *
     * @note $unicodeunaware
-    */
+    
+ * @return TODO FILL IN RETURN
+*/
   def distinct: String = new WrappedString(s).distinct.unwrap
 
   /** Selects all distinct chars of this string ignoring the duplicates as determined by `==` after applying
@@ -1524,7 +1725,10 @@ final class StringOps(private val s: String) extends AnyVal { self =>
     *  @return     a string consisting of the chars of this string
     *              sorted according to the ordering `ord`.
     *  @note       $unicodeunaware
-    */
+    
+ * @tparam B > TODO FILL IN TPARAM
+ * @param ord: TODO FILL IN PARAM
+*/
   def sorted[B >: Char](implicit ord: Ordering[B]): String = new WrappedString(s).sorted(using ord).unwrap
 
   /** Sorts this string according to a comparison function.
@@ -1622,7 +1826,9 @@ final class StringOps(private val s: String) extends AnyVal { self =>
    *    // ba
    *  }}}
    *  @note     $unicodeunaware
-   */
+   
+ * @param n TODO FILL IN PARAM
+*/
   def combinations(n: Int): Iterator[String] = new WrappedString(s).combinations(n).map(_.unwrap)
 
   /** Iterates over distinct permutations of elements.

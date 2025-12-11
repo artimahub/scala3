@@ -39,12 +39,20 @@ import scala.collection.Stepper.EfficientSplit
   * Steppers are converted to the corresponding primitive Java Iterators and Spliterators.
   *
   * @tparam A the element type of the Stepper
-  */
+  
+ * @tparam @specialized(Double TODO FILL IN TPARAM
+ * @tparam Int TODO FILL IN TPARAM
+ * @tparam Long) +A TODO FILL IN TPARAM
+*/
 trait Stepper[@specialized(Double, Int, Long) +A] {
-  /** Check if there's an element available. */
+  /** Check if there's an element available. 
+ * @return TODO FILL IN RETURN
+*/
   def hasStep: Boolean
 
-  /** Return the next element and advance the stepper */
+  /** Return the next element and advance the stepper 
+ * @return TODO FILL IN RETURN
+*/
   def nextStep(): A
 
   /** Split this stepper, if applicable. The elements of the current Stepper are split up between
@@ -53,17 +61,23 @@ trait Stepper[@specialized(Double, Int, Long) +A] {
     * May return `null`, in which case the current Stepper yields the same elements as before.
     *
     * See method `trySplit` in [[java.util.Spliterator]].
-    */
+    
+ * @return TODO FILL IN RETURN
+*/
   def trySplit(): Stepper[A]^{this} | Null
 
   /** Returns an estimate of the number of elements of this Stepper, or [[Long.MaxValue]]. See
     * method `estimateSize` in [[java.util.Spliterator]].
-    */
+    
+ * @return TODO FILL IN RETURN
+*/
   def estimateSize: Long
 
   /** Returns a set of characteristics of this Stepper and its elements. See method
     * `characteristics` in [[java.util.Spliterator]].
-    */
+    
+ * @return TODO FILL IN RETURN
+*/
   def characteristics: Int
 
   /** Returns a [[java.util.Spliterator]] corresponding to this Stepper.
@@ -71,7 +85,10 @@ trait Stepper[@specialized(Double, Int, Long) +A] {
     * Note that the return type is `Spliterator[_]` instead of `Spliterator[A]` to allow returning
     * a [[java.util.Spliterator.OfInt]] (which is a `Spliterator[Integer]`) in the subclass [[IntStepper]]
     * (which is a `Stepper[Int]`).
-    */
+    
+ * @tparam B > TODO FILL IN TPARAM
+ * @return TODO FILL IN RETURN
+*/
   def spliterator[B >: A]: Spliterator[?]^{this}
 
   /** Returns a Java [[java.util.Iterator]] corresponding to this Stepper.
@@ -79,12 +96,17 @@ trait Stepper[@specialized(Double, Int, Long) +A] {
     * Note that the return type is `Iterator[_]` instead of `Iterator[A]` to allow returning
     * a [[java.util.PrimitiveIterator.OfInt]] (which is a `Iterator[Integer]`) in the subclass
     * [[IntStepper]] (which is a `Stepper[Int]`).
-    */
+    
+ * @tparam B > TODO FILL IN TPARAM
+ * @return TODO FILL IN RETURN
+*/
   def javaIterator[B >: A]: JIterator[?]^{this}
 
   /** Returns an [[Iterator]] corresponding to this Stepper. Note that Iterators corresponding to
     * primitive Steppers box the elements.
-    */
+    
+ * @return TODO FILL IN RETURN
+*/
   def iterator: Iterator[A]^{this} = new AbstractIterator[A] {
     def hasNext: Boolean = hasStep
     def next(): A = nextStep()
@@ -184,7 +206,9 @@ object Stepper {
   }
 }
 
-/** A Stepper for arbitrary element types. See [[Stepper]]. */
+/** A Stepper for arbitrary element types. See [[Stepper]]. 
+ * @tparam +A TODO FILL IN TPARAM
+*/
 trait AnyStepper[+A] extends Stepper[A] {
   def trySplit(): AnyStepper[A]^{this} | Null
 

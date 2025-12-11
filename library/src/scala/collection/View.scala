@@ -26,7 +26,9 @@ import caps.unsafe.unsafeAssumePure
   * or when the view is converted to a strict collection type (using the `to` operation).
   * @define coll view
   * @define Coll `View`
-  */
+  
+ * @tparam +A TODO FILL IN TPARAM
+*/
 trait View[+A] extends Iterable[A] with IterableOps[A, View, View[A]] with IterableFactoryDefaults[A, View] with Serializable {
 
   override def view: View[A]^{this} = this
