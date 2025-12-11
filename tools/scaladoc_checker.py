@@ -265,28 +265,65 @@ def analyze_file(path: str, fix: bool = False) -> Dict[str, object]:
         # If requested, insert missing tags into the comment
         if fix:
             insert_lines: List[str] = []
-            # Insert missing tparams first
+            # Insert missing tparams first (store without leading '*')
             for tp in missing_tparam:
-                insert_lines.append(f"* @tparam {tp} TODO FILL IN TPARAM")
+                insert_lines.append(f"@tparam {tp} TODO FILL IN TPARAM")
             # Then missing params
             for p in missing_param:
-                insert_lines.append(f"* @param {p} TODO FILL IN PARAM")
+                insert_lines.append(f"@param {p} TODO FILL IN PARAM")
             # Then return if needed
             if decl.get("kind") == "def" and ret and not documented_return and not (ret.strip().startswith("Unit")):
-                insert_lines.append(f"* @return TODO FILL IN RETURN")
+                insert_lines.append(f"@return TODO FILL IN RETURN")
             if insert_lines:
                 # Build new inner block preserving existing content formatting.
                 inner = block
-                # Ensure inner ends with a newline so appended lines align
-                if not inner.endswith("\n"):
-                    inner = inner + "\n"
-                # Normalize each inserted line to start with a space and star like other lines: " * ..."
-                addition = ""
+                inner_lines = inner.splitlines()
+                preserved_lines = []
+                for l in inner_lines:
+                    # If the line uses the "*" prefix (typical scaladoc), preserve
+                    # everything after the star (including any extra spacing) so we
+                    # don't alter intentional alignment.
+                    mstar = re.match(r"^\s*\*(.*)$", l)
+                    if mstar:
+                        suffix = mstar.group(1)  # may be empty or start with spaces
+                        if suffix == "":
+                            preserved_lines.append((True, ""))  # blank star line
+                        else:
+                            preserved_lines.append((True, suffix))  # keep suffix as-is
+                    else:
+                        # Content on same line as "/** ...": keep stripped content
+                        preserved_lines.append((False, l.strip()))
+                # Determine the exact whitespace prefix on the comment line (may be empty).
+                line_start_idx = text.rfind("\n", 0, start)
+                if line_start_idx == -1:
+                    line_prefix = text[:start]
+                else:
+                    line_prefix = text[line_start_idx + 1:start]
+                leading_ws = re.match(r"^\s*", line_prefix).group(0)
+                # Build the new comment block WITHOUT duplicating the existing leading
+                # whitespace (text[:start] already contains that). Put '/**' immediately
+                # after the original prefix, then for subsequent lines emit the leading
+                # whitespace explicitly so they align.
+                parts = []
+                parts.append("/**")
+                for is_star, content in preserved_lines:
+                    if is_star:
+                        if content == "":
+                            parts.append(leading_ws + " *")
+                        else:
+                            # content already contains any intentional extra spaces
+                            parts.append(leading_ws + " *" + content)
+                    else:
+                        # originally on the opener line; emit as standard " * " line
+                        parts.append(leading_ws + " * " + content)
+                # Append inserted tag lines
                 for ln in insert_lines:
-                    addition += " " + ln + "\n"
-                # Construct new full comment (match uses /** ... */)
-                new_full = "/**" + inner + addition + "*/"
-                # Replace in new_text, accounting for previous replacements via offset
+                    parts.append(leading_ws + " * " + ln)
+                # closing
+                parts.append(leading_ws + " */")
+                new_full = "\n".join(parts)
+                # Do not add or remove trailing newlines here; keep the following text
+                # unchanged so we do not introduce or remove blank lines.
                 new_text = new_text[:start + offset] + new_full + new_text[end + offset:]
                 # Update offset for subsequent replacements
                 offset += len(new_full) - (end - start)
