@@ -615,7 +615,7 @@ private[immutable] sealed abstract class MapNode[K, +V] extends Node[MapNode[K, 
     */
   def getTuple(key: K, originalHash: Int, hash: Int, shift: Int): (K, V)
 
-  /** Adds all key-value pairs to a builder */
+  /** Adds all key-value pairs to a builder. */
   def buildTo[V1 >: V](builder: HashMapBuilder[K, V1]): Unit
 }
 
@@ -2170,9 +2170,9 @@ private final class MapKeyValueTupleHashIterator[K, V](rootNode: MapNode[K, V])
   }
 }
 
-/** Used in HashMap[K, V]#removeAll(HashSet[K]) */
+/** Used in HashMap[K, V]#removeAll(HashSet[K]). */
 private final class MapNodeRemoveAllSetNodeIterator[K](rootSetNode: SetNode[K]) extends ChampBaseIterator[K, SetNode[K]](rootSetNode) {
-  /** Returns the result of immutably removing all keys in `rootSetNode` from `rootMapNode` */
+  /** Returns the result of immutably removing all keys in `rootSetNode` from `rootMapNode`. */
   def removeAll[V](rootMapNode: BitmapIndexedMapNode[K, V]): BitmapIndexedMapNode[K, V] = {
     var curr = rootMapNode
     while (curr.size > 0 && hasNext) {
@@ -2246,7 +2246,7 @@ private[immutable] final class HashMapBuilder[K, V] extends ReusableBuilder[(K, 
       rootNode.getOrElse(key, originalHash, improve(originalHash), 0, value)
     }
 
-  /** Inserts element `elem` into array `as` at index `ix`, shifting right the trailing elems */
+  /** Inserts element `elem` into array `as` at index `ix`, shifting right the trailing elems. */
   private def insertElement(as: Array[Int], ix: Int, elem: Int): Array[Int] = {
     if (ix < 0) throw new ArrayIndexOutOfBoundsException
     if (ix > as.length) throw new ArrayIndexOutOfBoundsException
@@ -2257,7 +2257,7 @@ private[immutable] final class HashMapBuilder[K, V] extends ReusableBuilder[(K, 
     result
   }
 
-  /** Inserts key-value into the bitmapIndexMapNode. Requires that this is a new key-value pair */
+  /** Inserts key-value into the bitmapIndexMapNode. Requires that this is a new key-value pair. */
   private def insertValue[V1 >: V](bm: BitmapIndexedMapNode[K, V],bitpos: Int, key: K, originalHash: Int, keyHash: Int, value: V1): Unit = {
     val dataIx = bm.dataIndex(bitpos)
     val idx = TupleLength * dataIx
@@ -2280,7 +2280,7 @@ private[immutable] final class HashMapBuilder[K, V] extends ReusableBuilder[(K, 
     bm.cachedJavaKeySetHashCode += keyHash
   }
 
-  /** Upserts a key/value pair into mapNode, mutably */
+  /** Upserts a key/value pair into mapNode, mutably. */
   private[immutable] def update(mapNode: MapNode[K, V], key: K, value: V, originalHash: Int, keyHash: Int, shift: Int): Unit = {
     mapNode match {
       case bm: BitmapIndexedMapNode[K, V] =>
@@ -2324,13 +2324,13 @@ private[immutable] final class HashMapBuilder[K, V] extends ReusableBuilder[(K, 
     }
   }
 
-  /** If currently referencing aliased structure, copy elements to new mutable structure */
+  /** If currently referencing aliased structure, copy elements to new mutable structure. */
   private def ensureUnaliased() = {
     if (isAliased) copyElems()
     aliased = null
   }
 
-  /** Copies elements to new mutable structure */
+  /** Copies elements to new mutable structure. */
   private def copyElems(): Unit = {
     rootNode = rootNode.copy()
   }

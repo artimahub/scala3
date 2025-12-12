@@ -77,7 +77,7 @@ class ArrayBuffer[A] private (initialElements: Array[AnyRef], initialSize: Int)
   def sizeHint(size: Int): Unit =
     if(size > length && size >= 1) ensureSize(size)
 
-  /** Reduces length to `n`, nulling out all dropped elements */
+  /** Reduces length to `n`, nulling out all dropped elements. */
   private def reduceToSize(n: Int): Unit = {
     mutationCount += 1
     Arrays.fill(array, n, size0, null)

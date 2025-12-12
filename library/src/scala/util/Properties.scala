@@ -32,10 +32,10 @@ private[scala] trait PropertiesTrait {
   protected def propCategory: String      // specializes the remainder of the values
   protected def pickJarBasedOn: Class[?]  // props file comes from jar containing this
 
-  /** The name of the properties file */
+  /** The name of the properties file. */
   protected val propFilename = "/" + propCategory + ".properties"
 
-  /** The loaded properties */
+  /** The loaded properties. */
   protected lazy val scalaProps: java.util.Properties = {
     val props = new java.util.Properties
     val stream = pickJarBasedOn.getResourceAsStream(propFilename)
@@ -147,7 +147,7 @@ private[scala] trait PropertiesTrait {
     case s      => "" == s || "true".equalsIgnoreCase(s)
   }
 
-  /** System.console.isTerminal, or just check for null console on JDK < 22 */
+  /** System.console.isTerminal, or just check for null console on JDK < 22. */
   private[scala] lazy val consoleIsTerminal: Boolean = {
     import scala.reflect.Selectable.reflectiveSelectable
     val console = System.console

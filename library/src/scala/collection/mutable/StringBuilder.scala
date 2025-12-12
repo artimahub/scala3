@@ -101,10 +101,10 @@ final class StringBuilder(val underlying: java.lang.StringBuilder) extends Abstr
 
   def clear(): Unit = underlying.setLength(0)
 
-  /** Overloaded version of `addAll` that takes a string */
+  /** Overloaded version of `addAll` that takes a string. */
   def addAll(s: String): this.type = { underlying.append(s); this }
 
-  /** Alias for `addAll` */
+  /** Alias for `addAll`. */
   def ++= (s: String): this.type = addAll(s)
 
   def result() = underlying.toString

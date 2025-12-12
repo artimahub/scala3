@@ -163,7 +163,7 @@ sealed abstract class Stream[+A] extends AbstractSeq[A]
     else iterableFactory.empty
   }
 
-  /** A `collection.WithFilter` which allows GC of the head of stream during processing */
+  /** A `collection.WithFilter` which allows GC of the head of stream during processing. */
   override final def withFilter(p: A => Boolean): collection.WithFilter[A, Stream] =
     Stream.withFilter(coll, p)
 
@@ -369,7 +369,7 @@ object Stream extends SeqFactory[Stream] {
       */
     def apply[A](hd: A, tl: => Stream[A]): Stream[A] = new Cons(hd, tl)
 
-    /** Maps a stream to its head and tail */
+    /** Maps a stream to its head and tail. */
     def unapply[A](xs: Stream[A]): Option[(A, Stream[A])] = #::.unapply(xs)
   }
 

@@ -4,21 +4,21 @@ import language.experimental.captureChecking
 
 import scala.annotation.{compileTimeOnly, experimental}
 
-/** Type (or type constructor) `T` needed contextually when using `T` in a quoted expression `'{... T ...}` */
+/** Type (or type constructor) `T` needed contextually when using `T` in a quoted expression `'{... T ...}`. */
 abstract class Type[T <: AnyKind] private[scala]:
-  /** The type represented by `Type` */
+  /** The type represented by `Type`. */
   type Underlying = T
 end Type
 
-/** Methods to interact with the current `Type[T]` in scope */
+/** Methods to interact with the current `Type[T]` in scope. */
 object Type:
 
-  /** Shows a source code like representation of this type without syntax highlight */
+  /** Shows a source code like representation of this type without syntax highlight. */
   def show[T <: AnyKind](using Type[T])(using Quotes): String =
     import quotes.reflect.*
     TypeTree.of[T].show
 
-  /** Returns a quoted.Type with the given type */
+  /** Returns a quoted.Type with the given type. */
   @compileTimeOnly("Reference to `scala.quoted.Type.of` was not handled by PickleQuotes")
   given of[T <: AnyKind](using Quotes): Type[T] = ???
 

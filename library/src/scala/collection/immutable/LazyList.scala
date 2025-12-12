@@ -1199,7 +1199,7 @@ object LazyList extends SeqFactory[LazyList] {
       */
     def apply[A](hd: => A, tl: => LazyList[A]): LazyList[A] = newLL(eagerCons(hd, newLL(tl)))
 
-    /** Maps a lazy list to its head and tail */
+    /** Maps a lazy list to its head and tail. */
     def unapply[A](xs: LazyList[A]): Option[(A, LazyList[A])] = #::.unapply(xs)
   }
 

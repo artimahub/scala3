@@ -18,7 +18,7 @@ import language.experimental.captureChecking
 import scala.annotation.{implicitNotFound, nowarn}
 import scala.annotation.unchecked.uncheckedVariance
 
-/** Base type of sorted sets */
+/** Base type of sorted sets. */
 trait SortedSet[A] extends Set[A]
     with SortedSetOps[A, SortedSet, SortedSet[A]]
     with SortedSetFactoryDefaults[A, SortedSet, Set] {

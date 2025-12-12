@@ -1972,7 +1972,7 @@ private[collection] final class HashSetBuilder[A] extends ReusableBuilder[A, Has
   /** The root node of the partially built hashmap. */
   private var rootNode: BitmapIndexedSetNode[A] = newEmptyRootNode
 
-  /** Inserts element `elem` into array `as` at index `ix`, shifting right the trailing elems */
+  /** Inserts element `elem` into array `as` at index `ix`, shifting right the trailing elems. */
   private def insertElement(as: Array[Int], ix: Int, elem: Int): Array[Int] = {
     if (ix < 0) throw new ArrayIndexOutOfBoundsException
     if (ix > as.length) throw new ArrayIndexOutOfBoundsException
@@ -1983,7 +1983,7 @@ private[collection] final class HashSetBuilder[A] extends ReusableBuilder[A, Has
     result
   }
 
-  /** Inserts key-value into the bitmapIndexMapNode. Requires that this is a new key-value pair */
+  /** Inserts key-value into the bitmapIndexMapNode. Requires that this is a new key-value pair. */
   private def insertValue[A1 >: A](bm: BitmapIndexedSetNode[A], bitpos: Int, key: A, originalHash: Int, keyHash: Int): Unit = {
     val dataIx = bm.dataIndex(bitpos)
     val idx = TupleLength * dataIx
@@ -2005,7 +2005,7 @@ private[collection] final class HashSetBuilder[A] extends ReusableBuilder[A, Has
     bm.cachedJavaKeySetHashCode += keyHash
   }
 
-  /** Mutates `bm` to replace inline data at bit position `bitpos` with updated key/value */
+  /** Mutates `bm` to replace inline data at bit position `bitpos` with updated key/value. */
   private def setValue[A1 >: A](bm: BitmapIndexedSetNode[A], bitpos: Int, elem: A): Unit = {
     val dataIx = bm.dataIndex(bitpos)
     val idx = TupleLength * dataIx
@@ -2050,13 +2050,13 @@ private[collection] final class HashSetBuilder[A] extends ReusableBuilder[A, Has
         }
     }
 
-  /** If currently referencing aliased structure, copy elements to new mutable structure */
+  /** If currently referencing aliased structure, copy elements to new mutable structure. */
   private def ensureUnaliased():Unit = {
     if (isAliased) copyElems()
     aliased = null
   }
 
-  /** Copies elements to new mutable structure */
+  /** Copies elements to new mutable structure. */
   private def copyElems(): Unit = {
     rootNode = rootNode.copy()
   }

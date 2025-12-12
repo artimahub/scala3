@@ -595,7 +595,7 @@ class Regex private[matching](val pattern: Pattern, groupNames: String*) extends
 
   def regex: String = pattern.pattern
 
-  /** The string defining the regular expression */
+  /** The string defining the regular expression. */
   override def toString(): String = regex
 }
 
@@ -621,10 +621,10 @@ object Regex {
     /** Basically, wraps a platform Matcher. */
     protected def matcher: Matcher
 
-    /** The source from which the match originated */
+    /** The source from which the match originated. */
     val source: CharSequence
 
-    /** The names of the groups, or an empty sequence if none defined */
+    /** The names of the groups, or an empty sequence if none defined. */
     @deprecated("groupNames does not include inline group names, and should not be used anymore", "2.13.7")
     val groupNames: Seq[String]
 
@@ -633,7 +633,7 @@ object Regex {
      */
     def groupCount: Int
 
-    /** The index of the first matched character, or -1 if nothing was matched */
+    /** The index of the first matched character, or -1 if nothing was matched. */
     def start: Int
 
     /** The index of the first matched character in group `i`,

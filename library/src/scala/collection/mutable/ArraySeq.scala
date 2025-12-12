@@ -58,7 +58,7 @@ sealed abstract class ArraySeq[T]
     * or subtype of the element type. */
   def elemTag: ClassTag[?]
 
-  /** Updates element at given index */
+  /** Updates element at given index. */
   def update(@deprecatedName("idx", "2.13.0") index: Int, elem: T): Unit
 
   /** The underlying array. Its element type does not have to be equal to the element type of this ArraySeq. A primitive

@@ -785,8 +785,8 @@ private[collection] object RedBlackTree {
   @`inline` private[RedBlackTree] def mutableRedTree[A, B](key: A, value: B, left: Tree[A, B] | Null, right: Tree[A, B] | Null) = new Tree[A,B](key, value.asInstanceOf[AnyRef], left, right, initialRedCount)
   @`inline` private[RedBlackTree] def mutableBlackTree[A, B](key: A, value: B, left: Tree[A, B] | Null, right: Tree[A, B] | Null) = new Tree[A,B](key, value.asInstanceOf[AnyRef], left, right, initialBlackCount)
 
-  /** create a new immutable red tree.
-   * left and right may be null
+  /** Creates a new immutable red tree.
+   * left and right may be null.
    */
   private[immutable] def RedTree[A, B](key: A, value: B, left: Tree[A, B] | Null, right: Tree[A, B] | Null): Tree[A, B] = {
     //assertNotMutable(left)

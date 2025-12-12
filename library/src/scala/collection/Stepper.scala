@@ -44,7 +44,7 @@ trait Stepper[@specialized(Double, Int, Long) +A] {
   /** Checks if there's an element available. */
   def hasStep: Boolean
 
-  /** Returns the next element and advance the stepper */
+  /** Returns the next element and advance the stepper. */
   def nextStep(): A
 
   /** Splits this stepper, if applicable. The elements of the current Stepper are split up between

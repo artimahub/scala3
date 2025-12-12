@@ -1487,7 +1487,7 @@ final class ArrayOps[A](private val xs: Array[A]) extends AnyVal {
     destination
   }
 
-  /** Counts the number of elements in this array which satisfy a predicate */
+  /** Counts the number of elements in this array which satisfy a predicate. */
   def count(p: A => Boolean): Int = {
     var i, res = 0
     val len = xs.length

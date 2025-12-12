@@ -52,7 +52,7 @@ object FromDigits {
    */
   abstract class FromDigitsException(msg: String) extends NumberFormatException(msg)
 
-  /** Thrown if value of result does not fit into result type's range */
+  /** Thrown if value of result does not fit into result type's range. */
   class NumberTooLarge(msg: String = "number too large") extends FromDigitsException(msg)
 
   /** Thrown in case of numeric underflow (e.g. a non-zero
@@ -60,7 +60,7 @@ object FromDigits {
    */
   class NumberTooSmall(msg: String = "number too small") extends FromDigitsException(msg)
 
-  /** Thrown if digit string is not legal for the given type */
+  /** Thrown if digit string is not legal for the given type. */
   class MalformedNumber(msg: String = "malformed number literal") extends FromDigitsException(msg)
 
   /** Converts digits and radix to integer value (either int or Long)

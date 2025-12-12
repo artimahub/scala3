@@ -347,13 +347,13 @@ final class StringOps(private val s: String) extends AnyVal { self =>
     */
   @inline def concat(suffix: String): String = s + suffix
 
-  /** Alias for `concat` */
+  /** Alias for `concat`. */
   @inline def ++[B >: Char](suffix: Iterable[B]^): immutable.IndexedSeq[B] = concat(suffix)
 
-  /** Alias for `concat` */
+  /** Alias for `concat`. */
   @inline def ++(suffix: IterableOnce[Char]^): String = concat(suffix)
 
-  /** Alias for `concat` */
+  /** Alias for `concat`. */
   def ++(xs: String): String = concat(xs)
 
   /** Returns a collection with an element appended until a given target length is reached.
@@ -397,7 +397,7 @@ final class StringOps(private val s: String) extends AnyVal { self =>
     }
   }
 
-  /** A copy of the string with an element prepended */
+  /** A copy of the string with an element prepended. */
   def prepended[B >: Char](elem: B): immutable.IndexedSeq[B] = {
     val b = immutable.IndexedSeq.newBuilder[B]
     b.sizeHint(s.length + 1)
@@ -406,17 +406,17 @@ final class StringOps(private val s: String) extends AnyVal { self =>
     b.result()
   }
 
-  /** Alias for `prepended` */
+  /** Alias for `prepended`. */
   @inline def +: [B >: Char] (elem: B): immutable.IndexedSeq[B] = prepended(elem)
 
-  /** A copy of the string with an char prepended */
+  /** A copy of the string with an char prepended. */
   def prepended(c: Char): String =
     new JStringBuilder(s.length + 1).append(c).append(s).toString
 
-  /** Alias for `prepended` */
+  /** Alias for `prepended`. */
   @inline def +: (c: Char): String = prepended(c)
 
-  /** A copy of the string with all elements from a collection prepended */
+  /** A copy of the string with all elements from a collection prepended. */
   def prependedAll[B >: Char](prefix: IterableOnce[B]^): immutable.IndexedSeq[B] = {
     val b = immutable.IndexedSeq.newBuilder[B]
     val k = prefix.knownSize
@@ -426,16 +426,16 @@ final class StringOps(private val s: String) extends AnyVal { self =>
     b.result()
   }
 
-  /** Alias for `prependedAll` */
+  /** Alias for `prependedAll`. */
   @inline def ++: [B >: Char] (prefix: IterableOnce[B]^): immutable.IndexedSeq[B] = prependedAll(prefix)
 
-  /** A copy of the string with another string prepended */
+  /** A copy of the string with another string prepended. */
   def prependedAll(prefix: String): String = prefix + s
 
-  /** Alias for `prependedAll` */
+  /** Alias for `prependedAll`. */
   @inline def ++: (prefix: String): String = prependedAll(prefix)
 
-  /** A copy of the string with an element appended */
+  /** A copy of the string with an element appended. */
   def appended[B >: Char](elem: B): immutable.IndexedSeq[B] = {
     val b = immutable.IndexedSeq.newBuilder[B]
     b.sizeHint(s.length + 1)
@@ -444,28 +444,28 @@ final class StringOps(private val s: String) extends AnyVal { self =>
     b.result()
   }
 
-  /** Alias for `appended` */
+  /** Alias for `appended`. */
   @inline def :+ [B >: Char](elem: B): immutable.IndexedSeq[B] = appended(elem)
 
-  /** A copy of the string with an element appended */
+  /** A copy of the string with an element appended. */
   def appended(c: Char): String =
     new JStringBuilder(s.length + 1).append(s).append(c).toString
 
-  /** Alias for `appended` */
+  /** Alias for `appended`. */
   @inline def :+ (c: Char): String = appended(c)
 
-  /** A copy of the string with all elements from a collection appended */
+  /** A copy of the string with all elements from a collection appended. */
   @inline def appendedAll[B >: Char](suffix: IterableOnce[B]^): immutable.IndexedSeq[B] =
     concat(suffix)
 
-  /** Alias for `appendedAll` */
+  /** Alias for `appendedAll`. */
   @inline def :++ [B >: Char](suffix: IterableOnce[B]^): immutable.IndexedSeq[B] =
     concat(suffix)
 
-  /** A copy of the string with another string appended */
+  /** A copy of the string with another string appended. */
   @inline def appendedAll(suffix: String): String = s + suffix
 
-  /** Alias for `appendedAll` */
+  /** Alias for `appendedAll`. */
   @inline def :++ (suffix: String): String = s + suffix
 
   /** Produces a new collection where a slice of characters in this string is replaced by another collection.
@@ -585,7 +585,7 @@ final class StringOps(private val s: String) extends AnyVal { self =>
     if (sep.isEmpty || s.length < 2) s
     else mkString("", sep, "")
 
-  /** Returns this string */
+  /** Returns this string. */
   @inline final def mkString: String = s
 
   /** Appends this string to a string builder. */
@@ -1002,7 +1002,7 @@ final class StringOps(private val s: String) extends AnyVal { self =>
 
   def compare(that: String): Int = s.compareTo(that)
 
-  /** Returns true if `this` is less than `that` */
+  /** Returns true if `this` is less than `that`. */
   def < (that: String): Boolean = compare(that) <  0
 
   /** Returns true if `this` is greater than `that`. */
@@ -1014,7 +1014,7 @@ final class StringOps(private val s: String) extends AnyVal { self =>
   /** Returns true if `this` is greater than or equal to `that`. */
   def >= (that: String): Boolean = compare(that) >= 0
 
-  /** Counts the number of chars in this string which satisfy a predicate */
+  /** Counts the number of chars in this string which satisfy a predicate. */
   def count(p: (Char) => Boolean): Int = {
     var i, res = 0
     val len = s.length
@@ -1146,7 +1146,7 @@ final class StringOps(private val s: String) extends AnyVal { self =>
     */
   def indices: Range = Range(0, s.length)
 
-  /** Iterator can be used only once */
+  /** Iterator can be used only once. */
   def iterator: Iterator[Char] = new StringIterator(s)
 
   /** Stepper can be used with Java 8 Streams. This method is equivalent to a call to

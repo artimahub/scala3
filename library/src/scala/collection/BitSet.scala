@@ -84,7 +84,7 @@ object BitSet extends SpecificIterableFactory[Int, BitSet] {
   }
 }
 
-/** Base implementation type of bitsets */
+/** Base implementation type of bitsets. */
 transparent trait BitSetOps[+C <: BitSet & BitSetOps[C]]
   extends SortedSetOps[Int, SortedSet, C] { self =>
   import BitSetOps._
@@ -95,7 +95,7 @@ transparent trait BitSetOps[+C <: BitSet & BitSetOps[C]]
 
   final def ordering: Ordering[Int] = Ordering.Int
 
-  /** The number of words (each with 64 bits) making up the set */
+  /** The number of words (each with 64 bits) making up the set. */
   protected[collection] def nwords: Int
 
   /** The words at index `idx`, or 0L if outside the range of the set

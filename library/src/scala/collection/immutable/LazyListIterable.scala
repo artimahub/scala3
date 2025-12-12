@@ -1222,7 +1222,7 @@ object LazyListIterable extends IterableFactory[LazyListIterable] {
       */
     def apply[A](hd: => A, tl: => LazyListIterable[A]): LazyListIterable[A]^{hd, tl} = newLL(eagerCons(hd, newLL(tl)))
 
-    /** Maps a lazy list to its head and tail */
+    /** Maps a lazy list to its head and tail. */
     def unapply[A](xs: LazyListIterable[A]^): Option[(A, LazyListIterable[A]^{xs})] = #::.unapply(xs)
   }
 

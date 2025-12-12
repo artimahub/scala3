@@ -53,7 +53,7 @@ object ScalaRunTime {
   def anyValClass[T <: AnyVal : ClassTag](value: T): jClass[T] =
     classTag[T].runtimeClass.asInstanceOf[jClass[T]]
 
-  /** Retrieves generic array element */
+  /** Retrieves generic array element. */
   def array_apply(xs: AnyRef, idx: Int): Any = {
     (xs: @unchecked) match {
       case x: Array[AnyRef]  => x(idx).asInstanceOf[Any]
@@ -69,7 +69,7 @@ object ScalaRunTime {
     }
   }
 
-  /** update generic array element */
+  /** Updates generic array element. */
   def array_update(xs: AnyRef, idx: Int, value: Any): Unit = {
     (xs: @unchecked) match {
       case x: Array[AnyRef]  => x(idx) = value.asInstanceOf[AnyRef]
@@ -85,7 +85,7 @@ object ScalaRunTime {
     }
   }
 
-  /** Gets generic array length */
+  /** Gets generic array length. */
   @inline def array_length(xs: AnyRef): Int = java.lang.reflect.Array.getLength(xs)
 
   // TODO: bytecode Object.clone() will in fact work here and avoids

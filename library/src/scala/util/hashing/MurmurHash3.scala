@@ -82,7 +82,7 @@ private[hashing] class MurmurHash3 {
     }
   }
 
-  /** See the [[MurmurHash3.caseClassHash(x:Product,caseClassName:String)]] overload */
+  /** See the [[MurmurHash3.caseClassHash(x:Product,caseClassName:String)]] overload. */
   final def caseClassHash(x: Product, seed: Int, caseClassName: String | Null): Int = {
     val arr = x.productArity
     val aye = (if (caseClassName != null) caseClassName else x.productPrefix).hashCode
@@ -100,7 +100,7 @@ private[hashing] class MurmurHash3 {
   }
 
 
-  /** Computes the hash of a string */
+  /** Computes the hash of a string. */
   final def stringHash(str: String, seed: Int): Int = {
     var h = seed
     var i = 0

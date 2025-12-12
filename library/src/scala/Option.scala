@@ -18,7 +18,7 @@ object Option {
 
   import scala.language.implicitConversions
 
-  /** An implicit conversion that converts an option to an iterable value */
+  /** An implicit conversion that converts an option to an iterable value. */
   implicit def option2Iterable[A](xo: Option[A]): Iterable[A] =
     if (xo.isEmpty) Iterable.empty else Iterable.single(xo.get)
 

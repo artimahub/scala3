@@ -2,7 +2,7 @@ package scala.util
 
 import language.experimental.captureChecking
 
-/** A utility object to support command line parsing for @main methods */
+/** A utility object to support command line parsing for @main methods. */
 object CommandLineParser {
 
   /** An exception raised for an illegal command line
@@ -35,7 +35,7 @@ object CommandLineParser {
     if n < args.length then parseString(args(n), n) :: parseRemainingArguments(args, n + 1)
     else Nil
 
-  /** Prints error message explaining given ParserError */
+  /** Prints error message explaining given ParserError. */
   def showError(err: ParseError): Unit = {
     val where =
       if err.idx == 0 then ""
@@ -45,7 +45,7 @@ object CommandLineParser {
   }
 
   trait FromString[T] {
-    /** Can throw java.lang.IllegalArgumentException */
+    /** Can throw java.lang.IllegalArgumentException. */
     def fromString(s: String): T
 
     def fromStringOption(s: String): Option[T] =

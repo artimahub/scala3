@@ -204,12 +204,12 @@ object Source {
  *
  */
 abstract class Source extends Iterator[Char] with Closeable {
-  /** the actual iterator */
+  /** The actual iterator. */
   protected val iter: Iterator[Char]
 
   // ------ public values
 
-  /** description of this source, default empty */
+  /** Description of this source, default empty. */
   var descr: String = ""
   var nerrors = 0
   var nwarnings = 0
@@ -263,14 +263,14 @@ abstract class Source extends Iterator[Char] with Closeable {
     /** the last character returned by next. */
     var ch: Char = compiletime.uninitialized
 
-    /** position of last character returned by next */
+    /** Position of last character returned by next. */
     var pos = 0
 
-    /** current line and column */
+    /** Current line and column. */
     var cline = 1
     var ccol = 1
 
-    /** default col increment for tabs '\t', set to 4 initially */
+    /** Default col increment for tabs '\t', set to 4 initially. */
     var tabinc = 4
 
     def next(): Char = {

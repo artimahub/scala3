@@ -35,7 +35,7 @@ trait Growable[-A] extends Clearable {
    */
   def addOne(elem: A): this.type
 
-  /** Alias for `addOne` */
+  /** Alias for `addOne`. */
   @inline final def += (elem: A): this.type = addOne(elem)
 
   //TODO This causes a conflict in StringBuilder; looks like a compiler bug
@@ -68,7 +68,7 @@ trait Growable[-A] extends Clearable {
     this
   }
 
-  /** Alias for `addAll` */
+  /** Alias for `addAll`. */
   @inline final def ++= (@deprecatedName("xs") elems: IterableOnce[A]^): this.type = addAll(elems)
 
   /** The number of elements in the collection under construction, if it can be cheaply computed, -1 otherwise.

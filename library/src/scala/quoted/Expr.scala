@@ -8,7 +8,7 @@ import language.experimental.captureChecking
  */
 abstract class Expr[+T] private[scala] ()
 
-/** Constructors for expressions */
+/** Constructors for expressions. */
 object Expr {
 
   /** `e.betaReduce` returns an expression that is functionally equivalent to `e`,
@@ -67,7 +67,7 @@ object Expr {
     Block(statements.map(asTerm), expr.asTerm).asExpr.asInstanceOf[Expr[T]]
   }
 
-  /** Creates an expression that will construct the value `x` */
+  /** Creates an expression that will construct the value `x`. */
   def apply[T](x: T)(using ToExpr[T])(using Quotes): Expr[T] =
     scala.Predef.summon[ToExpr[T]].apply(x)
 
