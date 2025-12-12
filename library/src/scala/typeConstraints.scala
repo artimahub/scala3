@@ -74,7 +74,7 @@ sealed abstract class <:<[-From, +To] extends (From => To) with Serializable {
   def substituteBoth[F[-_, +_]](ftf: F[To, From]): F[From, To]
   // = substituteCo[({type G[+T] = F[From, T]})#G](substituteContra[({type G[-T] = F[T, From})#G](ftf))
   // = substituteContra[({type G[-T] = F[T, To]})#G](substituteCo[({type G[+T] = F[From, T]})#G](ftf))
-  /** Substitute the `From` in the type `F[From]`, where `F` is $coCon, for `To`.
+  /** Substitutes the `From` in the type `F[From]`, where `F` is $coCon, for `To`.
     *
     *  Equivalent in power to each of [[substituteBoth]] and [[substituteContra]].
     *
@@ -87,7 +87,7 @@ sealed abstract class <:<[-From, +To] extends (From => To) with Serializable {
     substituteBoth[G](ff)
   }
   // = substituteContra[({type G[-T] = F[T] => F[To]})#G](identity)(ff)
-  /** Substitute the `To` in the type `F[To]`, where `F` is $contraCon, for `From`.
+  /** Substitutes the `To` in the type `F[To]`, where `F` is $contraCon, for `From`.
     *
     *  Equivalent in power to each of [[substituteBoth]] and [[substituteCo]].
     *

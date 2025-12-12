@@ -417,16 +417,16 @@ object ProcessBuilder extends ProcessBuilderImpl {
     * [[scala.sys.process.ProcessBuilder.Sink]] from a file.
     */
   trait FileBuilder extends Sink with Source {
-    /** Append the contents of a `java.io.File` to this file */
+    /** Appends the contents of a `java.io.File` to this file */
     def #<<(f: File): ProcessBuilder
 
-    /** Append the contents from a `java.net.URL` to this file */
+    /** Appends the contents from a `java.net.URL` to this file */
     def #<<(u: URL): ProcessBuilder
 
-    /** Append the contents of a `java.io.InputStream` to this file */
+    /** Appends the contents of a `java.io.InputStream` to this file */
     def #<<(i: => InputStream): ProcessBuilder
 
-    /** Append the contents of a [[scala.sys.process.ProcessBuilder]] to this file */
+    /** Appends the contents of a [[scala.sys.process.ProcessBuilder]] to this file */
     def #<<(p: ProcessBuilder): ProcessBuilder
   }
 

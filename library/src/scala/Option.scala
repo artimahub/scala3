@@ -421,7 +421,7 @@ sealed abstract class Option[+A] extends IterableOnce[A] with Product with Seria
    */
   @inline final def forall(p: A => Boolean): Boolean = isEmpty || p(this.get)
 
-  /** Apply the given procedure $f to the option's value,
+  /** Applies the given procedure $f to the option's value,
    *  if it is nonempty. Otherwise, do nothing.
    *
    * This is equivalent to:

@@ -59,7 +59,7 @@ object Array {
    */
   def newBuilder[T](implicit t: ClassTag[T]): ArrayBuilder[T] = ArrayBuilder.make[T](using t)
 
-  /** Build an array from the iterable collection.
+  /** Builds an array from the iterable collection.
    *
    *  {{{
    *  scala> val a = Array.from(Seq(1, 5))
@@ -92,7 +92,7 @@ object Array {
     }
   }
 
-  /** Copy one array to another.
+  /** Copies one array to another.
    *  Equivalent to Java's
    *    `System.arraycopy(src, srcPos, dest, destPos, length)`,
    *  except that this also works for polymorphic and boxed arrays.
@@ -117,7 +117,7 @@ object Array {
       slowcopy(src, srcPos, dest, destPos, length)
   }
 
-  /** Copy one array to another, truncating or padding with default values (if
+  /** Copies one array to another, truncating or padding with default values (if
     * necessary) so the copy has the specified length.
     *
     * Equivalent to Java's
@@ -139,7 +139,7 @@ object Array {
     case original: Array[Boolean]    => java.util.Arrays.copyOf(original, newLength)
   }).asInstanceOf[Array[A]]
 
-  /** Copy one array to another, truncating or padding with default values (if
+  /** Copies one array to another, truncating or padding with default values (if
     * necessary) so the copy has the specified length. The new array can have
     * a different type than the original one as long as the values are
     * assignment-compatible. When copying between primitive and object arrays,
@@ -551,7 +551,7 @@ object Array {
     }
   }
 
-  /** Compare two arrays per element.
+  /** Compares two arrays per element.
    *
    *  A more efficient version of `xs.sameElements(ys)`.
    *
@@ -676,7 +676,7 @@ final class Array[T](_length: Int) extends java.io.Serializable with java.lang.C
    */
   def apply(i: Int): T = throw new Error()
 
-  /** Update the element at given index.
+  /** Updates the element at given index.
    *
    *  Indices start at `0`; `xs.update(i, x)` replaces the i^th^ element in the array.
    *  Note the syntax `xs(i) = x` is a shorthand for `xs.update(i, x)`.
@@ -687,7 +687,7 @@ final class Array[T](_length: Int) extends java.io.Serializable with java.lang.C
    */
   def update(i: Int, x: T): Unit = { throw new Error() }
 
-  /** Clone the Array.
+  /** Clones the Array.
    *
    *  @return A clone of the Array.
    */

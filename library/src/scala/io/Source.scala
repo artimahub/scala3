@@ -102,7 +102,7 @@ object Source {
     )(using codec) withDescription s"file:${file.getAbsolutePath}"
   }
 
-  /** Create a `Source` from array of bytes, decoding
+  /** Creates a `Source` from array of bytes, decoding
    *  the bytes according to codec.
    *
    *  @return      the created `Source` instance.
@@ -113,7 +113,7 @@ object Source {
   def fromBytes(bytes: Array[Byte], enc: String): Source =
     fromBytes(bytes)(using Codec(enc))
 
-  /** Create a `Source` from array of bytes, assuming
+  /** Creates a `Source` from array of bytes, assuming
    *  one byte per character (ISO-8859-1 encoding.)
    */
   @deprecated("Use `fromBytes` and specify an encoding", since="2.13.9")

@@ -13,12 +13,12 @@ end Type
 /** Methods to interact with the current `Type[T]` in scope */
 object Type:
 
-  /** Show a source code like representation of this type without syntax highlight */
+  /** Shows a source code like representation of this type without syntax highlight */
   def show[T <: AnyKind](using Type[T])(using Quotes): String =
     import quotes.reflect.*
     TypeTree.of[T].show
 
-  /** Return a quoted.Type with the given type */
+  /** Returns a quoted.Type with the given type */
   @compileTimeOnly("Reference to `scala.quoted.Type.of` was not handled by PickleQuotes")
   given of[T <: AnyKind](using Quotes): Type[T] = ???
 

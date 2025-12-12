@@ -183,7 +183,7 @@ trait ProcessCreation {
 trait ProcessImplicits {
   import Process._
 
-  /** Return a sequence of [[scala.sys.process.ProcessBuilder.Source]] from a sequence
+  /** Returns a sequence of [[scala.sys.process.ProcessBuilder.Source]] from a sequence
     * of values for which an implicit conversion to `Source` is available.
     */
   implicit def buildersToProcess[T](builders: scala.collection.Seq[T])(implicit convert: T => Source): scala.collection.Seq[Source] = applySeq(builders)
