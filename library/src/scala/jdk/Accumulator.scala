@@ -122,10 +122,10 @@ abstract class Accumulator[@specialized(Double, Int, Long) A, +CC[X] <: mutable.
 
   final override def knownSize: Int = if (sizeLong < Int.MaxValue) size else -1
 
-  /** Size of the accumulated collection, as a `Long` */
+  /** Size of the accumulated collection, as a `Long`. */
   final def sizeLong: Long = totalSize
 
-  /** Remove all accumulated elements from this accumulator. */
+  /** Removes all accumulated elements from this accumulator. */
   def clear(): Unit = {
     index = 0
     hIndex = 0

@@ -41,7 +41,7 @@ trait Factory[-A, +C] extends Any { self =>
     */
   def fromSpecific(it: IterableOnce[A]^): C^{it}
 
-  /** Get a Builder for the collection. For non-strict collection types this will use an intermediate buffer.
+  /** Gets a Builder for the collection. For non-strict collection types this will use an intermediate buffer.
     * Building collections with `fromSpecific` is preferred because it can be lazy for lazy collections. */
   def newBuilder: Builder[A, C]
 }
