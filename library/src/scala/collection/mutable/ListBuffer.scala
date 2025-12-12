@@ -180,7 +180,7 @@ class ListBuffer[A]
     this
   }
 
-  /** Reduces the length of the buffer, and null out last0
+  /** Reduces the length of the buffer, and nulls out last0
     *  if this reduces the length to 0.
     */
   private def reduceLengthBy(num: Int): Unit = {

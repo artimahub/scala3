@@ -151,7 +151,7 @@ trait Map[K, V] extends scala.collection.mutable.Map[K, V] {
    * If the map is updated by another concurrent access, the remapping function will be retried until successfully updated.
    *
    * @param key the key value
-   * @param remappingFunction a function that receives current optionally mapped value and return a new mapping
+   * @param remappingFunction a function that receives current optionally mapped value and returns a new mapping
    * @return the new value associated with the specified key
    */
   override def updateWith(key: K)(remappingFunction: Option[V] => Option[V]): Option[V] = updateWithAux(key)(remappingFunction)

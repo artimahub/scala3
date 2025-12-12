@@ -117,7 +117,7 @@ transparent trait MapOps[K, V, +CC[X, Y] <: MapOps[X, Y, CC, ?], +C <: MapOps[K,
    * If the function itself throws an exception, the exception is rethrown, and the current mapping is left unchanged.
    *
    * @param key the key value
-   * @param remappingFunction a function that receives current optionally mapped value and return a new mapping
+   * @param remappingFunction a function that receives current optionally mapped value and returns a new mapping
    * @return the new value associated with the specified key
    */
   def updateWith(key: K)(remappingFunction: Option[V] => Option[V]): Option[V] = {

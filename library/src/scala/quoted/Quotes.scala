@@ -4111,7 +4111,7 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
        *  @param modFlags extra flags with which the module symbol should be constructed
        *  @param clsFlags extra flags with which the module class symbol should be constructed
        *  @param parents A function that takes the symbol of the module class as input and returns the parent classes of the class. The first parent must not be a trait.
-       *  @param decls A function that takes the symbol of the module class as input and return the symbols of its declared members
+       *  @param decls A function that takes the symbol of the module class as input and returns the symbols of its declared members
        *  @param privateWithin the symbol within which this new method symbol should be private. May be noSymbol.
        *
        *  This symbol starts without an accompanying definition.

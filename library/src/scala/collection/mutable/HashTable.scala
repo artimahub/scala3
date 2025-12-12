@@ -158,7 +158,7 @@ private[collection] trait HashTable[A, B, Entry <: HashEntry[A, Entry]] extends 
       resize(2 * table.length)
   }
 
-  /** Finds entry with given key in table, or add new one if not found.
+  /** Finds entry with given key in table, or adds new one if not found.
    *  May be somewhat faster then `findEntry`/`addEntry` pair as it
    *  computes entry's hash index only once.
    *  Returns entry found in table or null.
