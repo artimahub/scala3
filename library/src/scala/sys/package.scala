@@ -63,7 +63,7 @@ package object sys {
    *  If lookup fails, use `System.getenv(_)` for case-insensitive lookup
    *  on a certain platform. If that also fails, throw `NoSuchElementException`.
    *
-   *  @return   a Map containing the system environment variables.
+   *  @return   a `Map` containing the system environment variables.
    */
   def env: Map[String, String] = Map.from(System.getenv().asScala).withDefault { v =>
     val s = System.getenv(v)

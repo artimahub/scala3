@@ -36,14 +36,14 @@ object Option {
   def empty[A] : Option[A] = None
 
   /** When a given condition is true, evaluates the `a` argument and returns
-   *  Some(a). When the condition is false, `a` is not evaluated and None is
+   *  `Some(a)`. When the condition is false, `a` is not evaluated and `None` is
    *  returned.
    */
   def when[A](cond: Boolean)(a: => A): Option[A] =
     if (cond) Some(a) else None
 
   /** Unless a given condition is true, this will evaluate the `a` argument and
-   *  return Some(a). Otherwise, `a` is not evaluated and None is returned.
+   *  return `Some(a)`. Otherwise, `a` is not evaluated and `None` is returned.
    */
   @inline def unless[A](cond: Boolean)(a: => A): Option[A] =
     when(!cond)(a)

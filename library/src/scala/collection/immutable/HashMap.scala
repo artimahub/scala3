@@ -2219,7 +2219,7 @@ object HashMap extends MapFactory[HashMap] {
 }
 
 
-/** A Builder for a HashMap.
+/** A `Builder` for a `HashMap`.
   * $multipleResults
   */
 private[immutable] final class HashMapBuilder[K, V] extends ReusableBuilder[(K, V), HashMap[K, V]] {

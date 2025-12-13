@@ -308,21 +308,21 @@ final class StringBuilder(val underlying: java.lang.StringBuilder) extends Abstr
     this
   }
 
-  /** Inserts the given Seq[Char] into this sequence at the given index.
+  /** Inserts the given `Seq[Char]` into this sequence at the given index.
     *
     *  @param  index the index at which to insert.
-    *  @param  xs    the Seq[Char].
-    *  @return       this StringBuilder.
+    *  @param  xs    the `Seq[Char]`.
+    *  @return       this `StringBuilder`.
     *  @throws StringIndexOutOfBoundsException  if the index is out of bounds.
     */
   def insertAll(index: Int, xs: IterableOnce[Char]^): this.type =
     insertAll(index, (ArrayBuilder.make[Char] ++= xs).result())
 
-  /** Inserts the given Array[Char] into this sequence at the given index.
+  /** Inserts the given `Array[Char]` into this sequence at the given index.
     *
     *  @param  index the index at which to insert.
-    *  @param  xs    the Array[Char].
-    *  @return       this StringBuilder.
+    *  @param  xs    the `Array[Char]`.
+    *  @return       this `StringBuilder`.
     *  @throws StringIndexOutOfBoundsException  if the index is out of bounds.
     */
   def insertAll(index: Int, xs: Array[Char]): this.type = {

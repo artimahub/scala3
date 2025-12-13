@@ -43,7 +43,7 @@ class HashMap[K, V](initialCapacity: Int, loadFactor: Double)
     with MapFactoryDefaults[K, V, HashMap, Iterable]
     with Serializable {
 
-  /* The HashMap class holds the following invariant:
+  /* The `HashMap` class holds the following invariant:
    * - For each i between  0 and table.length, the bucket at table(i) only contains keys whose hash-index is i.
    * - Every bucket is sorted in ascendent hash order
    * - The sum of the lengths of all buckets is equal to contentSize.

@@ -18,13 +18,13 @@ sealed trait Mirror {
 
 object Mirror {
 
-  /** The Mirror for a sum type. */
+  /** The `Mirror` for a sum type. */
   trait Sum extends Mirror { self =>
     /** The ordinal number of the case class of `x`. For enums, `ordinal(x) == x.ordinal`. */
     def ordinal(x: MirroredMonoType): Int
   }
 
-  /** The Mirror for a product type. */
+  /** The `Mirror` for a product type. */
   trait Product extends Mirror { self =>
 
     /** Creates a new instance of type `T` with elements taken from product `p`. */

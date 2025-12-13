@@ -1229,12 +1229,12 @@ object LazyListIterable extends IterableFactory[LazyListIterable] {
   implicit def toDeferrer[A](l: => LazyListIterable[A]^): Deferrer[A]^{l} = new Deferrer[A](() => l)
 
   final class Deferrer[A] private[LazyListIterable] (private val l: () => LazyListIterable[A]^) extends AnyVal { self: Deferrer[A]^ =>
-    /** Constructs a LazyListIterable consisting of a given first element followed by elements
-      *  from another LazyListIterable.
+    /** Constructs a `LazyListIterable` consisting of a given first element followed by elements
+      *  from another `LazyListIterable`.
       */
     def #:: [B >: A](elem: => B): LazyListIterable[B]^{this, elem} = newLL(eagerCons(elem, newLL(l())))
-    /** Constructs a LazyListIterable consisting of the concatenation of the given LazyListIterable and
-      *  another LazyListIterable.
+    /** Constructs a `LazyListIterable` consisting of the concatenation of the given `LazyListIterable` and
+      *  another `LazyListIterable`.
       */
     def #:::[B >: A](prefix: LazyListIterable[B]^): LazyListIterable[B]^{this, prefix} = prefix lazyAppendedAll l()
   }

@@ -1206,12 +1206,12 @@ object LazyList extends SeqFactory[LazyList] {
   implicit def toDeferrer[A](l: => LazyList[A]): Deferrer[A] = new Deferrer[A](() => l)
 
   final class Deferrer[A] private[LazyList] (private val l: () => LazyList[A]) extends AnyVal {
-    /** Constructs a LazyList consisting of a given first element followed by elements
-      *  from another LazyList.
+    /** Constructs a `LazyList` consisting of a given first element followed by elements
+      *  from another `LazyList`.
       */
     def #:: [B >: A](elem: => B): LazyList[B] = newLL(eagerCons(elem, newLL(l())))
-    /** Constructs a LazyList consisting of the concatenation of the given LazyList and
-      *  another LazyList.
+    /** Constructs a `LazyList` consisting of the concatenation of the given `LazyList` and
+      *  another `LazyList`.
       */
     def #:::[B >: A](prefix: LazyList[B]): LazyList[B] = prefix lazyAppendedAll l()
   }

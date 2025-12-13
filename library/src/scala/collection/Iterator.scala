@@ -1138,7 +1138,7 @@ object Iterator extends IterableFactory[Iterator] {
     *             the end of the collection)
     * @tparam A   Type of the elements
     * @tparam S   Type of the internal state
-    * @return an Iterator that produces elements using `f` until `f` returns `None`
+    * @return an `Iterator` that produces elements using `f` until `f` returns `None`
     */
   override def unfold[A, S](init: S)(f: S => Option[(A, S)]): Iterator[A]^{f} = new UnfoldIterator(init)(f)
 

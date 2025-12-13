@@ -184,7 +184,7 @@ object Stepper {
   }
 }
 
-/** A Stepper for arbitrary element types. See [[Stepper]]. */
+/** A `Stepper` for arbitrary element types. See [[Stepper]]. */
 trait AnyStepper[+A] extends Stepper[A] {
   def trySplit(): AnyStepper[A]^{this} | Null
 
@@ -254,7 +254,7 @@ object AnyStepper {
   }
 }
 
-/** A Stepper for Ints. See [[Stepper]]. */
+/** A `Stepper` for `Int`s. See [[Stepper]]. */
 trait IntStepper extends Stepper[Int] {
   def trySplit(): IntStepper^{this} | Null
 
@@ -292,7 +292,7 @@ object IntStepper {
   }
 }
 
-/** A Stepper for Doubles. See [[Stepper]]. */
+/** A `Stepper` for `Double`s. See [[Stepper]]. */
 trait DoubleStepper extends Stepper[Double] {
   def trySplit(): DoubleStepper^{this} | Null
 
@@ -331,7 +331,7 @@ object DoubleStepper {
   }
 }
 
-/** A Stepper for Longs. See [[Stepper]]. */
+/** A `Stepper` for `Long`s. See [[Stepper]]. */
 trait LongStepper extends Stepper[Long] {
   def trySplit(): LongStepper^{this} | Null
 

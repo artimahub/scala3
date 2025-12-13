@@ -438,12 +438,12 @@ object Stream extends SeqFactory[Stream] {
   implicit def toDeferrer[A](l: => Stream[A]): Deferrer[A] = new Deferrer[A](() => l)
 
   final class Deferrer[A] private[Stream] (private val l: () => Stream[A]) extends AnyVal {
-    /** Constructs a Stream consisting of a given first element followed by elements
-      *  from another Stream.
+    /** Constructs a `Stream` consisting of a given first element followed by elements
+      *  from another `Stream`.
       */
     def #:: [B >: A](elem: B): Stream[B] = new Cons(elem, l())
-    /** Constructs a Stream consisting of the concatenation of the given Stream and
-      *  another Stream.
+    /** Constructs a `Stream` consisting of the concatenation of the given `Stream` and
+      *  another `Stream`.
       */
     def #:::[B >: A](prefix: Stream[B]): Stream[B] = prefix lazyAppendedAll l()
   }

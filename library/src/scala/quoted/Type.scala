@@ -24,8 +24,8 @@ object Type:
 
 
   /** Extracts the value of a singleton constant type.
-   *  Returns Some of the value of the type if it is a singleton constant type.
-   *  Returns None if the type is not a singleton constant type.
+   *  Returns `Some` of the value of the type if it is a singleton constant type.
+   *  Returns `None` if the type is not a singleton constant type.
    *
    *  Example usage:
    *  ```scala
@@ -48,8 +48,8 @@ object Type:
     ValueOf.unapply(quotes.reflect.TypeRepr.of[T]).asInstanceOf[Option[T]]
 
   /** Extracts the value of a tuple of singleton constant types.
-   *  Returns Some of the tuple type if it is a tuple singleton constant types.
-   *  Returns None if the type is not a tuple singleton constant types.
+   *  Returns `Some` of the tuple type if it is a tuple singleton constant types.
+   *  Returns `None` if the type is not a tuple singleton constant types.
    *
    *  Example usage:
    *  ```scala

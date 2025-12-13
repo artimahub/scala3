@@ -418,14 +418,14 @@ class Regex private[matching](val pattern: Pattern, groupNames: String*) extends
   }
 
   /** Returns an optional first match of this `Regex` in the given character sequence,
-   *  or None if it does not exist.
+   *  or `None` if it does not exist.
    *
    *  If the match is successful, the [[scala.util.matching.Regex.Match]] can be queried for
    *  more data.
    *
    *  @param source The text to match against.
    *  @return       A [[scala.Option]] of [[scala.util.matching.Regex.Match]] of the first matching string in the text.
-   *  @example      {{{("""[a-z]""".r findFirstMatchIn "A simple example.") map (_.start) // returns Some(2), the index of the first match in the text}}}
+   *  @example      {{{("""[a-z]""".r findFirstMatchIn "A simple example.") map (_.start) // returns `Some(2)`, the index of the first match in the text}}}
    */
   def findFirstMatchIn(source: CharSequence): Option[Match] = {
     val m = pattern.matcher(source)
@@ -433,7 +433,7 @@ class Regex private[matching](val pattern: Pattern, groupNames: String*) extends
   }
 
   /** Returns an optional match of this `Regex` at the beginning of the
-   *  given character sequence, or None if it matches no prefix
+   *  given character sequence, or `None` if it matches no prefix
    *  of the character sequence.
    *
    *  Unlike `findFirstIn`, this method will only return a match at
@@ -441,7 +441,7 @@ class Regex private[matching](val pattern: Pattern, groupNames: String*) extends
    *
    *  @param source The text to match against.
    *  @return       A [[scala.Option]] of the matched prefix.
-   *  @example      {{{"""\p{Lower}""".r findPrefixOf "A simple example." // returns None, since the text does not begin with a lowercase letter}}}
+   *  @example      {{{"""\p{Lower}""".r findPrefixOf "A simple example." // returns `None`, since the text does not begin with a lowercase letter}}}
    */
   def findPrefixOf(source: CharSequence): Option[String] = {
     val m = pattern.matcher(source)
@@ -449,7 +449,7 @@ class Regex private[matching](val pattern: Pattern, groupNames: String*) extends
   }
 
   /** Returns an optional match of this `Regex` at the beginning of the
-   *  given character sequence, or None if it matches no prefix
+   *  given character sequence, or `None` if it matches no prefix
    *  of the character sequence.
    *
    *  Unlike `findFirstMatchIn`, this method will only return a match at
@@ -457,7 +457,7 @@ class Regex private[matching](val pattern: Pattern, groupNames: String*) extends
    *
    *  @param source The text to match against.
    *  @return       A [[scala.Option]] of the [[scala.util.matching.Regex.Match]] of the matched string.
-   *  @example      {{{"""\w+""".r findPrefixMatchOf "A simple example." map (_.after) // returns Some(" simple example.")}}}
+   *  @example      {{{"""\w+""".r findPrefixMatchOf "A simple example." map (_.after) // returns `Some(" simple example.")`}}}
    */
   def findPrefixMatchOf(source: CharSequence): Option[Match] = {
     val m = pattern.matcher(source)
