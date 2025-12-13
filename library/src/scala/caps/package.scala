@@ -182,23 +182,22 @@ object internal:
    */
   final class inferredDepFun extends annotation.StaticAnnotation
 
-  /** An erasedValue issued internally by the compiler. Unlike the
-   *  user-accessible compiletime.erasedValue, this version is assumed
-   *  to be a pure expression, hence capability safe. The compiler generates this
-   *  version only where it is known that a value can be generated.
-   
- * @tparam T TODO FILL IN TPARAM
- * @return TODO FILL IN RETURN
-*/
+  /**
+   * An erasedValue issued internally by the compiler. Unlike the
+   * user-accessible compiletime.erasedValue, this version is assumed
+   * to be a pure expression, hence capability safe. The compiler generates this
+   * version only where it is known that a value can be generated.
+   * @tparam T TODO FILL IN TPARAM
+   * @return TODO FILL IN RETURN
+  */
   def erasedValue[T]: T = ???
 
 end internal
 
 /** A wrapper that strips all covariant capture sets from Mutable types in the
  *  result of pure operation `op`, turning them into immutable types.
- 
  * @return TODO FILL IN RETURN
-*/
+ */
 @experimental
 def freeze(@internal.consume x: Mutable): x.type = x
 
@@ -231,32 +230,29 @@ object unsafe:
     /** A specific cast operation to remove a capture set.
      *  If argument is of type `T^C`, assume it is of type `T` instead.
      *  Calls to this method are treated specially by the capture checker.
-     
- * @return TODO FILL IN RETURN
-*/
+     * @return TODO FILL IN RETURN
+     */
     def unsafeAssumePure: T = x
 
   /** A wrapper around code for which separation checks are suppressed.
-   
- * @param op TODO FILL IN PARAM
- * @return TODO FILL IN RETURN
-*/
+   * @param op TODO FILL IN PARAM
+   * @return TODO FILL IN RETURN
+   */
   def unsafeAssumeSeparate(op: Any): op.type = op
 
-  /** A wrapper around code for which uses go unrecorded 
- * @param op TODO FILL IN PARAM
- * @return TODO FILL IN RETURN
-*/
+  /** A wrapper around code for which uses go unrecorded
+   * @param op TODO FILL IN PARAM
+   * @return TODO FILL IN RETURN
+   */
   def unsafeDiscardUses(op: Any): op.type = op
 
   /** An unsafe variant of erasedValue that can be used as an escape hatch. Unlike the
    *  user-accessible compiletime.erasedValue, this version is assumed
    *  to be a pure expression, hence capability safe. But there is no proof
    *  of realizability, hence it is unsafe.
-   
- * @tparam T TODO FILL IN TPARAM
- * @return TODO FILL IN RETURN
-*/
+   * @tparam T TODO FILL IN TPARAM
+   * @return TODO FILL IN RETURN
+   */
   def unsafeErasedValue[T]: T = ???
 
 end unsafe
