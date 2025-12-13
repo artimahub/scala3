@@ -105,7 +105,7 @@ transparent trait MapOps[K, +V, +CC[X, +Y] <: MapOps[X, Y, CC, ?], +C <: MapOps[
   def updated[V1 >: V](key: K, value: V1): CC[K, V1]
 
   /**
-   * Update a mapping for the specified key and its current optionally mapped value
+   * Updates a mapping for the specified key and its current optionally mapped value
    * (`Some` if there is current mapping, `None` if not).
    *
    * If the remapping function returns `Some(v)`, the mapping is updated with the new value `v`.
@@ -113,7 +113,7 @@ transparent trait MapOps[K, +V, +CC[X, +Y] <: MapOps[X, Y, CC, ?], +C <: MapOps[
    * If the function itself throws an exception, the exception is rethrown, and the current mapping is left unchanged.
    *
    * @param key the key value
-   * @param remappingFunction a function that receives current optionally mapped value and return a new mapping
+   * @param remappingFunction a function that receives current optionally mapped value and returns a new mapping
    * @return A new map with the updated mapping with the key
    */
   def updatedWith[V1 >: V](key: K)(remappingFunction: Option[V] => Option[V1]): CC[K,V1] = {

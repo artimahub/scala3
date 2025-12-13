@@ -45,7 +45,7 @@ transparent trait SetOps[A, +CC[X], +C <: SetOps[A, CC, C]]
     */
   def incl(elem: A): C
 
-  /** Alias for `incl` */
+  /** Alias for `incl`. */
   override final def + (elem: A): C = incl(elem) // like in collection.Set but not deprecated
 
   /** Creates a new set with a given element removed from this set.
@@ -56,7 +56,7 @@ transparent trait SetOps[A, +CC[X], +C <: SetOps[A, CC, C]]
     */
   def excl(elem: A): C
 
-  /** Alias for `excl` */
+  /** Alias for `excl`. */
   @`inline` final override def - (elem: A): C = excl(elem)
 
   def diff(that: collection.Set[A]): C =
@@ -70,7 +70,7 @@ transparent trait SetOps[A, +CC[X], +C <: SetOps[A, CC, C]]
     */
   def removedAll(that: IterableOnce[A]^): C = that.iterator.foldLeft[C](coll)(_ - _)
 
-  /** Alias for removedAll */
+  /** Alias for removedAll. */
   override final def -- (that: IterableOnce[A]^): C = removedAll(that)
 }
 

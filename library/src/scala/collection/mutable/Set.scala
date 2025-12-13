@@ -40,7 +40,7 @@ transparent trait SetOps[A, +CC[X], +C <: SetOps[A, CC, C]]
 
   def result(): C = coll
 
-  /** Check whether the set contains the given element, and add it if not.
+  /** Checks whether the set contains the given element, and adds it if not.
    *
    *  @param elem  the element to be added
    *  @return true if the element was added

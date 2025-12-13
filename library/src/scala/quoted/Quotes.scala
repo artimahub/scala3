@@ -46,7 +46,7 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
 
   // Extension methods for `Expr[T]`
   extension [T](self: Expr[T])
-    /** Show a source code like representation of this expression */
+    /** Shows a source code like representation of this expression */
     def show: String
 
     /** Pattern matches `this` against `that`. Effectively performing a deep equality check.
@@ -59,7 +59,7 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
     */
     def matches(that: Expr[Any]): Boolean
 
-    /** Return the value of this expression.
+    /** Returns the value of this expression.
      *
      *  Returns `None` if the expression does not represent a value or possibly contains side effects.
      *  Otherwise returns the `Some` of the value.
@@ -68,7 +68,7 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
       given Quotes = Quotes.this
       summon[FromExpr[T]].unapply(self)
 
-    /** Return the value of this expression.
+    /** Returns the value of this expression.
      *
      *  Emits an error and throws if the expression does not represent a value or possibly contains side effects.
      *  Otherwise returns the value.
@@ -82,7 +82,7 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
       given Quotes = Quotes.this
       fromExpr.unapply(self).getOrElse(reportError)
 
-    /** Return the value of this expression.
+    /** Returns the value of this expression.
      *
      *  Emits an error and aborts if the expression does not represent a value or possibly contains side effects.
      *  Otherwise returns the value.
@@ -96,7 +96,7 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
     /** Checks is the `quoted.Expr[?]` is valid expression of type `X` */
     def isExprOf[X](using Type[X]): Boolean
 
-    /** Convert this to an `quoted.Expr[X]` if this expression is a valid expression of type `X` or throws */
+    /** Converts this to an `quoted.Expr[X]` if this expression is a valid expression of type `X` or throws */
     def asExprOf[X](using Type[X]): Expr[X]
   end extension
 
@@ -308,11 +308,11 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
         /** Does this tree represent a valid expression? */
         def isExpr: Boolean
 
-        /** Convert this tree to an `quoted.Expr[Any]` if the tree is a valid expression or throws */
+        /** Converts this tree to an `quoted.Expr[Any]` if the tree is a valid expression or throws */
         def asExpr: Expr[Any]
       end extension
 
-      /** Convert this tree to an `quoted.Expr[T]` if the tree is a valid expression or throws */
+      /** Converts this tree to an `quoted.Expr[T]` if the tree is a valid expression or throws */
       extension (self: Tree)
         def asExprOf[T](using Type[T]): Expr[T]
 
@@ -348,9 +348,9 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
 
     /** Methods of the module object `val PackageClause` */
     trait PackageClauseModule { this: PackageClause.type =>
-      /** Create a package clause `package pid { stats }` */
+      /** Creates a package clause `package pid { stats }` */
       def apply(pid: Ref, stats: List[Tree]): PackageClause
-      /** Copy a package clause `package pid { stats }` */
+      /** Copies a package clause `package pid { stats }` */
       def copy(original: Tree)(pid: Ref, stats: List[Tree]): PackageClause
       /** Matches a package clause `package pid { stats }` and extracts the `pid` and `stats` */
       def unapply(tree: PackageClause): (Ref, List[Tree])
@@ -383,9 +383,9 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
 
     /** Methods of the module object `val Import` */
     trait ImportModule { this: Import.type =>
-      /** Create an `Import` with the given qualifier and selectors */
+      /** Creates an `Import` with the given qualifier and selectors */
       def apply(expr: Term, selectors: List[Selector]): Import
-      /** Copy an `Import` with the given qualifier and selectors */
+      /** Copies an `Import` with the given qualifier and selectors */
       def copy(original: Tree)(expr: Term, selectors: List[Selector]): Import
       /** Matches an `Import` and extracts the qualifier and selectors */
       def unapply(tree: Import): (Term, List[Selector])
@@ -484,7 +484,7 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
 
     /** Methods of the module object `val ClassDef` */
     trait ClassDefModule { this: ClassDef.type =>
-      /** Create a class definition tree
+      /** Creates a class definition tree
        *
        *  @param cls The class symbol. A new class symbol can be created using `Symbol.newClass`.
        *  @param parents The parents trees class. The trees must align with the parent types of `cls`.
@@ -499,7 +499,7 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
       def unapply(cdef: ClassDef): (String, DefDef, List[Tree /* Term | TypeTree */], Option[ValDef], List[Statement])
 
 
-      /** Create the ValDef and ClassDef of a module (equivalent to an `object` declaration in source code).
+      /** Creates the ValDef and ClassDef of a module (equivalent to an `object` declaration in source code).
        *
        *  Equivalent to
        *  ```
@@ -595,7 +595,7 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
 
     /** Methods of the module object `val DefDef` */
     trait DefDefModule { this: DefDef.type =>
-      /** Create a method definition `def f[..](...)` with the signature defined in the symbol.
+      /** Creates a method definition `def f[..](...)` with the signature defined in the symbol.
        *
        *  The `rhsFn` is a function that receives references to its parameters, and should return
        *  `Some` containing the implementation of the method, or `None` if the method has no implementation.
@@ -633,7 +633,7 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
         def leadingTypeParams: List[TypeDef]
 
         /** List of parameter clauses following the leading type parameters or all clauses.
-         *  Return all parameter clauses if there are no leading type parameters.
+         *  Returns all parameter clauses if there are no leading type parameters.
          *
          *  Non leading type parameters can be found in extension methods such as
          *  ```scala
@@ -672,7 +672,7 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
 
     /** Methods of the module object `val ValDef` */
     trait ValDefModule { this: ValDef.type =>
-      /** Create a value definition `val x`, `var x` or `lazy val x` with the signature defined in the symbol.
+      /** Creates a value definition `val x`, `var x` or `lazy val x` with the signature defined in the symbol.
        *
        *  The `rhs` should return `Some` containing the implementation of the method,
        *  or `None` if the method has no implementation.
@@ -854,7 +854,7 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
         /** TypeRepr of this term */
         def tpe: TypeRepr
 
-        /** Replace Inlined nodes and InlineProxy references to underlying arguments.
+        /** Replaces Inlined nodes and InlineProxy references to underlying arguments.
          *  The resulting tree is useful for inspection of the value or content of a non-inline argument.
          *
          *  Warning: This tree may contain references that are out of scope and should not be used in the generated code.
@@ -862,7 +862,7 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
          */
         def underlyingArgument: Term
 
-        /** Replace Ident nodes references to the underlying tree that defined them.
+        /** Replaces Ident nodes references to the underlying tree that defined them.
          *  The resulting tree is useful for inspection of the definition of some bindings.
          *
          *  Warning: This tree may contain references that are out of scope and should not be used in the generated code.
@@ -924,7 +924,7 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
       /** A tree representing the same reference as the given type */
       def term(tp: TermRef): Ref
 
-      /** Create a reference tree from a symbol
+      /** Creates a reference tree from a symbol
       *
       *  If `sym` refers to a class member `foo` in class `C`,
       *  returns a tree representing `C.this.foo`.
@@ -986,9 +986,9 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
 
     /** Methods of the module object `val Wildcard` */
     trait WildcardModule { this: Wildcard.type =>
-      /** Create a tree representing a `_` wildcard. */
+      /** Creates a tree representing a `_` wildcard. */
       def apply(): Wildcard
-      /** Match a tree representing a `_` wildcard. */
+      /** Matches a tree representing a `_` wildcard. */
       def unapply(wildcard: Wildcard): true
     }
 
@@ -1003,10 +1003,10 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
 
     /** Methods of the module object `val Select` */
     trait SelectModule { this: Select.type =>
-      /** Select a term member by symbol */
+      /** Selects a term member by symbol */
       def apply(qualifier: Term, symbol: Symbol): Select
 
-      /** Select a field or a non-overloaded method by name
+      /** Selects a field or a non-overloaded method by name
       *
       *  @note The method will produce an assertion error if the selected
       *        method is overloaded. The method `overloaded` should be used
@@ -1014,10 +1014,10 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
       */
       def unique(qualifier: Term, name: String): Select
 
-      /** Call an overloaded method with the given type and term parameters */
+      /** Calls an overloaded method with the given type and term parameters */
       def overloaded(qualifier: Term, name: String, targs: List[TypeRepr], args: List[Term]): Term
 
-      /** Call an overloaded method with the given type and term parameters */
+      /** Calls an overloaded method with the given type and term parameters */
       def overloaded(qualifier: Term, name: String, targs: List[TypeRepr], args: List[Term], returnType: TypeRepr): Term
 
       def copy(original: Tree)(qualifier: Term, name: String): Select
@@ -1053,7 +1053,7 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
     /** Methods of the module object `val Literal` */
     trait LiteralModule { this: Literal.type =>
 
-      /** Create a literal constant */
+      /** Creates a literal constant */
       def apply(constant: Constant): Literal
 
       def copy(original: Tree)(constant: Constant): Literal
@@ -1085,7 +1085,7 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
     /** Methods of the module object `val This` */
     trait ThisModule { this: This.type =>
 
-      /** Create a `C.this` for `C` pointing to `cls` */
+      /** Creates a `C.this` for `C` pointing to `cls` */
       def apply(cls: Symbol): This
 
       def copy(original: Tree)(qual: Option[String]): This
@@ -1120,7 +1120,7 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
     /** Methods of the module object `val New` */
     trait NewModule { this: New.type =>
 
-      /** Create a `new <tpt: TypeTree>` */
+      /** Creates a `new <tpt: TypeTree>` */
       def apply(tpt: TypeTree): New
 
       def copy(original: Tree)(tpt: TypeTree): New
@@ -1152,7 +1152,7 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
     /** Methods of the module object `val NamedArg` */
     trait NamedArgModule { this: NamedArg.type =>
 
-      /** Create a named argument `<name: String> = <value: Term>` */
+      /** Creates a named argument `<name: String> = <value: Term>` */
       def apply(name: String, arg: Term): NamedArg
 
       def copy(original: Tree)(name: String, arg: Term): NamedArg
@@ -1188,7 +1188,7 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
     /** Methods of the module object `val Apply` */
     trait ApplyModule { this: Apply.type =>
 
-      /** Create a function application `<fun: Term>(<args: List[Term]>)` */
+      /** Creates a function application `<fun: Term>(<args: List[Term]>)` */
       def apply(fun: Term, args: List[Term]): Apply
 
       def copy(original: Tree)(fun: Term, args: List[Term]): Apply
@@ -1240,7 +1240,7 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
     /** Methods of the module object `val TypeApply` */
     trait TypeApplyModule { this: TypeApply.type =>
 
-      /** Create a function type application `<fun: Term>[<args: List[TypeTree]>]` */
+      /** Creates a function type application `<fun: Term>[<args: List[TypeTree]>]` */
       def apply(fun: Term, args: List[TypeTree]): TypeApply
 
       def copy(original: Tree)(fun: Term, args: List[TypeTree]): TypeApply
@@ -1343,7 +1343,7 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
     /** Methods of the module object `val Typed` */
     trait TypedModule { this: Typed.type =>
 
-      /** Create a type ascription `<x: Term>: <tpt: TypeTree>` */
+      /** Creates a type ascription `<x: Term>: <tpt: TypeTree>` */
       def apply(expr: Term, tpt: TypeTree): Typed
 
       def copy(original: Tree)(expr: Term, tpt: TypeTree): Typed
@@ -1375,7 +1375,7 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
     /** Methods of the module object `val Assign` */
     trait AssignModule { this: Assign.type =>
 
-      /** Create an assignment `<lhs: Term> = <rhs: Term>` */
+      /** Creates an assignment `<lhs: Term> = <rhs: Term>` */
       def apply(lhs: Term, rhs: Term): Assign
 
       def copy(original: Tree)(lhs: Term, rhs: Term): Assign
@@ -1535,7 +1535,7 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
     /** Methods of the module object `val If` */
     trait IfModule { this: If.type =>
 
-      /** Create an if/then/else `if (<cond: Term>) <thenp: Term> else <elsep: Term>` */
+      /** Creates an if/then/else `if (<cond: Term>) <thenp: Term> else <elsep: Term>` */
       def apply(cond: Term, thenp: Term, elsep: Term): If
 
       def copy(original: Tree)(cond: Term, thenp: Term, elsep: Term): If
@@ -1633,7 +1633,7 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
     /** Methods of the module object `val Try` */
     trait TryModule { this: Try.type =>
 
-      /** Create a try/catch `try <body: Term> catch { <cases: List[CaseDef]> } finally <finalizer: Option[Term]>` */
+      /** Creates a try/catch `try <body: Term> catch { <cases: List[CaseDef]> } finally <finalizer: Option[Term]>` */
       def apply(expr: Term, cases: List[CaseDef], finalizer: Option[Term]): Try
 
       def copy(original: Tree)(expr: Term, cases: List[CaseDef], finalizer: Option[Term]): Try
@@ -1721,9 +1721,9 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
 
     /** Methods of the module object `val Repeated` */
     trait RepeatedModule { this: Repeated.type =>
-      /** Create a literal sequence of elements */
+      /** Creates a literal sequence of elements */
       def apply(elems: List[Term], tpt: TypeTree): Repeated
-      /** Copy a literal sequence of elements */
+      /** Copies a literal sequence of elements */
       def copy(original: Tree)(elems: List[Term], tpt: TypeTree): Repeated
       /** Matches a literal sequence of elements */
       def unapply(x: Repeated): (List[Term], TypeTree)
@@ -1840,7 +1840,7 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
     /** Methods of the module object `val TypedOrTest` */
     trait TypedOrTestModule { this: TypedOrTest.type =>
 
-      /** Create a type ascription `<x: Tree>: <tpt: TypeTree>` */
+      /** Creates a type ascription `<x: Tree>: <tpt: TypeTree>` */
       def apply(expr: Tree, tpt: TypeTree): TypedOrTest
 
       def copy(original: Tree)(expr: Tree, tpt: TypeTree): TypedOrTest
@@ -2393,9 +2393,9 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
 
     /** Methods of the module object `val Unapply` */
     trait UnapplyModule { this: Unapply.type =>
-      /** Create an `Unapply` tree representing a pattern `<fun>(<patterns*>)(using <implicits*>)` */
+      /** Creates an `Unapply` tree representing a pattern `<fun>(<patterns*>)(using <implicits*>)` */
       def apply(fun: Term, implicits: List[Term], patterns: List[Tree]): Unapply
-      /** Copy an `Unapply` tree representing a pattern `<fun>(<patterns*>)(using <implicits*>)` */
+      /** Copies an `Unapply` tree representing a pattern `<fun>(<patterns*>)(using <implicits*>)` */
       def copy(original: Tree)(fun: Term, implicits: List[Term], patterns: List[Tree]): Unapply
       /** Matches an `Unapply(fun, implicits, patterns)` tree representing a pattern `<fun>(<patterns*>)(using <implicits*>)` */
       def unapply(x: Unapply): (Term, List[Term], List[Tree])
@@ -2702,7 +2702,7 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
         /** Shows the type as a String */
         def show(using Printer[TypeRepr]): String
 
-        /** Convert this `TypeRepr` to an `Type[?]`
+        /** Converts this `TypeRepr` to an `Type[?]`
         *
         *  Usage:
         *  ```scala
@@ -2832,7 +2832,7 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
         /** The current type applied to given type arguments: `this[targ0, ..., targN]` */
         def appliedTo(targs: List[TypeRepr]): TypeRepr
 
-        /** Substitute all types that refer in their symbol attribute to
+        /** Substitutes all types that refer in their symbol attribute to
          *  one of the symbols in `from` by the corresponding types in `to`.
          */
         def substituteTypes(from: List[Symbol], to: List[TypeRepr]): TypeRepr
@@ -3229,7 +3229,7 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
     /** Methods of the module object `val RecursiveType` */
     trait RecursiveTypeModule { this: RecursiveType.type =>
 
-      /** Create a RecType, normalizing its contents. This means:
+      /** Creates a RecType, normalizing its contents. This means:
       *
       *   1. Nested Rec types on the type's spine are merged with the outer one.
       *   2. Any refinement of the form `type T = z.T` on the spine of the type
@@ -3535,7 +3535,7 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
 
     /** Methods of the module object `val BooleanConstant` */
     trait BooleanConstantModule { this: BooleanConstant.type =>
-      /** Create a constant Boolean value */
+      /** Creates a constant Boolean value */
       def apply(x: Boolean): BooleanConstant
       /** Match Boolean value constant and extract its value */
       def unapply(constant: BooleanConstant): Some[Boolean]
@@ -3552,7 +3552,7 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
 
     /** Methods of the module object `val ByteConstant` */
     trait ByteConstantModule { this: ByteConstant.type =>
-      /** Create a constant Byte value */
+      /** Creates a constant Byte value */
       def apply(x: Byte): ByteConstant
       /** Match Byte value constant and extract its value */
       def unapply(constant: ByteConstant): Some[Byte]
@@ -3569,7 +3569,7 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
 
     /** Methods of the module object `val Short` */
     trait ShortConstantModule { this: ShortConstant.type =>
-      /** Create a constant Short value */
+      /** Creates a constant Short value */
       def apply(x: Short): ShortConstant
       /** Match Short value constant and extract its value */
       def unapply(constant: ShortConstant): Some[Short]
@@ -3586,7 +3586,7 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
 
     /** Methods of the module object `val IntConstant` */
     trait IntConstantModule { this: IntConstant.type =>
-      /** Create a constant Int value */
+      /** Creates a constant Int value */
       def apply(x: Int): IntConstant
       /** Match Int value constant and extract its value */
       def unapply(constant: IntConstant): Some[Int]
@@ -3603,7 +3603,7 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
 
     /** Methods of the module object `val LongConstant` */
     trait LongConstantModule { this: LongConstant.type =>
-      /** Create a constant Long value */
+      /** Creates a constant Long value */
       def apply(x: Long): LongConstant
       /** Match Long value constant and extract its value */
       def unapply(constant: LongConstant): Some[Long]
@@ -3620,7 +3620,7 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
 
     /** Methods of the module object `val FloatConstant` */
     trait FloatConstantModule { this: FloatConstant.type =>
-      /** Create a constant Float value */
+      /** Creates a constant Float value */
       def apply(x: Float): FloatConstant
       /** Match Float value constant and extract its value */
       def unapply(constant: FloatConstant): Some[Float]
@@ -3637,7 +3637,7 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
 
     /** Methods of the module object `val DoubleConstant` */
     trait DoubleConstantModule { this: DoubleConstant.type =>
-      /** Create a constant Double value */
+      /** Creates a constant Double value */
       def apply(x: Double): DoubleConstant
       /** Match Double value constant and extract its value */
       def unapply(constant: DoubleConstant): Some[Double]
@@ -3654,7 +3654,7 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
 
     /** Methods of the module object `val CharConstant` */
     trait CharConstantModule { this: CharConstant.type =>
-      /** Create a constant Char value */
+      /** Creates a constant Char value */
       def apply(x: Char): CharConstant
       /** Match Char value constant and extract its value */
       def unapply(constant: CharConstant): Some[Char]
@@ -3671,7 +3671,7 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
 
     /** Methods of the module object `val StringConstant` */
     trait StringConstantModule { this: StringConstant.type =>
-      /** Create a constant String value
+      /** Creates a constant String value
        *
        *  @throw `IllegalArgumentException` if the argument is `null`
        */
@@ -3691,7 +3691,7 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
 
     /** Methods of the module object `val UnitConstant` */
     trait UnitConstantModule { this: UnitConstant.type =>
-      /** Create a constant Unit value */
+      /** Creates a constant Unit value */
       def apply(): UnitConstant
       /** Match Unit value constant */
       def unapply(constant: UnitConstant): true
@@ -3708,9 +3708,9 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
 
     /** Methods of the module object `val NullConstant` */
     trait NullConstantModule { this: NullConstant.type =>
-      /** Create a constant null value */
+      /** Creates a constant null value */
       def apply(): NullConstant
-      /** Match null value constant */
+      /** Matches null value constant */
       def unapply(constant: NullConstant): Boolean
     }
 
@@ -3725,9 +3725,9 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
 
     /** Methods of the module object `val ClassOf` */
     trait ClassOfConstantModule { this: ClassOfConstant.type =>
-      /** Create a constant class value representing `classOf[<tpe>]` */
+      /** Creates a constant class value representing `classOf[<tpe>]` */
       def apply(tpe: TypeRepr): ClassOfConstant
-      /** Match a class value constant representing `classOf[<tpe>]` and extract its type */
+      /** Matches a class value constant representing `classOf[<tpe>]` and extracts its type */
       def unapply(constant: ClassOfConstant): Option[TypeRepr]
     }
 
@@ -3740,16 +3740,16 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
 
     /** Methods of the module object `val Implicits` */
     trait ImplicitsModule { self: Implicits.type =>
-      /** Find a given instance of type `T` in the current scope provided by the current enclosing splice.
-      *  Return an `ImplicitSearchResult`.
+      /** Finds a given instance of type `T` in the current scope provided by the current enclosing splice.
+      *  Returns an `ImplicitSearchResult`.
       *
       *  @param tpe type of the implicit parameter
       */
       def search(tpe: TypeRepr): ImplicitSearchResult
 
-      /** Find a given instance of type `T` in the current scope provided by the current enclosing splice,
+      /** Finds a given instance of type `T` in the current scope provided by the current enclosing splice,
       *  while excluding certain symbols from the initial implicit search.
-      *  Return an `ImplicitSearchResult`.
+      *  Returns an `ImplicitSearchResult`.
       *
       *  @param tpe type of the implicit parameter
       *  @param ignored Symbols ignored during the initial implicit search
@@ -3834,16 +3834,16 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
        */
       def spliceOwner: Symbol
 
-      /** Get package symbol if package is either defined in current compilation run or present on classpath. */
+      /** Gets package symbol if package is either defined in current compilation run or present on classpath. */
       def requiredPackage(path: String): Symbol
 
-      /** Get class symbol if class is either defined in current compilation run or present on classpath. */
+      /** Gets class symbol if class is either defined in current compilation run or present on classpath. */
       def requiredClass(path: String): Symbol
 
-      /** Get module symbol if module is either defined in current compilation run or present on classpath. */
+      /** Gets module symbol if module is either defined in current compilation run or present on classpath. */
       def requiredModule(path: String): Symbol
 
-      /** Get method symbol if method is either defined in current compilation run or present on classpath. Throws if the method has an overload. */
+      /** Gets method symbol if method is either defined in current compilation run or present on classpath. Throws if the method has an overload. */
       def requiredMethod(path: String): Symbol
 
       /** The class Symbol of a global class definition */
@@ -4111,7 +4111,7 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
        *  @param modFlags extra flags with which the module symbol should be constructed
        *  @param clsFlags extra flags with which the module class symbol should be constructed
        *  @param parents A function that takes the symbol of the module class as input and returns the parent classes of the class. The first parent must not be a trait.
-       *  @param decls A function that takes the symbol of the module class as input and return the symbols of its declared members
+       *  @param decls A function that takes the symbol of the module class as input and returns the symbols of its declared members
        *  @param privateWithin the symbol within which this new method symbol should be private. May be noSymbol.
        *
        *  This symbol starts without an accompanying definition.
@@ -4190,7 +4190,7 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
       // Keep: `flags` doc aligned with QuotesImpl's `validBindFlags`
       def newBind(parent: Symbol, name: String, flags: Flags, tpe: TypeRepr): Symbol
 
-      /** Generate a new type symbol for a type alias with the given parent, name and type
+      /** Generates a new type symbol for a type alias with the given parent, name and type
         *
         *  This symbol starts without an accompanying definition.
         *  It is the meta-programmer's responsibility to provide exactly one corresponding definition by passing
@@ -4208,7 +4208,7 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
       // Keep: `flags` doc aligned with QuotesImpl's `validTypeAliasFlags`
       def newTypeAlias(parent: Symbol, name: String, flags: Flags, tpe: TypeRepr, privateWithin: Symbol): Symbol
 
-      /** Generate a new type symbol for a type bounds with the given parent, name and type
+      /** Generates a new type symbol for a type bounds with the given parent, name and type
         *
         *  This symbol starts without an accompanying definition.
         *  It is the meta-programmer's responsibility to provide exactly one corresponding definition by passing
@@ -4310,7 +4310,7 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
         /** Is the annotation defined with `annotSym` attached to this symbol? */
         def hasAnnotation(annotSym: Symbol): Boolean
 
-        /** Get the annotation defined with `annotSym` attached to this symbol */
+        /** Gets the annotation defined with `annotSym` attached to this symbol */
         def getAnnotation(annotSym: Symbol): Option[Term]
 
         /** Annotations attached to this symbol */
@@ -4381,44 +4381,44 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
         /** Fields directly declared in the class */
         def declaredFields: List[Symbol]
 
-        /** Get named non-private fields declared or inherited */
+        /** Gets named non-private fields declared or inherited */
         @deprecated("Use fieldMember", "3.1.0")
         def memberField(name: String): Symbol
 
-        /** Get named non-private fields declared or inherited */
+        /** Gets named non-private fields declared or inherited */
         def fieldMember(name: String): Symbol
 
-        /** Get all non-private fields declared or inherited */
+        /** Gets all non-private fields declared or inherited */
         @deprecated("Use fieldMembers", "3.1.0")
         def memberFields: List[Symbol]
 
-        /** Get all non-private fields declared or inherited */
+        /** Gets all non-private fields declared or inherited */
         def fieldMembers: List[Symbol]
 
-        /** Get non-private named methods defined directly inside the class */
+        /** Gets non-private named methods defined directly inside the class */
         def declaredMethod(name: String): List[Symbol]
 
-        /** Get all non-private methods defined directly inside the class, excluding constructors */
+        /** Gets all non-private methods defined directly inside the class, excluding constructors */
         def declaredMethods: List[Symbol]
 
-        /** Get named non-private methods declared or inherited */
+        /** Gets named non-private methods declared or inherited */
         @deprecated("Use methodMember", "3.1.0")
         def memberMethod(name: String): List[Symbol]
 
-        /** Get named non-private methods declared or inherited */
+        /** Gets named non-private methods declared or inherited */
         def methodMember(name: String): List[Symbol]
 
-        /** Get all non-private methods declared or inherited */
+        /** Gets all non-private methods declared or inherited */
         @deprecated("Use methodMembers", "3.1.0")
         def memberMethods: List[Symbol]
 
-        /** Get all non-private methods declared or inherited */
+        /** Gets all non-private methods declared or inherited */
         def methodMembers: List[Symbol]
 
-        /** Get non-private named type defined directly inside the class */
+        /** Gets non-private named type defined directly inside the class */
         def declaredType(name: String): List[Symbol]
 
-        /** Get all non-private types defined directly inside the class */
+        /** Gets all non-private types defined directly inside the class */
         def declaredTypes: List[Symbol]
 
         /** Type member with the given name directly declared in the class */
@@ -4969,7 +4969,7 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
       /** Position of the expansion site of the macro */
       def ofMacroExpansion: Position
 
-      /** Create a new position in the source with the given range. The range must be contained in the file. */
+      /** Creates a new position in the source with the given range. The range must be contained in the file. */
       def apply(sourceFile: SourceFile, start: Int, end: Int): Position
     }
 
@@ -5452,7 +5452,7 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
 
     /** Type class used in `show` methods to provide customizable `String` representations */
     trait Printer[T]:
-      /** Show the arguments as a `String` */
+      /** Shows the arguments as a `String` */
       def show(x: T): String
     end Printer
 
