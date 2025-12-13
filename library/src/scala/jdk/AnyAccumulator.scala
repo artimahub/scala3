@@ -160,7 +160,7 @@ final class AnyAccumulator[A]
     r
   }
 
-  /** Copy the elements in this `AnyAccumulator` into an `Array` */
+  /** Copies the elements in this `AnyAccumulator` into an `Array` */
   override def toArray[B >: A : ClassTag]: Array[B] = {
     if (totalSize > Int.MaxValue) throw new IllegalArgumentException("Too many elements accumulated for an array: "+totalSize.toString)
     val a = new Array[B](totalSize.toInt)
@@ -210,7 +210,7 @@ final class AnyAccumulator[A]
   }
 
   /**
-   * Copy the elements in this `AnyAccumulator` to a specified collection. Example use:
+   * Copies the elements in this `AnyAccumulator` to a specified collection. Example use:
    * `acc.to(Vector)`.
    */
   override def to[C1](factory: Factory[A, C1]): C1 = {

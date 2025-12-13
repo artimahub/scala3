@@ -178,7 +178,7 @@ object Console extends AnsiColor {
   def withOut[T](out: OutputStream)(thunk: => T): T =
     withOut(new PrintStream(out))(thunk)
 
-  /** Set the default error stream for the duration
+  /** Sets the default error stream for the duration
    *  of execution of one thunk.
    *  @example {{{
    *  withErr(Console.out) { err.println("This goes to default _out_") }

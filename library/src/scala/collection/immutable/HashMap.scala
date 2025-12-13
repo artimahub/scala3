@@ -874,7 +874,7 @@ private final class BitmapIndexedMapNode[K, +V](
       if (key0 == key) {
         if (this.payloadArity == 2 && this.nodeArity == 0) {
           /*
-           * Create new node with remaining pair. The new node will a) either become the new root
+           * Creates new node with remaining pair. The new node will a) either become the new root
            * returned, or b) unwrapped and inlined during returning.
            */
           val newDataMap = if (shift == 0) (dataMap ^ bitpos) else bitposFrom(maskFrom(keyHash, 0))
@@ -2212,7 +2212,7 @@ object HashMap extends MapFactory[HashMap] {
       case _ => (newBuilder[K, V] ++= source).result()
     }
 
-  /** Create a new Builder which can be reused after calling `result()` without an
+  /** Creates a new Builder which can be reused after calling `result()` without an
     * intermediate call to `clear()` in order to build multiple related results.
     */
   def newBuilder[K, V]: ReusableBuilder[(K, V), HashMap[K, V]] = new HashMapBuilder[K, V]
@@ -2330,7 +2330,7 @@ private[immutable] final class HashMapBuilder[K, V] extends ReusableBuilder[(K, 
     aliased = null
   }
 
-  /** Copy elements to new mutable structure */
+  /** Copies elements to new mutable structure */
   private def copyElems(): Unit = {
     rootNode = rootNode.copy()
   }

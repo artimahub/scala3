@@ -78,7 +78,7 @@ import caps.unsafe.untrackedCaptures
 trait Iterator[+A] extends IterableOnce[A] with IterableOnceOps[A, Iterator, Iterator[A]] {
   self: Iterator[A]^ =>
 
-  /** Check if there is a next element available.
+  /** Checks if there is a next element available.
     *
     * @return `true` if there is a next element, `false` otherwise
     * @note   Reuse: $preservesIterator
@@ -88,7 +88,7 @@ trait Iterator[+A] extends IterableOnce[A] with IterableOnceOps[A, Iterator, Ite
   @deprecated("hasDefiniteSize on Iterator is the same as isEmpty", "2.13.0")
   @`inline` override final def hasDefiniteSize = isEmpty
 
-  /** Return the next element and advance the iterator.
+  /** Returns the next element and advance the iterator.
     *
     * @throws NoSuchElementException if there is no next element.
     * @return the next element.
@@ -218,11 +218,11 @@ trait Iterator[+A] extends IterableOnce[A] with IterableOnceOps[A, Iterator, Ite
       this
     }
 
-    /** Eagerly fetch `size` elements to buffer.
+    /** Eagerly fetches `size` elements to buffer.
      *
      *  If buffer is dirty and stepping, copy prefix.
      *  If skipping, skip ahead.
-     *  Fetch remaining elements.
+     *  Fetches remaining elements.
      *  If unable to deliver size, then pad if padding enabled, otherwise drop segment.
      *  Returns true if successful in delivering `count` elements,
      *  or padded segment, or partial segment.

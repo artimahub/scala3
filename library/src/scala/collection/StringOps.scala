@@ -67,7 +67,7 @@ object StringOps {
   /** A lazy filtered string. No filtering is applied until one of `foreach`, `map` or `flatMap` is called. */
   class WithFilter(p: Char => Boolean, s: String) {
 
-    /** Apply `f` to each element for its side effects.
+    /** Applies `f` to each element for its side effects.
       * Note: [U] parameter needed to help scalac's type inference.
       */
     def foreach[U](f: Char => U): Unit = {
@@ -187,7 +187,7 @@ final class StringOps(private val s: String) extends AnyVal { self =>
 
   @inline def knownSize: Int = s.length
 
-  /** Get the char at the specified index. */
+  /** Gets the char at the specified index. */
   @inline def apply(i: Int): Char = s.charAt(i)
 
   def sizeCompare(otherSize: Int): Int = Integer.compare(s.length, otherSize)
@@ -639,7 +639,7 @@ final class StringOps(private val s: String) extends AnyVal { self =>
   }
 
   // Note: String.repeat is added in JDK 11.
-  /** Return the current string concatenated `n` times.
+  /** Returns the current string concatenated `n` times.
    */
   def *(n: Int): String =
     if (n <= 0) {
@@ -672,7 +672,7 @@ final class StringOps(private val s: String) extends AnyVal { self =>
       }
     }
 
-  /** Return an iterator of all lines embedded in this string,
+  /** Returns an iterator of all lines embedded in this string,
    *  including trailing line separator characters.
    *
    *  The empty string yields an empty iterator.
@@ -707,7 +707,7 @@ final class StringOps(private val s: String) extends AnyVal { self =>
     }
   }
 
-  /** Return all lines in this string in an iterator, excluding trailing line
+  /** Returns all lines in this string in an iterator, excluding trailing line
     *  end characters; i.e., apply `.stripLineEnd` to all lines
     *  returned by `linesWithSeparators`.
     */
@@ -736,7 +736,7 @@ final class StringOps(private val s: String) extends AnyVal { self =>
     if (s.endsWith(suffix)) s.substring(0, s.length - suffix.length)
     else s
 
-  /** Replace all literal occurrences of `literal` with the literal string `replacement`.
+  /** Replaces all literal occurrences of `literal` with the literal string `replacement`.
     * This method is equivalent to [[java.lang.String#replace(CharSequence,CharSequence)]].
     *
     * @param    literal     the string which should be replaced everywhere it occurs
@@ -778,7 +778,7 @@ final class StringOps(private val s: String) extends AnyVal { self =>
       (ch >= '0' && ch <= '9')) ch.toString
   else "\\" + ch
 
-  /** Split this string around the separator character
+  /** Splits this string around the separator character
     *
     * If this string is the empty string, returns an array of strings
     * that contains a single empty string.
@@ -863,7 +863,7 @@ final class StringOps(private val s: String) extends AnyVal { self =>
   def toBoolean: Boolean               = toBooleanImpl(s)
 
   /**
-   * Try to parse as a `Boolean`
+   * Tries to parse as a `Boolean`
    * @return `Some(true)` if the string is "true" case insensitive,
    * `Some(false)` if the string is "false" case insensitive,
    * and `None` if the string is anything else
@@ -872,80 +872,80 @@ final class StringOps(private val s: String) extends AnyVal { self =>
   def toBooleanOption: Option[Boolean] = StringParsers.parseBool(s)
 
   /**
-    * Parse as a `Byte` (string must contain only decimal digits and optional leading `-` or `+`).
+    * Parses as a `Byte` (string must contain only decimal digits and optional leading `-` or `+`).
     * @throws java.lang.NumberFormatException  If the string does not contain a parsable `Byte`.
     */
   def toByte: Byte                     = java.lang.Byte.parseByte(s)
 
   /**
-   * Try to parse as a `Byte`
+   * Tries to parse as a `Byte`
    * @return `Some(value)` if the string contains a valid byte value, otherwise `None`
    * @throws java.lang.NullPointerException if the string is `null`
    */
   def toByteOption: Option[Byte]       = StringParsers.parseByte(s)
 
   /**
-    * Parse as a `Short` (string must contain only decimal digits and optional leading `-` or `+`).
+    * Parses as a `Short` (string must contain only decimal digits and optional leading `-` or `+`).
     * @throws java.lang.NumberFormatException  If the string does not contain a parsable `Short`.
     */
   def toShort: Short                   = java.lang.Short.parseShort(s)
 
   /**
-   * Try to parse as a `Short`
+   * Tries to parse as a `Short`
    * @return `Some(value)` if the string contains a valid short value, otherwise `None`
    * @throws java.lang.NullPointerException if the string is `null`
    */
   def toShortOption: Option[Short]     = StringParsers.parseShort(s)
 
   /**
-    * Parse as an `Int` (string must contain only decimal digits and optional leading `-` or `+`).
+    * Parses as an `Int` (string must contain only decimal digits and optional leading `-` or `+`).
     * @throws java.lang.NumberFormatException  If the string does not contain a parsable `Int`.
     */
   def toInt: Int                       = java.lang.Integer.parseInt(s)
 
   /**
-   * Try to parse as an `Int`
+   * Tries to parse as an `Int`
    * @return `Some(value)` if the string contains a valid Int value, otherwise `None`
    * @throws java.lang.NullPointerException if the string is `null`
    */
   def toIntOption: Option[Int]         = StringParsers.parseInt(s)
 
   /**
-    * Parse as a `Long` (string must contain only decimal digits and optional leading `-` or `+`).
+    * Parses as a `Long` (string must contain only decimal digits and optional leading `-` or `+`).
     * @throws java.lang.NumberFormatException  If the string does not contain a parsable `Long`.
     */
   def toLong: Long                     = java.lang.Long.parseLong(s)
 
   /**
-   * Try to parse as a `Long`
+   * Tries to parse as a `Long`
    * @return `Some(value)` if the string contains a valid long value, otherwise `None`
    * @throws java.lang.NullPointerException if the string is `null`
    */
   def toLongOption: Option[Long]       = StringParsers.parseLong(s)
 
   /**
-    * Parse as a `Float` (surrounding whitespace is removed with a `trim`).
+    * Parses as a `Float` (surrounding whitespace is removed with a `trim`).
     * @throws java.lang.NumberFormatException  If the string does not contain a parsable `Float`.
     * @throws java.lang.NullPointerException  If the string is null.
     */
   def toFloat: Float                   = java.lang.Float.parseFloat(s)
 
   /**
-   * Try to parse as a `Float`
+   * Tries to parse as a `Float`
    * @return `Some(value)` if the string is a parsable `Float`, `None` otherwise
    * @throws java.lang.NullPointerException If the string is null
    */
   def toFloatOption: Option[Float]     = StringParsers.parseFloat(s)
 
   /**
-    * Parse as a `Double` (surrounding whitespace is removed with a `trim`).
+    * Parses as a `Double` (surrounding whitespace is removed with a `trim`).
     * @throws java.lang.NumberFormatException  If the string does not contain a parsable `Double`.
     * @throws java.lang.NullPointerException  If the string is null.
     */
   def toDouble: Double                 = java.lang.Double.parseDouble(s)
 
   /**
-   * Try to parse as a `Double`
+   * Tries to parse as a `Double`
    * @return `Some(value)` if the string is a parsable `Double`, `None` otherwise
    * @throws java.lang.NullPointerException If the string is null
    */
@@ -1025,7 +1025,7 @@ final class StringOps(private val s: String) extends AnyVal { self =>
     res
   }
 
-  /** Apply `f` to each element for its side effects.
+  /** Applies `f` to each element for its side effects.
     * Note: [U] parameter needed to help scalac's type inference.
     */
   def foreach[U](f: Char => U): Unit = {
@@ -1264,7 +1264,7 @@ final class StringOps(private val s: String) extends AnyVal { self =>
   /** Selects all chars of this string which do not satisfy a predicate. */
   @inline def filterNot(pred: Char => Boolean): String = filter(c => !pred(c))
 
-  /** Copy chars of this string to an array.
+  /** Copies chars of this string to an array.
     * Fills the given array `xs` starting at index 0.
     * Copying will stop once either the entire string has been copied
     * or the end of the array is reached
@@ -1274,7 +1274,7 @@ final class StringOps(private val s: String) extends AnyVal { self =>
   @inline def copyToArray(xs: Array[Char]): Int =
     copyToArray(xs, 0, Int.MaxValue)
 
-  /** Copy chars of this string to an array.
+  /** Copies chars of this string to an array.
     * Fills the given array `xs` starting at index `start`.
     * Copying will stop once either the entire string has been copied
     * or the end of the array is reached
@@ -1285,7 +1285,7 @@ final class StringOps(private val s: String) extends AnyVal { self =>
   @inline def copyToArray(xs: Array[Char], start: Int): Int =
     copyToArray(xs, start, Int.MaxValue)
 
-  /** Copy chars of this string to an array.
+  /** Copies chars of this string to an array.
     * Fills the given array `xs` starting at index `start` with at most `len` chars.
     * Copying will stop once either the entire string has been copied,
     * or the end of the array is reached or `len` chars have been copied.
