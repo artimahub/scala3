@@ -22,7 +22,7 @@ import scala.language.`2.13`
  *   class a(x: Int) extends Annotation
  *   class b extends a(42) // the compiler adds `@superArg("x", 42)` to class b
  * }}}
- 
+
  * @param p TODO FILL IN PARAM
  * @param v TODO FILL IN PARAM
 */
@@ -35,8 +35,7 @@ class superArg(p: String, v: Any) extends StaticAnnotation
  *   class a(x: Int) extends Annotation
  *   class b(y: Int) extends a(y) // the compiler adds `@superFwdArg("x", "y")` to class b
  * }}}
- 
  * @param p TODO FILL IN PARAM
  * @param n TODO FILL IN PARAM
-*/
+ */
 class superFwdArg(p: String, n: String) extends StaticAnnotation
