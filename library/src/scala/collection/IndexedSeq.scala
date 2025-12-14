@@ -21,9 +21,9 @@ import scala.collection.Searching.{Found, InsertionPoint, SearchResult}
 import scala.collection.Stepper.EfficientSplit
 import scala.math.Ordering
 
-/** Base trait for indexed sequences that have efficient `apply` and `length` 
- * @tparam +A TODO FILL IN TPARAM
-*/
+/** Base trait for indexed sequences that have efficient `apply` and `length`
+ * @tparam A TODO FILL IN TPARAM
+ */
 trait IndexedSeq[+A] extends Seq[A]
   with IndexedSeqOps[A, IndexedSeq, IndexedSeq[A]]
   with IterableFactoryDefaults[A, IndexedSeq] {
