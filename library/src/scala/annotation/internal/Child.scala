@@ -3,7 +3,8 @@ package internal
 
 import language.experimental.captureChecking
 
-/** An annotation to indicate a child class or object of the annotated class.
+/**
+ * An annotation to indicate a child class or object of the annotated class.
  *  E.g. if we have
  *
  *    sealed class A
@@ -19,5 +20,7 @@ import language.experimental.captureChecking
  *  appears before the one for `B`.
  *
  *  TODO: This should be `Child[T <: AnyKind]`
+ * 
+ * @tparam T TODO FILL IN TPARAM
  */
 class Child[T] extends Annotation

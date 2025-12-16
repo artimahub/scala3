@@ -16,7 +16,8 @@ import scala.quoted.*
 @experimental
 trait MacroAnnotation extends StaticAnnotation:
 
-  /** Transform the `tree` definition and add new definitions
+  /**
+   * Transform the `tree` definition and add new definitions
    *
    *  This method takes as argument the annotated definition.
    *  It returns a non-empty list containing the modified version of the annotated definition.
@@ -219,5 +220,7 @@ trait MacroAnnotation extends StaticAnnotation:
    *  @param companion  Tree for the companion class or module if the definition is respectively a module or a class
    *
    *  @syntax markdown
+   * 
+   * @return TODO FILL IN RETURN
    */
   def transform(using Quotes)(definition: quotes.reflect.Definition, companion: Option[quotes.reflect.Definition]): List[quotes.reflect.Definition]

@@ -33,7 +33,8 @@ object init:
   @experimental
   final class widen(height: Int) extends StaticAnnotation
 
-  /** Introduce a region context.
+  /**
+   * Introduce a region context.
    *
    *  The same mutable field in the same region have the same abstract representation.
    *
@@ -55,6 +56,8 @@ object init:
    *  Therefore, the field `box1.value` and `box2.value` points to both instances of `C` and `D`. Consequently,
    *  the method call `box1.value.foo()` will be invalid, because it reaches `A.m`, which is not yet initialized.
    *  The explicit context annotation solves the problem.
+   * 
+   * @return TODO FILL IN RETURN
    */
   @experimental
   def region[T](v: T): T = v
