@@ -8,7 +8,7 @@ import scala.annotation.Annotation
  * An annotation to record a Scala2 pickled alias.
  *  @param aliased  A TermRef pointing to the aliased field.
  * 
- * @param path TODO FILL IN PARAM
+ * @param path The path to the source file
  */
 class SourceFile(path: String) extends Annotation {
 

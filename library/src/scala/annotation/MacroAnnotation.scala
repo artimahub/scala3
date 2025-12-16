@@ -221,6 +221,6 @@ trait MacroAnnotation extends StaticAnnotation:
    *
    *  @syntax markdown
    * 
-   * @return TODO FILL IN RETURN
+   * @return A non-empty list of definitions, starting with the transformed annotated definition
    */
   def transform(using Quotes)(definition: quotes.reflect.Definition, companion: Option[quotes.reflect.Definition]): List[quotes.reflect.Definition]

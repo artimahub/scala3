@@ -21,6 +21,6 @@ import language.experimental.captureChecking
  *
  *  TODO: This should be `Child[T <: AnyKind]`
  * 
- * @tparam T TODO FILL IN TPARAM
+ * @tparam T The child class or object type
  */
 class Child[T] extends Annotation

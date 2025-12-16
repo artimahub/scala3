@@ -57,7 +57,7 @@ object init:
    *  the method call `box1.value.foo()` will be invalid, because it reaches `A.m`, which is not yet initialized.
    *  The explicit context annotation solves the problem.
    * 
-   * @return TODO FILL IN RETURN
+   * @return The argument value unchanged
    */
   @experimental
   def region[T](v: T): T = v

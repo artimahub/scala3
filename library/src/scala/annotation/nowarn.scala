@@ -42,6 +42,6 @@ import scala.language.`2.13`
  * The unused annotation warning is emitted in category `unused-nowarn` and can be selectively managed
  * using `-Wconf:cat=unused-nowarn:s`.
  * 
- * @param value TODO FILL IN PARAM
+ * @param value A filter expression for selective warning suppression
  */
 class nowarn(value: String = "") extends ConstantAnnotation

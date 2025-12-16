@@ -9,6 +9,6 @@ import language.experimental.captureChecking
  *  The parameter `n` is an Int Literal that tells how many nested closures
  *  there are.
  * 
- * @param n TODO FILL IN PARAM
+ * @param n The number of nested context closures
  */
 class ContextResultCount(n: Int) extends StaticAnnotation
