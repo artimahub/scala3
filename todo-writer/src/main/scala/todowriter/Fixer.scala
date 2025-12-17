@@ -163,15 +163,16 @@ object Fixer:
 
     buildFormattedBlock(leadingWs, parsed, allTags, wasSingleLine)
 
-  /** Sort tags in proper order: @tparam first, then @param, then @return.
-   *  Other tags (like @throws, @see, etc.) are preserved at the end.
+  /** Sort tags in proper order: @see first, then @tparam, then @param, then @return.
+   *  Other tags (like @throws, @since, etc.) are preserved at the end.
    */
   private def sortTags(tags: List[String]): List[String] =
     def tagOrder(tag: String): Int =
-      if tag.startsWith("@tparam") then 0
-      else if tag.startsWith("@param") then 1
-      else if tag.startsWith("@return") then 2
-      else 3 // Other tags go last
+      if tag.startsWith("@see") then 0
+      else if tag.startsWith("@tparam") then 1
+      else if tag.startsWith("@param") then 2
+      else if tag.startsWith("@return") then 3
+      else 4 // Other tags go last
 
     tags.sortBy(tagOrder)
 

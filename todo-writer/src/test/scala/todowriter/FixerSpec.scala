@@ -140,6 +140,46 @@ class FixerSpec extends AnyFlatSpec with Matchers:
     paramYIdx should be < returnIdx
   }
 
+  it should "put @see tags before @tparam, @param, @return" in {
+    val text = """/** Does something.
+                 | *
+                 | *  @see [[Other]]
+                 | */""".stripMargin
+    val block = ScaladocBlock.findAll(text).head
+    val result = Fixer.buildFixedBlock(text, block, List("A"), List("x"), true)
+
+    val seeIdx = result.indexOf("@see")
+    val tparamIdx = result.indexOf("@tparam")
+    val paramIdx = result.indexOf("@param")
+    val returnIdx = result.indexOf("@return")
+
+    seeIdx should be < tparamIdx
+    seeIdx should be < paramIdx
+    seeIdx should be < returnIdx
+  }
+
+  it should "preserve @see at beginning when adding new tags" in {
+    // This tests the case where only @see existed and we add tparam/param/return
+    val text = """/** Does something.
+                 | *
+                 | *  @see [[SomeClass]]
+                 | */""".stripMargin
+    val block = ScaladocBlock.findAll(text).head
+    val result = Fixer.buildFixedBlock(text, block, List("T"), List("x"), true)
+
+    val lines = result.split("\n").map(_.trim)
+    val tagLines = lines.filter(_.startsWith("*  @"))
+
+    // @see should be first tag
+    tagLines.head should include("@see")
+    // @tparam should come after @see
+    tagLines(1) should include("@tparam")
+    // @param should come after @tparam
+    tagLines(2) should include("@param")
+    // @return should be last
+    tagLines(3) should include("@return")
+  }
+
   "Fixer.applyFixes" should "apply multiple fixes" in {
     val text = """/** Method one. */
                  |def one(x: Int): String = ???
