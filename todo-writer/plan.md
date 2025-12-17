@@ -45,19 +45,25 @@ If `/**` starts at column 4:
 ## Validation Rules
 
 ### @param
+- Applies to: `def`, `class`, `trait`
+- For `def`: documents method parameters
+- For `class`/`trait`: documents constructor (primary) parameters
 - Each declared parameter should have a corresponding `@param` tag
 - Each `@param` tag should reference an actual parameter name
 - Reports: "Missing @param for: x, y" or "@param refers to unknown params: z"
 
 ### @tparam
+- Applies to: `def`, `class`, `trait`
+- For `def`: documents method type parameters
+- For `class`/`trait`: documents type parameters of the class/trait itself
 - Each declared type parameter should have a corresponding `@tparam` tag
 - Each `@tparam` tag should reference an actual type parameter name
 - Reports: "Missing @tparam for: A, B" or "@tparam refers to unknown type params: C"
 
 ### @return
+- Applies to: `def` only (not applicable to `class`, `trait`, `object`, `val`, `var`)
 - For `def` with non-Unit return type: `@return` should be present
 - For `def` with Unit return type: `@return` should be absent
-- For classes/traits/objects: `@return` is not applicable (ignored)
 - **One-liner exception**: If the Scaladoc has only a single line of descriptive content (ignoring tags like `@param`, `@tparam`), do NOT add `@return`. Per the Scaladoc style guide: "If the documentation of a method is a one line description of what that method returns, do not repeat it with an @return annotation."
 - Reports: "Missing @return for non-Unit return type" or "@return present but return type is Unit"
 
