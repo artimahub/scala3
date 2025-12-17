@@ -113,9 +113,9 @@ class IntegrationSpec extends AnyFlatSpec with Matchers:
       fixResult.newContent shouldBe defined
 
       val newContent = fixResult.newContent.get
-      newContent should include("@param x TODO")
+      newContent should include("@param x TODO FILL IN")
       // @return should NOT be added because it's a one-liner
-      newContent should not include "@return TODO"
+      newContent should not include "@return TODO FILL IN"
     }
   }
 
@@ -137,8 +137,8 @@ class IntegrationSpec extends AnyFlatSpec with Matchers:
       fixResult.newContent shouldBe defined
 
       val newContent = fixResult.newContent.get
-      newContent should include("@param x TODO")
-      newContent should include("@return TODO")
+      newContent should include("@param x TODO FILL IN")
+      newContent should include("@return TODO FILL IN")
     }
   }
 

@@ -26,13 +26,15 @@ Preserved as-is:
 The initial text of the doc comment appears on the same line as `/**`, after a space.
 The `*` on continuation lines aligns directly beneath the first `*` of `/**`.
 Text on continuation lines starts after two spaces following the `*`.
-A blank line (` *`) should appear before any tags:
+A blank line (` *`) should appear before any tags.
+Tags appear in order: `@tparam`, then `@param`, then `@return`, with no blank lines between them:
 ```scala
 /** First line of comment appears on same line as /**.
  *
  *  Additional description lines.
  *  More details here.
  *
+ *  @tparam T the type parameter
  *  @param x description
  *  @return description
  */
@@ -44,6 +46,7 @@ If `/**` starts at column 4:
      *
      *  Second line - the * is in column 5
      *
+     *  @tparam A type param
      *  @param x description
      */
 ```
@@ -51,8 +54,11 @@ If `/**` starts at column 4:
 **Important formatting rules for the Fixer:**
 1. **Preserve initial text position**: If the original Scaladoc has text on the `/**` line, keep it there
 2. **Move misplaced initial text**: If the original has `/**` alone on a line followed by ` * Initial text`, move the text to the `/**` line
-3. **Blank line before tags**: Always ensure a blank ` *` line exists before the first `@param`, `@tparam`, or `@return` tag
-4. **Don't add spurious blank lines**: Don't insert blank lines above existing content
+3. **Blank line before tags**: Always ensure a blank ` *` line exists before the first `@tparam`, `@param`, or `@return` tag
+4. **Tag ordering**: Tags must appear in this order: `@tparam` first, then `@param`, then `@return`
+5. **No blank lines between tags**: Tags should appear consecutively with no blank lines between them
+6. **Don't add spurious blank lines**: Don't insert blank lines above existing content
+7. **TODO placeholder**: Missing tags are inserted with `TODO FILL IN` as the description
 
 ## Validation Rules
 

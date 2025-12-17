@@ -148,17 +148,32 @@ object Fixer:
     // Build tags to insert
     val newTags = collection.mutable.ListBuffer[String]()
     for tp <- missingTparams do
-      newTags += s"@tparam $tp TODO"
+      newTags += s"@tparam $tp TODO FILL IN"
     for p <- missingParams do
-      newTags += s"@param $p TODO"
+      newTags += s"@param $p TODO FILL IN"
     if needsReturn then
-      newTags += "@return TODO"
+      newTags += "@return TODO FILL IN"
 
     // Check if original was single-line
     val originalBlock = text.substring(block.startIndex, block.endIndex)
     val wasSingleLine = !originalBlock.contains('\n')
 
-    buildFormattedBlock(leadingWs, parsed, newTags.toList, wasSingleLine)
+    // Combine and sort all tags in proper order: @tparam, @param, @return
+    val allTags = sortTags(parsed.existingTags ++ newTags.toList)
+
+    buildFormattedBlock(leadingWs, parsed, allTags, wasSingleLine)
+
+  /** Sort tags in proper order: @tparam first, then @param, then @return.
+   *  Other tags (like @throws, @see, etc.) are preserved at the end.
+   */
+  private def sortTags(tags: List[String]): List[String] =
+    def tagOrder(tag: String): Int =
+      if tag.startsWith("@tparam") then 0
+      else if tag.startsWith("@param") then 1
+      else if tag.startsWith("@return") then 2
+      else 3 // Other tags go last
+
+    tags.sortBy(tagOrder)
 
   /** Build a properly formatted Scaladoc block.
    *
@@ -171,31 +186,30 @@ object Fixer:
   private def buildFormattedBlock(
       leadingWs: String,
       parsed: ParsedScaladoc,
-      newTags: List[String],
+      sortedTags: List[String],
       wasSingleLine: Boolean
   ): String =
-    val allTags = parsed.existingTags ++ newTags
     val hasDescription = parsed.initialText.isDefined || parsed.descriptionLines.nonEmpty
-    val hasTags = allTags.nonEmpty
+    val hasTags = sortedTags.nonEmpty
 
     // Special case: single-line with no additional content needed
-    if wasSingleLine && parsed.descriptionLines.isEmpty && allTags.isEmpty then
+    if wasSingleLine && parsed.descriptionLines.isEmpty && sortedTags.isEmpty then
       parsed.initialText match
         case Some(text) => s"/** $text */"
         case None => "/** */"
 
     // Special case: single-line that needs to become multi-line
     else if wasSingleLine && (parsed.descriptionLines.nonEmpty || hasTags) then
-      buildMultiLineOutput(leadingWs, parsed, allTags)
+      buildMultiLineOutput(leadingWs, parsed, sortedTags)
 
     // Already multi-line
     else
-      buildMultiLineOutput(leadingWs, parsed, allTags)
+      buildMultiLineOutput(leadingWs, parsed, sortedTags)
 
   private def buildMultiLineOutput(
       leadingWs: String,
       parsed: ParsedScaladoc,
-      allTags: List[String]
+      sortedTags: List[String]
   ): String =
     val parts = collection.mutable.ListBuffer[String]()
 
@@ -216,7 +230,7 @@ object Fixer:
         parts += s"$leadingWs *  $line"
 
     // Blank line before tags (if there are tags and we need one)
-    if allTags.nonEmpty then
+    if sortedTags.nonEmpty then
       // Check if we need to add a blank line
       val lastLineIsBlank = parsed.descriptionLines.lastOption.contains("") ||
         (parsed.descriptionLines.isEmpty && parsed.initialText.isEmpty)
@@ -225,8 +239,8 @@ object Fixer:
       if !lastLineIsBlank && !hadBlankBeforeTags then
         parts += s"$leadingWs *"
 
-    // All tags
-    for tag <- allTags do
+    // All tags (already sorted: @tparam, @param, @return)
+    for tag <- sortedTags do
       parts += s"$leadingWs *  $tag"
 
     // Closing

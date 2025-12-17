@@ -5,36 +5,37 @@ import org.scalatest.matchers.should.Matchers
 
 class FixerSpec extends AnyFlatSpec with Matchers:
 
-  "Fixer.buildFixedBlock" should "insert missing @param tag" in {
+  "Fixer.buildFixedBlock" should "insert missing @param tag with TODO FILL IN" in {
     val text = "/** Does something. */"
     val block = ScaladocBlock.findAll(text).head
     val result = Fixer.buildFixedBlock(text, block, Nil, List("x"), false)
-    result should include("@param x TODO")
+    result should include("@param x TODO FILL IN")
   }
 
-  it should "insert missing @tparam tag" in {
+  it should "insert missing @tparam tag with TODO FILL IN" in {
     val text = "/** Does something. */"
     val block = ScaladocBlock.findAll(text).head
     val result = Fixer.buildFixedBlock(text, block, List("A"), Nil, false)
-    result should include("@tparam A TODO")
+    result should include("@tparam A TODO FILL IN")
   }
 
-  it should "insert missing @return tag" in {
+  it should "insert missing @return tag with TODO FILL IN" in {
     val text = "/** Does something. */"
     val block = ScaladocBlock.findAll(text).head
     val result = Fixer.buildFixedBlock(text, block, Nil, Nil, true)
-    result should include("@return TODO")
+    result should include("@return TODO FILL IN")
   }
 
   it should "preserve existing content when inserting" in {
     val text = """/** Does something important.
+                 | *
                  | *  @param x existing param
                  | */""".stripMargin
     val block = ScaladocBlock.findAll(text).head
     val result = Fixer.buildFixedBlock(text, block, Nil, List("y"), false)
     result should include("Does something important")
     result should include("@param x existing param")
-    result should include("@param y TODO")
+    result should include("@param y TODO FILL IN")
   }
 
   it should "convert single-line to multi-line when adding tags" in {
@@ -86,6 +87,59 @@ class FixerSpec extends AnyFlatSpec with Matchers:
     paramIdx should be < returnIdx
   }
 
+  it should "sort existing tags to proper order (tparam, param, return)" in {
+    // Original has @param before @tparam - should be reordered
+    val text = """/** Does something.
+                 | *
+                 | *  @param x existing
+                 | *  @tparam A existing
+                 | */""".stripMargin
+    val block = ScaladocBlock.findAll(text).head
+    val result = Fixer.buildFixedBlock(text, block, Nil, List("y"), false)
+    val tparamIdx = result.indexOf("@tparam")
+    val paramXIdx = result.indexOf("@param x")
+    val paramYIdx = result.indexOf("@param y")
+    tparamIdx should be < paramXIdx
+    tparamIdx should be < paramYIdx
+  }
+
+  it should "not have blank lines between tags" in {
+    val text = "/** Does something. */"
+    val block = ScaladocBlock.findAll(text).head
+    val result = Fixer.buildFixedBlock(text, block, List("A", "B"), List("x", "y"), true)
+    val lines = result.split("\n")
+
+    // Find the first tag line index
+    val firstTagIdx = lines.indexWhere(l => l.contains("@tparam") || l.contains("@param") || l.contains("@return"))
+    // Find the last tag line index (before closing */)
+    val closingIdx = lines.indexWhere(_.trim == "*/")
+
+    // All lines between first tag and closing should be tags (no blank lines)
+    val tagSection = lines.slice(firstTagIdx, closingIdx)
+    tagSection.foreach { line =>
+      val trimmed = line.trim
+      (trimmed.isEmpty || trimmed == "*") should be(false)
+    }
+  }
+
+  it should "have all tags in order: @tparam, @param, @return" in {
+    val text = "/** Does something. */"
+    val block = ScaladocBlock.findAll(text).head
+    val result = Fixer.buildFixedBlock(text, block, List("A", "B"), List("x", "y"), true)
+
+    val tparamAIdx = result.indexOf("@tparam A")
+    val tparamBIdx = result.indexOf("@tparam B")
+    val paramXIdx = result.indexOf("@param x")
+    val paramYIdx = result.indexOf("@param y")
+    val returnIdx = result.indexOf("@return")
+
+    // All tparams before all params before return
+    tparamAIdx should be < paramXIdx
+    tparamBIdx should be < paramXIdx
+    paramXIdx should be < returnIdx
+    paramYIdx should be < returnIdx
+  }
+
   "Fixer.applyFixes" should "apply multiple fixes" in {
     val text = """/** Method one. */
                  |def one(x: Int): String = ???
@@ -102,8 +156,8 @@ class FixerSpec extends AnyFlatSpec with Matchers:
 
     val (newText, count) = Fixer.applyFixes(text, results)
     count should be(2)
-    newText should include("@param x TODO")
-    newText should include("@return TODO")
+    newText should include("@param x TODO FILL IN")
+    newText should include("@return TODO FILL IN")
   }
 
   it should "not modify text when no fixes needed" in {
