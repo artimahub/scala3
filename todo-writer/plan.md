@@ -55,7 +55,32 @@ If `/**` starts at column 4:
 - For `def` with non-Unit return type: `@return` should be present
 - For `def` with Unit return type: `@return` should be absent
 - For classes/traits/objects: `@return` is not applicable (ignored)
+- **One-liner exception**: If the Scaladoc is a single sentence (one line of descriptive text, with or without a trailing period, and no tags), do NOT add `@return`. Per the Scaladoc style guide: "If the documentation of a method is a one line description of what that method returns, do not repeat it with an @return annotation."
 - Reports: "Missing @return for non-Unit return type" or "@return present but return type is Unit"
+
+#### One-liner Examples
+
+These are considered one-liners and should NOT get `@return TODO` added:
+```scala
+/** Returns the current count. */
+def count: Int = ???
+
+/** The name of this entity */
+def name: String = ???
+```
+
+These are NOT one-liners (have tags or multiple content lines) and SHOULD get `@return TODO` if missing:
+```scala
+/** Gets the value for the given key.
+  * @param key the lookup key
+  */
+def get(key: String): Option[Int] = ???
+
+/** Computes the result.
+  * This method performs complex calculation.
+  */
+def compute: Int = ???
+```
 
 ## Architecture
 
@@ -94,6 +119,7 @@ Represents a parsed Scaladoc comment:
 - Extracts `@param`, `@tparam`, `@return` tags
 - Tracks source location (start/end indices, line number)
 - Preserves original content for comparison
+- Detects whether the Scaladoc is a "one-liner" (single sentence, no tags) for the `@return` exception
 
 #### 2. `Declaration`
 Represents a parsed Scala declaration:
@@ -127,6 +153,7 @@ Main orchestration:
 #### 5. `Fixer`
 Applies fixes to source files:
 - Inserts missing `@param`, `@tparam`, `@return` tags with TODO placeholders
+- Respects the one-liner exception: does NOT insert `@return TODO` for single-sentence Scaladocs with no existing tags
 - Normalizes indentation of modified blocks only
 - Preserves content inside code blocks (`{{{...}}}`, `<pre>...</pre>`)
 
@@ -184,6 +211,9 @@ Test Scaladoc parsing and tag extraction:
 "ScaladocBlock" should "handle empty scaladoc" in { ... }
 "ScaladocBlock" should "handle scaladoc with no tags" in { ... }
 "ScaladocBlock" should "handle single-line scaladoc" in { ... }
+"ScaladocBlock" should "detect one-liner (single sentence, no tags)" in { ... }
+"ScaladocBlock" should "not consider multi-line content as one-liner" in { ... }
+"ScaladocBlock" should "not consider scaladoc with tags as one-liner" in { ... }
 ```
 
 #### `DeclarationSpec`
@@ -238,6 +268,9 @@ Test fix generation and indentation:
 "Fixer" should "insert missing @param tag" in { ... }
 "Fixer" should "insert missing @tparam tag" in { ... }
 "Fixer" should "insert missing @return tag" in { ... }
+"Fixer" should "NOT insert @return for one-liner scaladoc" in { ... }
+"Fixer" should "insert @return for multi-line scaladoc without tags" in { ... }
+"Fixer" should "insert @return for scaladoc that has other tags" in { ... }
 "Fixer" should "preserve existing tags when inserting" in { ... }
 "Fixer" should "normalize indentation when fixing" in { ... }
 "Fixer" should "preserve single-line scaladoc when no fix needed" in { ... }
@@ -277,6 +310,7 @@ Create test fixtures in `src/test/resources/`:
 - `missing-params.scala` - file with missing @param tags
 - `missing-tparams.scala` - file with missing @tparam tags
 - `missing-return.scala` - file with missing @return
+- `one-liners.scala` - file with one-liner scaladocs (should NOT get @return added)
 - `mixed-issues.scala` - file with various issues
 - `edge-cases.scala` - annotations, modifiers, complex signatures
 
