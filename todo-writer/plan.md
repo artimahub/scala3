@@ -55,7 +55,7 @@ If `/**` starts at column 4:
 - For `def` with non-Unit return type: `@return` should be present
 - For `def` with Unit return type: `@return` should be absent
 - For classes/traits/objects: `@return` is not applicable (ignored)
-- **One-liner exception**: If the Scaladoc is a single sentence (one line of descriptive text, with or without a trailing period, and no tags), do NOT add `@return`. Per the Scaladoc style guide: "If the documentation of a method is a one line description of what that method returns, do not repeat it with an @return annotation."
+- **One-liner exception**: If the Scaladoc has only a single line of descriptive content (ignoring tags like `@param`, `@tparam`), do NOT add `@return`. Per the Scaladoc style guide: "If the documentation of a method is a one line description of what that method returns, do not repeat it with an @return annotation."
 - Reports: "Missing @return for non-Unit return type" or "@return present but return type is Unit"
 
 #### One-liner Examples
@@ -67,19 +67,26 @@ def count: Int = ???
 
 /** The name of this entity */
 def name: String = ???
-```
 
-These are NOT one-liners (have tags or multiple content lines) and SHOULD get `@return TODO` if missing:
-```scala
 /** Gets the value for the given key.
   * @param key the lookup key
   */
 def get(key: String): Option[Int] = ???
+```
 
+These are NOT one-liners (multiple lines of descriptive content) and SHOULD get `@return TODO` if missing:
+```scala
 /** Computes the result.
   * This method performs complex calculation.
   */
 def compute: Int = ???
+
+/** Retrieves the item from the cache.
+  *
+  * If the item is not found, returns None.
+  * @param key the cache key
+  */
+def getFromCache(key: String): Option[Item] = ???
 ```
 
 ## Architecture
@@ -211,9 +218,9 @@ Test Scaladoc parsing and tag extraction:
 "ScaladocBlock" should "handle empty scaladoc" in { ... }
 "ScaladocBlock" should "handle scaladoc with no tags" in { ... }
 "ScaladocBlock" should "handle single-line scaladoc" in { ... }
-"ScaladocBlock" should "detect one-liner (single sentence, no tags)" in { ... }
-"ScaladocBlock" should "not consider multi-line content as one-liner" in { ... }
-"ScaladocBlock" should "not consider scaladoc with tags as one-liner" in { ... }
+"ScaladocBlock" should "detect one-liner (single line of descriptive content)" in { ... }
+"ScaladocBlock" should "detect one-liner even with @param tags present" in { ... }
+"ScaladocBlock" should "not consider multi-line descriptive content as one-liner" in { ... }
 ```
 
 #### `DeclarationSpec`
@@ -269,8 +276,8 @@ Test fix generation and indentation:
 "Fixer" should "insert missing @tparam tag" in { ... }
 "Fixer" should "insert missing @return tag" in { ... }
 "Fixer" should "NOT insert @return for one-liner scaladoc" in { ... }
-"Fixer" should "insert @return for multi-line scaladoc without tags" in { ... }
-"Fixer" should "insert @return for scaladoc that has other tags" in { ... }
+"Fixer" should "NOT insert @return for one-liner with @param tags" in { ... }
+"Fixer" should "insert @return for multi-line descriptive content" in { ... }
 "Fixer" should "preserve existing tags when inserting" in { ... }
 "Fixer" should "normalize indentation when fixing" in { ... }
 "Fixer" should "preserve single-line scaladoc when no fix needed" in { ... }
