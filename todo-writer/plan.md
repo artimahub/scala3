@@ -23,20 +23,23 @@ Preserved as-is:
 ```
 
 ### Multi-line Scaladoc
-The `*` on continuation lines aligns directly beneath the first `*` of `/**`:
+The `*` on continuation lines aligns directly beneath the first `*` of `/**`.
+Text on continuation lines starts after two spaces following the `*`:
 ```scala
 /** First line of comment.
-  * Second line - the * is in column 2 (beneath first * of /**)
-  * @param x description
-  * @return description
-  */
+ *
+ *  Second line - the * is in column 1 (beneath first * of /**)
+ *  @param x description
+ *  @return description
+ */
 ```
 
 If `/**` starts at column 4:
 ```scala
     /** First line of comment.
-      * Second line - the * is in column 6
-      */
+     *
+     *  Second line - the * is in column 5
+     */
 ```
 
 ## Validation Rules
@@ -69,23 +72,24 @@ def count: Int = ???
 def name: String = ???
 
 /** Gets the value for the given key.
-  * @param key the lookup key
-  */
+ *  @param key the lookup key
+ */
 def get(key: String): Option[Int] = ???
 ```
 
 These are NOT one-liners (multiple lines of descriptive content) and SHOULD get `@return TODO` if missing:
 ```scala
 /** Computes the result.
-  * This method performs complex calculation.
-  */
+ *
+ *  This method performs complex calculation.
+ */
 def compute: Int = ???
 
 /** Retrieves the item from the cache.
-  *
-  * If the item is not found, returns None.
-  * @param key the cache key
-  */
+ *
+ *  If the item is not found, returns None.
+ *  @param key the cache key
+ */
 def getFromCache(key: String): Option[Item] = ???
 ```
 
@@ -209,7 +213,7 @@ Usage: todo-writer <folder> [options]
 Test Scaladoc parsing and tag extraction:
 ```scala
 "ScaladocBlock" should "extract @param tags" in {
-  val block = "/** @param x the x value\n  * @param y the y value */"
+  val block = "/** @param x the x value\n *  @param y the y value\n */"
   // verify params = List("x", "y")
 }
 
