@@ -109,7 +109,7 @@ object Fixer:
     val expositionContent = collection.mutable.ListBuffer[String]()
     val signatureTags = collection.mutable.ListBuffer[String]()
     var foundFirstContent = false
-    var blankLineCount = 0
+    var pendingBlankLines = 0  // Track blank lines to add before next content
     var inSignatureSection = false
     var hasBlankBeforeSignature = false
     var currentTag: Option[collection.mutable.StringBuilder] = None
@@ -124,6 +124,12 @@ object Fixer:
           expositionContent += tagStr
       }
       currentTag = None
+
+    def addPendingBlankLines(): Unit =
+      // Add accumulated blank lines to exposition content
+      for _ <- 0 until pendingBlankLines do
+        expositionContent += ""
+      pendingBlankLines = 0
 
     for line <- lines do
       val trimmed = line.trim
@@ -144,34 +150,28 @@ object Fixer:
         if isSignatureTag(content) then
           if !inSignatureSection then
             inSignatureSection = true
-            hasBlankBeforeSignature = blankLineCount > 0
+            hasBlankBeforeSignature = pendingBlankLines > 0
+          pendingBlankLines = 0  // Discard blank lines before signature section
           currentTagIsSignature = true
           currentTag = Some(new collection.mutable.StringBuilder(content))
-        else if isExpositionTag(content) then
-          // Exposition tag - add any pending blank lines first
-          if foundFirstContent && blankLineCount > 0 then
-            expositionContent += ""
-          currentTagIsSignature = false
-          currentTag = Some(new collection.mutable.StringBuilder(content))
-          foundFirstContent = true
-          blankLineCount = 0
         else
-          // Unknown tag - treat as exposition
-          if foundFirstContent && blankLineCount > 0 then
-            expositionContent += ""
+          // Exposition tag (@note, @see, @example, or unknown) - preserve blank lines before it
+          if foundFirstContent then
+            addPendingBlankLines()
           currentTagIsSignature = false
           currentTag = Some(new collection.mutable.StringBuilder(content))
           foundFirstContent = true
-          blankLineCount = 0
       else if isBlank then
         if currentTag.isDefined then
-          // Blank line - could be within multi-line tag or separator
-          // For now, don't include blank lines within tags
-          ()
+          if !currentTagIsSignature then
+            // Blank line after exposition tag - flush tag and track as separator
+            flushCurrentTag()
+            pendingBlankLines += 1
+          // Blank lines in/after signature tags are ignored
         else if !inSignatureSection then
-          blankLineCount += 1
+          // Blank line between exposition items - track it
           if foundFirstContent then
-            expositionContent += ""
+            pendingBlankLines += 1
         // Blank lines in signature section are ignored
       else
         // Content line
@@ -182,11 +182,9 @@ object Fixer:
           if !foundFirstContent then
             initialText = Some(content)
             foundFirstContent = true
-            blankLineCount = 0
           else
-            if blankLineCount > 0 then
-              expositionContent += ""
-              blankLineCount = 0
+            // Regular text content - add pending blank lines first
+            addPendingBlankLines()
             expositionContent += content
 
     flushCurrentTag()
@@ -289,9 +287,9 @@ object Fixer:
       if line.isEmpty then
         parts += s"$leadingWs *"
       else if line.startsWith("@") then
-        // Exposition tag - may be multi-line
-        val tagLines = line.split("\n", -1)
-        for (tagLine, idx) <- tagLines.zipWithIndex do
+        // Exposition tag - may be multi-line, strip trailing empty lines
+        val tagLines = line.split("\n", -1).reverse.dropWhile(_.isEmpty).reverse
+        for tagLine <- tagLines do
           if tagLine.isEmpty then
             parts += s"$leadingWs *"
           else

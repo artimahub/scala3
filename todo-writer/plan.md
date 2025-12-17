@@ -72,13 +72,16 @@ If `/**` starts at column 4:
    - **Exposition section**: Text paragraphs and exposition tags (`@note`, `@see`, `@example`)
    - **Signature section**: `@tparam`, `@param`, `@return` tags
    - A blank ` *` line separates these sections
-4. **Exposition tags stay with content**: `@note`, `@see`, and `@example` are part of the exposition and remain in their original position relative to text paragraphs
-5. **Signature tag ordering**: Within the signature section, tags appear in order: `@tparam`, then `@param`, then `@return`
+4. **Preserve exposition order and structure**: Within the exposition section:
+   - `@note`, `@see`, and `@example` tags remain in their original order
+   - Blank lines between exposition items (text and tags) are preserved as-is
+   - The fixer does NOT reorder exposition content
+5. **Enforce signature tag ordering**: Within the signature section, tags are sorted to appear in order: `@tparam` first, then `@param`, then `@return`. If the original had them in a different order, the fixer will reorder them.
 6. **No blank lines within signature section**: Signature tags (`@tparam`, `@param`, `@return`) should appear consecutively with no blank lines between them
 7. **Don't add spurious blank lines**: Don't insert blank lines above existing content
 8. **TODO placeholder**: Missing tags are inserted with `TODO FILL IN` as the description
 9. **Preserve multi-line tag content**: Tags that span multiple lines (like `@return` or `@example` with continuation lines) must have all their content preserved
-10. **Normalize indentation inside code blocks**: When fixing a Scaladoc block, indentation is normalized throughout, including inside code examples. This means content after `*` starts with two spaces (` *  content`). This is correct behavior per the Scaladoc style guide.
+10. **Normalize indentation**: When fixing a Scaladoc block, indentation is normalized (two spaces after `*`) for regular text and tag lines. **Note**: Relative indentation inside code examples (`{{{ ... }}}`) is preserved, but the base indentation is normalized to match the standard two-space prefix. This means internal structure of code examples is maintained even though the overall block may shift slightly.
 
 ### Tag Categories
 
