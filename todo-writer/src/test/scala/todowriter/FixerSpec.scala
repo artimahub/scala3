@@ -125,7 +125,49 @@ class FixerSpec extends AnyFlatSpec with Matchers:
     newText should be(text)
   }
 
-  "Fixer" should "NOT insert @return for one-liner scaladoc" in {
+  "Fixer" should "keep initial text on same line as /**" in {
+    val text = "/** Does something. */"
+    val block = ScaladocBlock.findAll(text).head
+    val result = Fixer.buildFixedBlock(text, block, Nil, List("x"), false)
+    result should startWith("/** Does something.")
+  }
+
+  it should "move misplaced initial text to /** line" in {
+    val text = """/**
+                 | * Does something.
+                 | */""".stripMargin
+    val block = ScaladocBlock.findAll(text).head
+    val result = Fixer.buildFixedBlock(text, block, Nil, List("x"), false)
+    result should startWith("/** Does something.")
+    // Should not have a blank line at the start
+    result should not include "/**\n *\n"
+  }
+
+  it should "add blank line before tags if missing" in {
+    val text = "/** Does something. */"
+    val block = ScaladocBlock.findAll(text).head
+    val result = Fixer.buildFixedBlock(text, block, Nil, List("x"), false)
+    // Should have a blank line before @param
+    val lines = result.split("\n")
+    val paramLineIdx = lines.indexWhere(_.contains("@param"))
+    if paramLineIdx > 0 then
+      val prevLine = lines(paramLineIdx - 1).trim
+      prevLine should be("*")
+  }
+
+  it should "not duplicate blank line before tags if already present" in {
+    val text = """/** Does something.
+                 | *
+                 | *  @param y existing
+                 | */""".stripMargin
+    val block = ScaladocBlock.findAll(text).head
+    val result = Fixer.buildFixedBlock(text, block, Nil, List("x"), false)
+    // Count blank star lines
+    val blankStarLines = result.split("\n").count(l => l.trim == "*")
+    blankStarLines should be(1)
+  }
+
+  it should "NOT insert @return for one-liner scaladoc" in {
     val text = "/** Returns the count. */"
     val block = ScaladocBlock.findAll(text).head
     block.isOneLiner should be(true)

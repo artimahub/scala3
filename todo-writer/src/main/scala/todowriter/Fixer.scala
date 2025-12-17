@@ -69,6 +69,63 @@ object Fixer:
       case _                      => false
     }
 
+  /** Parsed representation of Scaladoc content. */
+  private case class ParsedScaladoc(
+      initialText: Option[String],      // First line of description (goes on /** line)
+      descriptionLines: List[String],   // Additional description lines
+      blankLinesBeforeTags: Int,        // Number of blank lines before first tag
+      existingTags: List[String]        // Existing @param, @tparam, @return, etc.
+  )
+
+  /** Parse Scaladoc inner content into structured parts. */
+  private def parseScaladocContent(inner: String): ParsedScaladoc =
+    val lines = inner.linesIterator.toList
+
+    var initialText: Option[String] = None
+    val descriptionLines = collection.mutable.ListBuffer[String]()
+    val existingTags = collection.mutable.ListBuffer[String]()
+    var blankLinesBeforeTags = 0
+    var inTagSection = false
+    var foundFirstContent = false
+    var blankLineCount = 0
+
+    for line <- lines do
+      val trimmed = line.trim
+      // Remove leading * if present
+      val afterStar =
+        if trimmed.startsWith("*") then trimmed.drop(1).trim
+        else trimmed
+
+      val isTag = afterStar.startsWith("@")
+      val isBlank = afterStar.isEmpty
+
+      if isTag then
+        if !inTagSection then
+          // First tag - record blank lines before it
+          blankLinesBeforeTags = blankLineCount
+          inTagSection = true
+        existingTags += afterStar
+      else if isBlank then
+        if !inTagSection then
+          blankLineCount += 1
+          // Only add blank lines to description if we've seen content
+          if foundFirstContent then
+            descriptionLines += ""
+      else
+        // Content line
+        if !inTagSection then
+          if !foundFirstContent then
+            // This is the initial text
+            initialText = Some(afterStar)
+            foundFirstContent = true
+            blankLineCount = 0
+          else
+            // Additional description
+            descriptionLines += afterStar
+            blankLineCount = 0
+
+    ParsedScaladoc(initialText, descriptionLines.toList, blankLinesBeforeTags, existingTags.toList)
+
   /** Build a fixed Scaladoc block with missing tags inserted and proper indentation. */
   def buildFixedBlock(
       text: String,
@@ -86,99 +143,90 @@ object Fixer:
 
     // Parse existing content
     val inner = block.content
-    val contentLines = parseScaladocContent(inner)
+    val parsed = parseScaladocContent(inner)
 
     // Build tags to insert
-    val tagsToInsert = collection.mutable.ListBuffer[String]()
+    val newTags = collection.mutable.ListBuffer[String]()
     for tp <- missingTparams do
-      tagsToInsert += s"@tparam $tp TODO"
+      newTags += s"@tparam $tp TODO"
     for p <- missingParams do
-      tagsToInsert += s"@param $p TODO"
+      newTags += s"@param $p TODO"
     if needsReturn then
-      tagsToInsert += "@return TODO"
+      newTags += "@return TODO"
 
     // Check if original was single-line
     val originalBlock = text.substring(block.startIndex, block.endIndex)
     val wasSingleLine = !originalBlock.contains('\n')
 
-    if wasSingleLine && tagsToInsert.nonEmpty then
-      // Convert single-line to multi-line
-      buildMultiLineBlock(leadingWs, contentLines, tagsToInsert.toList)
-    else if wasSingleLine then
-      // Keep as single line (no changes needed, but we shouldn't get here)
-      originalBlock
-    else
-      // Already multi-line, insert tags
-      buildMultiLineBlock(leadingWs, contentLines, tagsToInsert.toList)
+    buildFormattedBlock(leadingWs, parsed, newTags.toList, wasSingleLine)
 
-  /** Parse Scaladoc inner content into structured lines. */
-  private case class ContentLine(
-      isTag: Boolean,
-      isBlank: Boolean,
-      isCodeBlock: Boolean,
-      content: String
-  )
-
-  private def parseScaladocContent(inner: String): List[ContentLine] =
-    val lines = inner.linesIterator.toList
-    var inCodeBlock = false
-    var inPreBlock = false
-
-    lines.map { line =>
-      val trimmed = line.trim
-      // Remove leading * if present
-      val afterStar =
-        if trimmed.startsWith("*") then trimmed.drop(1) else trimmed
-      val content = afterStar.trim
-
-      // Track code blocks
-      if content.startsWith("{{{") then inCodeBlock = true
-      if content.contains("}}}") then inCodeBlock = false
-      if content.toLowerCase.startsWith("<pre>") then inPreBlock = true
-      if content.toLowerCase.contains("</pre>") then inPreBlock = false
-
-      val isInCode = inCodeBlock || inPreBlock
-      val isTag = content.startsWith("@")
-      val isBlank = content.isEmpty
-
-      ContentLine(isTag, isBlank, isInCode, afterStar)
-    }
-
-  /** Build a properly formatted multi-line Scaladoc block. */
-  private def buildMultiLineBlock(
+  /** Build a properly formatted Scaladoc block.
+   *
+   *  Format rules:
+   *  1. Initial text appears on same line as opening
+   *  2. Continuation lines have * aligned under first * of opening
+   *  3. Text after * starts with two spaces
+   *  4. Blank line before tags section
+   */
+  private def buildFormattedBlock(
       leadingWs: String,
-      contentLines: List[ContentLine],
-      tagsToInsert: List[String]
+      parsed: ParsedScaladoc,
+      newTags: List[String],
+      wasSingleLine: Boolean
+  ): String =
+    val allTags = parsed.existingTags ++ newTags
+    val hasDescription = parsed.initialText.isDefined || parsed.descriptionLines.nonEmpty
+    val hasTags = allTags.nonEmpty
+
+    // Special case: single-line with no additional content needed
+    if wasSingleLine && parsed.descriptionLines.isEmpty && allTags.isEmpty then
+      parsed.initialText match
+        case Some(text) => s"/** $text */"
+        case None => "/** */"
+
+    // Special case: single-line that needs to become multi-line
+    else if wasSingleLine && (parsed.descriptionLines.nonEmpty || hasTags) then
+      buildMultiLineOutput(leadingWs, parsed, allTags)
+
+    // Already multi-line
+    else
+      buildMultiLineOutput(leadingWs, parsed, allTags)
+
+  private def buildMultiLineOutput(
+      leadingWs: String,
+      parsed: ParsedScaladoc,
+      allTags: List[String]
   ): String =
     val parts = collection.mutable.ListBuffer[String]()
 
-    // Opening
-    parts += "/**"
+    // Opening line with initial text
+    parsed.initialText match
+      case Some(text) =>
+        parts += s"/** $text"
+      case None =>
+        // No initial text - this shouldn't happen for well-formed scaladoc
+        // but handle it gracefully
+        parts += "/**"
 
-    // Process existing content lines
-    var lastWasBlank = false
-    for line <- contentLines do
-      if line.isBlank then
-        // Emit blank star line
+    // Additional description lines
+    for line <- parsed.descriptionLines do
+      if line.isEmpty then
         parts += s"$leadingWs *"
-        lastWasBlank = true
-      else if line.isCodeBlock then
-        // Preserve code block content exactly
-        parts += s"$leadingWs *${line.content}"
-        lastWasBlank = false
       else
-        // Normal content - ensure two spaces after *
-        val content = line.content
-        if content.startsWith(" ") then
-          // Already has leading space(s), preserve them but ensure at least one
-          parts += s"$leadingWs *$content"
-        else
-          // Add two spaces before content
-          parts += s"$leadingWs * $content"
-        lastWasBlank = false
+        parts += s"$leadingWs *  $line"
 
-    // Insert new tags
-    for tag <- tagsToInsert do
+    // Blank line before tags (if there are tags and we need one)
+    if allTags.nonEmpty then
+      // Check if we need to add a blank line
+      val lastLineIsBlank = parsed.descriptionLines.lastOption.contains("") ||
+        (parsed.descriptionLines.isEmpty && parsed.initialText.isEmpty)
+      val hadBlankBeforeTags = parsed.blankLinesBeforeTags > 0
+
+      if !lastLineIsBlank && !hadBlankBeforeTags then
+        parts += s"$leadingWs *"
+
+    // All tags
+    for tag <- allTags do
       parts += s"$leadingWs *  $tag"
 
     // Closing

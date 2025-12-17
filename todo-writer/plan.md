@@ -23,12 +23,16 @@ Preserved as-is:
 ```
 
 ### Multi-line Scaladoc
+The initial text of the doc comment appears on the same line as `/**`, after a space.
 The `*` on continuation lines aligns directly beneath the first `*` of `/**`.
-Text on continuation lines starts after two spaces following the `*`:
+Text on continuation lines starts after two spaces following the `*`.
+A blank line (` *`) should appear before any tags:
 ```scala
-/** First line of comment.
+/** First line of comment appears on same line as /**.
  *
- *  Second line - the * is in column 1 (beneath first * of /**)
+ *  Additional description lines.
+ *  More details here.
+ *
  *  @param x description
  *  @return description
  */
@@ -36,11 +40,19 @@ Text on continuation lines starts after two spaces following the `*`:
 
 If `/**` starts at column 4:
 ```scala
-    /** First line of comment.
+    /** First line of comment on same line.
      *
      *  Second line - the * is in column 5
+     *
+     *  @param x description
      */
 ```
+
+**Important formatting rules for the Fixer:**
+1. **Preserve initial text position**: If the original Scaladoc has text on the `/**` line, keep it there
+2. **Move misplaced initial text**: If the original has `/**` alone on a line followed by ` * Initial text`, move the text to the `/**` line
+3. **Blank line before tags**: Always ensure a blank ` *` line exists before the first `@param`, `@tparam`, or `@return` tag
+4. **Don't add spurious blank lines**: Don't insert blank lines above existing content
 
 ## Validation Rules
 
@@ -78,6 +90,7 @@ def count: Int = ???
 def name: String = ???
 
 /** Gets the value for the given key.
+ *
  *  @param key the lookup key
  */
 def get(key: String): Option[Int] = ???
@@ -94,6 +107,7 @@ def compute: Int = ???
 /** Retrieves the item from the cache.
  *
  *  If the item is not found, returns None.
+ *
  *  @param key the cache key
  */
 def getFromCache(key: String): Option[Item] = ???
