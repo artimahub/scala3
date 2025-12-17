@@ -26,26 +26,39 @@ Preserved as-is:
 The initial text of the doc comment appears on the same line as `/**`, after a space.
 The `*` on continuation lines aligns directly beneath the first `*` of `/**`.
 Text on continuation lines starts after two spaces following the `*`.
-A blank line (` *`) should appear before any tags.
-Tags appear in order: `@see`, then `@tparam`, then `@param`, then `@return`, with no blank lines between them:
+
+A Scaladoc comment has two logical sections:
+
+1. **Exposition (main content)**: Text paragraphs plus `@note`, `@see`, and `@example` tags. These tags are considered part of the descriptive content and appear interspersed with or after text paragraphs.
+
+2. **Signature documentation**: `@tparam`, `@param`, and `@return` tags that document the declaration's type parameters, value parameters, and return value. These always appear at the end, after a blank line separator.
+
+The structure is:
 ```scala
 /** First line of comment appears on same line as /**.
  *
  *  Additional description lines.
  *  More details here.
  *
+ *  @note Important information.
  *  @see [[OtherClass]]
+ *  @example {{{ code example }}}
+ *
  *  @tparam T the type parameter
  *  @param x description
  *  @return description
  */
 ```
 
+Within the signature documentation section, tags appear in order: `@tparam`, then `@param`, then `@return`, with no blank lines between them.
+
 If `/**` starts at column 4:
 ```scala
     /** First line of comment on same line.
      *
      *  Second line - the * is in column 5
+     *
+     *  @see [[Related]]
      *
      *  @tparam A type param
      *  @param x description
@@ -55,13 +68,29 @@ If `/**` starts at column 4:
 **Important formatting rules for the Fixer:**
 1. **Preserve initial text position**: If the original Scaladoc has text on the `/**` line, keep it there
 2. **Move misplaced initial text**: If the original has `/**` alone on a line followed by ` * Initial text`, move the text to the `/**` line
-3. **Blank line before tags**: Always ensure a blank ` *` line exists before the first tag
-4. **Tag ordering**: Tags must appear in this order: `@see` first, then `@tparam`, then `@param`, then `@return`
-5. **No blank lines between tags**: Tags should appear consecutively with no blank lines between them
-6. **Don't add spurious blank lines**: Don't insert blank lines above existing content
-7. **TODO placeholder**: Missing tags are inserted with `TODO FILL IN` as the description
-8. **Preserve multi-line tag content**: Tags that span multiple lines (like `@return` or `@example` with continuation lines) must have all their content preserved
-9. **Normalize indentation inside code blocks**: When fixing a Scaladoc block, indentation is normalized throughout, including inside code examples. This means content after `*` starts with two spaces (` *  content`). This is correct behavior per the Scaladoc style guide.
+3. **Two sections with blank line separator**:
+   - **Exposition section**: Text paragraphs and exposition tags (`@note`, `@see`, `@example`)
+   - **Signature section**: `@tparam`, `@param`, `@return` tags
+   - A blank ` *` line separates these sections
+4. **Exposition tags stay with content**: `@note`, `@see`, and `@example` are part of the exposition and remain in their original position relative to text paragraphs
+5. **Signature tag ordering**: Within the signature section, tags appear in order: `@tparam`, then `@param`, then `@return`
+6. **No blank lines within signature section**: Signature tags (`@tparam`, `@param`, `@return`) should appear consecutively with no blank lines between them
+7. **Don't add spurious blank lines**: Don't insert blank lines above existing content
+8. **TODO placeholder**: Missing tags are inserted with `TODO FILL IN` as the description
+9. **Preserve multi-line tag content**: Tags that span multiple lines (like `@return` or `@example` with continuation lines) must have all their content preserved
+10. **Normalize indentation inside code blocks**: When fixing a Scaladoc block, indentation is normalized throughout, including inside code examples. This means content after `*` starts with two spaces (` *  content`). This is correct behavior per the Scaladoc style guide.
+
+### Tag Categories
+
+**Exposition tags** (part of main content):
+- `@note` - additional notes
+- `@see` - references to related items
+- `@example` - code examples
+
+**Signature tags** (document the declaration):
+- `@tparam` - type parameter documentation
+- `@param` - value parameter documentation
+- `@return` - return value documentation
 
 ### Multi-line Tag Examples
 
@@ -75,7 +104,7 @@ Multi-line tags like `@return` or `@example` must be fully preserved:
  */
 ```
 
-Multi-line `@example` blocks with `{{{ }}}` are also preserved:
+Multi-line `@example` blocks with `{{{ }}}` are also preserved (note: `@example` is an exposition tag, so it appears before signature tags):
 ```scala
 /** Shifts bits right.
  *
@@ -84,6 +113,8 @@ Multi-line `@example` blocks with `{{{ }}}` are also preserved:
  *  // in binary: 11111111 11111111 11111111 11101011 >>> 3 ==
  *  //            00011111 11111111 11111111 11111101
  *  }}}
+ *
+ *  @param x the shift amount
  */
 ```
 

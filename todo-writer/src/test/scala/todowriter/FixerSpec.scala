@@ -140,7 +140,7 @@ class FixerSpec extends AnyFlatSpec with Matchers:
     paramYIdx should be < returnIdx
   }
 
-  it should "put @see tags before @tparam, @param, @return" in {
+  it should "keep @see in exposition section, before signature tags" in {
     val text = """/** Does something.
                  | *
                  | *  @see [[Other]]
@@ -153,13 +153,13 @@ class FixerSpec extends AnyFlatSpec with Matchers:
     val paramIdx = result.indexOf("@param")
     val returnIdx = result.indexOf("@return")
 
+    // @see is exposition, so it comes before all signature tags
     seeIdx should be < tparamIdx
     seeIdx should be < paramIdx
     seeIdx should be < returnIdx
   }
 
-  it should "preserve @see at beginning when adding new tags" in {
-    // This tests the case where only @see existed and we add tparam/param/return
+  it should "have blank line between exposition (@see) and signature section" in {
     val text = """/** Does something.
                  | *
                  | *  @see [[SomeClass]]
@@ -167,17 +167,35 @@ class FixerSpec extends AnyFlatSpec with Matchers:
     val block = ScaladocBlock.findAll(text).head
     val result = Fixer.buildFixedBlock(text, block, List("T"), List("x"), true)
 
-    val lines = result.split("\n").map(_.trim)
-    val tagLines = lines.filter(_.startsWith("*  @"))
+    val lines = result.split("\n")
+    val seeLineIdx = lines.indexWhere(_.contains("@see"))
+    val tparamLineIdx = lines.indexWhere(_.contains("@tparam"))
 
-    // @see should be first tag
-    tagLines.head should include("@see")
-    // @tparam should come after @see
-    tagLines(1) should include("@tparam")
-    // @param should come after @tparam
-    tagLines(2) should include("@param")
-    // @return should be last
-    tagLines(3) should include("@return")
+    // There should be a blank line between @see and @tparam
+    val linesBetween = lines.slice(seeLineIdx + 1, tparamLineIdx)
+    linesBetween.exists(_.trim == "*") should be(true)
+  }
+
+  it should "preserve @example in exposition section" in {
+    val text = """/** Does something.
+                 | *
+                 | *  @example {{{ code }}}
+                 | */""".stripMargin
+    val block = ScaladocBlock.findAll(text).head
+    val result = Fixer.buildFixedBlock(text, block, Nil, List("x"), false)
+
+    val exampleIdx = result.indexOf("@example")
+    val paramIdx = result.indexOf("@param")
+
+    // @example is exposition, so it comes before @param
+    exampleIdx should be < paramIdx
+
+    // There should be a blank line between @example and @param
+    val lines = result.split("\n")
+    val exampleLineIdx = lines.indexWhere(_.contains("@example"))
+    val paramLineIdx = lines.indexWhere(_.contains("@param"))
+    val linesBetween = lines.slice(exampleLineIdx + 1, paramLineIdx)
+    linesBetween.exists(_.trim == "*") should be(true)
   }
 
   "Fixer.applyFixes" should "apply multiple fixes" in {

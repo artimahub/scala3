@@ -69,76 +69,128 @@ object Fixer:
       case _                      => false
     }
 
-  /** Parsed representation of Scaladoc content. */
+  /** Parsed representation of Scaladoc content.
+   *
+   *  Scaladoc has two logical sections:
+   *  1. Exposition: text paragraphs + exposition tags (@note, @see, @example)
+   *  2. Signature: @tparam, @param, @return tags
+   */
   private case class ParsedScaladoc(
-      initialText: Option[String],      // First line of description (goes on /** line)
-      descriptionLines: List[String],   // Additional description lines
-      blankLinesBeforeTags: Int,        // Number of blank lines before first tag
-      existingTags: List[String]        // Existing tags, each may contain newlines for multi-line tags
+      initialText: Option[String],           // First line of description (goes on /** line)
+      expositionContent: List[String],       // Additional description lines and exposition tags
+      signatureTags: List[String],           // Signature tags (@tparam, @param, @return)
+      hasBlankBeforeSignature: Boolean       // Whether there was a blank line before signature tags
   )
+
+  /** Tags that are part of the exposition (main content). */
+  private val ExpositionTags = Set("@note", "@see", "@example")
+
+  /** Tags that document the signature (appear at end). */
+  private val SignatureTags = Set("@tparam", "@param", "@return")
+
+  /** Check if a line starts with an exposition tag. */
+  private def isExpositionTag(line: String): Boolean =
+    ExpositionTags.exists(tag => line.startsWith(tag))
+
+  /** Check if a line starts with a signature tag. */
+  private def isSignatureTag(line: String): Boolean =
+    SignatureTags.exists(tag => line.startsWith(tag))
 
   /** Parse Scaladoc inner content into structured parts.
    *
-   *  Multi-line tags (like @return or @example spanning multiple lines) are preserved
-   *  by joining continuation lines with newlines.
+   *  Separates exposition content (text + @note/@see/@example) from
+   *  signature documentation (@tparam/@param/@return).
+   *  Multi-line tags are preserved by joining continuation lines with newlines.
    */
   private def parseScaladocContent(inner: String): ParsedScaladoc =
     val lines = inner.linesIterator.toList
 
     var initialText: Option[String] = None
-    val descriptionLines = collection.mutable.ListBuffer[String]()
-    val existingTags = collection.mutable.ListBuffer[String]()
-    var blankLinesBeforeTags = 0
-    var inTagSection = false
+    val expositionContent = collection.mutable.ListBuffer[String]()
+    val signatureTags = collection.mutable.ListBuffer[String]()
     var foundFirstContent = false
     var blankLineCount = 0
+    var inSignatureSection = false
+    var hasBlankBeforeSignature = false
+    var currentTag: Option[collection.mutable.StringBuilder] = None
+    var currentTagIsSignature = false
+
+    def flushCurrentTag(): Unit =
+      currentTag.foreach { tag =>
+        val tagStr = tag.toString
+        if currentTagIsSignature then
+          signatureTags += tagStr
+        else
+          expositionContent += tagStr
+      }
+      currentTag = None
 
     for line <- lines do
       val trimmed = line.trim
       // Remove leading * if present, but preserve content after it
-      // We use dropWhile to handle "* " or "*  " prefixes
       val afterStar =
         if trimmed.startsWith("*") then
           val afterAsterisk = trimmed.drop(1)
-          // Preserve relative indentation: just drop the leading "* " or "*"
           if afterAsterisk.startsWith(" ") then afterAsterisk.drop(1)
           else afterAsterisk
         else trimmed
 
-      val isTag = afterStar.trim.startsWith("@")
-      val isBlank = afterStar.trim.isEmpty
+      val content = afterStar.trim
+      val isBlank = content.isEmpty
+      val isTag = content.startsWith("@")
 
       if isTag then
-        if !inTagSection then
-          // First tag - record blank lines before it
-          blankLinesBeforeTags = blankLineCount
-          inTagSection = true
-        existingTags += afterStar.trim
+        flushCurrentTag()
+        if isSignatureTag(content) then
+          if !inSignatureSection then
+            inSignatureSection = true
+            hasBlankBeforeSignature = blankLineCount > 0
+          currentTagIsSignature = true
+          currentTag = Some(new collection.mutable.StringBuilder(content))
+        else if isExpositionTag(content) then
+          // Exposition tag - add any pending blank lines first
+          if foundFirstContent && blankLineCount > 0 then
+            expositionContent += ""
+          currentTagIsSignature = false
+          currentTag = Some(new collection.mutable.StringBuilder(content))
+          foundFirstContent = true
+          blankLineCount = 0
+        else
+          // Unknown tag - treat as exposition
+          if foundFirstContent && blankLineCount > 0 then
+            expositionContent += ""
+          currentTagIsSignature = false
+          currentTag = Some(new collection.mutable.StringBuilder(content))
+          foundFirstContent = true
+          blankLineCount = 0
       else if isBlank then
-        if !inTagSection then
+        if currentTag.isDefined then
+          // Blank line - could be within multi-line tag or separator
+          // For now, don't include blank lines within tags
+          ()
+        else if !inSignatureSection then
           blankLineCount += 1
-          // Only add blank lines to description if we've seen content
           if foundFirstContent then
-            descriptionLines += ""
-        // else: blank lines in tag section are ignored (formatting rules say no blanks between tags)
+            expositionContent += ""
+        // Blank lines in signature section are ignored
       else
         // Content line
-        if !inTagSection then
+        if currentTag.isDefined then
+          // Continuation of current tag
+          currentTag.foreach(_.append("\n").append(afterStar))
+        else if !inSignatureSection then
           if !foundFirstContent then
-            // This is the initial text
-            initialText = Some(afterStar.trim)
+            initialText = Some(content)
             foundFirstContent = true
             blankLineCount = 0
           else
-            // Additional description
-            descriptionLines += afterStar.trim
-            blankLineCount = 0
-        else
-          // Continuation of the previous tag (multi-line tag content)
-          if existingTags.nonEmpty then
-            existingTags(existingTags.length - 1) = existingTags.last + "\n" + afterStar
+            if blankLineCount > 0 then
+              expositionContent += ""
+              blankLineCount = 0
+            expositionContent += content
 
-    ParsedScaladoc(initialText, descriptionLines.toList, blankLinesBeforeTags, existingTags.toList)
+    flushCurrentTag()
+    ParsedScaladoc(initialText, expositionContent.toList, signatureTags.toList, hasBlankBeforeSignature)
 
   /** Build a fixed Scaladoc block with missing tags inserted and proper indentation. */
   def buildFixedBlock(
@@ -159,34 +211,31 @@ object Fixer:
     val inner = block.content
     val parsed = parseScaladocContent(inner)
 
-    // Build tags to insert
-    val newTags = collection.mutable.ListBuffer[String]()
+    // Build new signature tags to insert
+    val newSignatureTags = collection.mutable.ListBuffer[String]()
     for tp <- missingTparams do
-      newTags += s"@tparam $tp TODO FILL IN"
+      newSignatureTags += s"@tparam $tp TODO FILL IN"
     for p <- missingParams do
-      newTags += s"@param $p TODO FILL IN"
+      newSignatureTags += s"@param $p TODO FILL IN"
     if needsReturn then
-      newTags += "@return TODO FILL IN"
+      newSignatureTags += "@return TODO FILL IN"
 
     // Check if original was single-line
     val originalBlock = text.substring(block.startIndex, block.endIndex)
     val wasSingleLine = !originalBlock.contains('\n')
 
-    // Combine and sort all tags in proper order: @tparam, @param, @return
-    val allTags = sortTags(parsed.existingTags ++ newTags.toList)
+    // Combine and sort signature tags in proper order: @tparam, @param, @return
+    val allSignatureTags = sortSignatureTags(parsed.signatureTags ++ newSignatureTags.toList)
 
-    buildFormattedBlock(leadingWs, parsed, allTags, wasSingleLine)
+    buildFormattedBlock(leadingWs, parsed, allSignatureTags, wasSingleLine)
 
-  /** Sort tags in proper order: @see first, then @tparam, then @param, then @return.
-   *  Other tags (like @throws, @since, etc.) are preserved at the end.
-   */
-  private def sortTags(tags: List[String]): List[String] =
+  /** Sort signature tags in proper order: @tparam, then @param, then @return. */
+  private def sortSignatureTags(tags: List[String]): List[String] =
     def tagOrder(tag: String): Int =
-      if tag.startsWith("@see") then 0
-      else if tag.startsWith("@tparam") then 1
-      else if tag.startsWith("@param") then 2
-      else if tag.startsWith("@return") then 3
-      else 4 // Other tags go last
+      if tag.startsWith("@tparam") then 0
+      else if tag.startsWith("@param") then 1
+      else if tag.startsWith("@return") then 2
+      else 3 // Unknown tags go last
 
     tags.sortBy(tagOrder)
 
@@ -196,35 +245,33 @@ object Fixer:
    *  1. Initial text appears on same line as opening
    *  2. Continuation lines have * aligned under first * of opening
    *  3. Text after * starts with two spaces
-   *  4. Blank line before tags section
+   *  4. Exposition section: text + @note/@see/@example tags
+   *  5. Blank line before signature section
+   *  6. Signature section: @tparam, @param, @return (no blank lines between)
    */
   private def buildFormattedBlock(
       leadingWs: String,
       parsed: ParsedScaladoc,
-      sortedTags: List[String],
+      signatureTags: List[String],
       wasSingleLine: Boolean
   ): String =
-    val hasDescription = parsed.initialText.isDefined || parsed.descriptionLines.nonEmpty
-    val hasTags = sortedTags.nonEmpty
+    val hasExposition = parsed.initialText.isDefined || parsed.expositionContent.nonEmpty
+    val hasSignature = signatureTags.nonEmpty
 
     // Special case: single-line with no additional content needed
-    if wasSingleLine && parsed.descriptionLines.isEmpty && sortedTags.isEmpty then
+    if wasSingleLine && parsed.expositionContent.isEmpty && signatureTags.isEmpty then
       parsed.initialText match
         case Some(text) => s"/** $text */"
         case None => "/** */"
 
-    // Special case: single-line that needs to become multi-line
-    else if wasSingleLine && (parsed.descriptionLines.nonEmpty || hasTags) then
-      buildMultiLineOutput(leadingWs, parsed, sortedTags)
-
-    // Already multi-line
+    // Multi-line output needed
     else
-      buildMultiLineOutput(leadingWs, parsed, sortedTags)
+      buildMultiLineOutput(leadingWs, parsed, signatureTags)
 
   private def buildMultiLineOutput(
       leadingWs: String,
       parsed: ParsedScaladoc,
-      sortedTags: List[String]
+      signatureTags: List[String]
   ): String =
     val parts = collection.mutable.ListBuffer[String]()
 
@@ -237,36 +284,38 @@ object Fixer:
         // but handle it gracefully
         parts += "/**"
 
-    // Additional description lines
-    for line <- parsed.descriptionLines do
+    // Exposition content (description lines + exposition tags like @note, @see, @example)
+    for line <- parsed.expositionContent do
       if line.isEmpty then
         parts += s"$leadingWs *"
+      else if line.startsWith("@") then
+        // Exposition tag - may be multi-line
+        val tagLines = line.split("\n", -1)
+        for (tagLine, idx) <- tagLines.zipWithIndex do
+          if tagLine.isEmpty then
+            parts += s"$leadingWs *"
+          else
+            parts += s"$leadingWs *  $tagLine"
       else
         parts += s"$leadingWs *  $line"
 
-    // Blank line before tags (if there are tags and we need one)
-    if sortedTags.nonEmpty then
+    // Blank line before signature section (if there are signature tags)
+    if signatureTags.nonEmpty then
       // Check if we need to add a blank line
-      val lastLineIsBlank = parsed.descriptionLines.lastOption.contains("") ||
-        (parsed.descriptionLines.isEmpty && parsed.initialText.isEmpty)
-      val hadBlankBeforeTags = parsed.blankLinesBeforeTags > 0
+      val lastLineIsBlank = parsed.expositionContent.lastOption.exists(_.isEmpty) ||
+        (parsed.expositionContent.isEmpty && parsed.initialText.isEmpty)
 
-      if !lastLineIsBlank && !hadBlankBeforeTags then
+      if !lastLineIsBlank then
         parts += s"$leadingWs *"
 
-    // All tags (already sorted: @see, @tparam, @param, @return)
+    // Signature tags (@tparam, @param, @return)
     // Tags may contain newlines for multi-line content
-    for tag <- sortedTags do
+    for tag <- signatureTags do
       val tagLines = tag.split("\n", -1) // -1 to keep trailing empty strings
       for (line, idx) <- tagLines.zipWithIndex do
-        if idx == 0 then
-          // First line starts with @tag
-          parts += s"$leadingWs *  $line"
-        else if line.isEmpty then
-          // Blank line within tag content
+        if line.isEmpty then
           parts += s"$leadingWs *"
         else
-          // Continuation line - preserve its content
           parts += s"$leadingWs *  $line"
 
     // Closing
