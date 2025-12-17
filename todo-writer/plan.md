@@ -83,18 +83,26 @@ If `/**` starts at column 4:
 - Applies to: `def` only (not applicable to `class`, `trait`, `object`, `val`, `var`)
 - For `def` with non-Unit return type: `@return` should be present
 - For `def` with Unit return type: `@return` should be absent
-- **One-liner exception**: If the Scaladoc has only a single line of descriptive content (ignoring tags like `@param`, `@tparam`), do NOT add `@return`. Per the Scaladoc style guide: "If the documentation of a method is a one line description of what that method returns, do not repeat it with an @return annotation."
+- **One-liner exception**: If the Scaladoc's descriptive content is a single logical sentence (ignoring tags like `@param`, `@tparam`), do NOT add `@return`. A single sentence may span multiple physical lines. Per the Scaladoc style guide: "If the documentation of a method is a one line description of what that method returns, do not repeat it with an @return annotation." The key indicator of multiple sentences is a blank line (` *`) separating paragraphs in the description.
 - Reports: "Missing @return for non-Unit return type" or "@return present but return type is Unit"
 
 #### One-liner Examples
 
-These are considered one-liners and should NOT get `@return TODO` added:
+These are considered one-liners (single sentence/paragraph) and should NOT get `@return TODO` added:
 ```scala
 /** Returns the current count. */
 def count: Int = ???
 
 /** The name of this entity */
 def name: String = ???
+
+/** Returns a two-dimensional array that contains the results of some element
+ *  computation a number of times.
+ *
+ *  @param n1 the number of elements in the 1st dimension
+ *  @param n2 the number of elements in the 2nd dimension
+ */
+def fill[T](n1: Int, n2: Int)(elem: => T): Array[Array[T]] = ???
 
 /** Gets the value for the given key.
  *
@@ -103,7 +111,7 @@ def name: String = ???
 def get(key: String): Option[Int] = ???
 ```
 
-These are NOT one-liners (multiple lines of descriptive content) and SHOULD get `@return TODO` if missing:
+These are NOT one-liners (multiple paragraphs separated by blank lines) and SHOULD get `@return TODO` if missing:
 ```scala
 /** Computes the result.
  *

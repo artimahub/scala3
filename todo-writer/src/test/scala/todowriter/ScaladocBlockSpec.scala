@@ -68,6 +68,7 @@ class ScaladocBlockSpec extends AnyFlatSpec with Matchers:
 
   it should "detect one-liner even with @param tags present" in {
     val text = """/** Gets the value for the given key.
+                 | *
                  | *  @param key the lookup key
                  | */""".stripMargin
     val blocks = ScaladocBlock.findAll(text)
@@ -75,7 +76,18 @@ class ScaladocBlockSpec extends AnyFlatSpec with Matchers:
     blocks.head.isOneLiner should be(true)
   }
 
-  it should "not consider multi-line descriptive content as one-liner" in {
+  it should "detect one-liner when sentence spans multiple physical lines" in {
+    val text = """/** Returns a two-dimensional array that contains the results of some element
+                 | *  computation a number of times.
+                 | *
+                 | *  @param n1 the number of elements
+                 | */""".stripMargin
+    val blocks = ScaladocBlock.findAll(text)
+    blocks should have size 1
+    blocks.head.isOneLiner should be(true)
+  }
+
+  it should "not consider multiple paragraphs as one-liner" in {
     val text = """/** Computes the result.
                  | *
                  | *  This method performs complex calculation.

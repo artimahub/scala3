@@ -16,7 +16,7 @@ case class ScaladocBlock(
 
 object ScaladocBlock:
   /** Regex to match Scaladoc blocks /** ... */ */
-  val ScaladocPattern: Regex = """(?s)/\*\*(.*?)\*/""".r("inner")
+  val ScaladocPattern: Regex = """(?s)/\*\*(?<inner>.*?)\*/""".r
 
   /** Regex to extract tags from Scaladoc content.
    *  Matches lines like: * @param name description
@@ -71,31 +71,56 @@ object ScaladocBlock:
 
     ExtractedTags(params.toList, tparams.toList, hasReturn)
 
-  /** Determine if the Scaladoc has only a single line of descriptive content.
+  /** Determine if the Scaladoc has only a single paragraph of descriptive content.
    *
-   *  A "one-liner" is a Scaladoc where the descriptive text (ignoring tags like
-   *  @param, @tparam, @return) consists of only a single line/sentence.
+   *  A "one-liner" (really "one-sentencer") is a Scaladoc where the descriptive
+   *  text (ignoring tags) forms a single paragraph without blank line separators.
+   *  The text may span multiple physical lines.
    *
    *  Examples of one-liners:
    *  - /** Returns the count. */
-   *  - /** Gets the value.\n *  @param key the key\n */
+   *  - /** Returns a two-dimensional array that contains\n *  the results. */
+   *  - /** Gets the value.\n *\n *  @param key the key\n */ (blank before tags is OK)
    *
-   *  Examples of NOT one-liners:
-   *  - /** Computes result.\n *  This is complex.\n */
+   *  Examples of NOT one-liners (blank line separates paragraphs):
+   *  - /** Computes result.\n *\n *  This is complex.\n */
    */
   private def isOneLinerContent(inner: String): Boolean =
-    // Extract non-tag content lines
-    val contentLines = inner
-      .linesIterator
-      .map(_.trim)
-      .map { line =>
-        // Remove leading * if present
-        if line.startsWith("*") then line.drop(1).trim else line
-      }
-      .filter(_.nonEmpty)
-      .filterNot(_.startsWith("@")) // Remove tag lines
-      .toList
+    val lines = inner.linesIterator.toList
 
-    // It's a one-liner if there's exactly 0 or 1 content lines
-    // (0 means only tags, which we treat as one-liner for @return purposes)
-    contentLines.size <= 1
+    // Track state: have we seen content? have we seen a blank after content?
+    var foundContent = false
+    var foundBlankAfterContent = false
+    var isMultipleParagraphs = false
+
+    val iter = lines.iterator
+    while iter.hasNext && !isMultipleParagraphs do
+      val line = iter.next()
+      val trimmed = line.trim
+      val afterStar = if trimmed.startsWith("*") then trimmed.drop(1).trim else trimmed
+
+      val isTag = afterStar.startsWith("@")
+      val isBlank = afterStar.isEmpty
+
+      if isTag then
+        // Entering tag section - stop checking (done with loop)
+        ()
+      else if isBlank then
+        // Blank line - if we've seen content, mark it
+        if foundContent then
+          foundBlankAfterContent = true
+      else
+        // Content line
+        if foundBlankAfterContent then
+          // We have content after a blank line that came after content
+          // This means multiple paragraphs = NOT a one-liner
+          isMultipleParagraphs = true
+        else
+          foundContent = true
+
+    // If we get here, either:
+    // - No content at all (only tags) -> treat as one-liner
+    // - Content with no blank lines between -> one-liner
+    // - Content followed by blank then tags -> one-liner (blank before tags is OK)
+    // - Multiple paragraphs -> NOT a one-liner
+    !isMultipleParagraphs

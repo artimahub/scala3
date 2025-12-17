@@ -275,6 +275,7 @@ class FixerSpec extends AnyFlatSpec with Matchers:
 
   it should "NOT insert @return for one-liner with @param tags" in {
     val text = """/** Gets the value for the given key.
+                 | *
                  | *  @param key the lookup key
                  | */""".stripMargin
     val block = ScaladocBlock.findAll(text).head
@@ -285,7 +286,21 @@ class FixerSpec extends AnyFlatSpec with Matchers:
     issues should not contain Issue.MissingReturn
   }
 
-  it should "insert @return for multi-line descriptive content" in {
+  it should "NOT insert @return for sentence spanning multiple lines" in {
+    val text = """/** Returns a two-dimensional array that contains the results of some element
+                 | *  computation a number of times.
+                 | *
+                 | *  @param n1 the number of elements
+                 | */""".stripMargin
+    val block = ScaladocBlock.findAll(text).head
+    block.isOneLiner should be(true)
+
+    val decl = Declaration(DeclKind.Def, "fill", List("T"), List("n1"), Some("Array[Array[T]]"))
+    val issues = ScaladocChecker.validate(block, decl)
+    issues should not contain Issue.MissingReturn
+  }
+
+  it should "insert @return for multiple paragraphs" in {
     val text = """/** Computes the result.
                  | *
                  | *  This method performs complex calculation.
