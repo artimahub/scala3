@@ -60,6 +60,32 @@ If `/**` starts at column 4:
 5. **No blank lines between tags**: Tags should appear consecutively with no blank lines between them
 6. **Don't add spurious blank lines**: Don't insert blank lines above existing content
 7. **TODO placeholder**: Missing tags are inserted with `TODO FILL IN` as the description
+8. **Preserve multi-line tag content**: Tags that span multiple lines (like `@return` or `@example` with continuation lines) must have all their content preserved
+9. **Normalize indentation inside code blocks**: When fixing a Scaladoc block, indentation is normalized throughout, including inside code examples. This means content after `*` starts with two spaces (` *  content`). This is correct behavior per the Scaladoc style guide.
+
+### Multi-line Tag Examples
+
+Multi-line tags like `@return` or `@example` must be fully preserved:
+```scala
+/** Creates an array.
+ *
+ *  @param n the size
+ *  @return an Array of size n, where each element contains the result of computing
+ *  `elem`.
+ */
+```
+
+Multi-line `@example` blocks with `{{{ }}}` are also preserved:
+```scala
+/** Shifts bits right.
+ *
+ *  @example {{{
+ *  -21 >>> 3 == 536870909
+ *  // in binary: 11111111 11111111 11111111 11101011 >>> 3 ==
+ *  //            00011111 11111111 11111111 11111101
+ *  }}}
+ */
+```
 
 ## Validation Rules
 

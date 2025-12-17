@@ -74,10 +74,14 @@ object Fixer:
       initialText: Option[String],      // First line of description (goes on /** line)
       descriptionLines: List[String],   // Additional description lines
       blankLinesBeforeTags: Int,        // Number of blank lines before first tag
-      existingTags: List[String]        // Existing @param, @tparam, @return, etc.
+      existingTags: List[String]        // Existing tags, each may contain newlines for multi-line tags
   )
 
-  /** Parse Scaladoc inner content into structured parts. */
+  /** Parse Scaladoc inner content into structured parts.
+   *
+   *  Multi-line tags (like @return or @example spanning multiple lines) are preserved
+   *  by joining continuation lines with newlines.
+   */
   private def parseScaladocContent(inner: String): ParsedScaladoc =
     val lines = inner.linesIterator.toList
 
@@ -91,38 +95,48 @@ object Fixer:
 
     for line <- lines do
       val trimmed = line.trim
-      // Remove leading * if present
+      // Remove leading * if present, but preserve content after it
+      // We use dropWhile to handle "* " or "*  " prefixes
       val afterStar =
-        if trimmed.startsWith("*") then trimmed.drop(1).trim
+        if trimmed.startsWith("*") then
+          val afterAsterisk = trimmed.drop(1)
+          // Preserve relative indentation: just drop the leading "* " or "*"
+          if afterAsterisk.startsWith(" ") then afterAsterisk.drop(1)
+          else afterAsterisk
         else trimmed
 
-      val isTag = afterStar.startsWith("@")
-      val isBlank = afterStar.isEmpty
+      val isTag = afterStar.trim.startsWith("@")
+      val isBlank = afterStar.trim.isEmpty
 
       if isTag then
         if !inTagSection then
           // First tag - record blank lines before it
           blankLinesBeforeTags = blankLineCount
           inTagSection = true
-        existingTags += afterStar
+        existingTags += afterStar.trim
       else if isBlank then
         if !inTagSection then
           blankLineCount += 1
           // Only add blank lines to description if we've seen content
           if foundFirstContent then
             descriptionLines += ""
+        // else: blank lines in tag section are ignored (formatting rules say no blanks between tags)
       else
         // Content line
         if !inTagSection then
           if !foundFirstContent then
             // This is the initial text
-            initialText = Some(afterStar)
+            initialText = Some(afterStar.trim)
             foundFirstContent = true
             blankLineCount = 0
           else
             // Additional description
-            descriptionLines += afterStar
+            descriptionLines += afterStar.trim
             blankLineCount = 0
+        else
+          // Continuation of the previous tag (multi-line tag content)
+          if existingTags.nonEmpty then
+            existingTags(existingTags.length - 1) = existingTags.last + "\n" + afterStar
 
     ParsedScaladoc(initialText, descriptionLines.toList, blankLinesBeforeTags, existingTags.toList)
 
@@ -240,9 +254,20 @@ object Fixer:
       if !lastLineIsBlank && !hadBlankBeforeTags then
         parts += s"$leadingWs *"
 
-    // All tags (already sorted: @tparam, @param, @return)
+    // All tags (already sorted: @see, @tparam, @param, @return)
+    // Tags may contain newlines for multi-line content
     for tag <- sortedTags do
-      parts += s"$leadingWs *  $tag"
+      val tagLines = tag.split("\n", -1) // -1 to keep trailing empty strings
+      for (line, idx) <- tagLines.zipWithIndex do
+        if idx == 0 then
+          // First line starts with @tag
+          parts += s"$leadingWs *  $line"
+        else if line.isEmpty then
+          // Blank line within tag content
+          parts += s"$leadingWs *"
+        else
+          // Continuation line - preserve its content
+          parts += s"$leadingWs *  $line"
 
     // Closing
     parts += s"$leadingWs */"

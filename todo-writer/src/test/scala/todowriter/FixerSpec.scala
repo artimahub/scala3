@@ -312,3 +312,35 @@ class FixerSpec extends AnyFlatSpec with Matchers:
     val issues = ScaladocChecker.validate(block, decl)
     issues should contain(Issue.MissingReturn)
   }
+
+  it should "preserve multi-line @return content" in {
+    val text = """/** Creates an array.
+                 | *
+                 | *  @param n the size
+                 | *  @return an Array of size n, where each element contains the result of computing
+                 | *  `elem`.
+                 | */""".stripMargin
+    val block = ScaladocBlock.findAll(text).head
+    val result = Fixer.buildFixedBlock(text, block, List("T"), Nil, false)
+    // Should preserve the multi-line @return content
+    result should include("@return an Array of size n")
+    result should include("`elem`.")
+  }
+
+  it should "preserve multi-line @example content" in {
+    val text = """/** Shifts bits right.
+                 | *
+                 | *  @example {{{
+                 | *  -21 >>> 3 == 536870909
+                 | *  // in binary: 11111111 11111111 11111111 11101011 >>> 3 ==
+                 | *  //            00011111 11111111 11111111 11111101
+                 | *  }}}
+                 | */""".stripMargin
+    val block = ScaladocBlock.findAll(text).head
+    val result = Fixer.buildFixedBlock(text, block, Nil, List("x"), false)
+    // Should preserve all lines of the @example
+    result should include("@example {{{")
+    result should include("-21 >>> 3 == 536870909")
+    result should include("// in binary:")
+    result should include("}}}")
+  }
