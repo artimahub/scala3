@@ -56,70 +56,7 @@ object ScaladocChecker:
     val FORWARD_WINDOW = 16
     val BACKWARD_WINDOW = 16
 
-    // Improved cleanup: remove prior "TODO FILL IN" lines if a real Scaladoc + declaration exist near them.
-    val toRemove = mutable.BitSet()
-    var idx = 0
-    while idx < lines.length do
-      val t = lines(idx)
-      if t.contains("TODO FILL IN") then
-        // Search forward for a Scaladoc block and a declaration after it
-        var found = false
-        var k = idx + 1
-        var steps = 0
-        while k < lines.length && steps < FORWARD_WINDOW && !found do
-          if lines(k).contains("/**") then
-            // find a declaration after this doc within window
-            var kk = k
-            var docEnd = -1
-            while kk < lines.length && kk < k + FORWARD_WINDOW && docEnd < 0 do
-              if lines(kk).contains("*/") then docEnd = kk
-              kk += 1
-            val searchFrom = if docEnd >= 0 then docEnd + 1 else k
-            var mm = searchFrom
-            var steps2 = 0
-            while mm < lines.length && steps2 < FORWARD_WINDOW && !found do
-              if declRegex.findFirstIn(lines(mm)).isDefined then found = true
-              mm += 1
-              steps2 += 1
-          k += 1
-          steps += 1
-
-        // Also search backward for a Scaladoc block that documents a declaration after the TODO
-        if !found then
-          k = idx - 1
-          steps = 0
-          while k >= 0 && steps < BACKWARD_WINDOW && !found do
-            if lines(k).contains("/**") then
-              // doc start found; find doc end
-              var kk = k
-              var docEnd = -1
-              while kk < lines.length && kk < k + BACKWARD_WINDOW && docEnd < 0 do
-                if lines(kk).contains("*/") then docEnd = kk
-                kk += 1
-              val searchFrom = if docEnd >= 0 then docEnd + 1 else k
-              var mm = searchFrom
-              var steps2 = 0
-              while mm < lines.length && steps2 < FORWARD_WINDOW && !found do
-                if declRegex.findFirstIn(lines(mm)).isDefined then found = true
-                mm += 1
-                steps2 += 1
-            k -= 1
-            steps += 1
-
-        if found then toRemove += idx
-      idx += 1
-
-    if toRemove.nonEmpty then
-      val cleaned = ListBuffer.empty[String]
-      for i <- 0 until lines.length do
-        if !toRemove.contains(i) then cleaned += lines(i)
-      lines.clear(); lines ++= cleaned.toBuffer
-
-    // Detect an actual Scaladoc block that documents the declaration at declIdx.
-    // Rules:
-    // - Find the nearest "/**" above declIdx (search up to max lines).
-    // - Ensure that the corresponding "*/" occurs before declIdx.
-    // - Ensure between end-of-doc and declIdx there is only blank/annotation/comment lines.
+    // Helper: is there a proper Scaladoc block immediately (allowing small gaps) above declIdx
     def hasProperScaladocAbove(declIdx: Int, lookback: Int = 400): Boolean =
       var k = declIdx - 1
       var steps = 0
@@ -129,14 +66,12 @@ object ScaladocChecker:
         else
           val tt = lines(k).trim
           if tt.nonEmpty && !tt.startsWith("//") && !tt.startsWith("@") && !tt.startsWith("*") && !tt.startsWith("/*") && tt != "*/" then
-            // hit code before any scaladoc -> no doc for this decl
             return false
           else
             k -= 1
             steps += 1
       if foundStart < 0 then false
       else
-        // find end of that block
         var kk = foundStart
         var foundEnd = -1
         while kk < declIdx && foundEnd < 0 do
@@ -151,6 +86,81 @@ object ScaladocChecker:
             else return false
           true
 
+    // Helper: find nearest enclosing container (class/object/trait) for a declaration at declIdx
+    def findEnclosingContainerIndex(declIdx: Int): Option[Int] =
+      val currIndent = leadingWhitespace(lines(declIdx)).length
+      if currIndent == 0 then None
+      else
+        var k = declIdx - 1
+        while k >= 0 do
+          val lk = lines(k)
+          val lkTrim = lk.trim
+          if lkTrim.isEmpty || lkTrim.startsWith("//") || lkTrim.startsWith("@") then k -= 1
+          else
+            declRegex.findFirstMatchIn(lk) match
+              case Some(mm) =>
+                val kw = mm.group(1)
+                if kw == "class" || kw == "object" || kw == "trait" then
+                  val indentK = leadingWhitespace(lk).length
+                  if indentK < currIndent then return Some(k)
+                  else k -= 1
+                else k -= 1
+              case None => k -= 1
+        None
+
+    // Cleanup: remove prior "TODO FILL IN" lines that are followed by a proper Scaladoc+decl within a window
+    val toRemove = mutable.BitSet()
+    var idx = 0
+    while idx < lines.length do
+      val t = lines(idx)
+      if t.contains("TODO FILL IN") then
+        var found = false
+        var k = idx + 1
+        var steps = 0
+        while k < lines.length && steps < FORWARD_WINDOW && !found do
+          if lines(k).contains("/**") then
+            var kk = k
+            var docEnd = -1
+            while kk < lines.length && kk < k + FORWARD_WINDOW && docEnd < 0 do
+              if lines(kk).contains("*/") then docEnd = kk
+              kk += 1
+            val searchFrom = if docEnd >= 0 then docEnd + 1 else k
+            var mm = searchFrom
+            var steps2 = 0
+            while mm < lines.length && steps2 < FORWARD_WINDOW && !found do
+              if declRegex.findFirstIn(lines(mm)).isDefined then found = true
+              mm += 1
+              steps2 += 1
+          k += 1
+          steps += 1
+        if !found then
+          k = idx - 1
+          steps = 0
+          while k >= 0 && steps < BACKWARD_WINDOW && !found do
+            if lines(k).contains("/**") then
+              var kk = k
+              var docEnd = -1
+              while kk < lines.length && kk < k + BACKWARD_WINDOW && docEnd < 0 do
+                if lines(kk).contains("*/") then docEnd = kk
+                kk += 1
+              val searchFrom = if docEnd >= 0 then docEnd + 1 else k
+              var mm = searchFrom
+              var steps2 = 0
+              while mm < lines.length && steps2 < FORWARD_WINDOW && !found do
+                if declRegex.findFirstIn(lines(mm)).isDefined then found = true
+                mm += 1
+                steps2 += 1
+            k -= 1
+            steps += 1
+        if found then toRemove += idx
+      idx += 1
+
+    if toRemove.nonEmpty then
+      val cleaned = ListBuffer.empty[String]
+      for i <- 0 until lines.length do
+        if !toRemove.contains(i) then cleaned += lines(i)
+      lines.clear(); lines ++= cleaned.toBuffer
+
     val edits = ListBuffer.empty[(Int, String)]
 
     var inBlockComment = false
@@ -159,22 +169,17 @@ object ScaladocChecker:
       val line = lines(i)
       val trimmed = line.trim
 
-      // handle block comments, including single-line block comments
-      if !inBlockComment && trimmed.contains("/*") && !trimmed.contains("*/") then
-        inBlockComment = true
-      // current line is inside a block comment if it's a single-line block or we're inBlockComment
+      if !inBlockComment && trimmed.contains("/*") && !trimmed.contains("*/") then inBlockComment = true
       val isBlockCommentLine = (trimmed.contains("/*") && trimmed.contains("*/")) || inBlockComment
-      if inBlockComment && trimmed.contains("*/") then
-        inBlockComment = false
+      if inBlockComment && trimmed.contains("*/") then inBlockComment = false
+
       if !isBlockCommentLine && !trimmed.startsWith("//") then
         declRegex.findFirstMatchIn(line) match
           case Some(m) =>
             val kw = m.group(1)
             val kwStart = m.start
             val prefix = line.substring(0, kwStart)
-            if prefix.contains("=") then ()
-            else
-              // be conservative when detecting modifiers: check prefix and whole line
+            if !prefix.contains("=") then
               val hasPrivate = isModifierPresent(prefix, "private") || prefix.contains("private") || line.contains(" private ")
               val hasProtected = isModifierPresent(prefix, "protected") || prefix.contains("protected") || line.contains(" protected ")
 
@@ -199,7 +204,6 @@ object ScaladocChecker:
                         else k -= 1
                     if !insideMethod && (foundMemberContainer || leadingWhitespace(line).isEmpty) then isTarget = !hasPrivate
                 case "def" =>
-                  // treat secondary constructors `def this(` as members
                   if trimmed.startsWith("def this(") then isTarget = !hasPrivate
                   else
                     val currIndent = leadingWhitespace(line).length
@@ -214,26 +218,49 @@ object ScaladocChecker:
                         else k -= 1
                     if !insideMethod then isTarget = !hasPrivate
                 case "class" | "object" | "trait" =>
-                  // do not insert placeholder for container declarations; prefer documenting members
-                  isTarget = false
+                  if hasProperScaladocAbove(i) then isTarget = false
+                  else
+                    var hasNonPrivateMember = false
+                    var hasNonPrivateMemberWithDoc = false
+                    var kk = i + 1
+                    var steps = 0
+                    val MAX_LOOKAHEAD = 200
+                    while kk < lines.length && steps < MAX_LOOKAHEAD do
+                      val l = lines(kk)
+                      declRegex.findFirstMatchIn(l) match
+                        case Some(mm) =>
+                          val kw2 = mm.group(1)
+                          val kwStart2 = mm.start
+                          val prefix2 = l.substring(0, kwStart2)
+                          val hasPrivate2 = isModifierPresent(prefix2, "private") || prefix2.contains("private") || l.contains(" private ")
+                          if !hasPrivate2 then
+                            hasNonPrivateMember = true
+                            if hasProperScaladocAbove(kk) then hasNonPrivateMemberWithDoc = true
+                        case None => ()
+                      kk += 1
+                      steps += 1
+                    isTarget = !hasPrivate && hasNonPrivateMember && !hasNonPrivateMemberWithDoc
                 case _ =>
                   isTarget = !hasPrivate
 
+              // If enclosing container has Scaladoc, skip member placeholders except for
+              // secondary constructors and simple val/var constants (keep marking vals/vars).
+              if isTarget then
+                findEnclosingContainerIndex(i) match
+                  case Some(containerIdx) if hasProperScaladocAbove(containerIdx) && !(kw == "def" && trimmed.startsWith("def this(")) && !(kw == "val" || kw == "var") =>
+                    // container has Scaladoc and this member is neither a secondary constructor nor a val/var -> skip
+                    isTarget = false
+                  case _ => ()
+
               if isTarget then
                 var start = i
-                // move insertion point up over blank lines, annotations, and ordinary comments,
-                // but do NOT move above package or import declarations.
                 var cont = true
                 while start > 0 && cont do
                   val prev = lines(start - 1).trim
-                  if prev.isEmpty || prev.startsWith("@") || prev.startsWith("//") || prev.startsWith("*") || prev.startsWith("/*") then
-                    start -= 1
-                  else if prev.startsWith("package") || prev.startsWith("import") then
-                    cont = false
-                  else
-                    cont = false
+                  if prev.isEmpty || prev.startsWith("@") || prev.startsWith("//") || prev.startsWith("*") || prev.startsWith("/*") then start -= 1
+                  else if prev.startsWith("package") || prev.startsWith("import") then cont = false
+                  else cont = false
 
-                // if any "/**" exists between start and declaration, or a proper Scaladoc above, skip
                 var j = start
                 var betweenHasDoc = false
                 while j < i && !betweenHasDoc do
@@ -243,19 +270,15 @@ object ScaladocChecker:
                 val aboveHasDoc = hasProperScaladocAbove(i)
                 val nearbyHasDoc = hasProperScaladocAbove(i, 24)
 
-                // avoid reinserting near existing placeholder
                 var alreadyTodo = false
                 if start > 0 then
                   val lookIdx = start - 1
                   if lines(lookIdx).contains("TODO FILL IN") then alreadyTodo = true
 
-                // detect unclosed or nearby block comments: if the last "/*" before decl is after the last "*/",
-                // we are inside or immediately after a block comment — do not insert.
                 val lastOpen = (0 until i).reverse.find(k => lines(k).contains("/*")).getOrElse(-1)
                 val lastClose = (0 until i).reverse.find(k => lines(k).contains("*/")).getOrElse(-1)
                 val inOrAfterBlock = lastOpen > lastClose
 
-                // detect doc-like lines between insertion point and decl (lines starting with '*' or param tags)
                 val docLikeBetween = (start until i).exists { k =>
                   val t = lines(k).trim
                   t.startsWith("*") || t.startsWith("/**") || t.startsWith("/*") ||

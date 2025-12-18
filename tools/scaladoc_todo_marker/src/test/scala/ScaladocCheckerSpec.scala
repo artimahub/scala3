@@ -1,7 +1,7 @@
 package scaladoc_todo_marker
 
 import org.scalatest.funsuite.AnyFunSuite
-import java.nio.file.{Files, Path}
+import java.nio.file.{Files, Path, Paths}
 import java.nio.charset.StandardCharsets
 
 class ScaladocCheckerSpec extends AnyFunSuite:
@@ -155,4 +155,99 @@ class ScaladocCheckerSpec extends AnyFunSuite:
     val tmp = writeTemp(before)
     val result = ScaladocChecker.processFile(tmp)
     assert(result.isEmpty, "should not insert TODO when val/var already have Scaladoc")
+  }
+
+  test("inserts TODO for class without Scaladoc") {
+    val before =
+      """class NoDoc {
+        |  def m(): Int = 1
+        |}""".stripMargin
+    val tmp = writeTemp(before)
+    val result = ScaladocChecker.processFile(tmp)
+    assert(result.isDefined)
+    val (_, newLines) = result.get
+    assertTodoAbove(newLines, "class NoDoc {")
+  }
+
+  test("inserts TODO for trait without Scaladoc") {
+    val before =
+      """trait NoDocT {
+        |  def t(): Unit
+        |}""".stripMargin
+    val tmp = writeTemp(before)
+    val result = ScaladocChecker.processFile(tmp)
+    assert(result.isDefined)
+    val (_, newLines) = result.get
+    assertTodoAbove(newLines, "trait NoDocT {")
+  }
+
+  test("inserts TODO for object without Scaladoc") {
+    val before =
+      """object NoDocObj {
+        |  def x = 42
+        |}""".stripMargin
+    val tmp = writeTemp(before)
+    val result = ScaladocChecker.processFile(tmp)
+    assert(result.isDefined)
+    val (_, newLines) = result.get
+    assertTodoAbove(newLines, "object NoDocObj {")
+  }
+
+  test("does not insert TODO for class with Scaladoc") {
+    val before =
+      """/**
+        | * class doc
+        | */
+        |class DocC {
+        |  def m(): Int = 1
+        |}""".stripMargin
+    val tmp = writeTemp(before)
+    val result = ScaladocChecker.processFile(tmp)
+    assert(result.isEmpty, "should not insert TODO when class already has Scaladoc")
+  }
+
+  test("does not insert TODO for trait with Scaladoc") {
+    val before =
+      """/**
+        | * trait doc
+        | */
+        |trait DocT {
+        |  def t(): Unit
+        |}""".stripMargin
+    val tmp = writeTemp(before)
+    val result = ScaladocChecker.processFile(tmp)
+    assert(result.isEmpty, "should not insert TODO when trait already has Scaladoc")
+  }
+
+  test("does not insert TODO for object with Scaladoc") {
+    val before =
+      """/**
+        | * object doc
+        | */
+        |object DocObj {
+        |  def x = 42
+        |}""".stripMargin
+    val tmp = writeTemp(before)
+    val result = ScaladocChecker.processFile(tmp)
+    assert(result.isEmpty, "should not insert TODO when object already has Scaladoc")
+  }
+
+  test("regression: elidable.scala final vals should get TODO markers") {
+    // use repository file to reproduce real-case formatting
+    val p = Paths.get("../../library/src/scala/annotation/elidable.scala")
+    assert(Files.exists(p), s"expected file exists: $p")
+    val result = ScaladocChecker.processFile(p)
+    // this is a regression test that should fail before fixing the checker
+    assert(result.isDefined, "expected processFile to produce edits for elidable.scala")
+    val (_, newLines) = result.get
+
+    def assertTodoFor(sub: String): Unit =
+      val idx = newLines.indexWhere(_.contains(sub))
+      assert(idx >= 0, s"declaration '$sub' not found in result")
+      assert(idx > 0, s"no line above declaration '$sub' to check")
+      assert(newLines(idx - 1).trim == "/** TODO FILL IN */", s"expected TODO above '$sub', found: '${newLines(idx-1)}'")
+
+    assertTodoFor("final val FINEST  = 300")
+    assertTodoFor("final val FINER   = 400")
+    assertTodoFor("final val FINE    = 500")
   }
