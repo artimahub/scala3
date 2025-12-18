@@ -174,8 +174,9 @@ object ScaladocChecker:
             val prefix = line.substring(0, kwStart)
             if prefix.contains("=") then ()
             else
-              val hasPrivate = isModifierPresent(prefix, "private")
-              val hasProtected = isModifierPresent(prefix, "protected")
+              // be conservative when detecting modifiers: check prefix and whole line
+              val hasPrivate = isModifierPresent(prefix, "private") || prefix.contains("private") || line.contains(" private ")
+              val hasProtected = isModifierPresent(prefix, "protected") || prefix.contains("protected") || line.contains(" protected ")
 
               var isTarget = false
 
@@ -212,6 +213,9 @@ object ScaladocChecker:
                         if lkTrim.startsWith("def ") && indentK < currIndent then insideMethod = true
                         else k -= 1
                     if !insideMethod then isTarget = !hasPrivate
+                case "class" | "object" | "trait" =>
+                  // do not insert placeholder for container declarations; prefer documenting members
+                  isTarget = false
                 case _ =>
                   isTarget = !hasPrivate
 
