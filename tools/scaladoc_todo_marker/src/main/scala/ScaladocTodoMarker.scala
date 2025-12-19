@@ -7,7 +7,7 @@ import scala.jdk.CollectionConverters._
 import scala.collection.mutable.ListBuffer
 import scala.collection.mutable
 
-object ScaladocChecker:
+object ScaladocTodoMarker:
   private val declRegex: Regex = raw"\b(class|object|trait|def|val|var)\b".r
 
   case class Config(root: Path = Paths.get("."), dryRun: Boolean = true, excludes: Seq[String] = Seq.empty)
@@ -352,5 +352,5 @@ object Main:
           |""".stripMargin)
       System.exit(0)
 
-    val exit = ScaladocChecker.run(args)
+    val exit = ScaladocTodoMarker.run(args)
     System.exit(exit)

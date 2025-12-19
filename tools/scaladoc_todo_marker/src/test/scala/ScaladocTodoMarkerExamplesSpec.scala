@@ -29,7 +29,7 @@ class ScaladocTodoMarkerExamplesSpec extends AnyFunSuite:
         |  final val FINE    = 500           // Level.FINE.intValue()
         |}""".stripMargin
     val tmp = writeTemp(before)
-    val result = ScaladocChecker.processFile(tmp)
+    val result = ScaladocTodoMarker.processFile(tmp)
     assert(result.isDefined)
     val (_, newLines) = result.get
     assertTodoAbove(newLines, "final val FINEST  = 300")
@@ -45,7 +45,7 @@ class ScaladocTodoMarkerExamplesSpec extends AnyFunSuite:
         |final class experimental(message: String) extends StaticAnnotation:
         |  def this() = this("")""".stripMargin
     val tmp = writeTemp(before)
-    val result = ScaladocChecker.processFile(tmp)
+    val result = ScaladocTodoMarker.processFile(tmp)
     assert(result.isDefined)
     val (_, newLines) = result.get
     assertTodoAbove(newLines, "def this() = this(\"\")")
@@ -59,7 +59,7 @@ class ScaladocTodoMarkerExamplesSpec extends AnyFunSuite:
         |private[scala] final class preview(message: String) extends StaticAnnotation:
         |  def this() = this("")""".stripMargin
     val tmp = writeTemp(before)
-    val result = ScaladocChecker.processFile(tmp)
+    val result = ScaladocTodoMarker.processFile(tmp)
     assert(result.isDefined)
     val (_, newLines) = result.get
     assertTodoAbove(newLines, "def this() = this(\"\")")
@@ -75,7 +75,7 @@ class ScaladocTodoMarkerExamplesSpec extends AnyFunSuite:
         |  def this() = this("")
         |}""".stripMargin
     val tmp = writeTemp(before)
-    val result = ScaladocChecker.processFile(tmp)
+    val result = ScaladocTodoMarker.processFile(tmp)
     assert(result.isDefined)
     val (_, newLines) = result.get
     assertTodoAbove(newLines, "def this() = this(\"\")")
@@ -87,7 +87,7 @@ class ScaladocTodoMarkerExamplesSpec extends AnyFunSuite:
         |  def foo(x: Int): Int = x + 1
         |}""".stripMargin
     val tmp = writeTemp(before)
-    val result = ScaladocChecker.processFile(tmp)
+    val result = ScaladocTodoMarker.processFile(tmp)
     assert(result.isDefined)
     val (_, newLines) = result.get
     assertTodoAbove(newLines, "def foo(x: Int): Int = x + 1")
@@ -99,7 +99,7 @@ class ScaladocTodoMarkerExamplesSpec extends AnyFunSuite:
         |  private def secret(): Int = 42
         |}""".stripMargin
     val tmp = writeTemp(before)
-    val result = ScaladocChecker.processFile(tmp)
+    val result = ScaladocTodoMarker.processFile(tmp)
     assert(result.isEmpty, "private defs should not produce TODO markers")
   }
 
@@ -112,7 +112,7 @@ class ScaladocTodoMarkerExamplesSpec extends AnyFunSuite:
         |    inner()
         |}""".stripMargin
     val tmp = writeTemp(before)
-    val result = ScaladocChecker.processFile(tmp)
+    val result = ScaladocTodoMarker.processFile(tmp)
     // file may get a TODO for outer; ensure inner itself is not marked
     val (_, newLines) = result.get
     val innerIdx = newLines.indexWhere(_.contains("def inner()"))
@@ -127,7 +127,7 @@ class ScaladocTodoMarkerExamplesSpec extends AnyFunSuite:
         |    "ok"
         |}""".stripMargin
     val tmp = writeTemp(before)
-    val result = ScaladocChecker.processFile(tmp)
+    val result = ScaladocTodoMarker.processFile(tmp)
     assert(result.isDefined)
     val (_, newLines) = result.get
     assertTodoAbove(newLines, "def bar(): String =")
@@ -140,7 +140,7 @@ class ScaladocTodoMarkerExamplesSpec extends AnyFunSuite:
         |  def documented(): Int = 1
         |}""".stripMargin
     val tmp = writeTemp(before)
-    val result = ScaladocChecker.processFile(tmp)
+    val result = ScaladocTodoMarker.processFile(tmp)
     assert(result.isEmpty, "should not insert TODO when def already has Scaladoc")
   }
 
@@ -153,7 +153,7 @@ class ScaladocTodoMarkerExamplesSpec extends AnyFunSuite:
         |  var y = 2
         |}""".stripMargin
     val tmp = writeTemp(before)
-    val result = ScaladocChecker.processFile(tmp)
+    val result = ScaladocTodoMarker.processFile(tmp)
     assert(result.isEmpty, "should not insert TODO when val/var already have Scaladoc")
   }
 
@@ -163,7 +163,7 @@ class ScaladocTodoMarkerExamplesSpec extends AnyFunSuite:
         |  def m(): Int = 1
         |}""".stripMargin
     val tmp = writeTemp(before)
-    val result = ScaladocChecker.processFile(tmp)
+    val result = ScaladocTodoMarker.processFile(tmp)
     assert(result.isDefined)
     val (_, newLines) = result.get
     assertTodoAbove(newLines, "class NoDoc {")
@@ -175,7 +175,7 @@ class ScaladocTodoMarkerExamplesSpec extends AnyFunSuite:
         |  def t(): Unit
         |}""".stripMargin
     val tmp = writeTemp(before)
-    val result = ScaladocChecker.processFile(tmp)
+    val result = ScaladocTodoMarker.processFile(tmp)
     assert(result.isDefined)
     val (_, newLines) = result.get
     assertTodoAbove(newLines, "trait NoDocT {")
@@ -187,7 +187,7 @@ class ScaladocTodoMarkerExamplesSpec extends AnyFunSuite:
         |  def x = 42
         |}""".stripMargin
     val tmp = writeTemp(before)
-    val result = ScaladocChecker.processFile(tmp)
+    val result = ScaladocTodoMarker.processFile(tmp)
     assert(result.isDefined)
     val (_, newLines) = result.get
     assertTodoAbove(newLines, "object NoDocObj {")
@@ -202,7 +202,7 @@ class ScaladocTodoMarkerExamplesSpec extends AnyFunSuite:
         |  def m(): Int = 1
         |}""".stripMargin
     val tmp = writeTemp(before)
-    val result = ScaladocChecker.processFile(tmp)
+    val result = ScaladocTodoMarker.processFile(tmp)
     assert(result.isEmpty, "should not insert TODO when class already has Scaladoc")
   }
 
@@ -215,7 +215,7 @@ class ScaladocTodoMarkerExamplesSpec extends AnyFunSuite:
         |  def t(): Unit
         |}""".stripMargin
     val tmp = writeTemp(before)
-    val result = ScaladocChecker.processFile(tmp)
+    val result = ScaladocTodoMarker.processFile(tmp)
     assert(result.isEmpty, "should not insert TODO when trait already has Scaladoc")
   }
 
@@ -228,7 +228,7 @@ class ScaladocTodoMarkerExamplesSpec extends AnyFunSuite:
         |  def x = 42
         |}""".stripMargin
     val tmp = writeTemp(before)
-    val result = ScaladocChecker.processFile(tmp)
+    val result = ScaladocTodoMarker.processFile(tmp)
     assert(result.isEmpty, "should not insert TODO when object already has Scaladoc")
   }
 
@@ -236,7 +236,7 @@ class ScaladocTodoMarkerExamplesSpec extends AnyFunSuite:
     // use repository file to reproduce real-case formatting
     val p = Paths.get("../../library/src/scala/annotation/elidable.scala")
     assert(Files.exists(p), s"expected file exists: $p")
-    val result = ScaladocChecker.processFile(p)
+    val result = ScaladocTodoMarker.processFile(p)
     // this is a regression test that should fail before fixing the checker
     assert(result.isDefined, "expected processFile to produce edits for elidable.scala")
     val (_, newLines) = result.get
