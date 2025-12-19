@@ -96,11 +96,26 @@ object Fixer:
   private def isSignatureTag(line: String): Boolean =
     SignatureTags.exists(tag => line.startsWith(tag))
 
+  /** Regex to match the start of a markdown code fence (``` with optional language). */
+  private val CodeFenceStart = """^```\w*\s*$""".r
+
+  /** Regex to match the end of a markdown code fence. */
+  private val CodeFenceEnd = """^```\s*$""".r
+
+  /** Check if a line starts a markdown code fence. */
+  private def isCodeFenceStart(line: String): Boolean =
+    CodeFenceStart.matches(line.trim)
+
+  /** Check if a line ends a markdown code fence. */
+  private def isCodeFenceEnd(line: String): Boolean =
+    CodeFenceEnd.matches(line.trim)
+
   /** Parse Scaladoc inner content into structured parts.
    *
    *  Separates exposition content (text + @note/@see/@example) from
    *  signature documentation (@tparam/@param/@return).
    *  Multi-line tags are preserved by joining continuation lines with newlines.
+   *  Content inside code fences (``` ... ```) and {{{ ... }}} is preserved as-is.
    */
   private def parseScaladocContent(inner: String): ParsedScaladoc =
     val lines = inner.linesIterator.toList
@@ -114,6 +129,7 @@ object Fixer:
     var hasBlankBeforeSignature = false
     var currentTag: Option[collection.mutable.StringBuilder] = None
     var currentTagIsSignature = false
+    var inCodeFence = false  // Track if we're inside a ``` code fence
 
     def flushCurrentTag(): Unit =
       currentTag.foreach { tag =>
@@ -133,17 +149,24 @@ object Fixer:
 
     for line <- lines do
       val trimmed = line.trim
-      // Remove leading * if present, but preserve content after it
+      // Remove leading * if present, but preserve content after it with original spacing
       val afterStar =
         if trimmed.startsWith("*") then
           val afterAsterisk = trimmed.drop(1)
+          // Only strip the first space if present (standard " * " formatting)
           if afterAsterisk.startsWith(" ") then afterAsterisk.drop(1)
           else afterAsterisk
         else trimmed
 
       val content = afterStar.trim
       val isBlank = content.isEmpty
-      val isTag = content.startsWith("@")
+      val isTag = content.startsWith("@") && !inCodeFence
+
+      // Check for code fence boundaries
+      if isCodeFenceStart(afterStar) && !inCodeFence then
+        inCodeFence = true
+      else if isCodeFenceEnd(afterStar) && inCodeFence then
+        inCodeFence = false
 
       if isTag then
         flushCurrentTag()
@@ -161,7 +184,7 @@ object Fixer:
           currentTagIsSignature = false
           currentTag = Some(new collection.mutable.StringBuilder(content))
           foundFirstContent = true
-      else if isBlank then
+      else if isBlank && !inCodeFence then
         if currentTag.isDefined then
           if !currentTagIsSignature then
             // Blank line after exposition tag - flush tag and track as separator
@@ -174,9 +197,9 @@ object Fixer:
             pendingBlankLines += 1
         // Blank lines in signature section are ignored
       else
-        // Content line
+        // Content line (or inside code fence)
         if currentTag.isDefined then
-          // Continuation of current tag
+          // Continuation of current tag - preserve original spacing for code blocks
           currentTag.foreach(_.append("\n").append(afterStar))
         else if !inSignatureSection then
           if !foundFirstContent then
@@ -185,7 +208,7 @@ object Fixer:
           else
             // Regular text content - add pending blank lines first
             addPendingBlankLines()
-            expositionContent += content
+            expositionContent += afterStar  // Preserve original spacing
 
     flushCurrentTag()
     ParsedScaladoc(initialText, expositionContent.toList, signatureTags.toList, hasBlankBeforeSignature)
@@ -266,6 +289,21 @@ object Fixer:
     else
       buildMultiLineOutput(leadingWs, parsed, signatureTags)
 
+  /** Ensure a line has at least 1 space prefix (which will become 2 spaces after ` * ` in output).
+   *
+   *  The output format is `$leadingWs * $spacedLine`, which adds 1 space after the asterisk.
+   *  So we need at least 1 leading space in the line to reach the minimum of 2 spaces after *.
+   *
+   *  If the line already has 1+ leading spaces, it's preserved as-is (maintaining relative indentation).
+   *  Otherwise, 1 space is added.
+   */
+  private def ensureMinimumSpacing(line: String): String =
+    if line.isEmpty then line
+    else
+      val leadingSpaces = line.takeWhile(_ == ' ').length
+      if leadingSpaces >= 1 then line  // Already has 1+ spaces (will be 2+ after * prefix)
+      else " " + line  // Add 1 space to reach minimum of 2 total
+
   private def buildMultiLineOutput(
       leadingWs: String,
       parsed: ParsedScaladoc,
@@ -293,9 +331,13 @@ object Fixer:
           if tagLine.isEmpty then
             parts += s"$leadingWs *"
           else
-            parts += s"$leadingWs *  $tagLine"
+            // Preserve original spacing for continuation lines (like code blocks)
+            val spacedLine = ensureMinimumSpacing(tagLine)
+            parts += s"$leadingWs * $spacedLine"
       else
-        parts += s"$leadingWs *  $line"
+        // Preserve original spacing for non-tag content
+        val spacedLine = ensureMinimumSpacing(line)
+        parts += s"$leadingWs * $spacedLine"
 
     // Blank line before signature section (if there are signature tags)
     if signatureTags.nonEmpty then
@@ -314,7 +356,9 @@ object Fixer:
         if line.isEmpty then
           parts += s"$leadingWs *"
         else
-          parts += s"$leadingWs *  $line"
+          // Preserve original spacing for continuation lines
+          val spacedLine = ensureMinimumSpacing(line)
+          parts += s"$leadingWs * $spacedLine"
 
     // Closing
     parts += s"$leadingWs */"

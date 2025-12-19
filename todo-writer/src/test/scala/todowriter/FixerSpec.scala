@@ -362,3 +362,180 @@ class FixerSpec extends AnyFlatSpec with Matchers:
     result should include("// in binary:")
     result should include("}}}")
   }
+
+  // Tests for preserving existing indentation (Issue: don't move text to the left)
+
+  it should "preserve existing indentation with 3+ spaces after asterisk" in {
+    val text = """/** Method.
+                 | *
+                 | *   - Item one
+                 | *   - Item two
+                 | */""".stripMargin
+    val block = ScaladocBlock.findAll(text).head
+    val result = Fixer.buildFixedBlock(text, block, Nil, List("x"), false)
+    // Should preserve the 3-space indentation (list indentation)
+    // Original has 3 spaces after *, output should preserve that
+    result should include(" *   - Item one")
+    result should include(" *   - Item two")
+  }
+
+  it should "preserve deep indentation inside nested list" in {
+    val text = """/** Method.
+                 | *
+                 | *  #### Restrictions
+                 | *   - All definitions must have same owner.
+                 | *     - Special case: an annotated def can return a class.
+                 | *   - Can not return a type.
+                 | */""".stripMargin
+    val block = ScaladocBlock.findAll(text).head
+    val result = Fixer.buildFixedBlock(text, block, Nil, List("x"), false)
+    // Should preserve the nested indentation (relative spacing is maintained)
+    result should include("#### Restrictions")
+    result should include(" *   - All definitions must have same owner.")
+    result should include(" *     - Special case: an annotated def can return a class.")
+    result should include(" *   - Can not return a type.")
+  }
+
+  it should "add space when only 1 space after asterisk" in {
+    val text = """/** Method.
+                 | *
+                 | * Text with only one space.
+                 | */""".stripMargin
+    val block = ScaladocBlock.findAll(text).head
+    val result = Fixer.buildFixedBlock(text, block, Nil, List("x"), false)
+    // Should add one space to get to 2 spaces minimum
+    result should include(" *  Text with only one space.")
+  }
+
+  it should "add two spaces when text is right after asterisk" in {
+    val text = """/** Method.
+                 | *
+                 | *Text with no space.
+                 | */""".stripMargin
+    val block = ScaladocBlock.findAll(text).head
+    val result = Fixer.buildFixedBlock(text, block, Nil, List("x"), false)
+    // Should add two spaces
+    result should include(" *  Text with no space.")
+  }
+
+  // Tests for markdown code fence handling (```scala ... ```)
+
+  it should "preserve content inside markdown code fences" in {
+    val text = """/** Example method.
+                 | *
+                 | *  ```scala
+                 | *  def foo(x: Int): Int =
+                 | *    x + 1
+                 | *  ```
+                 | */""".stripMargin
+    val block = ScaladocBlock.findAll(text).head
+    val result = Fixer.buildFixedBlock(text, block, Nil, List("y"), false)
+    // Should preserve the code inside the fence with proper indentation
+    result should include("```scala")
+    result should include("def foo(x: Int): Int =")
+    result should include("  x + 1")
+    result should include("```")
+  }
+
+  it should "preserve @tags inside markdown code fences (not treat as actual tags)" in {
+    val text = """/** Shows annotation usage.
+                 | *
+                 | *  ```scala
+                 | *  @memoize
+                 | *  def fib(n: Int): Int =
+                 | *    if n <= 1 then n else fib(n - 1) + fib(n - 2)
+                 | *  ```
+                 | */""".stripMargin
+    val block = ScaladocBlock.findAll(text).head
+    val result = Fixer.buildFixedBlock(text, block, Nil, List("x"), false)
+    // @memoize should be preserved as code, not treated as a tag
+    result should include("```scala")
+    result should include("@memoize")
+    result should include("def fib(n: Int): Int =")
+    result should include("```")
+  }
+
+  it should "not treat @param inside code fence as signature tag" in {
+    val text = """/** Method with code example.
+                 | *
+                 | *  ```scala
+                 | *  /** @param x the value */
+                 | *  def example(x: Int) = x
+                 | *  ```
+                 | */""".stripMargin
+    val block = ScaladocBlock.findAll(text).head
+    val result = Fixer.buildFixedBlock(text, block, Nil, List("y"), false)
+    // The @param inside the code fence should NOT move to signature section
+    // It should appear before the actual @param y tag
+    val codeFenceParamIdx = result.indexOf("@param x the value")
+    val realParamIdx = result.indexOf("@param y TODO FILL IN")
+    codeFenceParamIdx should be < realParamIdx
+  }
+
+  it should "preserve indentation inside markdown code fence in @example tag" in {
+    val text = """/** Transforms the tree.
+                 | *
+                 | *  @example
+                 | *  ```scala
+                 | *  class memoize extends MacroAnnotation:
+                 | *    def transform(using Quotes)(
+                 | *      definition: quotes.reflect.Definition,
+                 | *      companion: Option[quotes.reflect.Definition]
+                 | *    ): List[quotes.reflect.Definition] =
+                 | *      import quotes.reflect.*
+                 | *      definition match
+                 | *        case DefDef(name, _, _, _) =>
+                 | *          List(definition)
+                 | *  ```
+                 | */""".stripMargin
+    val block = ScaladocBlock.findAll(text).head
+    val result = Fixer.buildFixedBlock(text, block, Nil, List("x"), false)
+    // Should preserve the nested indentation inside the code block
+    result should include("```scala")
+    result should include("class memoize extends MacroAnnotation:")
+    result should include("  def transform(using Quotes)(")
+    result should include("    definition: quotes.reflect.Definition,")
+    result should include("```")
+  }
+
+  it should "handle multiple code fences in same scaladoc" in {
+    val text = """/** Method with multiple examples.
+                 | *
+                 | *  First example:
+                 | *  ```scala
+                 | *  @annotation
+                 | *  def foo = 1
+                 | *  ```
+                 | *
+                 | *  Second example:
+                 | *  ```scala
+                 | *  @annotation
+                 | *  def bar = 2
+                 | *  ```
+                 | */""".stripMargin
+    val block = ScaladocBlock.findAll(text).head
+    val result = Fixer.buildFixedBlock(text, block, Nil, List("x"), false)
+    // Both @annotation should be preserved as code content
+    val firstAnnotation = result.indexOf("@annotation")
+    val secondAnnotation = result.indexOf("@annotation", firstAnnotation + 1)
+    firstAnnotation should be > 0
+    secondAnnotation should be > firstAnnotation
+    // @param x should come after both code blocks
+    val paramIdx = result.indexOf("@param x")
+    paramIdx should be > secondAnnotation
+  }
+
+  it should "handle code fence without language specifier" in {
+    val text = """/** Method.
+                 | *
+                 | *  ```
+                 | *  @tag inside
+                 | *  some code
+                 | *  ```
+                 | */""".stripMargin
+    val block = ScaladocBlock.findAll(text).head
+    val result = Fixer.buildFixedBlock(text, block, Nil, List("x"), false)
+    result should include("```")
+    result should include("@tag inside")
+    result should include("some code")
+  }
