@@ -4,7 +4,7 @@ import org.scalatest.funsuite.AnyFunSuite
 import java.nio.file.{Files, Path, Paths}
 import java.nio.charset.StandardCharsets
 
-class ScaladocCheckerSpec extends AnyFunSuite:
+class ScaladocTodoMarkerExamplesSpec extends AnyFunSuite:
 
   private def writeTemp(content: String): Path =
     val tmp = Files.createTempFile("scaladoc_test", ".scala")
