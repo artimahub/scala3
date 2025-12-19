@@ -13,22 +13,18 @@ object ScaladocTodoMarker:
   case class Config(root: Path = Paths.get("."), dryRun: Boolean = true, excludes: Seq[String] = Seq.empty)
 
   def parseArgs(args: Array[String]): Config =
-    var cfg = Config()
-    var i = 0
-    while i < args.length do
-      args(i) match
-        case "--apply" => cfg = cfg.copy(dryRun = false); i += 1
-        case "--dry-run" => cfg = cfg.copy(dryRun = true); i += 1
-        case "--root" =>
-          i += 1
-          if i < args.length then cfg = cfg.copy(root = Paths.get(args(i)))
-          i += 1
-        case "--exclude" =>
-          i += 1
-          if i < args.length then cfg = cfg.copy(excludes = args(i).split(",").map(_.trim).filter(_.nonEmpty).toSeq)
-          i += 1
-        case _ => i += 1
-    cfg
+    @scala.annotation.tailrec
+    def recur(rem: List[String], cfg: Config): Config = rem match
+      case "--apply" :: tail           => recur(tail, cfg.copy(dryRun = false))
+      case "--dry-run" :: tail         => recur(tail, cfg.copy(dryRun = true))
+      case "--root" :: value :: tail   => recur(tail, cfg.copy(root = Paths.get(value)))
+      case "--root" :: Nil             => cfg
+      case "--exclude" :: value :: tail =>
+        val excludes = value.split(",").map(_.trim).filter(_.nonEmpty).toSeq
+        recur(tail, cfg.copy(excludes = excludes))
+      case _ :: tail                   => recur(tail, cfg)
+      case Nil                         => cfg
+    recur(args.toList, Config())
 
   def isExcluded(path: Path, excludes: Seq[String]): Boolean =
     val s = path.toString
