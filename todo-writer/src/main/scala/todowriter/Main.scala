@@ -51,7 +51,7 @@ object Main:
               |  folder              Root folder to scan for .scala files
               |
               |Options:
-              |  --fix               Insert TODO placeholders for missing tags
+              |  --dry               Dry run, won't insert TODO placeholders for missing tags
               |  --json              Output results as JSON
               |  --help              Show this help message
               |
@@ -61,7 +61,7 @@ object Main:
               |  2                   Error (folder not found, etc.)
               |""".stripMargin)
 
-  private def run(folder: Path, fix: Boolean, json: Boolean): Unit =
+  private def run(folder: Path, dry: Boolean, json: Boolean): Unit =
     val results = ScaladocChecker.checkDirectory(folder)
     val summary = ScaladocChecker.summarize(results)
 
@@ -70,11 +70,11 @@ object Main:
     else
       print(ScaladocChecker.formatReport(results, summary))
 
-    if fix then
+    if !dry then
       applyFixes(results)
 
     // Exit code
-    if !fix && summary.totalIssues > 0 then
+    if dry && summary.totalIssues > 0 then
       System.exit(1)
     else
       System.exit(0)
