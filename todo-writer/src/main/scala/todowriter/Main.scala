@@ -34,7 +34,7 @@ object Main:
     args match
       case Nil => Config()
       case "--help" :: rest => parseArgs(rest).copy(help = true)
-      case "--fix" :: rest => parseArgs(rest).copy(fix = true)
+      case "--dry" :: rest => parseArgs(rest).copy(fix = true)
       case "--json" :: rest => parseArgs(rest).copy(json = true)
       case arg :: rest if arg.startsWith("-") =>
         System.err.println(s"Unknown option: $arg")
