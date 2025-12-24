@@ -82,7 +82,7 @@ object Main:
   private def applyFixes(results: List[FileResult]): Unit =
     for fileResult <- results if fileResult.hasIssues do
       val path = Paths.get(fileResult.path)
-      val fixResult = Fixer.fixFile(path, fileResult.results)
+      val fixResult = Fixer.fixFile(path, fileResult.results, true)
       fixResult.newContent match
         case Some(content) =>
           Fixer.writeFixedFile(path, content)

@@ -10,11 +10,15 @@ case class FixResult(
 )
 
 object Fixer:
-  /** Fix all issues in a file and return the result. */
-  def fixFile(path: Path, results: List[CheckResult]): FixResult =
+  /** Fix all issues in a file and return the result.
+   *
+   *  @param insertTodo when true insert TODO tags for missing @param/@tparam/@return.
+   *                    when false only adjust scaladoc asterisk alignment.
+   */
+  def fixFile(path: Path, results: List[CheckResult], insertTodo: Boolean = true): FixResult =
     val text = Files.readString(path)
-    val (newText, fixCount) = applyFixes(text, results)
-
+    val (newText, fixCount) = applyFixes(text, results, insertTodo)
+ 
     if newText != text then
       FixResult(path.toString, fixCount, Some(newText))
     else
@@ -24,34 +28,50 @@ object Fixer:
   def writeFixedFile(path: Path, content: String): Unit =
     Files.writeString(path, content)
 
-  /** Apply fixes to text and return (newText, numberOfBlocksFixed). */
+  /** Apply fixes to text and return (newText, numberOfBlocksFixed).
+   *
+   *  insertTodo: when true, insert TODO tags for missing signature tags.
+   *              when false, only adjust scaladoc asterisk alignment.
+   */
   def applyFixes(text: String, results: List[CheckResult]): (String, Int) =
-    // Sort results by start index descending so we can apply fixes from end to start
-    // (this way indices don't shift as we make replacements)
-    val sortedResults = results
-      .filter(needsFix)
-      .sortBy(_.scaladoc.startIndex)(Ordering[Int].reverse)
-
+    applyFixes(text, results, true)
+  
+  def applyFixes(text: String, results: List[CheckResult], insertTodo: Boolean): (String, Int) =
+    // Choose which results to process:
+    // - when inserting TODOs, only process results that actually need fixes
+    // - when only aligning, process any result that reported issues (to adjust alignment)
+    val sortedResults =
+      if insertTodo then
+        results.filter(needsFix).sortBy(_.scaladoc.startIndex)(Ordering[Int].reverse)
+      else
+        results.filter(_.issues.nonEmpty).sortBy(_.scaladoc.startIndex)(Ordering[Int].reverse)
+ 
     var currentText = text
     var fixCount = 0
-
+ 
     for result <- sortedResults do
       val block = result.scaladoc
       val decl = result.declaration
       val issues = result.issues
- 
-      // Determine what tags need to be inserted
+     
+      // Determine missing tags (used only when insertTodo = true)
       val missingParams = issues.collect { case Issue.MissingParam(names) => names }.flatten
       val missingTparams = issues.collect { case Issue.MissingTparam(names) => names }.flatten
       val needsReturn = issues.contains(Issue.MissingReturn)
  
-      if missingParams.nonEmpty || missingTparams.nonEmpty || needsReturn then
+      // Decide what to insert: either the actual missing tags, or none when only aligning
+      val (tparamsToInsert, paramsToInsert, returnToInsert) =
+        if insertTodo then (missingTparams, missingParams, needsReturn) else (Nil, Nil, false)
+     
+      // Only proceed if there is something to change (either tags to insert or alignment to adjust)
+      if (tparamsToInsert.nonEmpty || paramsToInsert.nonEmpty || returnToInsert) || (!insertTodo && issues.nonEmpty) then
         val newBlock = buildFixedBlock(
           currentText,
           block,
-          missingTparams,
-          missingParams,
-          needsReturn
+          tparamsToInsert,
+          paramsToInsert,
+          returnToInsert,
+          forceMultiLine = !insertTodo
         )
         // If buildFixedBlock included the following declaration line in its returned
         // text, avoid duplicating that declaration when splicing the replacement
@@ -63,26 +83,23 @@ object Fixer:
               if rest.startsWith("\n") then rest.drop(1).takeWhile(_ != '\n')
               else rest.takeWhile(_ != '\n')
             val nextLineWithLeading = if rest.startsWith("\n") then "\n" + nextLine else nextLine
-
-            // Be robust when detecting if buildFixedBlock included the following declaration.
-            // Match either exact trailing text or the last non-empty line trimmed (handles
-            // cases where indentation on the declaration was adjusted).
+ 
             val newBlockLastNonEmptyTrim = newBlock.split("\n").reverse.find(_.trim.nonEmpty).map(_.trim)
             if nextLine.nonEmpty && (newBlock.endsWith(nextLineWithLeading) || newBlockLastNonEmptyTrim.contains(nextLine.trim)) then
               block.endIndex + nextLineWithLeading.length
             else block.endIndex
           else block.endIndex
-
+ 
         // Replace starting at the physical start of the line (include leading
         // indentation) so the formatted block's indentation is used exactly once.
         val lineStartIdx = currentText.lastIndexOf('\n', block.startIndex - 1)
         val replacementStart = if lineStartIdx < 0 then 0 else lineStartIdx + 1
-
+ 
         currentText = currentText.substring(0, replacementStart) +
           newBlock +
           currentText.substring(replacementEnd)
         fixCount += 1
-
+ 
     (currentText, fixCount)
 
   /** Check if a result needs fixing (has issues that require insertion). */
@@ -252,7 +269,8 @@ object Fixer:
       block: ScaladocBlock,
       missingTparams: List[String],
       missingParams: List[String],
-      needsReturn: Boolean
+      needsReturn: Boolean,
+      forceMultiLine: Boolean = false
   ): String =
     // Determine leading whitespace from the original position
     val lineStartIdx = text.lastIndexOf('\n', block.startIndex - 1)
@@ -306,7 +324,8 @@ object Fixer:
  
     // Check if original was single-line
     val originalBlock = text.substring(block.startIndex, block.endIndex)
-    val wasSingleLine = !originalBlock.contains('\n')
+    val wasSingleLineOrig = !originalBlock.contains('\n')
+    val wasSingleLine = if forceMultiLine then false else wasSingleLineOrig
  
     // Combine and sort signature tags in proper order: @tparam, @param, @return
     val allSignatureTags = sortSignatureTags(adjustedParsed.signatureTags ++ newSignatureTags.toList)
