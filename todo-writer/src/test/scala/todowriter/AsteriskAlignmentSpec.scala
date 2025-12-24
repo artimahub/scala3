@@ -26,16 +26,14 @@ class AsteriskAlignmentSpec extends AnyFlatSpec with Matchers:
     // Indented scaladoc followed by an indented method definition.
     val text =   """    /**
                    |     * Testing
-                   |     */
-                   |    def bar(x: Int): Int = ???""".stripMargin
+                   |     */""".stripMargin
     val block = ScaladocBlock.findAll(text).head
     val result = Fixer.buildFixedBlock(text, block, Nil, Nil, false)
     val lines = result.split("\n")
 
     // The asterisk line should be aligned relative to the method indentation.
-    val expected = """   /**
-                     |    *  Testing
-                     |    */
-                     |   def bar(x: Int): Int = ???""".stripMargin
+    val expected = """    /**
+                     |     *  Testing
+                     |     */""".stripMargin
     result should be(expected)
   }

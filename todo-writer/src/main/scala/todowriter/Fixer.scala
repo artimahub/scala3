@@ -63,11 +63,22 @@ object Fixer:
               if rest.startsWith("\n") then rest.drop(1).takeWhile(_ != '\n')
               else rest.takeWhile(_ != '\n')
             val nextLineWithLeading = if rest.startsWith("\n") then "\n" + nextLine else nextLine
-            if nextLine.nonEmpty && newBlock.endsWith(nextLineWithLeading) then
+
+            // Be robust when detecting if buildFixedBlock included the following declaration.
+            // Match either exact trailing text or the last non-empty line trimmed (handles
+            // cases where indentation on the declaration was adjusted).
+            val newBlockLastNonEmptyTrim = newBlock.split("\n").reverse.find(_.trim.nonEmpty).map(_.trim)
+            if nextLine.nonEmpty && (newBlock.endsWith(nextLineWithLeading) || newBlockLastNonEmptyTrim.contains(nextLine.trim)) then
               block.endIndex + nextLineWithLeading.length
             else block.endIndex
           else block.endIndex
-        currentText = currentText.substring(0, block.startIndex) +
+
+        // Replace starting at the physical start of the line (include leading
+        // indentation) so the formatted block's indentation is used exactly once.
+        val lineStartIdx = currentText.lastIndexOf('\n', block.startIndex - 1)
+        val replacementStart = if lineStartIdx < 0 then 0 else lineStartIdx + 1
+
+        currentText = currentText.substring(0, replacementStart) +
           newBlock +
           currentText.substring(replacementEnd)
         fixCount += 1
@@ -327,7 +338,7 @@ object Fixer:
     val effectiveLeadingWs =
       if declLeadingWs.nonEmpty && declLeadingWs.length < leadingWs.length then declLeadingWs
       else leadingWs
- 
+  
     // Build formatted block using the effective indentation and the possibly adjusted parsed content
     // Determine if there's a following declaration we'll include (so formatting can align to it)
     val hasFollowingDecl =
@@ -339,27 +350,11 @@ object Fixer:
         effectiveLeadingWs.nonEmpty && nextLine.startsWith(effectiveLeadingWs)
       else false
     val formatted = buildFormattedBlock(effectiveLeadingWs, displayParsed, allSignatureTags, wasSingleLine, hasFollowingDecl)
- 
-    // Include the following declaration line when its indentation matches the
-    // effective indentation (so tests expecting block+declaration remain correct).
-    if block.endIndex < text.length then
-      val rest = text.substring(block.endIndex)
-      val nextLine =
-        if rest.startsWith("\n") then rest.drop(1).takeWhile(_ != '\n')
-        else rest.takeWhile(_ != '\n')
-      if effectiveLeadingWs.nonEmpty && nextLine.startsWith(effectiveLeadingWs) then
-        // Adjust the declaration indentation so it lines up with the opening '/**'
-        val methodIndentForDecl = effectiveLeadingWs.length
-        val openingIndentForDecl = if methodIndentForDecl > 0 then methodIndentForDecl - 1 else 0
-        val declLeading = nextLine.takeWhile(_.isWhitespace).length
-        val adjustedNextLine =
-          if declLeading > openingIndentForDecl then
-            val toDrop = declLeading - openingIndentForDecl
-            nextLine.drop(toDrop)
-          else nextLine
-        formatted + "\n" + adjustedNextLine
-      else formatted
-    else formatted
+  
+    // Return only the formatted scaladoc block. The caller is responsible for
+    // splicing it into the document; this avoids modifying or duplicating the
+    // following declaration's indentation.
+    formatted
 
   /** Sort signature tags in proper order: @tparam, then @param, then @return. */
   private def sortSignatureTags(tags: List[String]): List[String] =
@@ -431,15 +426,11 @@ object Fixer:
     // aligns under the first '*' of the "/**" line. This yields:
     //   openPrefix = max(methodIndent - 1, 0)
     //   starPrefix = openPrefix + 1
-    val methodIndent = leadingWs.length
-    val openingIndent =
-      if wasSingleLine then methodIndent
-      else if hasFollowingDecl then if methodIndent > 0 then methodIndent - 1 else 0
-      else methodIndent
-    val openPrefix = " " * openingIndent
-    // Star lines should align under the first '*' of the opening "/**",
-    // which is one column after the openingIndent.
-    val starPrefix = " " * (openingIndent + 1)
+    // Use the original leading whitespace from the source so we do not shift
+    // code indentation. Place '*' one column after the leading whitespace so
+    // it aligns under the first '*' of the "/**" opening.
+    val openPrefix = leadingWs
+    val starPrefix = leadingWs + " "
 
     // Opening line with initial text
     parsed.initialText match
