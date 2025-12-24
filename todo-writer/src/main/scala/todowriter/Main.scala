@@ -7,7 +7,8 @@ object Main:
       folder: Option[Path] = None,
       fix: Boolean = false,
       json: Boolean = false,
-      help: Boolean = false
+      help: Boolean = false,
+      skipTodo: Boolean = false
   )
 
   def main(args: Array[String]): Unit =
@@ -27,8 +28,8 @@ object Main:
         if !Files.isDirectory(folder) then
           System.err.println(s"Error: folder not found: $folder")
           System.exit(2)
-
-        run(folder, config.fix, config.json)
+ 
+        run(folder, config.fix, config.json, config.skipTodo)
 
   private def parseArgs(args: List[String]): Config =
     args match
@@ -36,6 +37,7 @@ object Main:
       case "--help" :: rest => parseArgs(rest).copy(help = true)
       case "--dry" :: rest => parseArgs(rest).copy(fix = true)
       case "--json" :: rest => parseArgs(rest).copy(json = true)
+      case "--skip-todo" :: rest => parseArgs(rest).copy(skipTodo = true)
       case arg :: rest if arg.startsWith("-") =>
         System.err.println(s"Unknown option: $arg")
         parseArgs(rest)
@@ -51,7 +53,8 @@ object Main:
               |  folder              Root folder to scan for .scala files
               |
               |Options:
-              |  --dry               Dry run, won't insert TODO placeholders for missing tags
+              |  --dry               Dry run (do not write changes to files)
+              |  --skip-todo         Do not insert TODO placeholders for missing tags when fixing
               |  --json              Output results as JSON
               |  --help              Show this help message
               |
@@ -61,28 +64,29 @@ object Main:
               |  2                   Error (folder not found, etc.)
               |""".stripMargin)
 
-  private def run(folder: Path, dry: Boolean, json: Boolean): Unit =
+  private def run(folder: Path, dry: Boolean, json: Boolean, skipTodo: Boolean): Unit =
     val results = ScaladocChecker.checkDirectory(folder)
     val summary = ScaladocChecker.summarize(results)
-
+ 
     if json then
       println(formatJson(results, summary))
     else
       print(ScaladocChecker.formatReport(results, summary))
-
+ 
     if !dry then
-      applyFixes(results)
-
+      // insertTodo should be the inverse of skipTodo: when skipTodo is true, do not insert TODOs
+      applyFixes(results, insertTodo = !skipTodo)
+ 
     // Exit code
     if dry && summary.totalIssues > 0 then
       System.exit(1)
     else
       System.exit(0)
 
-  private def applyFixes(results: List[FileResult]): Unit =
+  private def applyFixes(results: List[FileResult], insertTodo: Boolean): Unit =
     for fileResult <- results if fileResult.hasIssues do
       val path = Paths.get(fileResult.path)
-      val fixResult = Fixer.fixFile(path, fileResult.results, true)
+      val fixResult = Fixer.fixFile(path, fileResult.results, insertTodo)
       fixResult.newContent match
         case Some(content) =>
           Fixer.writeFixedFile(path, content)
