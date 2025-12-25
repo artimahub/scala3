@@ -83,23 +83,23 @@ object Fixer:
               if rest.startsWith("\n") then rest.drop(1).takeWhile(_ != '\n')
               else rest.takeWhile(_ != '\n')
             val nextLineWithLeading = if rest.startsWith("\n") then "\n" + nextLine else nextLine
- 
+
             val newBlockLastNonEmptyTrim = newBlock.split("\n").reverse.find(_.trim.nonEmpty).map(_.trim)
             if nextLine.nonEmpty && (newBlock.endsWith(nextLineWithLeading) || newBlockLastNonEmptyTrim.contains(nextLine.trim)) then
               block.endIndex + nextLineWithLeading.length
             else block.endIndex
           else block.endIndex
- 
+
         // Replace starting at the physical start of the line (include leading
         // indentation) so the formatted block's indentation is used exactly once.
         val lineStartIdx = currentText.lastIndexOf('\n', block.startIndex - 1)
         val replacementStart = if lineStartIdx < 0 then 0 else lineStartIdx + 1
- 
+
         currentText = currentText.substring(0, replacementStart) +
           newBlock +
           currentText.substring(replacementEnd)
         fixCount += 1
- 
+
     (currentText, fixCount)
 
   /** Check if a result needs fixing (has issues that require insertion). */
@@ -144,6 +144,12 @@ object Fixer:
   /** Regex to match the end of a markdown code fence. */
   private val CodeFenceEnd = """^```\s*$""".r
 
+  /** Regex to match the start of a triple-brace code block (`{{{`). */
+  private val TripleBraceStart = """^\{\{\{\s*$""".r
+
+  /** Regex to match the end of a triple-brace code block (`}}}`). */
+  private val TripleBraceEnd = """^\}\}\}\s*$""".r
+
   /** Check if a line starts a markdown code fence. */
   private def isCodeFenceStart(line: String): Boolean =
     CodeFenceStart.matches(line.trim)
@@ -151,6 +157,14 @@ object Fixer:
   /** Check if a line ends a markdown code fence. */
   private def isCodeFenceEnd(line: String): Boolean =
     CodeFenceEnd.matches(line.trim)
+
+  /** Check if a line starts a triple-brace code block. */
+  private def isTripleBraceStart(line: String): Boolean =
+    TripleBraceStart.matches(line.trim)
+
+  /** Check if a line ends a triple-brace code block. */
+  private def isTripleBraceEnd(line: String): Boolean =
+    TripleBraceEnd.matches(line.trim)
 
   /** Parse Scaladoc inner content into structured parts.
    *
@@ -172,6 +186,7 @@ object Fixer:
     var currentTag: Option[collection.mutable.StringBuilder] = None
     var currentTagIsSignature = false
     var inCodeFence = false  // Track if we're inside a ``` code fence
+    var inTripleBrace = false // Track if we're inside a {{{ }}} code block
 
     def flushCurrentTag(): Unit =
       currentTag.foreach { tag =>
@@ -190,44 +205,66 @@ object Fixer:
       pendingBlankLines = 0
 
     for line <- lines do
-      val trimmed = line.trim
+      // Use the original physical line to preserve internal spacing inside code blocks.
+      val rawLine = line
+      val trimmed = rawLine.trim
       val hadStar = trimmed.startsWith("*")
-      // Remove leading * if present, but preserve content after it with original spacing
-      val afterStar =
+      // Compute raw content after the first '*' in the physical line so we keep any
+      // spaces that followed the asterisk in the original source.
+      val afterStarRaw =
         if hadStar then
-          val afterAsterisk = trimmed.drop(1)
-          // Only strip the first space if present (standard " * " formatting)
-          if afterAsterisk.startsWith(" ") then afterAsterisk.drop(1)
-          else afterAsterisk
-        else trimmed
+          val starIdx = rawLine.indexOf('*')
+          if starIdx >= 0 then rawLine.substring(starIdx + 1) else rawLine.drop(1)
+        else rawLine
 
-      val content = afterStar.trim
-      val isBlank = content.isEmpty
-      val isTag = content.startsWith("@") && !inCodeFence
+      // Normalized form (drop a single leading space if present) for marker detection
+      val afterStarNorm =
+        if afterStarRaw.startsWith(" ") then afterStarRaw.drop(1) else afterStarRaw
 
-      // Check for code fence boundaries
-      if isCodeFenceStart(afterStar) && !inCodeFence then
+      // Detect markers using the normalized form. Compute booleans first so we can
+      // preserve raw spacing for the marker lines themselves, then update state.
+      val marker = afterStarNorm.trim
+      val isStartCodeFence = isCodeFenceStart(marker) && !inCodeFence && !inTripleBrace
+      val isEndCodeFence = isCodeFenceEnd(marker) && inCodeFence
+      val isStartTriple = isTripleBraceStart(marker) && !inTripleBrace && !inCodeFence
+      val isEndTriple = isTripleBraceEnd(marker) && inTripleBrace
+
+      // Preserve raw spacing when inside a triple-brace block or when this line is
+      // the triple-brace start/end marker. Otherwise use the normalized form.
+      val content =
+        if inTripleBrace || isStartTriple || isEndTriple then afterStarRaw
+        else afterStarNorm
+
+      // Update fence/triple state after choosing content so marker lines are preserved.
+      if isStartCodeFence then
         inCodeFence = true
-      else if isCodeFenceEnd(afterStar) && inCodeFence then
+      else if isEndCodeFence then
         inCodeFence = false
+      else if isStartTriple then
+        inTripleBrace = true
+      else if isEndTriple then
+        inTripleBrace = false
+
+      val isBlank = content.trim.isEmpty
+      val isTag = content.trim.startsWith("@") && !inCodeFence && !inTripleBrace
 
       if isTag then
         flushCurrentTag()
-        if isSignatureTag(content) then
+        if isSignatureTag(content.trim) then
           if !inSignatureSection then
             inSignatureSection = true
             hasBlankBeforeSignature = pendingBlankLines > 0
           pendingBlankLines = 0  // Discard blank lines before signature section
           currentTagIsSignature = true
-          currentTag = Some(new collection.mutable.StringBuilder(content))
+          currentTag = Some(new collection.mutable.StringBuilder(content.trim))
         else
           // Exposition tag (@note, @see, @example, or unknown) - preserve blank lines before it
           if foundFirstContent then
             addPendingBlankLines()
           currentTagIsSignature = false
-          currentTag = Some(new collection.mutable.StringBuilder(content))
+          currentTag = Some(new collection.mutable.StringBuilder(content.trim))
           foundFirstContent = true
-      else if isBlank && !inCodeFence then
+      else if isBlank && !inCodeFence && !inTripleBrace then
         if currentTag.isDefined then
           if !currentTagIsSignature then
             // Blank line after exposition tag - flush tag and track as separator
@@ -240,25 +277,28 @@ object Fixer:
             pendingBlankLines += 1
         // Blank lines in signature section are ignored
       else
-        // Content line (or inside code fence)
+        // Content line (or inside code fence/triple-brace)
         if currentTag.isDefined then
           // Continuation of current tag - preserve original spacing for code blocks
-          currentTag.foreach(_.append("\n").append(afterStar))
+          if inTripleBrace then currentTag.foreach(_.append("\n").append(afterStarRaw))
+          else currentTag.foreach(_.append("\n").append(content))
         else if !inSignatureSection then
           // If this line had a leading '*' it is exposition content; otherwise it may be
           // the initial text that belonged on the opening line.
           if hadStar then
             if !foundFirstContent then foundFirstContent = true
             else addPendingBlankLines()
-            expositionContent += afterStar  // Preserve original spacing
+            // Preserve raw spacing when inside triple-brace, otherwise use normalized
+            if inTripleBrace then expositionContent += afterStarRaw
+            else expositionContent += content
           else
             if !foundFirstContent then
-              initialText = Some(content)
+              initialText = Some(content.trim)
               foundFirstContent = true
             else
               // Regular text content - add pending blank lines first
               addPendingBlankLines()
-              expositionContent += afterStar  // Preserve original spacing
+              expositionContent += content.trim
 
     flushCurrentTag()
     ParsedScaladoc(initialText, expositionContent.toList, signatureTags.toList, hasBlankBeforeSignature)
@@ -460,9 +500,21 @@ object Fixer:
         parts += s"$openPrefix/**"
 
     // Exposition content (description lines + exposition tags like @note, @see, @example)
+    var inTriple = false
     for line <- parsed.expositionContent do
       if line.isEmpty then
         parts += s"$starPrefix*"
+      else if line.trim == "{{{" then
+        // start of triple-brace block: preserve marker line exactly (keep relative spacing)
+        parts += s"$starPrefix*$line"
+        inTriple = true
+      else if line.trim == "}}}" then
+        // end of triple-brace block: preserve marker line exactly
+        parts += s"$starPrefix*$line"
+        inTriple = false
+      else if inTriple then
+        // Inside triple-brace block: preserve content exactly (no extra space after '*')
+        parts += s"$starPrefix*$line"
       else if line.startsWith("@") then
         // Exposition tag - may be multi-line, strip trailing empty lines
         val tagLines = line.split("\n", -1).reverse.dropWhile(_.isEmpty).reverse

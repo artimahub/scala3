@@ -392,6 +392,51 @@ class FixerSpec extends AnyFlatSpec with Matchers:
     result should include("```")
   }
 
+  it should "preserve @tags inside triple-brace code fences (not treat as actual tags)" in {
+    val text = """/** Method with code example.
+                 | *
+                 | *  {{{
+                 | *@param x the value inside triple braces
+                 | *  }}}
+                 | */""".stripMargin
+    val block = ScaladocBlock.findAll(text).head
+    val result = Fixer.buildFixedBlock(text, block, Nil, List("y"), false)
+    val expected = """/** Method with code example.
+                 | *
+                 | *  {{{
+                 | *@param x the value inside triple braces
+                 | *  }}}
+                 | *
+                 | *  @param y TODO FILL IN
+                 | */""".stripMargin
+    result should be (expected)
+    // The @param inside triple braces should NOT move to signature section
+    //val codeBlockParamIdx = result.indexOf("@param x the value inside triple braces")
+    //val realParamIdx = result.indexOf("@param y TODO FILL IN")
+    //codeBlockParamIdx should be < realParamIdx
+  }
+
+  it should "preserve indentation inside triple-brace code blocks" in {
+    val text = """/** Example showing scala repl output preserved.
+                 | *
+                 | *  {{{
+                 | *   scala> val a = Array.from(Seq(1, 5))
+                 | *   val a: Array[Int] = Array(1, 5)
+                 | *
+                 | *   scala> val b = Array.from(Range(1, 5))
+                 | *   val b: Array[Int] = Array(1, 2, 3, 4)
+                 | *  }}}
+                 | */""".stripMargin
+    val block = ScaladocBlock.findAll(text).head
+    val result = Fixer.buildFixedBlock(text, block, Nil, Nil, false)
+
+    // The inner lines inside {{{ }}} should preserve the two-space indentation after the asterisk
+    result should include(" *   scala> val a = Array.from(Seq(1, 5))")
+    result should include(" *   val a: Array[Int] = Array(1, 5)")
+    result should include(" *   scala> val b = Array.from(Range(1, 5))")
+    result should include(" *   val b: Array[Int] = Array(1, 2, 3, 4)")
+  }
+
   it should "not treat @param inside code fence as signature tag" in {
     val text = """/** Method with code example.
                  | *
