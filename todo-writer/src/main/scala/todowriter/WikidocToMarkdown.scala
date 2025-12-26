@@ -38,11 +38,12 @@ object WikidocToMarkdown:
       else
         // apply inline conversions only outside code fences
         var l = raw
-        // wikilinks -> [Label](Label)
-        l = WikiLink.replaceAllIn(l, m => s"[${m.group(1)}](${m.group(1)})")
+        // wikilinks -> [Label](Label) — quote replacement to avoid illegal $ group refs
+        import java.util.regex.Matcher
+        l = WikiLink.replaceAllIn(l, m => Matcher.quoteReplacement(s"[${m.group(1)}](${m.group(1)})"))
         // bold then italic
-        l = Bold.replaceAllIn(l, m => s"**${m.group(1)}**")
-        l = Italic.replaceAllIn(l, m => s"*${m.group(1)}*")
+        l = Bold.replaceAllIn(l, m => Matcher.quoteReplacement(s"**${m.group(1)}**"))
+        l = Italic.replaceAllIn(l, m => Matcher.quoteReplacement(s"*${m.group(1)}*"))
         out += l
 
     out.mkString("\n")
