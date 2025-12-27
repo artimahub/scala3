@@ -62,16 +62,24 @@ object Fixer:
       // Decide what to insert: either the actual missing tags, or none when only aligning
       val (tparamsToInsert, paramsToInsert, returnToInsert) =
         if insertTodo then (missingTparams, missingParams, needsReturn) else (Nil, Nil, false)
-     
+
+      // Check if block is single-line
+      val originalBlockText = currentText.substring(block.startIndex, block.endIndex)
+      val isSingleLine = !originalBlockText.contains('\n')
+
+      // When insertTodo = false (skip-todo mode), skip single-line scaladocs entirely
+      // since there's nothing to fix without inserting TODO tags
+      val shouldSkip = !insertTodo && isSingleLine
+
       // Only proceed if there is something to change (either tags to insert or alignment to adjust)
-      if (tparamsToInsert.nonEmpty || paramsToInsert.nonEmpty || returnToInsert) || (!insertTodo && issues.nonEmpty) then
+      if !shouldSkip && ((tparamsToInsert.nonEmpty || paramsToInsert.nonEmpty || returnToInsert) || (!insertTodo && issues.nonEmpty)) then
         val newBlock = buildFixedBlock(
           currentText,
           block,
           tparamsToInsert,
           paramsToInsert,
           returnToInsert,
-          forceMultiLine = !insertTodo
+          forceMultiLine = false  // Never force single-line to multi-line when not inserting tags
         )
         // If buildFixedBlock included the following declaration line in its returned
         // text, avoid duplicating that declaration when splicing the replacement

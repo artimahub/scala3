@@ -594,9 +594,12 @@ class FixerSpec extends AnyFlatSpec with Matchers:
   }
 
   it should "not insert TODO tags when insertTodo = false (only adjust asterisks/alignment)" in {
+    // Use a multi-line scaladoc to test alignment adjustment
     val content = """package test
                     |
-                    |/** Provides an implicit conversion from the Array object to a collection Factory. */
+                    |/**
+                    |  * Provides an implicit conversion from the Array object to a collection Factory.
+                    |  */
                     |def foo[A](x: Int): Int = 1
                     |""".stripMargin
 
@@ -610,7 +613,22 @@ class FixerSpec extends AnyFlatSpec with Matchers:
       newContent should not include ("@tparam")
       newContent should not include ("@return")
       // Still should preserve/adjust scaladoc formatting (opening line present)
-      newContent should include("/** Provides an implicit conversion from the Array object to a collection Factory.")
+      newContent should include("Provides an implicit conversion from the Array object to a collection Factory.")
+    }
+  }
+
+  it should "leave single-line scaladocs unchanged in skip-todo mode" in {
+    val content = """package test
+                    |
+                    |/** Returns an array of length 0. */
+                    |def emptyArray[A]: Array[A] = ???
+                    |""".stripMargin
+
+    withTempFile(content) { path =>
+      val check = ScaladocChecker.checkFile(path)
+      val fix = Fixer.fixFile(path, check.results, insertTodo = false)
+      // In skip-todo mode, single-line scaladocs should be left unchanged
+      fix.newContent shouldBe None
     }
   }
 
