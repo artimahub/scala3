@@ -29,6 +29,8 @@ object init:
    *  `C(a = Cold)` for the argument `c` of the method `build`. Consequently,
    *  the checker will issue a warning for the method call `c.a.square()` because
    *  it is forbidden to call methods or access fields on cold values.
+   *
+   *  @param height TODO FILL IN
    */
   @experimental
   final class widen(height: Int) extends StaticAnnotation
@@ -55,6 +57,10 @@ object init:
    *  Therefore, the field `box1.value` and `box2.value` points to both instances of `C` and `D`. Consequently,
    *  the method call `box1.value.foo()` will be invalid, because it reaches `A.m`, which is not yet initialized.
    *  The explicit context annotation solves the problem.
+   *
+   *  @tparam T TODO FILL IN
+   *  @param v TODO FILL IN
+   *  @return TODO FILL IN
    */
   @experimental
   def region[T](v: T): T = v

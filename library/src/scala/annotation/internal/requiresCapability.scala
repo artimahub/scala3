@@ -4,6 +4,8 @@ import annotation.StaticAnnotation
 import language.experimental.captureChecking
 
 /** An annotation to record a required capaility in the type of a throws
+ *
+ *  @param capability TODO FILL IN
  */
 class requiresCapability(capability: Any) extends StaticAnnotation
 

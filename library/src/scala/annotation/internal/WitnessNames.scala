@@ -49,6 +49,8 @@ import language.experimental.captureChecking
  *  select the `map` method of `Functor`.
  *
  *  4. At PostTyper, issue an error when encountering any reference to a CB companion.
+ *
+ *  @param names TODO FILL IN
  */
 @experimental
 class WitnessNames(names: String*) extends StaticAnnotation

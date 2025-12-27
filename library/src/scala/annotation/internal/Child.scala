@@ -19,5 +19,7 @@ import language.experimental.captureChecking
  *  appears before the one for `B`.
  *
  *  TODO: This should be `Child[T <: AnyKind]`
+ *
+ *  @tparam T TODO FILL IN
  */
 class Child[T] extends Annotation

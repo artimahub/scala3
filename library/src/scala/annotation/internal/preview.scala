@@ -7,6 +7,8 @@ import language.experimental.captureChecking
  *
  *  @see [[https://dotty.epfl.ch/docs/reference/other-new-features/preview-defs]]
  *  @syntax markdown
+ *
+ *  @param message TODO FILL IN
  */
 private[scala] final class preview(message: String) extends StaticAnnotation:
   def this() = this("")

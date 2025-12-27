@@ -6,5 +6,7 @@ import language.experimental.captureChecking
  *  If an `targetName(extname)` annotation is given for a method or some other
  *  definition, its implementation will use the name `extname` instead of
  *  the regular name.
+ *
+ *  @param name TODO FILL IN
  */
 final class targetName(name: String) extends StaticAnnotation
