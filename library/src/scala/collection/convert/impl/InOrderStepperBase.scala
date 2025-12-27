@@ -19,10 +19,10 @@ import java.util.Spliterator
 import scala.collection.Stepper.EfficientSplit
 
 /** Abstracts all the generic operations of stepping over a collection
-  * that has an indexable ordering but may have gaps.
-  *
-  * For collections that are guaranteed to not have gaps, use `IndexedStepperBase` instead.
-  */
+ *  that has an indexable ordering but may have gaps.
+ *
+ *  For collections that are guaranteed to not have gaps, use `IndexedStepperBase` instead.
+ */
 private[convert] abstract class InOrderStepperBase[Sub, Semi <: Sub](protected var i0: Int, protected var iN: Int)
 extends EfficientSplit {
   /** Sets `true` if the element at `i0` is known to be there.  `false` if either not known or is a gap.

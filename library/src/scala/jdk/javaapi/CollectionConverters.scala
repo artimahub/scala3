@@ -21,7 +21,7 @@ import scala.collection.convert.{AsJavaConverters, AsScalaConverters}
   * code, it is recommended to use the extension methods defined in
   * [[scala.jdk.CollectionConverters]].
   *
-  * Note: to create [[java.util.stream.Stream Java Streams]] that operate on Scala collections
+  * Note: to create [Java Streams](java.util.stream.Stream) that operate on Scala collections
   * (sequentially or in parallel), use [[StreamConverters]].
   *
   * {{{

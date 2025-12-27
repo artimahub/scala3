@@ -34,9 +34,9 @@ trait Seq[A]
 object Seq extends SeqFactory.Delegate[Seq](ArrayBuffer)
 
 /**
-  * @define coll mutable sequence
-  * @define Coll `mutable.Seq`
-  */
+ *  @define coll mutable sequence
+ *  @define Coll `mutable.Seq`
+ */
 transparent trait SeqOps[A, +CC[_] <: caps.Pure, +C <: AnyRef]
   extends collection.SeqOps[A, CC, C]
     with Cloneable[C]

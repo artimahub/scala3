@@ -27,7 +27,8 @@ transparent inline def quotes(using q: Quotes): q.type = q
  *  ```scala sc:nocompile
  *  import scala.quoted.*
  *  inline def myMacro: Expr[T] =
- *    ${ /* (quotes: Quotes) ?=> */ myExpr }
+ *    ${ /* (quotes: Quotes) ?=> 
+ */ myExpr }
  *  def myExpr(using Quotes): Expr[T] =
  *    '{ f(${ /* (quotes: Quotes) ?=> */ myOtherExpr }) }
  *  }
@@ -50,13 +51,14 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
     def show: String
 
     /** Pattern matches `this` against `that`. Effectively performing a deep equality check.
-    *  It does the equivalent of
-    *  ```scala sc:nocompile
-    *  this match
-    *    case '{...} => true // where the contents of the pattern are the contents of `that`
-    *    case _ => false
-    *  ```
-    */
+     *  It does the equivalent of
+     *  ```scala sc:nocompile
+     *  this match
+     *    case '{...} => true // where the contents of the pattern are the contents of `that`
+     *    case _ => false
+     *  ```
+     *
+     */
     def matches(that: Expr[Any]): Boolean
 
     /** Returns the value of this expression.
@@ -883,8 +885,8 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
         def appliedToArgs(args: List[Term]): Apply
 
         /** The current tree applied to given argument lists:
-        *  `tree (argss(0)) ... (argss(argss.length -1))`
-        */
+         *  `tree (argss(0)) ... (argss(argss.length -1))`
+         */
         def appliedToArgss(argss: List[List[Term]]): Term
 
         /** The current tree applied to (): `tree()`. */
@@ -925,23 +927,23 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
       def term(tp: TermRef): Ref
 
       /** Creates a reference tree from a symbol
-      *
-      *  If `sym` refers to a class member `foo` in class `C`,
-      *  returns a tree representing `C.this.foo`.
-      *
-      *  If `sym` refers to an object member `foo` in object C, itself in prefix
-      *  `pre` (which might include `.this`, if it contains a class),
-      *  returns `pre.C.foo`.
-      *
-      *  If `sym` refers to a local definition `foo`, returns
-      *  a tree representing `foo`.
-      *
-      *  @note In all cases, the constructed tree should only
-      *  be spliced into the places where such accesses make sense.
-      *  For example, it is incorrect to have `C.this.foo` outside
-      *  the class body of `C`, or have `foo` outside the lexical
-      *  scope for the definition of `foo`.
-      */
+       *
+       *  If `sym` refers to a class member `foo` in class `C`,
+       *  returns a tree representing `C.this.foo`.
+       *
+       *  If `sym` refers to an object member `foo` in object C, itself in prefix
+       *  `pre` (which might include `.this`, if it contains a class),
+       *  returns `pre.C.foo`.
+       *
+       *  If `sym` refers to a local definition `foo`, returns
+       *  a tree representing `foo`.
+       *
+       *  @note In all cases, the constructed tree should only
+       *  be spliced into the places where such accesses make sense.
+       *  For example, it is incorrect to have `C.this.foo` outside
+       *  the class body of `C`, or have `foo` outside the lexical
+       *  scope for the definition of `foo`.
+       */
       def apply(sym: Symbol): Ref
     }
 
@@ -1007,11 +1009,11 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
       def apply(qualifier: Term, symbol: Symbol): Select
 
       /** Selects a field or a non-overloaded method by name
-      *
-      *  @note The method will produce an assertion error if the selected
-      *        method is overloaded. The method `overloaded` should be used
-      *        in that case.
-      */
+       *
+       *  @note The method will produce an assertion error if the selected
+       *        method is overloaded. The method `overloaded` should be used
+       *        in that case.
+       */
       def unique(qualifier: Term, name: String): Select
 
       /** Calls an overloaded method with the given type and term parameters. */
@@ -1487,6 +1489,7 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
        *  Block((DefDef(_, _, params :: Nil, _, Some(body))) :: Nil, Closure(meth, _))
        *  ```
        *  Extracts the parameter definitions and body.
+       *
        */
       def unapply(tree: Block): Option[(List[ValDef], Term)]
 
@@ -2703,24 +2706,24 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
         def show(using Printer[TypeRepr]): String
 
         /** Converts this `TypeRepr` to an `Type[?]`
-        *
-        *  Usage:
-        *  ```scala
-        *  //{
-        *  import scala.quoted.*
-        *  def f(using Quotes) = {
-        *    val q: Quotes = summon[Quotes]
-        *    import q.reflect.*
-        *    val typeRepr: TypeRepr = ???
-        *  //}
-        *    typeRepr.asType match
-        *      case '[t] =>
-        *        '{ val x: t = ??? }
-        *  //{
-        *  }
-        *  //}
-        *  ```
-        */
+         *
+         *  Usage:
+         *  ```scala
+         *  //{
+         *  import scala.quoted.*
+         *  def f(using Quotes) = {
+         *    val q: Quotes = summon[Quotes]
+         *    import q.reflect.*
+         *    val typeRepr: TypeRepr = ???
+         *  //}
+         *    typeRepr.asType match
+         *      case '[t] =>
+         *        '{ val x: t = ??? }
+         *  //{
+         *  }
+         *  //}
+         *  ```
+         */
         def asType: Type[?]
 
         /** Is `self` type the same as `that` type?
@@ -2776,13 +2779,13 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
         def baseClasses: List[Symbol]
 
         /** The least type instance of given class which is a super-type
-        *  of this type.  Example:
-        *  {{{
-        *    class D[T]
-        *    class C extends p.D[Int]
-        *    ThisType(C).baseType(D) = p.D[Int]
-        * }}}
-        */
+         *  of this type.  Example:
+         *  {{{
+         *    class D[T]
+         *    class C extends p.D[Int]
+         *    ThisType(C).baseType(D) = p.D[Int]
+         * }}}
+         */
         def baseType(cls: Symbol): TypeRepr
 
         /** Is this type an instance of a non-bottom subclass of the given class `cls`? */
@@ -3230,13 +3233,13 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
     trait RecursiveTypeModule { this: RecursiveType.type =>
 
       /** Creates a RecType, normalizing its contents. This means:
-      *
-      *   1. Nested Rec types on the type's spine are merged with the outer one.
-      *   2. Any refinement of the form `type T = z.T` on the spine of the type
-      *      where `z` refers to the created rec-type is replaced by
-      *      `type T`. This avoids infinite recursions later when we
-      *      try to follow these references.
-      */
+       *
+       *   1. Nested Rec types on the type's spine are merged with the outer one.
+       *   2. Any refinement of the form `type T = z.T` on the spine of the type
+       *      where `z` refers to the created rec-type is replaced by
+       *      `type T`. This avoids infinite recursions later when we
+       *      try to follow these references.
+       */
       def apply(parentExp: RecursiveType => TypeRepr): RecursiveType
 
       def unapply(x: RecursiveType): Some[TypeRepr]
@@ -3748,15 +3751,14 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
       def search(tpe: TypeRepr): ImplicitSearchResult
 
       /** Finds a given instance of type `T` in the current scope provided by the current enclosing splice,
-      *  while excluding certain symbols from the initial implicit search.
-      *  Returns an `ImplicitSearchResult`.
-      *
-      *  @param tpe type of the implicit parameter
-      *  @param ignored Symbols ignored during the initial implicit search
-      *
-      *  @note if an found given requires additional search for other given instances,
-      *  this additional search will NOT exclude the symbols from the `ignored` list.
-      */
+       *  while excluding certain symbols from the initial implicit search.
+       *  Returns an `ImplicitSearchResult`.
+       *  @note if an found given requires additional search for other given instances,
+       *  this additional search will NOT exclude the symbols from the `ignored` list.
+       *
+       *  @param tpe type of the implicit parameter
+       *  @param ignored Symbols ignored during the initial implicit search
+       */
       def searchIgnoring(tpe: TypeRepr)(ignored: Symbol*): ImplicitSearchResult
     }
 
@@ -3831,6 +3833,7 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
        *  ```
        *
        *  For a macro splice, it is the symbol of the definition where the macro expansion happens.
+       *
        */
       def spliceOwner: Symbol
 
@@ -3877,19 +3880,17 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
        *    new myClass(): Foo
        *  }
        *  ```
+       *  @note As a macro can only splice code into the point at which it is expanded, all generated symbols must be
+       *        direct or indirect children of the reflection context's owner.
        *
        *  @param owner The owner of the class
        *  @param name The name of the class
        *  @param parents The parent classes of the class. The first parent must not be a trait.
        *  @param decls The member declarations of the class provided the symbol of this class
        *  @param selfType The self type of the class if it has one
-       *
        *  This symbol starts without an accompanying definition.
        *  It is the meta-programmer's responsibility to provide exactly one corresponding definition by passing
        *  this symbol to the ClassDef constructor.
-       *
-       *  @note As a macro can only splice code into the point at which it is expanded, all generated symbols must be
-       *        direct or indirect children of the reflection context's owner.
        */
        def newClass(owner: Symbol, name: String, parents: List[TypeRepr], decls: Symbol => List[Symbol], selfType: Option[TypeRepr]): Symbol
 
@@ -3933,6 +3934,9 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
        *    new myClass(0, "string").foo()
        *  }
        *  ```
+       *  @note As a macro can only splice code into the point at which it is expanded, all generated symbols must be
+       *        direct or indirect children of the reflection context's owner.
+       *
        *  @param owner The owner of the class
        *  @param name The name of the class
        *  @param parents Function returning the parent classes of the class. The first parent must not be a trait.
@@ -3940,14 +3944,10 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
        *  @param clsFlags extra flags with which the class symbol should be constructed.
        *  @param clsPrivateWithin the symbol within which this new class symbol should be private. May be noSymbol.
        *  @param conParams constructor parameter pairs of names and types.
-       *
        *  Parameters assigned by the constructor can be obtained via `classSymbol.memberField`.
        *  This symbol starts without an accompanying definition.
        *  It is the meta-programmer's responsibility to provide exactly one corresponding definition by passing
        *  this symbol to the ClassDef constructor.
-       *
-       *  @note As a macro can only splice code into the point at which it is expanded, all generated symbols must be
-       *        direct or indirect children of the reflection context's owner.
        */
       def newClass(
         owner: Symbol,
@@ -4021,33 +4021,31 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
        *    new myClass[String]("test").getParam()
        *  }
        *  ```
+       *  @note As a macro can only splice code into the point at which it is expanded, all generated symbols must be
+       *        direct or indirect children of the reflection context's owner.
        *
-       * @param owner The owner of the class
-       * @param name The name of the class
-       * @param parents Function returning the parent classes of the class. The first parent must not be a trait
-       * Takes the constructed class symbol as an argument. Calling `cls.typeRef.asType` as part of this function will lead to cyclic reference errors.
-       * @param decls The member declarations of the class provided the symbol of this class
-       * @param selfType The self type of the class if it has one
-       * @param clsFlags extra flags with which the class symbol should be constructed. Can be `Private` | `Protected` | `PrivateLocal` | `Local` | `Final` | `Trait` | `Abstract` | `Open`
-       * @param clsPrivateWithin the symbol within which this new class symbol should be private. May be noSymbol
-       * @param clsAnnotations annotations of the class
-       * @param conMethodType Function returning MethodOrPoly type representing the type of the constructor.
-       * Takes the result type as parameter which must be returned from the innermost MethodOrPoly and have type parameters applied if those are used.
-       * PolyType may only represent the first clause of the constructor.
-       * @param conFlags extra flags with which the constructor symbol should be constructed. Can be `Synthetic` | `Method` | `Private` | `Protected` | `PrivateLocal` | `Local`
-       * @param conPrivateWithin the symbol within which the constructor for this new class symbol should be private. May be noSymbol.
-       * @param conParamFlags extra flags with which the constructor parameter symbols should be constructed. Must match the shape of `conMethodType`.
-       * For type parameters those can be `Param` | `Deferred` | `Private` | `PrivateLocal` | `Local`.
-       * For term parameters those can be `ParamAccessor` | `Private` | `Protected` | `PrivateLocal` | `Local`
-       * @param conParamPrivateWithins the symbols within which the constructor parameters should be private. Must match the shape of `conMethodType`. Can consist of noSymbol.
-       *
+       *  @param owner The owner of the class
+       *  @param name The name of the class
+       *  @param parents Function returning the parent classes of the class. The first parent must not be a trait
+       *  Takes the constructed class symbol as an argument. Calling `cls.typeRef.asType` as part of this function will lead to cyclic reference errors.
+       *  @param decls The member declarations of the class provided the symbol of this class
+       *  @param selfType The self type of the class if it has one
+       *  @param clsFlags extra flags with which the class symbol should be constructed. Can be `Private` | `Protected` | `PrivateLocal` | `Local` | `Final` | `Trait` | `Abstract` | `Open`
+       *  @param clsPrivateWithin the symbol within which this new class symbol should be private. May be noSymbol
+       *  @param clsAnnotations annotations of the class
+       *  @param conMethodType Function returning MethodOrPoly type representing the type of the constructor.
+       *  Takes the result type as parameter which must be returned from the innermost MethodOrPoly and have type parameters applied if those are used.
+       *  PolyType may only represent the first clause of the constructor.
+       *  @param conFlags extra flags with which the constructor symbol should be constructed. Can be `Synthetic` | `Method` | `Private` | `Protected` | `PrivateLocal` | `Local`
+       *  @param conPrivateWithin the symbol within which the constructor for this new class symbol should be private. May be noSymbol.
+       *  @param conParamFlags extra flags with which the constructor parameter symbols should be constructed. Must match the shape of `conMethodType`.
+       *  For type parameters those can be `Param` | `Deferred` | `Private` | `PrivateLocal` | `Local`.
+       *  For term parameters those can be `ParamAccessor` | `Private` | `Protected` | `PrivateLocal` | `Local`
+       *  @param conParamPrivateWithins the symbols within which the constructor parameters should be private. Must match the shape of `conMethodType`. Can consist of noSymbol.
        *  Term and type parameters assigned by the constructor can be obtained via `classSymbol.memberField`/`classSymbol.memberType`.
        *  This symbol starts without an accompanying definition.
        *  It is the meta-programmer's responsibility to provide exactly one corresponding definition by passing
        *  this symbol to the ClassDef constructor.
-       *
-       *  @note As a macro can only splice code into the point at which it is expanded, all generated symbols must be
-       *        direct or indirect children of the reflection context's owner.
        */
       // Keep doc aligned with QuotesImpl's validFlags: `clsFlags` with `validClassFlags`, `conFlags` with `validClassConstructorFlags`,
       // conParamFlags with `validClassTypeParamFlags` and `validClassTermParamFlags`
@@ -4105,6 +4103,10 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
        *    MyModule$macro$1.run()
        *  }
        *  ```
+       *  @note As a macro can only splice code into the point at which it is expanded, all generated symbols must be
+       *        direct or indirect children of the reflection context's owner.
+       *
+       *  @syntax markdown
        *
        *  @param parent The owner of the class
        *  @param name The name of the class
@@ -4113,115 +4115,107 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
        *  @param parents A function that takes the symbol of the module class as input and returns the parent classes of the class. The first parent must not be a trait.
        *  @param decls A function that takes the symbol of the module class as input and returns the symbols of its declared members
        *  @param privateWithin the symbol within which this new method symbol should be private. May be noSymbol.
-       *
        *  This symbol starts without an accompanying definition.
        *  It is the meta-programmer's responsibility to provide exactly one corresponding definition by passing
        *  this symbol to `ClassDef.module`.
-       *
-       *  @note As a macro can only splice code into the point at which it is expanded, all generated symbols must be
-       *        direct or indirect children of the reflection context's owner.
-       *
-       *  @syntax markdown
        */
       def newModule(owner: Symbol, name: String, modFlags: Flags, clsFlags: Flags, parents: Symbol => List[TypeRepr], decls: Symbol => List[Symbol], privateWithin: Symbol): Symbol
 
       /** Generates a new method symbol with the given parent, name and type.
        *
        *  To define a member method of a class, use the `newMethod` within the `decls` function of `newClass`.
+       *  @note As a macro can only splice code into the point at which it is expanded, all generated symbols must be
+       *        direct or indirect children of the reflection context's owner.
        *
        *  @param parent The owner of the method
        *  @param name The name of the method
        *  @param tpe The type of the method (MethodType, PolyType, ByNameType)
-       *
        *  This symbol starts without an accompanying definition.
        *  It is the meta-programmer's responsibility to provide exactly one corresponding definition by passing
        *  this symbol to the DefDef constructor.
-       *
-       *  @note As a macro can only splice code into the point at which it is expanded, all generated symbols must be
-       *        direct or indirect children of the reflection context's owner.
        */
       def newMethod(parent: Symbol, name: String, tpe: TypeRepr): Symbol
 
       /** Works as the other newMethod, but with additional parameters.
-      *
-      *  To define a member method of a class, use the `newMethod` within the `decls` function of `newClass`.
-      *
-      *  @param parent The owner of the method
-      *  @param name The name of the method
-      *  @param tpe The type of the method (MethodType, PolyType, ByNameType)
-      *  @param flags extra flags to with which the symbol should be constructed. `Method` flag will be added. Can be `Private | Protected | Override | Deferred | Final | Method | Implicit | Given | Local | JavaStatic | Synthetic | Artifact`
-      *  @param privateWithin the symbol within which this new method symbol should be private. May be noSymbol.
-      */
+       *
+       *  To define a member method of a class, use the `newMethod` within the `decls` function of `newClass`.
+       *
+       *  @param parent The owner of the method
+       *  @param name The name of the method
+       *  @param tpe The type of the method (MethodType, PolyType, ByNameType)
+       *  @param flags extra flags to with which the symbol should be constructed. `Method` flag will be added. Can be `Private | Protected | Override | Deferred | Final | Method | Implicit | Given | Local | JavaStatic | Synthetic | Artifact`
+       *  @param privateWithin the symbol within which this new method symbol should be private. May be noSymbol.
+       */
       // Keep: `flags` doc aligned with QuotesImpl's `validMethodFlags`
       def newMethod(parent: Symbol, name: String, tpe: TypeRepr, flags: Flags, privateWithin: Symbol): Symbol
 
       /** Generates a new val/var/lazy val symbol with the given parent, name and type.
-      *
-      *  This symbol starts without an accompanying definition.
-      *  It is the meta-programmer's responsibility to provide exactly one corresponding definition by passing
-      *  this symbol to the ValDef constructor.
-      *
-      *  Note: Also see ValDef.let
-      *
-      *  @param parent The owner of the val/var/lazy val
-      *  @param name The name of the val/var/lazy val
-      *  @param tpe The type of the val/var/lazy val
-      *  @param flags extra flags to with which the symbol should be constructed. Can be `Private | Protected | Override | Deferred | Final | Param | Implicit | Lazy | Mutable | Local | ParamAccessor | Module | Package | Case | CaseAccessor | Given | Enum | JavaStatic | Synthetic | Artifact`
-      *  @param privateWithin the symbol within which this new method symbol should be private. May be noSymbol.
-      *  @note As a macro can only splice code into the point at which it is expanded, all generated symbols must be
-      *        direct or indirect children of the reflection context's owner.
-      */
+       *
+       *  This symbol starts without an accompanying definition.
+       *  It is the meta-programmer's responsibility to provide exactly one corresponding definition by passing
+       *  this symbol to the ValDef constructor.
+       *
+       *  Note: Also see ValDef.let
+       *  @note As a macro can only splice code into the point at which it is expanded, all generated symbols must be
+       *        direct or indirect children of the reflection context's owner.
+       *
+       *  @param parent The owner of the val/var/lazy val
+       *  @param name The name of the val/var/lazy val
+       *  @param tpe The type of the val/var/lazy val
+       *  @param flags extra flags to with which the symbol should be constructed. Can be `Private | Protected | Override | Deferred | Final | Param | Implicit | Lazy | Mutable | Local | ParamAccessor | Module | Package | Case | CaseAccessor | Given | Enum | JavaStatic | Synthetic | Artifact`
+       *  @param privateWithin the symbol within which this new method symbol should be private. May be noSymbol.
+       */
       // Keep: `flags` doc aligned with QuotesImpl's `validValFlags`
       def newVal(parent: Symbol, name: String, tpe: TypeRepr, flags: Flags, privateWithin: Symbol): Symbol
 
       /** Generates a pattern bind symbol with the given parent, name and type.
-      *
-      *  This symbol starts without an accompanying definition.
-      *  It is the meta-programmer's responsibility to provide exactly one corresponding definition by passing
-      *  this symbol to the BindDef constructor.
-      *
-      *  @param parent The owner of the binding
-      *  @param name The name of the binding
-      *  @param flags extra flags to with which the symbol should be constructed. `Case` flag will be added. Can be `Case`
-      *  @param tpe The type of the binding
-      *  @note As a macro can only splice code into the point at which it is expanded, all generated symbols must be
-      *        direct or indirect children of the reflection context's owner.
-      */
+       *
+       *  This symbol starts without an accompanying definition.
+       *  It is the meta-programmer's responsibility to provide exactly one corresponding definition by passing
+       *  this symbol to the BindDef constructor.
+       *  @note As a macro can only splice code into the point at which it is expanded, all generated symbols must be
+       *        direct or indirect children of the reflection context's owner.
+       *
+       *  @param parent The owner of the binding
+       *  @param name The name of the binding
+       *  @param flags extra flags to with which the symbol should be constructed. `Case` flag will be added. Can be `Case`
+       *  @param tpe The type of the binding
+       */
       // Keep: `flags` doc aligned with QuotesImpl's `validBindFlags`
       def newBind(parent: Symbol, name: String, flags: Flags, tpe: TypeRepr): Symbol
 
       /** Generates a new type symbol for a type alias with the given parent, name and type
-        *
-        *  This symbol starts without an accompanying definition.
-        *  It is the meta-programmer's responsibility to provide exactly one corresponding definition by passing
-        *  this symbol to the TypeDef constructor.
-        *
-        *  @param parent The owner of the type
-        *  @param name The name of the type
-        *  @param flags extra flags to with which symbol can be constructed. Can be `Private` | `Protected` | `Override` | `Final` | `Infix` | `Local`
-        *  @param tpe The rhs the type alias
-        *  @param privateWithin the symbol within which this new type symbol should be private. May be noSymbol.
-        *  @note As a macro can only splice code into the point at which it is expanded, all generated symbols must be
-        *        direct or indirect children of the reflection context's owner.
-        */
+       *
+       *  This symbol starts without an accompanying definition.
+       *  It is the meta-programmer's responsibility to provide exactly one corresponding definition by passing
+       *  this symbol to the TypeDef constructor.
+       *  @note As a macro can only splice code into the point at which it is expanded, all generated symbols must be
+       *        direct or indirect children of the reflection context's owner.
+       *
+       *  @param parent The owner of the type
+       *  @param name The name of the type
+       *  @param flags extra flags to with which symbol can be constructed. Can be `Private` | `Protected` | `Override` | `Final` | `Infix` | `Local`
+       *  @param tpe The rhs the type alias
+       *  @param privateWithin the symbol within which this new type symbol should be private. May be noSymbol.
+       */
       @experimental
       // Keep: `flags` doc aligned with QuotesImpl's `validTypeAliasFlags`
       def newTypeAlias(parent: Symbol, name: String, flags: Flags, tpe: TypeRepr, privateWithin: Symbol): Symbol
 
       /** Generates a new type symbol for a type bounds with the given parent, name and type
-        *
-        *  This symbol starts without an accompanying definition.
-        *  It is the meta-programmer's responsibility to provide exactly one corresponding definition by passing
-        *  this symbol to the TypeDef constructor.
-        *
-        *  @param parent The owner of the type
-        *  @param name The name of the type
-        *  @param flags extra flags to with which symbol can be constructed. `Deferred` flag will be added. Can be `Private` | `Protected` | `Override` | `Deferred` | `Final` | `Infix` | `Local`
-        *  @param tpe The bounds of the type
-        *  @param privateWithin the symbol within which this new type symbol should be private. May be noSymbol.
-        *  @note As a macro can only splice code into the point at which it is expanded, all generated symbols must be
-        *        direct or indirect children of the reflection context's owner.
-        */
+       *
+       *  This symbol starts without an accompanying definition.
+       *  It is the meta-programmer's responsibility to provide exactly one corresponding definition by passing
+       *  this symbol to the TypeDef constructor.
+       *  @note As a macro can only splice code into the point at which it is expanded, all generated symbols must be
+       *        direct or indirect children of the reflection context's owner.
+       *
+       *  @param parent The owner of the type
+       *  @param name The name of the type
+       *  @param flags extra flags to with which symbol can be constructed. `Deferred` flag will be added. Can be `Private` | `Protected` | `Override` | `Deferred` | `Final` | `Infix` | `Local`
+       *  @param tpe The bounds of the type
+       *  @param privateWithin the symbol within which this new type symbol should be private. May be noSymbol.
+       */
       @experimental
       // Keep: `flags` doc aligned with QuotesImpl's `validBoundedTypeFlags`
       def newBoundedType(parent: Symbol, name: String, flags: Flags, tpe: TypeBounds, privateWithin: Symbol): Symbol
@@ -4303,7 +4297,6 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
          *      tp.memberType(symbol)
          *      symbol.typeRef
          *      symbol.termRef
-         *
          */
         def tree: Tree
 
@@ -4560,12 +4553,12 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
       extension (self: Signature)
 
         /** The signatures of the method parameters.
-          *
-          *  Each *type parameter section* is represented by a single Int corresponding
-          *  to the number of type parameters in the section.
-          *  Each *term parameter* is represented by a String corresponding to the fully qualified
-          *  name of the parameter type.
-          */
+         *
+         *  Each *type parameter section* is represented by a single Int corresponding
+         *  to the number of type parameters in the section.
+         *  Each *term parameter* is represented by a String corresponding to the fully qualified
+         *  name of the parameter type.
+         */
         def paramSigs: List[String | Int]
 
         /** The signature of the result type. */
@@ -4730,14 +4723,14 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
       def PolyFunctionClass: Symbol
 
       /** Function-like object that maps arity to symbols for classes `scala.TupleX`.
-      *   -  0th element is `NoSymbol`
-      *   -  1st element is `NoSymbol`
-      *   -  2st element is `Tuple2`
-      *   -  ...
-      *   - 22nd element is `Tuple22`
-      *   - 23nd element is `NoSymbol`  // TODO update when we will have more tuples
-      *   - ...
-      */
+       *   -  0th element is `NoSymbol`
+       *   -  1st element is `NoSymbol`
+       *   -  2st element is `Tuple2`
+       *   -  ...
+       *   - 22nd element is `Tuple22`
+       *   - 23nd element is `NoSymbol`  // TODO update when we will have more tuples
+       *   - ...
+       */
       def TupleClass(arity: Int): Symbol
 
       /** Returns `true` if `sym` is a `Tuple1`, `Tuple2`, ... `Tuple22`. */
@@ -5114,21 +5107,21 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
     ///////////////
 
     /** Customizable Tree accumulator.
-    *
-    *  Usage:
-    *  ```scala
-    *  //{
-    *  def inQuotes(using q: Quotes) = {
-    *    import q.reflect.*
-    *  //}
-    *    class MyTreeAccumulator[X] extends TreeAccumulator[X] {
-    *      def foldTree(x: X, tree: Tree)(owner: Symbol): X = ???
-    *    }
-    *  //{
-    *  }
-    *  //}
-    *  ```
-    */
+     *
+     *  Usage:
+     *  ```scala
+     *  //{
+     *  def inQuotes(using q: Quotes) = {
+     *    import q.reflect.*
+     *  //}
+     *    class MyTreeAccumulator[X] extends TreeAccumulator[X] {
+     *      def foldTree(x: X, tree: Tree)(owner: Symbol): X = ???
+     *    }
+     *  //{
+     *  }
+     *  //}
+     *  ```
+     */
     trait TreeAccumulator[X]:
 
       // Ties the knot of the traversal: call `foldOver(x, tree))` to dive in the `tree` node.

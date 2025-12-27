@@ -16,7 +16,7 @@ package meta
 import scala.language.`2.13`
 
 /**
- * This internal annotation encodes arguments passed to annotation superclasses. Example:
+ *  This internal annotation encodes arguments passed to annotation superclasses. Example:
  *
  * {{{
  *   class a(x: Int) extends Annotation
@@ -26,7 +26,7 @@ import scala.language.`2.13`
 class superArg(p: String, v: Any) extends StaticAnnotation
 
 /**
- * This internal annotation encodes arguments passed to annotation superclasses. Example:
+ *  This internal annotation encodes arguments passed to annotation superclasses. Example:
  *
  * {{{
  *   class a(x: Int) extends Annotation

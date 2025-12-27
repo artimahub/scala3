@@ -14,18 +14,18 @@ import annotation.meta.*
  * Capabilities are typically passed to code as parameters; they should not be global objects.
  * Often, they come with access restrictions such as scoped lifetimes or limited sharing.
  *
- * An example is the [[scala.util.boundary.Label Label]] class in [[scala.util.boundary]].
- * It represents a capability in the sense that it gives permission to [[scala.util.boundary.break break]]
+ * An example is the [Label](scala.util.boundary.Label) class in [[scala.util.boundary]].
+ * It represents a capability in the sense that it gives permission to [break](scala.util.boundary.break)
  * to the enclosing boundary represented by the `Label`. It has a scoped lifetime, since breaking to
  * a `Label` after the associated `boundary` was exited gives a runtime exception.
  *
  * [[Capability]] has a formal meaning when
- * [[scala.language.experimental.captureChecking Capture Checking]]
+ * [Capture Checking](scala.language.experimental.captureChecking)
  * is turned on.
  * But even without capture checking, extending this trait can be useful for documenting the intended purpose
  * of a class.
  *
- * Capability has exactly two subtraits: [[SharedCapability Shared]] and [[ExclusiveCapability Exclusive]].
+ * Capability has exactly two subtraits: [Shared](SharedCapability) and [Exclusive](ExclusiveCapability).
  */
 sealed trait Capability extends Any
 
@@ -34,7 +34,7 @@ sealed trait Capability extends Any
  *  as classifier capbilities.
  *
  * [[Classifier]] has a formal meaning when
- * [[scala.language.experimental.captureChecking Capture Checking]]
+ * [Capture Checking](scala.language.experimental.captureChecking)
  * is turned on. It should not be used outside of capture checking.
  */
 trait Classifier
@@ -46,7 +46,7 @@ object cap extends Capability
 /** Marker trait for capabilities that can be safely shared in a concurrent context.
  *
  * [[SharedCapability]] has a formal meaning when
- * [[scala.language.experimental.captureChecking Capture Checking]]
+ * [Capture Checking](scala.language.experimental.captureChecking)
  * is turned on.
  * During separation checking, shared capabilities are not taken into account.
  */
@@ -59,7 +59,7 @@ type Shared = SharedCapability
  *  at a given time. For example, write-access to a shared mutable buffer.
  *
  * [[ExclusiveCapability]] has a formal meaning when
- * [[scala.language.experimental.captureChecking Capture Checking]]
+ * [Capture Checking](scala.language.experimental.captureChecking)
  * is turned on.
  * During separation checking, exclusive usage of marked capabilities will be enforced.
  */
@@ -70,11 +70,11 @@ trait ExclusiveCapability extends Capability
 type Exclusive = ExclusiveCapability
 
 /** Marker trait for capabilities that capture some continuation or return point in
- *  the stack. Examples are exceptions, [[scala.util.boundary.Label labels]], [[scala.CanThrow CanThrow]]
+ *  the stack. Examples are exceptions, [labels](scala.util.boundary.Label), [CanThrow](scala.CanThrow)
  *  or Async contexts.
  *
  * [[Control]] has a formal meaning when
- * [[scala.language.experimental.captureChecking Capture Checking]]
+ * [Capture Checking](scala.language.experimental.captureChecking)
  * is turned on.
  */
 trait Control extends SharedCapability, Classifier
@@ -146,8 +146,7 @@ final class reserve extends annotation.StaticAnnotation
 final class use extends annotation.StaticAnnotation
 
 /** A trait that used to allow expressing existential types. Replaced by
-*  root.Result instances.
-*/
+*  root.Result instances.*/
 @experimental
 @deprecated
 sealed trait Exists extends Capability

@@ -21,12 +21,12 @@ import scala.annotation.unchecked.uncheckedVariance
 import scala.runtime.Statics
 
 /**
-  * Trait that overrides iterable operations to take advantage of strict builders.
-  *
-  * @tparam A  Elements type
-  * @tparam CC Collection type constructor
-  * @tparam C  Collection type
-  */
+ *  Trait that overrides iterable operations to take advantage of strict builders.
+ *
+ *  @tparam A  Elements type
+ *  @tparam CC Collection type constructor
+ *  @tparam C  Collection type
+ */
 transparent trait StrictOptimizedIterableOps[+A, +CC[_], +C]
   extends Any
     with IterableOps[A, CC, C] {
@@ -254,8 +254,8 @@ transparent trait StrictOptimizedIterableOps[+A, +CC[_], +C]
   }
 
   /** A collection containing the last `n` elements of this collection.
-    * $willForceEvaluation
-    */
+   *  $willForceEvaluation
+   */
   override def takeRight(n: Int): C = {
     val b = newSpecificBuilder
     b.sizeHintBounded(n, toIterable: @nowarn("cat=deprecation"))
@@ -270,9 +270,9 @@ transparent trait StrictOptimizedIterableOps[+A, +CC[_], +C]
   }
 
   /** The rest of the collection without its `n` last elements. For
-    *  linear, immutable collections this should avoid making a copy.
-    *  $willForceEvaluation
-    */
+   *  linear, immutable collections this should avoid making a copy.
+   *  $willForceEvaluation
+   */
   override def dropRight(n: Int): C = {
     val b = newSpecificBuilder
     if (n >= 0) b.sizeHint(this, delta = -n)

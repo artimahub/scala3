@@ -82,6 +82,7 @@ object Expr {
    *  ```
    *
    *  To directly get the value of an expression `expr: Expr[T]` consider using `expr.value`/`expr.valueOrError` instead.
+   *
    */
   def unapply[T](x: Expr[T])(using FromExpr[T])(using Quotes): Option[T] =
     scala.Predef.summon[FromExpr[T]].unapply(x)
@@ -270,7 +271,7 @@ object Expr {
 
   /** Finds a given instance of type `T` in the current scope.
    *  Returns `Some` containing the expression of the implicit or
-   * `None` if implicit resolution failed.
+   *  `None` if implicit resolution failed.
    *
    *  @tparam T type of the implicit parameter
    */
@@ -285,13 +286,12 @@ object Expr {
   /** Finds a given instance of type `T` in the current scope,
    *  while excluding certain symbols from the initial implicit search.
    *  Returns `Some` containing the expression of the implicit or
-   * `None` if implicit resolution failed.
+   *  `None` if implicit resolution failed.
+   *  @note if the found given requires additional search for other given instances,
+   *  this additional search will NOT exclude the symbols from the `ignored` list.
    *
    *  @tparam T type of the implicit parameter
    *  @param ignored Symbols ignored during the initial implicit search
-   *
-   *  @note if the found given requires additional search for other given instances,
-   *  this additional search will NOT exclude the symbols from the `ignored` list.
    */
   def summonIgnoring[T](using Type[T])(using quotes: Quotes)(ignored: quotes.reflect.Symbol*): Option[Expr[T]] = {
     import quotes.reflect._

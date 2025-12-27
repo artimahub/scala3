@@ -21,11 +21,11 @@ import java.util.ConcurrentModificationException
 /**
  * Utilities to check that mutations to a client that tracks
  * its mutations have not occurred since a given point.
- * [[Iterator `Iterator`]]s that perform this check automatically
+ * [`Iterator`](Iterator)s that perform this check automatically
  * during iteration can be created by wrapping an `Iterator`
- * in a [[MutationTracker.CheckedIterator `CheckedIterator`]],
- * or by manually using the [[MutationTracker.checkMutations() `checkMutations`]]
- * and [[MutationTracker.checkMutationsForIteration() `checkMutationsForIteration`]]
+ * in a [`CheckedIterator`](MutationTracker.CheckedIterator),
+ * or by manually using the [`checkMutations`](MutationTracker.checkMutations())
+ * and [`checkMutationsForIteration`](MutationTracker.checkMutationsForIteration())
  * methods.
  */
 private object MutationTracker {

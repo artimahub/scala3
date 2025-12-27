@@ -32,17 +32,17 @@ transparent trait SortedOps[A, +C] {
   @inline def compare(k0: A, k1: A): Int = ordering.compare(k0, k1)
 
   /** Creates a ranged projection of this collection. Any mutations in the
-    *  ranged projection will update this collection and vice versa.
-    *
-    *  Note: keys are not guaranteed to be consistent between this collection
-    *  and the projection. This is the case for buffers where indexing is
-    *  relative to the projection.
-    *
-    *  @param from  The lower-bound (inclusive) of the ranged projection.
-    *               `None` if there is no lower bound.
-    *  @param until The upper-bound (exclusive) of the ranged projection.
-    *               `None` if there is no upper bound.
-    */
+   *  ranged projection will update this collection and vice versa.
+   *
+   *  Note: keys are not guaranteed to be consistent between this collection
+   *  and the projection. This is the case for buffers where indexing is
+   *  relative to the projection.
+   *
+   *  @param from  The lower-bound (inclusive) of the ranged projection.
+   *               `None` if there is no lower bound.
+   *  @param until The upper-bound (exclusive) of the ranged projection.
+   *               `None` if there is no upper bound.
+   */
   def rangeImpl(from: Option[A], until: Option[A]): C
 
   /** Creates a ranged projection of this collection with both a lower-bound

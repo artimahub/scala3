@@ -219,9 +219,9 @@ object BasicIO {
   def connectToIn(o: OutputStream): Unit = transferFully(Uncloseable protect stdin, o)
 
   /** Returns a function `OutputStream => Unit` that either reads the content
-    * from stdin or does nothing but close the stream. This function can be used by
-    * [[scala.sys.process.ProcessIO]].
-    */
+   *  from stdin or does nothing but close the stream. This function can be used by
+   *  [[scala.sys.process.ProcessIO]].
+   */
   def input(connect: Boolean): OutputStream => Unit = if (connect) connectToStdIn else connectNoOp
 
   /** A sentinel value telling ProcessBuilderImpl to redirect. */
@@ -247,8 +247,8 @@ object BasicIO {
   def toStdOut = (in: InputStream) => transferFully(in, stdout)
 
   /** Copies all input from the input stream to the output stream. Closes the
-    * input stream once it's all read.
-    */
+   *  input stream once it's all read.
+   */
   def transferFully(in: InputStream, out: OutputStream): Unit =
     try transferFullyImpl(in, out)
     catch onIOInterrupt(())

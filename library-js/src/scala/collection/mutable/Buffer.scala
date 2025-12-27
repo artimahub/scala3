@@ -117,14 +117,14 @@ trait Buffer[A]
     this
   }
 
-  /** Removes the first ''n'' elements of this buffer.
+  /** Removes the first *n* elements of this buffer.
     *
     *  @param n  the number of elements to remove from the beginning
     *            of this buffer.
     */
   def trimStart(n: Int): Unit = remove(0, normalized(n))
 
-  /** Removes the last ''n'' elements of this buffer.
+  /** Removes the last *n* elements of this buffer.
     *
     *  @param n  the number of elements to remove from the end
     *            of this buffer.

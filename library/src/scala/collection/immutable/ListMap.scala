@@ -123,7 +123,7 @@ sealed class ListMap[K, +V]
   * n elements will take O(n^2^) time. This makes the builder suitable only for a small number of
   * elements.
   *
-  * @see [[https://docs.scala-lang.org/overviews/collections-2.13/concrete-immutable-collection-classes.html#list-maps "Scala's Collection Library overview"]]
+  * @see ["Scala's Collection Library overview"](https://docs.scala-lang.org/overviews/collections-2.13/concrete-immutable-collection-classes.html#list-maps)
   * section on `List Maps` for more information.
   * @define Coll ListMap
   * @define coll list map
@@ -131,8 +131,8 @@ sealed class ListMap[K, +V]
 @SerialVersionUID(3L)
 object ListMap extends MapFactory[ListMap] {
   /**
-    * Represents an entry in the `ListMap`.
-    */
+   *  Represents an entry in the `ListMap`.
+   */
   private[immutable] final class Node[K, V](
     override private[immutable] val key: K,
     private[immutable] var _value: V,
@@ -270,12 +270,12 @@ object ListMap extends MapFactory[ListMap] {
     }
 
   /** Returns a new ListMap builder
-    *
-    * The implementation safely handles additions after `result()` without calling `clear()`
-    *
-    * @tparam K the map key type
-    * @tparam V the map value type
-    */
+   *
+   *  The implementation safely handles additions after `result()` without calling `clear()`
+   *
+   *  @tparam K the map key type
+   *  @tparam V the map value type
+   */
   def newBuilder[K, V]: ReusableBuilder[(K, V), ListMap[K, V]] = new ListMapBuilder[K, V]
 
   @tailrec private def foldRightInternal[K, V, Z](map: ListMap[K, V], prevValue: Z, op: ((K, V), Z) => Z): Z = {
@@ -285,8 +285,8 @@ object ListMap extends MapFactory[ListMap] {
 }
 
 /** Builder for ListMap.
-  * $multipleResults
-  */
+ *  $multipleResults
+ */
 private[immutable] final class ListMapBuilder[K, V] extends mutable.ReusableBuilder[(K, V), ListMap[K, V]] {
   private var isAliased: Boolean = false
   private var underlying: ListMap[K, V] = ListMap.empty

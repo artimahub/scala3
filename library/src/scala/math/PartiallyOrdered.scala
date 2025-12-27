@@ -21,12 +21,12 @@ trait PartiallyOrdered[+A] extends Any {
 
   type AsPartiallyOrdered[B] = B => PartiallyOrdered[B]
 
-  /** Result of comparing `'''this'''` with operand `that`.
+  /** Result of comparing `**this**` with operand `that`.
    *  Returns `None` if operands are not comparable.
    *  If operands are comparable, returns `Some(x)` where
-   *  - `x < 0`    iff   `'''this''' &lt; that`
-   *  - `x == 0`   iff   `'''this''' == that`
-   *  - `x > 0`    iff   `'''this''' &gt; that`
+   *  - `x < 0`    iff   `**this** &lt; that`
+   *  - `x == 0`   iff   `**this** == that`
+   *  - `x > 0`    iff   `**this** &gt; that`
    */
   def tryCompareTo [B >: A: AsPartiallyOrdered](that: B): Option[Int]
 

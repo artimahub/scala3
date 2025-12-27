@@ -341,7 +341,8 @@ abstract class Enumeration (initial: Int) extends Serializable {
     /** The empty value set. */
     val empty: ValueSet = new ValueSet(immutable.BitSet.empty)
     /** A value set containing all the values for the zero-adjusted ids
-     *  corresponding to the bits in an array */
+     *  corresponding to the bits in an array 
+     */
     def fromBitMask(elems: Array[Long]): ValueSet = new ValueSet(immutable.BitSet.fromBitMask(elems))
     /** A builder object for value sets. */
     def newBuilder: mutable.Builder[Value, ValueSet] = new mutable.Builder[Value, ValueSet] {

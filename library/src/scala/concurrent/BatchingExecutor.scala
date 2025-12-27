@@ -223,19 +223,19 @@ private[concurrent] trait BatchingExecutor extends Executor {
   }
 
   /** MUST throw a NullPointerException when `runnable` is null
-   * When implementing a sync BatchingExecutor, it is RECOMMENDED
-   * to implement this method as `runnable.run()`
-  */
+   *  When implementing a sync BatchingExecutor, it is RECOMMENDED
+   *  to implement this method as `runnable.run()`
+   */
   protected def submitForExecution(runnable: Runnable): Unit
 
   /** Reports that an asynchronous computation failed.
    *  See `ExecutionContext.reportFailure(throwable: Throwable)`
-  */
+   */
   protected def reportFailure(throwable: Throwable): Unit
 
   /**
-   * WARNING: Never use both `submitAsyncBatched` and `submitSyncBatched` in the same
-   * implementation of `BatchingExecutor`
+   *  WARNING: Never use both `submitAsyncBatched` and `submitSyncBatched` in the same
+   *  implementation of `BatchingExecutor`
    */
   protected final def submitAsyncBatched(runnable: Runnable): Unit = {
     val b = _tasksLocal.get
@@ -244,8 +244,8 @@ private[concurrent] trait BatchingExecutor extends Executor {
   }
 
   /**
-   * WARNING: Never use both `submitAsyncBatched` and `submitSyncBatched` in the same
-   * implementation of `BatchingExecutor`
+   *  WARNING: Never use both `submitAsyncBatched` and `submitSyncBatched` in the same
+   *  implementation of `BatchingExecutor`
    */
   protected final def submitSyncBatched(runnable: Runnable): Unit = {
     Objects.requireNonNull(runnable, "runnable is null")

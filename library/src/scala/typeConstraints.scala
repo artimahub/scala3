@@ -63,38 +63,38 @@ import scala.annotation.implicitNotFound
 @implicitNotFound(msg = "Cannot prove that ${From} <:< ${To}.")
 sealed abstract class <:<[-From, +To] extends (From => To) with Serializable {
   /** Substitute `To` for `From` and `From` for `To` in the type `F[To, From]`, given that `F` is $contraCo.
-    *  Essentially swaps `To` and `From` in `ftf`'s type.
-    *
-    *  Equivalent in power to each of [[substituteCo]] and [[substituteContra]].
-    *
-    *  $isProof
-    *
-    *  @return `ftf`, $sameDiff
-    */
+   *  Essentially swaps `To` and `From` in `ftf`'s type.
+   *
+   *  Equivalent in power to each of [[substituteCo]] and [[substituteContra]].
+   *
+   *  $isProof
+   *
+   *  @return `ftf`, $sameDiff
+   */
   def substituteBoth[F[-_, +_]](ftf: F[To, From]): F[From, To]
   // = substituteCo[({type G[+T] = F[From, T]})#G](substituteContra[({type G[-T] = F[T, From})#G](ftf))
   // = substituteContra[({type G[-T] = F[T, To]})#G](substituteCo[({type G[+T] = F[From, T]})#G](ftf))
   /** Substitutes the `From` in the type `F[From]`, where `F` is $coCon, for `To`.
-    *
-    *  Equivalent in power to each of [[substituteBoth]] and [[substituteContra]].
-    *
-    *  $isProof
-    *
-    *  @return `ff`, $sameDiff
-    */
+   *
+   *  Equivalent in power to each of [[substituteBoth]] and [[substituteContra]].
+   *
+   *  $isProof
+   *
+   *  @return `ff`, $sameDiff
+   */
   def substituteCo[F[+_]](ff: F[From]): F[To] = {
     type G[-_, +T] = F[T]
     substituteBoth[G](ff)
   }
   // = substituteContra[({type G[-T] = F[T] => F[To]})#G](identity)(ff)
   /** Substitutes the `To` in the type `F[To]`, where `F` is $contraCon, for `From`.
-    *
-    *  Equivalent in power to each of [[substituteBoth]] and [[substituteCo]].
-    *
-    *  $isProof
-    *
-    *  @return `ft`, $sameDiff
-    */
+   *
+   *  Equivalent in power to each of [[substituteBoth]] and [[substituteCo]].
+   *
+   *  $isProof
+   *
+   *  @return `ft`, $sameDiff
+   */
   def substituteContra[F[-_]](ft: F[To]): F[From] = {
     type G[-T, +_] = F[T]
     substituteBoth[G](ft)

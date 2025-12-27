@@ -22,11 +22,11 @@ import scala.runtime.ScalaRunTime.nullForGC
 import caps.unsafe.unsafeAssumePure
 
 /** Views are collections whose transformation operations are non strict: the resulting elements
-  * are evaluated only when the view is effectively traversed (e.g. using `foreach` or `foldLeft`),
-  * or when the view is converted to a strict collection type (using the `to` operation).
-  * @define coll view
-  * @define Coll `View`
-  */
+ *  are evaluated only when the view is effectively traversed (e.g. using `foreach` or `foldLeft`),
+ *  or when the view is converted to a strict collection type (using the `to` operation).
+ *  @define coll view
+ *  @define Coll `View`
+ */
 trait View[+A] extends Iterable[A] with IterableOps[A, View, View[A]] with IterableFactoryDefaults[A, View] with Serializable {
 
   override def view: View[A]^{this} = this

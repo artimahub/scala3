@@ -262,10 +262,10 @@ abstract class Enumeration (initial: Int) extends Serializable {
 
   /** A class for sets of values.
    *  Iterating through this set will yield values in increasing order of their ids.
+   *  @define Coll `collection.immutable.SortedSet`
    *
    *  @param nnIds The set of ids of values (adjusted so that the lowest value does
    *    not fall below zero), organized as a `BitSet`.
-   *  @define Coll `collection.immutable.SortedSet`
    */
   class ValueSet private[ValueSet] (private[this] var nnIds: immutable.BitSet)
     extends immutable.AbstractSet[Value]
@@ -317,7 +317,8 @@ abstract class Enumeration (initial: Int) extends Serializable {
     /** The empty value set. */
     val empty = new ValueSet(immutable.BitSet.empty)
     /** A value set containing all the values for the zero-adjusted ids
-     *  corresponding to the bits in an array. */
+     *  corresponding to the bits in an array. 
+     */
     def fromBitMask(elems: Array[Long]): ValueSet = new ValueSet(immutable.BitSet.fromBitMask(elems))
     /** A builder object for value sets. */
     def newBuilder: mutable.Builder[Value, ValueSet] = new mutable.Builder[Value, ValueSet] {

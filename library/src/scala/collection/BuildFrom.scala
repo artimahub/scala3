@@ -32,7 +32,8 @@ trait BuildFrom[-From, -A, +C] extends Any { self =>
   def fromSpecific(from: From)(it: IterableOnce[A]^): C^{it}
 
   /** Gets a Builder for the collection. For non-strict collection types this will use an intermediate buffer.
-    * Building collections with `fromSpecific` is preferred because it can be lazy for lazy collections. */
+   *  Building collections with `fromSpecific` is preferred because it can be lazy for lazy collections. 
+   */
   def newBuilder(from: From): Builder[A, C]
 
   @deprecated("Use newBuilder() instead of apply()", "2.13.0")

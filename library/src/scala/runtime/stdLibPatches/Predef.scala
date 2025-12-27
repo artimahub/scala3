@@ -18,17 +18,17 @@ private[scala] object Predef:
     if !assertion then scala.runtime.Scala3RunTime.assertFailed()
 
   /**
-   * Retrieves the single value of a type with a unique inhabitant.
+   *  Retrieves the single value of a type with a unique inhabitant.
    *
-   * @example {{{
-   * object Foo
-   * val foo = valueOf[Foo.type]
-   * // foo is Foo.type = Foo
+   *  @example {{{
+   *  object Foo
+   *  val foo = valueOf[Foo.type]
+   *  // foo is Foo.type = Foo
    *
-   * val bar = valueOf[23]
-   * // bar is 23.type = 23
-   * }}}
-   * @group utilities
+   *  val bar = valueOf[23]
+   *  // bar is 23.type = 23
+   *}}}
+   *  @group utilities
    */
   inline def valueOf[T]: T = summonFrom {
     case ev: ValueOf[T] => ev.value
@@ -51,7 +51,7 @@ private[scala] object Predef:
    *
    *  val s3: String | Null = null
    *  val s4: String = s3.nn // throw NullPointerException
-   *  }}}
+   * }}}
    */
   extension [T](x: T | Null) inline def nn: x.type & T =
     if x.asInstanceOf[Any] == null then scala.runtime.Scala3RunTime.nnFail()
@@ -60,12 +60,14 @@ private[scala] object Predef:
   extension (inline x: AnyRef | Null)
     /** Enables an expression of type `T|Null`, where `T` is a subtype of `AnyRef`, to be checked for `null`
      *  using `eq` rather than only `==`. This is needed because `Null` no longer has
-     *  `eq` or `ne` methods, only `==` and `!=` inherited from `Any`. */
+     *  `eq` or `ne` methods, only `==` and `!=` inherited from `Any`. 
+     */
     inline infix def eq(inline y: AnyRef | Null): Boolean =
       x.asInstanceOf[AnyRef] eq y.asInstanceOf[AnyRef]
     /** Enables an expression of type `T|Null`, where `T` is a subtype of `AnyRef`, to be checked for `null`
      *  using `ne` rather than only `!=`. This is needed because `Null` no longer has
-     *  `eq` or `ne` methods, only `==` and `!=` inherited from `Any`. */
+     *  `eq` or `ne` methods, only `==` and `!=` inherited from `Any`. 
+     */
     inline infix def ne(inline y: AnyRef | Null): Boolean =
       !(x eq y)
 

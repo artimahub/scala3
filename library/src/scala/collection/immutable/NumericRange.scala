@@ -96,13 +96,13 @@ sealed class NumericRange[T](
     else new NumericRange.Exclusive(start + step, end, step)
 
   /** Creates a new range with the start and end values of this range and
-    *  a new `step`.
-    */
+   *  a new `step`.
+   */
   def by(newStep: T): NumericRange[T] = copy(start, end, newStep)
 
 
   /** Creates a copy of this range.
-    */
+   */
   def copy(start: T, end: T, step: T): NumericRange[T] =
     new NumericRange(start, end, step, isInclusive)
 
@@ -392,9 +392,9 @@ object NumericRange {
   }
 
   /** Calculates the number of elements in a range given start, end, step, and
-    *  whether or not it is inclusive.  Throws an exception if step == 0 or
-    *  the number of elements exceeds the maximum Int.
-    */
+   *  whether or not it is inclusive.  Throws an exception if step == 0 or
+   *  the number of elements exceeds the maximum Int.
+   */
   def count[T](start: T, end: T, step: T, isInclusive: Boolean)(implicit num: Integral[T]): Int = {
     val zero    = num.zero
     val upward  = num.lt(start, end)

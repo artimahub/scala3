@@ -56,7 +56,8 @@ object TailCalls {
     final def map[B](f: A => B): TailRec[B] = flatMap(a => Call(() => Done(f(a))))
 
     /** Continue the computation with `f` and merge the trampolining
-     *  of this computation with that of `f`. */
+     *  of this computation with that of `f`. 
+     */
     final def flatMap[B](f: A => TailRec[B]): TailRec[B] = this match {
       case Done(a)         => Call(() => f(a))
       case Call(_)         => Cont(this, f)
@@ -93,20 +94,24 @@ object TailCalls {
   protected case class Call[A](rest: () => TailRec[A]) extends TailRec[A]
 
   /** Internal class representing the final result returned from a tailcalling
-   *  computation. */
+   *  computation. 
+   */
   protected case class Done[A](value: A) extends TailRec[A]
 
   /** Internal class representing a continuation with function A => TailRec[B].
-   *  It is needed for the flatMap to be implemented. */
+   *  It is needed for the flatMap to be implemented. 
+   */
   protected case class Cont[A, B](a: TailRec[A], f: A => TailRec[B]) extends TailRec[B]
 
   /** Perform a tailcall.
+   *
    *  @param rest  the expression to be evaluated in the tailcall
    *  @return a `TailRec` object representing the expression `rest`
    */
   def tailcall[A](rest: => TailRec[A]): TailRec[A] = Call(() => rest)
 
   /** Returns the final result from a tailcalling computation.
+   *
    *  @param  `result` the result value
    *  @return a `TailRec` object representing a computation which immediately
    *          returns `result`

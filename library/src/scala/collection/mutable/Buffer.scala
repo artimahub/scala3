@@ -53,6 +53,7 @@ trait Buffer[A]
   @`inline` final def append(elems: A*): this.type = addAll(elems)
 
   /** Appends the elements contained in a iterable object to this buffer.
+   *
    *  @param elems  the iterable object containing the elements to append.
    *  @return       this $coll
    */
@@ -127,7 +128,7 @@ trait Buffer[A]
     this
   }
 
-  /** Removes the first ''n'' elements of this buffer.
+  /** Removes the first *n* elements of this buffer.
     *
     *  @param n  the number of elements to remove from the beginning
     *            of this buffer.
@@ -135,7 +136,7 @@ trait Buffer[A]
   @deprecated("use dropInPlace instead", since = "2.13.4")
   def trimStart(n: Int): Unit = dropInPlace(n)
 
-  /** Removes the last ''n'' elements of this buffer.
+  /** Removes the last *n* elements of this buffer.
     *
     *  @param n  the number of elements to remove from the end
     *            of this buffer.

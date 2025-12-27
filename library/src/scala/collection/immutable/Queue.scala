@@ -20,24 +20,24 @@ import scala.collection.generic.DefaultSerializable
 import scala.collection.mutable.{Builder, ListBuffer}
 
 /** `Queue` objects implement data structures that allow to
-  *  insert and retrieve elements in a first-in-first-out (FIFO) manner.
-  *
-  *  `Queue` is implemented as a pair of `List`s, one containing the ''in'' elements and the other the ''out'' elements.
-  *  Elements are added to the ''in'' list and removed from the ''out'' list. When the ''out'' list runs dry, the
-  *  queue is pivoted by replacing the ''out'' list by ''in.reverse'', and ''in'' by ''Nil''.
-  *
-  *  Adding items to the queue always has cost `O(1)`. Removing items has cost `O(1)`, except in the case
-  *  where a pivot is required, in which case, a cost of `O(n)` is incurred, where `n` is the number of elements in the queue. When this happens,
-  *  `n` remove operations with `O(1)` cost are guaranteed. Removing an item is on average `O(1)`.
-  *
-  *  @see [[https://docs.scala-lang.org/overviews/collections-2.13/concrete-immutable-collection-classes.html#immutable-queues "Scala's Collection Library overview"]]
-  *  section on `Immutable Queues` for more information.
-  *
-  *  @define Coll `immutable.Queue`
-  *  @define coll immutable queue
-  *  @define mayNotTerminateInf
-  *  @define willNotTerminateInf
-  */
+ *  insert and retrieve elements in a first-in-first-out (FIFO) manner.
+ *
+ *  `Queue` is implemented as a pair of `List`s, one containing the *in* elements and the other the *out* elements.
+ *  Elements are added to the *in* list and removed from the *out* list. When the *out* list runs dry, the
+ *  queue is pivoted by replacing the *out* list by *in.reverse*, and *in* by *Nil*.
+ *
+ *  Adding items to the queue always has cost `O(1)`. Removing items has cost `O(1)`, except in the case
+ *  where a pivot is required, in which case, a cost of `O(n)` is incurred, where `n` is the number of elements in the queue. When this happens,
+ *  `n` remove operations with `O(1)` cost are guaranteed. Removing an item is on average `O(1)`.
+ *
+ *  @see ["Scala's Collection Library overview"](https://docs.scala-lang.org/overviews/collections-2.13/concrete-immutable-collection-classes.html#immutable-queues)
+ *  section on `Immutable Queues` for more information.
+ *
+ *  @define Coll `immutable.Queue`
+ *  @define coll immutable queue
+ *  @define mayNotTerminateInf
+ *  @define willNotTerminateInf
+ */
 
 sealed class Queue[+A] protected(protected val in: List[A], protected val out: List[A])
   extends AbstractSeq[A]
@@ -138,10 +138,10 @@ sealed class Queue[+A] protected(protected val in: List[A], protected val out: L
   }
 
   /** Creates a new queue with element added at the end
-    *  of the old queue.
-    *
-    *  @param  elem        the element to insert
-    */
+   *  of the old queue.
+   *
+   *  @param  elem        the element to insert
+   */
   def enqueue[B >: A](elem: B): Queue[B] = new Queue(elem :: in, out)
 
   /** Creates a new queue with all elements provided by an `Iterable` object
@@ -156,13 +156,13 @@ sealed class Queue[+A] protected(protected val in: List[A], protected val out: L
   @`inline` final def enqueue[B >: A](iter: scala.collection.Iterable[B]^) = enqueueAll(iter)
 
   /** Creates a new queue with all elements provided by an `Iterable` object
-    *  added at the end of the old queue.
-    *
-    *  The elements are appended in the order they are given out by the
-    *  iterator.
-    *
-    *  @param  iter        an iterable object
-    */
+   *  added at the end of the old queue.
+   *
+   *  The elements are appended in the order they are given out by the
+   *  iterator.
+   *
+   *  @param  iter        an iterable object
+   */
   def enqueueAll[B >: A](iter: scala.collection.Iterable[B]^): Queue[B] = appendedAll(iter)
 
   /** Returns a tuple with the first element in the queue,

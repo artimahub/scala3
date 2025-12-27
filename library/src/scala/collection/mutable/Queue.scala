@@ -20,15 +20,15 @@ import scala.collection.generic.DefaultSerializable
 
 
 /** `Queue` objects implement data structures that allow to
-  *  insert and retrieve elements in a first-in-first-out (FIFO) manner.
-  *
-  *  @define Coll `mutable.Queue`
-  *  @define coll mutable queue
-  *  @define orderDependent
-  *  @define orderDependentFold
-  *  @define mayNotTerminateInf
-  *  @define willNotTerminateInf
-  */
+ *  insert and retrieve elements in a first-in-first-out (FIFO) manner.
+ *
+ *  @define Coll `mutable.Queue`
+ *  @define coll mutable queue
+ *  @define orderDependent
+ *  @define orderDependentFold
+ *  @define mayNotTerminateInf
+ *  @define willNotTerminateInf
+ */
 class Queue[A] protected (array: Array[AnyRef | Null], start: Int, end: Int)
   extends ArrayDeque[A](array, start, end)
     with IndexedSeqOps[A, Queue, Queue[A]]
@@ -55,11 +55,11 @@ class Queue[A] protected (array: Array[AnyRef | Null], start: Int, end: Int)
   def enqueue(elem: A): this.type = this += elem
 
   /** Enqueue two or more elements at the end of the queue. The last element
-    *  of the sequence will be on end of the queue.
-    *
-    *  @param   elems      the element sequence.
-    *  @return this
-    */
+   *  of the sequence will be on end of the queue.
+   *
+   *  @param   elems      the element sequence.
+   *  @return this
+   */
   def enqueue(elem1: A, elem2: A, elems: A*): this.type = enqueue(elem1).enqueue(elem2).enqueueAll(elems)
 
   /** Enqueues all elements in the given iterable object into the queue. The

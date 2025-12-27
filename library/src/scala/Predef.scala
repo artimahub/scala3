@@ -31,7 +31,7 @@ import scala.runtime.ScalaRunTime.mapNull
  *  [[scala.collection.immutable.Set]].
  *
  *  === Console Output ===
- *  For basic console output, `Predef` provides convenience methods [[print(x:Any* print]] and [[println(x:Any* println]],
+ *  For basic console output, `Predef` provides convenience methods [print](print(x:Any*) and [println](println(x:Any*),
  *  which are aliases of the methods in the object [[scala.Console]].
  *
  *  === Assertions ===
@@ -107,49 +107,49 @@ import scala.runtime.ScalaRunTime.mapNull
  */
 object Predef extends LowPriorityImplicits {
   /**
-   * Retrieves the runtime representation of a class type. `classOf[T]` is equivalent to
-   * the class literal `T.class` in Java.
+   *  Retrieves the runtime representation of a class type. `classOf[T]` is equivalent to
+   *  the class literal `T.class` in Java.
    *
-   * @example {{{
-   * val listClass = classOf[List[?]]
-   * // listClass is java.lang.Class[List[?]] = class scala.collection.immutable.List
+   *  @example {{{
+   *  val listClass = classOf[List[?]]
+   *  // listClass is java.lang.Class[List[?]] = class scala.collection.immutable.List
    *
-   * val mapIntString = classOf[Map[Int,String]]
-   * // mapIntString is java.lang.Class[Map[Int,String]] = interface scala.collection.immutable.Map
-   * }}}
+   *  val mapIntString = classOf[Map[Int,String]]
+   *  // mapIntString is java.lang.Class[Map[Int,String]] = interface scala.collection.immutable.Map
+   *}}}
+   *  @group utilities
    *
-   * @return The runtime [[Class]] representation of type `T`.
-   * @group utilities
+   *  @return The runtime [[Class]] representation of type `T`.
    */
   def classOf[T]: Class[T] = null.asInstanceOf[Class[T]] // This is a stub method. The actual implementation is filled in by the compiler.
 
   /**
-   * Retrieves the single value of a type with a unique inhabitant.
+   *  Retrieves the single value of a type with a unique inhabitant.
    *
-   * @example {{{
-   * object Foo
-   * val foo = valueOf[Foo.type]
-   * // foo is Foo.type = Foo
+   *  @example {{{
+   *  object Foo
+   *  val foo = valueOf[Foo.type]
+   *  // foo is Foo.type = Foo
    *
-   * val bar = valueOf[23]
-   * // bar is 23.type = 23
-   * }}}
-   * @group utilities
+   *  val bar = valueOf[23]
+   *  // bar is 23.type = 23
+   *}}}
+   *  @group utilities
    */
   @inline def valueOf[T](implicit vt: ValueOf[T]): T = vt.value
 
   /**
-   * Retrieves the single value of a type with a unique inhabitant.
+   *  Retrieves the single value of a type with a unique inhabitant.
    *
-   * @example {{{
-   * object Foo
-   * val foo = valueOf[Foo.type]
-   * // foo is Foo.type = Foo
+   *  @example {{{
+   *  object Foo
+   *  val foo = valueOf[Foo.type]
+   *  // foo is Foo.type = Foo
    *
-   * val bar = valueOf[23]
-   * // bar is 23.type = 23
-   * }}}
-   * @group utilities
+   *  val bar = valueOf[23]
+   *  // bar is 23.type = 23
+   *}}}
+   *  @group utilities
    */
   inline def valueOf[T]: T = summonFrom {
     case ev: ValueOf[T] => ev.value
@@ -229,10 +229,10 @@ object Predef extends LowPriorityImplicits {
   @inline def identity[A](x: A): A = x // see `$conforms` for the implicit version
 
   /** Summon an implicit value of type `T`. Usually, the argument is not passed explicitly.
+   *  @group utilities
    *
    *  @tparam T the type of the value to be summoned
    *  @return the implicit value of type `T`
-   *  @group utilities
    */
   @inline def implicitly[T](implicit e: T): T = e // TODO: when dependent method types are on by default, give this result type `e.type`, so that inliner has better chance of knowing which method to inline in calls like `implicitly[MatchingStrategy[Option]].zero`
 
@@ -247,29 +247,29 @@ object Predef extends LowPriorityImplicits {
    *  This is just a different name for [[identity]].
    *
    *  @example Separating code blocks from `new`:
-   *           {{{
-   *             val x = new AnyRef
-   *             {
-   *               val y = ...
-   *               println(y)
-   *             }
-   *             // the { ... } block is seen as the body of an anonymous class
+   *            {{{
+   *              val x = new AnyRef
+   *              {
+   *                val y = ...
+   *                println(y)
+   *              }
+   *              // the { ... } block is seen as the body of an anonymous class
    *
-   *             val x = new AnyRef
+   *              val x = new AnyRef
    *
-   *             {
-   *               val y = ...
-   *               println(y)
-   *             }
-   *             // an empty line is a brittle "fix"
+   *              {
+   *                val y = ...
+   *                println(y)
+   *              }
+   *              // an empty line is a brittle "fix"
    *
-   *             val x = new AnyRef
-   *             locally {
-   *               val y = ...
-   *               println(y)
-   *             }
-   *             // locally guards the block and helps communicate intent
-   *           }}}
+   *              val x = new AnyRef
+   *              locally {
+   *                val y = ...
+   *                println(y)
+   *              }
+   *              // locally guards the block and helps communicate intent
+   *            }}}
    *  @group utilities
    */
   @inline def locally[T](@deprecatedName("x") x: T): T = x
@@ -475,13 +475,13 @@ object Predef extends LowPriorityImplicits {
    *  The interpretation of the formatting patterns is described in
    *  [[java.util.Formatter]].
    *
-   *  Consider using the [[scala.StringContext.f f interpolator]] as more type safe and idiomatic.
+   *  Consider using the [f interpolator](scala.StringContext.f) as more type safe and idiomatic.
    *
    *  @param text the pattern for formatting the arguments.
    *  @param xs   the arguments used to instantiate the pattern.
    *  @throws java.lang.IllegalArgumentException if there was a problem with the format string or arguments
    *
-   *  @see [[scala.StringContext.f StringContext.f]]
+   *  @see [StringContext.f](scala.StringContext.f)
    *  @group console-output
    */
   def printf(text: String, xs: Any*): Unit = Console.print(text.format(xs*))
@@ -564,7 +564,7 @@ object Predef extends LowPriorityImplicits {
    *
    *  val s3: String | Null = null
    *  val s4: String = s3.nn // throw NullPointerException
-   *  }}}
+   * }}}
    */
   extension [T](x: T | Null) inline def nn: x.type & T =
     if x.asInstanceOf[Any] == null then scala.runtime.Scala3RunTime.nnFail()
@@ -573,12 +573,14 @@ object Predef extends LowPriorityImplicits {
   extension (inline x: AnyRef | Null)
     /** Enables an expression of type `T|Null`, where `T` is a subtype of `AnyRef`, to be checked for `null`
      *  using `eq` rather than only `==`. This is needed because `Null` no longer has
-     *  `eq` or `ne` methods, only `==` and `!=` inherited from `Any`. */
+     *  `eq` or `ne` methods, only `==` and `!=` inherited from `Any`. 
+     */
     inline infix def eq(inline y: AnyRef | Null): Boolean =
       x.asInstanceOf[AnyRef] eq y.asInstanceOf[AnyRef]
     /** Enables an expression of type `T|Null`, where `T` is a subtype of `AnyRef`, to be checked for `null`
      *  using `ne` rather than only `!=`. This is needed because `Null` no longer has
-     *  `eq` or `ne` methods, only `==` and `!=` inherited from `Any`. */
+     *  `eq` or `ne` methods, only `==` and `!=` inherited from `Any`. 
+     */
     inline infix def ne(inline y: AnyRef | Null): Boolean =
       !(x eq y)
 
@@ -614,8 +616,7 @@ object Predef extends LowPriorityImplicits {
 /** The `LowPriorityImplicits` class provides implicit values that
 *  are valid in all Scala compilation units without explicit qualification,
 *  but that are partially overridden by higher-priority conversions in object
-*  `Predef`.
-*/
+*  `Predef`.*/
 // scala/bug#7335 Parents of Predef are defined in the same compilation unit to avoid
 // cyclic reference errors compiling the standard library *without* a previously
 // compiled copy on the classpath.

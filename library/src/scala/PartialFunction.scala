@@ -98,14 +98,14 @@ import scala.util.boundary.break
  *  @note Optional [[Function]]s, [[PartialFunction]]s and extractor objects
  *        can be converted to each other as shown in the following table.
  *  &nbsp;
- * | How to convert ... | to a [[PartialFunction]] | to an optional [[Function]] | to an extractor |
- * | :---:  | ---  | --- | --- |
- * | from a [[PartialFunction]] | [[Predef.identity]] | [[lift]] | [[Predef.identity]] |
- * | from optional [[Function]] | [[Function1.UnliftOps#unlift]] or [[Function.unlift]] | [[Predef.identity]] | [[Function1.UnliftOps#unlift]] |
- * | from an extractor | `{ case extractor(x) => x }` | `extractor.unapply(_)` | [[Predef.identity]] |
+ *  | How to convert ... | to a [[PartialFunction]] | to an optional [[Function]] | to an extractor |
+ *  | :---:  | ---  | --- | --- |
+ *  | from a [[PartialFunction]] | [[Predef.identity]] | [[lift]] | [[Predef.identity]] |
+ *  | from optional [[Function]] | [[Function1.UnliftOps#unlift]] or [[Function.unlift]] | [[Predef.identity]] | [[Function1.UnliftOps#unlift]] |
+ *  | from an extractor | `{ case extractor(x) => x }` | `extractor.unapply(_)` | [[Predef.identity]] |
  *  &nbsp;
  *
- * @define applyOrElseOrElse Note that calling [[isDefinedAt]] on the resulting partial function
+ *  @define applyOrElseOrElse Note that calling [[isDefinedAt]] on the resulting partial function
  *                           may apply the first partial function and execute its side effect.
  *                           For efficiency, it is recommended to call [[applyOrElse]] instead of [[isDefinedAt]] or [[apply]].
  */
@@ -124,14 +124,14 @@ trait PartialFunction[-A, +B] extends Function1[A, B] { self: PartialFunction[A,
    *             case firstChar.unlift.elementWise(c0, c1, c2) =>
    *               println(s"\$c0, \$c1, \$c2") // Output: f, b, b
    *           }
-   *           }}}
+   *          }}}
    */
   def elementWise: ElementWiseExtractor[A, B]^{this} = new ElementWiseExtractor[A, B](this)
 
   /** Checks if a value is contained in the function's domain.
    *
    *  @param  x   the value to test
-   *  @return `'''true'''`, iff `x` is in the domain of this function, `'''false'''` otherwise.
+   *  @return `**true**`, iff `x` is in the domain of this function, `**false**` otherwise.
    */
   def isDefinedAt(x: A): Boolean
 
@@ -307,7 +307,7 @@ object PartialFunction {
   }
 
   /** Composite function produced by `PartialFunction#andThen` method
-    */
+   */
   private class Combined[-A, B, +C] (pf: PartialFunction[A, B]^, k: PartialFunction[B, C]^) extends PartialFunction[A, C] with Serializable {
     def isDefinedAt(x: A): Boolean = {
       val b: B = pf.applyOrElse(x, checkFallback[B])
@@ -371,10 +371,11 @@ object PartialFunction {
     case _ => new Unlifted(f)
   }
 
-  /**  Converts an ordinary function to a partial function. Note that calling `isDefinedAt(x)` on
+  /** Converts an ordinary function to a partial function. Note that calling `isDefinedAt(x)` on
    *   this partial function will return `true` for every `x`.
-   *   @param  f  an ordinary function
-   *   @return    a partial function which delegates to the ordinary function `f`
+   *
+   *  @param  f  an ordinary function
+   *  @return    a partial function which delegates to the ordinary function `f`
    */
   def fromFunction[A, B](f: A => B): PartialFunction[A, B]^{f} = { case x => f(x) }
 

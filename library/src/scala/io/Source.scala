@@ -190,17 +190,17 @@ object Source {
 /** An iterable representation of source data.
  *  It may be reset with the optional [[reset]] method.
  *
- *  Subclasses must supply [[scala.io.Source.iter the underlying iterator]].
+ *  Subclasses must supply [the underlying iterator](scala.io.Source.iter).
  *
- *  Error handling may be customized by overriding the [[scala.io.Source.report report]] method.
+ *  Error handling may be customized by overriding the [report](scala.io.Source.report) method.
  *
- *  The [[scala.io.Source.ch current input]] and [[scala.io.Source.pos position]],
- *  as well as the [[scala.io.Source.next next character]] methods delegate to
- *  [[scala.io.Source#Positioner the positioner]].
+ *  The [current input](scala.io.Source.ch) and [position](scala.io.Source.pos),
+ *  as well as the [next character](scala.io.Source.next) methods delegate to
+ *  [the positioner](scala.io.Source#Positioner).
  *
  *  The default positioner encodes line and column numbers in the position passed to [[report]].
  *  This behavior can be changed by supplying a
- *  [[scala.io.Source.withPositioning(pos:* custom positioner]].
+ *  [custom positioner](scala.io.Source.withPositioning(pos:*).
  *
  */
 abstract class Source extends Iterator[Char] with Closeable {
@@ -249,7 +249,7 @@ abstract class Source extends Iterator[Char] with Closeable {
    */
   def getLines(): Iterator[String] = new LineIterator()
 
-  /** Returns `'''true'''` if this source has more characters.
+  /** Returns `**true**` if this source has more characters.
    */
   def hasNext: Boolean = iter.hasNext
 

@@ -55,7 +55,7 @@ object Array {
   }
 
   /**
-   * Returns a new [[scala.collection.mutable.ArrayBuilder]].
+   *  Returns a new [[scala.collection.mutable.ArrayBuilder]].
    */
   def newBuilder[T](implicit t: ClassTag[T]): ArrayBuilder[T] = ArrayBuilder.make[T](using t)
 
@@ -118,14 +118,14 @@ object Array {
   }
 
   /** Copies one array to another, truncating or padding with default values (if
-    * necessary) so the copy has the specified length.
-    *
-    * Equivalent to Java's
-    *   `java.util.Arrays.copyOf(original, newLength)`,
-    * except that this works for primitive and object arrays in a single method.
-    *
-    * @see `java.util.Arrays#copyOf`
-    */
+   *  necessary) so the copy has the specified length.
+   *
+   *  Equivalent to Java's
+   *   `java.util.Arrays.copyOf(original, newLength)`,
+   *  except that this works for primitive and object arrays in a single method.
+   *
+   *  @see `java.util.Arrays#copyOf`
+   */
   def copyOf[A](original: Array[A], newLength: Int): Array[A] = ((original: @unchecked) match {
     case original: Array[BoxedUnit]  => newUnitArray(newLength).asInstanceOf[Array[A]]
     case original: Array[AnyRef]     => java.util.Arrays.copyOf(original, newLength)
@@ -140,18 +140,18 @@ object Array {
   }).asInstanceOf[Array[A]]
 
   /** Copies one array to another, truncating or padding with default values (if
-    * necessary) so the copy has the specified length. The new array can have
-    * a different type than the original one as long as the values are
-    * assignment-compatible. When copying between primitive and object arrays,
-    * boxing and unboxing are supported.
-    *
-    * Equivalent to Java's
-    *   `java.util.Arrays.copyOf(original, newLength, newType)`,
-    * except that this works for all combinations of primitive and object arrays
-    * in a single method.
-    *
-    * @see `java.util.Arrays#copyOf`
-    */
+   *  necessary) so the copy has the specified length. The new array can have
+   *  a different type than the original one as long as the values are
+   *  assignment-compatible. When copying between primitive and object arrays,
+   *  boxing and unboxing are supported.
+   *
+   *  Equivalent to Java's
+   *   `java.util.Arrays.copyOf(original, newLength, newType)`,
+   *  except that this works for all combinations of primitive and object arrays
+   *  in a single method.
+   *
+   *  @see `java.util.Arrays#copyOf`
+   */
   def copyAs[A](original: Array[?], newLength: Int)(implicit ct: ClassTag[A]): Array[A] = {
     val runtimeClass = ct.runtimeClass
     if (runtimeClass == Void.TYPE) newUnitArray(newLength).asInstanceOf[Array[A]]
@@ -499,7 +499,7 @@ object Array {
   /** Returns an array containing a sequence of increasing integers in a range.
    *
    *  @param start  the start value of the array
-   *  @param end    the end value of the array, exclusive (in other words, this is the first value '''not''' returned)
+   *  @param end    the end value of the array, exclusive (in other words, this is the first value **not** returned)
    *  @return  the array with values in range `start, start + 1, ..., end - 1`
    *  up to, but excluding, `end`.
    */
@@ -508,7 +508,7 @@ object Array {
   /** Returns an array containing equally spaced values in some integer interval.
    *
    *  @param start the start value of the array
-   *  @param end   the end value of the array, exclusive (in other words, this is the first value '''not''' returned)
+   *  @param end   the end value of the array, exclusive (in other words, this is the first value **not** returned)
    *  @param step  the increment value of the array (may not be zero)
    *  @return      the array with values in `start, start + step, ...` up to, but excluding `end`
    */
@@ -627,9 +627,9 @@ object Array {
  *  by converting to `ArraySeq` first and invoking the variant of `reverse` that returns another
  *  `ArraySeq`.
  *
- *  @see [[https://www.scala-lang.org/files/archive/spec/2.13/ Scala Language Specification]], for in-depth information on the transformations the Scala compiler makes on Arrays (Sections 6.6 and 6.15 respectively.)
- *  @see [[https://docs.scala-lang.org/sips/scala-2-8-arrays.html "Scala 2.8 Arrays"]] the Scala Improvement Document detailing arrays since Scala 2.8.
- *  @see [[https://docs.scala-lang.org/overviews/collections-2.13/arrays.html "The Scala 2.8 Collections' API"]] section on `Array` by Martin Odersky for more information.
+ *  @see [Scala Language Specification](https://www.scala-lang.org/files/archive/spec/2.13/), for in-depth information on the transformations the Scala compiler makes on Arrays (Sections 6.6 and 6.15 respectively.)
+ *  @see ["Scala 2.8 Arrays"](https://docs.scala-lang.org/sips/scala-2-8-arrays.html) the Scala Improvement Document detailing arrays since Scala 2.8.
+ *  @see ["The Scala 2.8 Collections' API"](https://docs.scala-lang.org/overviews/collections-2.13/arrays.html) section on `Array` by Martin Odersky for more information.
  *  @hideImplicitConversion scala.Predef.booleanArrayOps
  *  @hideImplicitConversion scala.Predef.byteArrayOps
  *  @hideImplicitConversion scala.Predef.charArrayOps
