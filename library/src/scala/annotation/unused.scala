@@ -22,7 +22,7 @@ import scala.language.`2.13`
  *  because the method is designed to be overridden by
  *  an implementation that does use the parameter.
  *
- *  @param message TODO FILL IN
+ *  @param message an optional message explaining why the element is intentionally unused
  */
 @meta.getter @meta.setter
 class unused(message: String) extends StaticAnnotation {

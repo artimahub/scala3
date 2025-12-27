@@ -20,6 +20,6 @@ import language.experimental.captureChecking
  *
  *  TODO: This should be `Child[T <: AnyKind]`
  *
- *  @tparam T TODO FILL IN
+ *  @tparam T a type reference to the child class or object
  */
 class Child[T] extends Annotation

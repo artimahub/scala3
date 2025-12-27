@@ -54,6 +54,6 @@ import scala.language.`2.13`
  *      ^
  *  </pre>
  *
- *  @param msg TODO FILL IN
+ *  @param msg the error message template to display; type parameters can be interpolated using `${Xi}` syntax
  */
 final class implicitNotFound(msg: String) extends scala.annotation.ConstantAnnotation

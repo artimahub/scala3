@@ -8,8 +8,8 @@ import language.experimental.captureChecking
  *  Its tree is a TypeTree with two parameters which are both needed to
  *  fine default getters in later parameter sections.
  *
- *  @tparam Prefix TODO FILL IN
- *  @tparam SkipCount TODO FILL IN
+ *  @tparam Prefix the prefix type of the original alternative TermRef
+ *  @tparam SkipCount a ConstantType encoding the number of skipped term parameters
  *  @param  Prefix    the prefix field of the original alternative TermRef
  *  @param  SkipCount a ConstantType referring to the number of skipped term parameters
  *  The annotation is short-lived since mapped symbols are discarded immediately

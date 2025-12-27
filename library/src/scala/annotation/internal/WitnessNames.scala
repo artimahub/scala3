@@ -50,7 +50,7 @@ import language.experimental.captureChecking
  *
  *  4. At PostTyper, issue an error when encountering any reference to a CB companion.
  *
- *  @param names TODO FILL IN
+ *  @param names the names of the witness values generated for the context bounds
  */
 @experimental
 class WitnessNames(names: String*) extends StaticAnnotation

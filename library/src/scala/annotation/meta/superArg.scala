@@ -22,8 +22,8 @@ import scala.language.`2.13`
  *   class b extends a(42) // the compiler adds `@superArg("x", 42)` to class b
  * }}}
  *
- *  @param p TODO FILL IN
- *  @param v TODO FILL IN
+ *  @param p the name of the superclass parameter
+ *  @param v the value passed to the superclass parameter
  */
 class superArg(p: String, v: Any) extends StaticAnnotation
 
@@ -34,7 +34,7 @@ class superArg(p: String, v: Any) extends StaticAnnotation
  *   class b(y: Int) extends a(y) // the compiler adds `@superFwdArg("x", "y")` to class b
  * }}}
  *
- *  @param p TODO FILL IN
- *  @param n TODO FILL IN
+ *  @param p the name of the superclass parameter
+ *  @param n the name of the subclass parameter being forwarded
  */
 class superFwdArg(p: String, n: String) extends StaticAnnotation

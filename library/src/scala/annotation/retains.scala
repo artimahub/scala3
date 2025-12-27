@@ -13,7 +13,7 @@ import language.experimental.captureChecking
  *  The annotation can also be written explicitly if one wants to avoid the
  *  non-standard capturing type syntax.
  *
- *  @tparam Elems TODO FILL IN
+ *  @tparam Elems a union of singleton types (e.g., `x.type | y.type`) representing the captured references
  */
 @experimental
 class retains[Elems] extends annotation.StaticAnnotation

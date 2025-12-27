@@ -30,7 +30,7 @@ object init:
    *  the checker will issue a warning for the method call `c.a.square()` because
    *  it is forbidden to call methods or access fields on cold values.
    *
-   *  @param height TODO FILL IN
+   *  @param height the maximum nesting depth before nested values become opaque to the checker
    */
   @experimental
   final class widen(height: Int) extends StaticAnnotation
@@ -58,9 +58,9 @@ object init:
    *  the method call `box1.value.foo()` will be invalid, because it reaches `A.m`, which is not yet initialized.
    *  The explicit context annotation solves the problem.
    *
-   *  @tparam T TODO FILL IN
-   *  @param v TODO FILL IN
-   *  @return TODO FILL IN
+   *  @tparam T the type of the value being constructed in this region
+   *  @param v the expression to evaluate in a separate region context
+   *  @return the value `v` unchanged, but with isolated region tracking for initialization checking
    */
   @experimental
   def region[T](v: T): T = v

@@ -7,6 +7,6 @@ import language.experimental.captureChecking
  *  definition, its implementation will use the name `extname` instead of
  *  the regular name.
  *
- *  @param name TODO FILL IN
+ *  @param name the external name to use for this definition in the compiled output
  */
 final class targetName(name: String) extends StaticAnnotation

@@ -218,6 +218,6 @@ trait MacroAnnotation extends StaticAnnotation:
    *  @param Quotes     Implicit instance of Quotes used for tree reflection
    *  @param definition Tree that will be transformed
    *  @param companion  Tree for the companion class or module if the definition is respectively a module or a class
-   *  @return TODO FILL IN
+   *  @return the list of definitions that will replace the annotated definition and its companion
    */
   def transform(using Quotes)(definition: quotes.reflect.Definition, companion: Option[quotes.reflect.Definition]): List[quotes.reflect.Definition]

@@ -26,7 +26,7 @@ import scala.language.`2.13`
  *
  *  For details, see `scala.reflect.internal.AnnotationInfos.AnnotationInfo`.
  *
- *  @param arg TODO FILL IN
+ *  @param arg the default expression for the annotation parameter
  */
 @meta.param class defaultArg(arg: Any) extends StaticAnnotation {
   def this() = this(null)

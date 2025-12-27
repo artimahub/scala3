@@ -16,7 +16,7 @@ import scala.language.`2.13`
 
 /** An annotation giving particulars for a language feature in object `scala.language`.
  *
- *  @param feature TODO FILL IN
- *  @param enableRequired TODO FILL IN
+ *  @param feature the name of the language feature
+ *  @param enableRequired whether an explicit import is required to enable this feature
  */
 final class languageFeature(feature: String, enableRequired: Boolean) extends scala.annotation.StaticAnnotation
