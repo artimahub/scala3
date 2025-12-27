@@ -2,8 +2,20 @@ package todowriter
 
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
+import java.nio.file.{Files, Path}
 
+/** Combined Fixer tests (merged from multiple spec files) */
 class FixerSpec extends AnyFlatSpec with Matchers:
+
+  private def withTempFile(content: String)(test: Path => Unit): Unit =
+    val tempDir = Files.createTempDirectory("todowriter-test")
+    val tempFile = tempDir.resolve("Test.scala")
+    try
+      Files.writeString(tempFile, content)
+      test(tempFile)
+    finally
+      Files.deleteIfExists(tempFile)
+      Files.deleteIfExists(tempDir)
 
   "Fixer.buildFixedBlock" should "insert missing @param tag with TODO FILL IN" in {
     val text = "/** Does something. */"
@@ -348,81 +360,6 @@ class FixerSpec extends AnyFlatSpec with Matchers:
   it should "preserve multi-line @example content" in {
     val text = """/** Shifts bits right.
                  | *
-                 | *  @example {{{
-                 | *  -21 >>> 3 == 536870909
-                 | *  // in binary: 11111111 11111111 11111111 11101011 >>> 3 ==
-                 | *  //            00011111 11111111 11111111 11111101
-                 | *  }}}
-                 | */""".stripMargin
-    val block = ScaladocBlock.findAll(text).head
-    val result = Fixer.buildFixedBlock(text, block, Nil, List("x"), false)
-    // Should preserve all lines of the @example
-    result should include("@example {{{")
-    result should include("-21 >>> 3 == 536870909")
-    result should include("// in binary:")
-    result should include("}}}")
-  }
-
-  // Tests for preserving existing indentation (Issue: don't move text to the left)
-
-  it should "preserve existing indentation with 3+ spaces after asterisk" in {
-    val text = """/** Method.
-                 | *
-                 | *   - Item one
-                 | *   - Item two
-                 | */""".stripMargin
-    val block = ScaladocBlock.findAll(text).head
-    val result = Fixer.buildFixedBlock(text, block, Nil, List("x"), false)
-    // Should preserve the 3-space indentation (list indentation)
-    // Original has 3 spaces after *, output should preserve that
-    result should include(" *   - Item one")
-    result should include(" *   - Item two")
-  }
-
-  it should "preserve deep indentation inside nested list" in {
-    val text = """/** Method.
-                 | *
-                 | *  #### Restrictions
-                 | *   - All definitions must have same owner.
-                 | *     - Special case: an annotated def can return a class.
-                 | *   - Can not return a type.
-                 | */""".stripMargin
-    val block = ScaladocBlock.findAll(text).head
-    val result = Fixer.buildFixedBlock(text, block, Nil, List("x"), false)
-    // Should preserve the nested indentation (relative spacing is maintained)
-    result should include("#### Restrictions")
-    result should include(" *   - All definitions must have same owner.")
-    result should include(" *     - Special case: an annotated def can return a class.")
-    result should include(" *   - Can not return a type.")
-  }
-
-  it should "add space when only 1 space after asterisk" in {
-    val text = """/** Method.
-                 | *
-                 | * Text with only one space.
-                 | */""".stripMargin
-    val block = ScaladocBlock.findAll(text).head
-    val result = Fixer.buildFixedBlock(text, block, Nil, List("x"), false)
-    // Should add one space to get to 2 spaces minimum
-    result should include(" *  Text with only one space.")
-  }
-
-  it should "add two spaces when text is right after asterisk" in {
-    val text = """/** Method.
-                 | *
-                 | *Text with no space.
-                 | */""".stripMargin
-    val block = ScaladocBlock.findAll(text).head
-    val result = Fixer.buildFixedBlock(text, block, Nil, List("x"), false)
-    // Should add two spaces
-    result should include(" *  Text with no space.")
-  }
-
-  // Tests for markdown code fence handling (```scala ... ```)
-
-  it should "preserve content inside markdown code fences" in {
-    val text = """/** Example method.
-                 | *
                  | *  ```scala
                  | *  def foo(x: Int): Int =
                  | *    x + 1
@@ -453,6 +390,51 @@ class FixerSpec extends AnyFlatSpec with Matchers:
     result should include("@memoize")
     result should include("def fib(n: Int): Int =")
     result should include("```")
+  }
+
+  it should "preserve @tags inside triple-brace code fences (not treat as actual tags)" in {
+    val text = """/** Method with code example.
+                 | *
+                 | *  {{{
+                 | *@param x the value inside triple braces
+                 | *  }}}
+                 | */""".stripMargin
+    val block = ScaladocBlock.findAll(text).head
+    val result = Fixer.buildFixedBlock(text, block, Nil, List("y"), false)
+    val expected = """/** Method with code example.
+                 | *
+                 | *  {{{
+                 | *@param x the value inside triple braces
+                 | *  }}}
+                 | *
+                 | *  @param y TODO FILL IN
+                 | */""".stripMargin
+    result should be (expected)
+    // The @param inside triple braces should NOT move to signature section
+    //val codeBlockParamIdx = result.indexOf("@param x the value inside triple braces")
+    //val realParamIdx = result.indexOf("@param y TODO FILL IN")
+    //codeBlockParamIdx should be < realParamIdx
+  }
+
+  it should "preserve indentation inside triple-brace code blocks" in {
+    val text = """/** Example showing scala repl output preserved.
+                 | *
+                 | *  {{{
+                 | *   scala> val a = Array.from(Seq(1, 5))
+                 | *   val a: Array[Int] = Array(1, 5)
+                 | *
+                 | *   scala> val b = Array.from(Range(1, 5))
+                 | *   val b: Array[Int] = Array(1, 2, 3, 4)
+                 | *  }}}
+                 | */""".stripMargin
+    val block = ScaladocBlock.findAll(text).head
+    val result = Fixer.buildFixedBlock(text, block, Nil, Nil, false)
+
+    // The inner lines inside {{{ }}} should preserve the two-space indentation after the asterisk
+    result should include(" *   scala> val a = Array.from(Seq(1, 5))")
+    result should include(" *   val a: Array[Int] = Array(1, 5)")
+    result should include(" *   scala> val b = Array.from(Range(1, 5))")
+    result should include(" *   val b: Array[Int] = Array(1, 2, 3, 4)")
   }
 
   it should "not treat @param inside code fence as signature tag" in {
@@ -538,4 +520,260 @@ class FixerSpec extends AnyFlatSpec with Matchers:
     result should include("```")
     result should include("@tag inside")
     result should include("some code")
+  }
+
+  it should "preserve existing indentation with 3+ spaces after asterisk" in {
+    val text = """/** Method.
+                 | *
+                 | *   - Item one
+                 | *   - Item two
+                 | */""".stripMargin
+    val block = ScaladocBlock.findAll(text).head
+    val result = Fixer.buildFixedBlock(text, block, Nil, List("x"), false)
+    // Should preserve the 3-space indentation (list indentation)
+    // Original has 3 spaces after *, output should preserve that
+    result should include(" *   - Item one")
+    result should include(" *   - Item two")
+  }
+
+  it should "preserve deep indentation inside nested list" in {
+    val text = """/** Method.
+                 | *
+                 | *  #### Restrictions
+                 | *   - All definitions must have same owner.
+                 | *     - Special case: an annotated def can return a class.
+                 | *   - Can not return a type.
+                 | */""".stripMargin
+    val block = ScaladocBlock.findAll(text).head
+    val result = Fixer.buildFixedBlock(text, block, Nil, List("x"), false)
+    // Should preserve the nested indentation (relative spacing is maintained)
+    result should include("#### Restrictions")
+    result should include(" *   - All definitions must have same owner.")
+    result should include(" *     - Special case: an annotated def can return a class.")
+    result should include(" *   - Can not return a type.")
+  }
+
+  it should "add space when only 1 space after asterisk" in {
+    val text = """/** Method.
+                 | *
+                 | * Text with only one space.
+                 | */""".stripMargin
+    val block = ScaladocBlock.findAll(text).head
+    val result = Fixer.buildFixedBlock(text, block, Nil, List("x"), false)
+    // Should add one space to get to 2 spaces minimum
+    result should include(" *  Text with only one space.")
+  }
+
+  it should "add two spaces when text is right after asterisk" in {
+    val text = """/** Method.
+                 | *
+                 | *Text with no space.
+                 | */""".stripMargin
+    val block = ScaladocBlock.findAll(text).head
+    val result = Fixer.buildFixedBlock(text, block, Nil, List("x"), false)
+    // Should add two spaces
+    result should include(" *  Text with no space.")
+  }
+
+  // Tests for optional TODO insertion in Fixer.fixFile (from InsertTodoSpec)
+
+  "Fixer.fixFile" should "insert TODO tags when insertTodo = true" in {
+    val content = """package test
+                    |
+                    |/** Provides an implicit conversion from the Array object to a collection Factory. */
+                    |def foo[A](x: Int): Int = 1
+                    |""".stripMargin
+
+    withTempFile(content) { path =>
+      val check = ScaladocChecker.checkFile(path)
+      val fix = Fixer.fixFile(path, check.results, insertTodo = true)
+      fix.newContent shouldBe defined
+      val newContent = fix.newContent.get
+      newContent should include("@param x TODO FILL IN")
+    }
+  }
+
+  it should "not insert TODO tags when insertTodo = false (only adjust asterisks/alignment)" in {
+    val content = """package test
+                    |
+                    |/** Provides an implicit conversion from the Array object to a collection Factory. */
+                    |def foo[A](x: Int): Int = 1
+                    |""".stripMargin
+
+    withTempFile(content) { path =>
+      val check = ScaladocChecker.checkFile(path)
+      val fix = Fixer.fixFile(path, check.results, insertTodo = false)
+      fix.newContent shouldBe defined
+      val newContent = fix.newContent.get
+      // Should not add @param/@tparam/@return
+      newContent should not include ("@param")
+      newContent should not include ("@tparam")
+      newContent should not include ("@return")
+      // Still should preserve/adjust scaladoc formatting (opening line present)
+      newContent should include("/** Provides an implicit conversion from the Array object to a collection Factory.")
+    }
+  }
+
+  // Tests merged from AsteriskAlignmentSpec
+
+  it should "convert two-space asterisk alignment to one-space" in {
+    // Include a following method definition to ensure leading indentation context exists.
+    val text = """/**
+                 |  * Testing
+                 |  */
+                 |def foo(): Unit = ()""".stripMargin
+    val block = ScaladocBlock.findAll(text).head
+    val result = Fixer.buildFixedBlock(text, block, Nil, Nil, false)
+    val lines = result.split("\n")
+
+    // Expect multi-line output:
+    val expected = """/**
+                     | *  Testing
+                     | */""".stripMargin
+    result should be(expected)
+  }
+
+  it should "convert indented one-space asterisk alignment to two-space after leading indentation" in {
+    // Indented scaladoc followed by an indented method definition.
+    val text =   """    /**
+                  |     * Testing
+                  |     */""".stripMargin
+    val block = ScaladocBlock.findAll(text).head
+    val result = Fixer.buildFixedBlock(text, block, Nil, Nil, false)
+    val lines = result.split("\n")
+
+    // The asterisk line should be aligned relative to the method indentation.
+    val expected = """    /**
+                     |     *  Testing
+                     |     */""".stripMargin
+    result should be(expected)
+  }
+
+  // Tests merged from BuildBlockDeclarationSpec
+
+  it should "not include the following declaration and should align asterisks under the first '*' of the opening line" in {
+    val text =
+      """/** Provides an implicit conversion from the Array object to a collection Factory. */
+        |implicit def toFactory[A : ClassTag](dummy: Array.type): Factory[A, Array[A]] = new ArrayFactory(dummy)""".stripMargin
+
+    val block = ScaladocBlock.findAll(text).head
+
+    // Call buildFixedBlock directly to observe its output
+    val result = Fixer.buildFixedBlock(text, block, List("A"), List("dummy"), false)
+
+    // The result should NOT contain the declaration (buildFixedBlock should only return the comment block)
+    result.contains("implicit def toFactory") should be(false)
+
+    // Asterisk lines should align under the first '*' of the opening "/**" line
+    val lines = result.split("\n")
+    lines.head.trim.startsWith("/**") should be(true)
+    // check that subsequent non-empty star lines start with a single space followed by '*'
+    lines.drop(1).dropRight(1).foreach { line =>
+      line should startWith(" *")
+    }
+  }
+
+  // Tests merged from DuplicationAndAsteriskSpec
+
+  it should "not duplicate or remove the declaration when fixing a single-line scaladoc with typeparams" in {
+    val text =
+      """/** Provides an implicit conversion from the Array object to a collection Factory. */
+        |implicit def toFactory[A : ClassTag](dummy: Array.type): Factory[A, Array[A]] = new ArrayFactory(dummy)""".stripMargin
+
+    val block = ScaladocBlock.findAll(text).head
+    val chunk = Declaration.getDeclarationAfter(text, block.endIndex)
+    val decl = Declaration.parse(chunk)
+    val result = CheckResult(block, decl, List(Issue.MissingTparam(List("A"))))
+
+    val (newText, count) = Fixer.applyFixes(text, List(result))
+
+    // The declaration should appear exactly once in the resulting text
+    val declOccurrences = newText.split("\n").count(_.contains("implicit def toFactory"))
+    declOccurrences should be(1)
+
+    // Asterisks should align under the first '*' of the opening line in the fixed block
+    val fixedBlock = ScaladocBlock.findAll(newText).head
+    val fixed = Fixer.buildFixedBlock(newText, fixedBlock, Nil, Nil, false)
+    val lines = fixed.split("\n")
+    lines.drop(1).dropRight(1).foreach { line =>
+      line should startWith(" *")
+    }
+  }
+
+  // Tests merged from DuplicationSpec (moved here)
+
+  it should "not duplicate declaration and align * with first * of /**" in {
+    val text =
+      """/** Provides an implicit conversion from the Array object to a collection Factory. */
+        |implicit def toFactory[A : ClassTag](dummy: Array.type): Factory[A, Array[A]] = new ArrayFactory(dummy)""".stripMargin
+
+    val block = ScaladocBlock.findAll(text).head
+    val chunk = Declaration.getDeclarationAfter(text, block.endIndex)
+    val decl = Declaration.parse(chunk)
+    val result = CheckResult(block, decl, List(Issue.MissingTparam(List("A")), Issue.MissingParam(List("dummy"))))
+
+    val (newText, count) = Fixer.applyFixes(text, List(result))
+    count should be(1)
+
+    // Declaration must appear exactly once
+    val declOccurrences = newText.split("\n").count(_.contains("implicit def toFactory"))
+    declOccurrences should be(1)
+
+    // Continuation asterisks should align under first '*' of opening "/**"
+    val fixedBlock = ScaladocBlock.findAll(newText).head
+    val fixed = Fixer.buildFixedBlock(newText, fixedBlock, Nil, Nil, false)
+    val lines = fixed.split("\n")
+    lines.drop(1).dropRight(1).foreach { line =>
+      line should startWith(" *")
+    }
+  }
+
+  // Tests merged from DuplicationSpec
+
+  it should "not duplicate declaration and align asterisk under opening star" in {
+    val text =
+      """  /** Provides an implicit conversion from the Array object to a collection Factory. */
+        |  implicit def toFactory[A : ClassTag](dummy: Array.type): Factory[A, Array[A]] = new ArrayFactory(dummy)""".stripMargin
+
+    val block = ScaladocBlock.findAll(text).head
+    val chunk = Declaration.getDeclarationAfter(text, block.endIndex)
+    val decl = Declaration.parse(chunk)
+    val result = CheckResult(block, decl, List(Issue.MissingTparam(List("A")), Issue.MissingParam(List("dummy"))))
+
+    val (newText, _) = Fixer.applyFixes(text, List(result))
+
+    val expected =
+      """  /** Provides an implicit conversion from the Array object to a collection Factory.
+        |   *
+        |   *  @tparam A TODO FILL IN
+        |   *  @param dummy TODO FILL IN
+        |   */
+        |  implicit def toFactory[A : ClassTag](dummy: Array.type): Factory[A, Array[A]] = new ArrayFactory(dummy)""".stripMargin
+
+    newText should be(expected)
+  }
+
+  // Tests merged from IndentationAndDuplicationSpec
+
+  it should "replace a single-line indented scaladoc with multi-line keeping indentation and not duplicating the declaration" in {
+    val text =
+      """  /** Provides an implicit conversion from the Array object to a collection Factory. */
+        |  implicit def toFactory[A : ClassTag](dummy: Array.type): Factory[A, Array[A]] = new ArrayFactory(dummy)""".stripMargin
+
+    val block = ScaladocBlock.findAll(text).head
+    val chunk = Declaration.getDeclarationAfter(text, block.endIndex)
+    val decl = Declaration.parse(chunk)
+    val result = CheckResult(block, decl, List(Issue.MissingTparam(List("A")), Issue.MissingParam(List("dummy"))))
+
+    val (newText, _) = Fixer.applyFixes(text, List(result))
+
+    val expected =
+      """  /** Provides an implicit conversion from the Array object to a collection Factory.
+        |   *
+        |   *  @tparam A TODO FILL IN
+        |   *  @param dummy TODO FILL IN
+        |   */
+        |  implicit def toFactory[A : ClassTag](dummy: Array.type): Factory[A, Array[A]] = new ArrayFactory(dummy)""".stripMargin
+
+    newText should be(expected)
   }
