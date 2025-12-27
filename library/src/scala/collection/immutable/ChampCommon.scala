@@ -101,12 +101,12 @@ private[collection] abstract class Node[T <: Node[T]] {
 }
 
 /**
-  * Base class for fixed-stack iterators that traverse a hash-trie. The iterator performs a
-  * depth-first pre-order traversal, which yields first all payload elements of the current
-  * node before traversing sub-nodes (left to right).
-  *
-  * @tparam T the trie node type we are iterating over
-  */
+ *  Base class for fixed-stack iterators that traverse a hash-trie. The iterator performs a
+ *  depth-first pre-order traversal, which yields first all payload elements of the current
+ *  node before traversing sub-nodes (left to right).
+ *
+ *  @tparam T the trie node type we are iterating over
+ */
 private[immutable] abstract class ChampBaseIterator[A, T <: Node[T]] extends AbstractIterator[A] {
 
   import Node.MaxDepth
@@ -190,11 +190,11 @@ private[immutable] abstract class ChampBaseIterator[A, T <: Node[T]] extends Abs
 }
 
 /**
-  * Base class for fixed-stack iterators that traverse a hash-trie in reverse order. The base
-  * iterator performs a depth-first post-order traversal, traversing sub-nodes (right to left).
-  *
-  * @tparam T the trie node type we are iterating over
-  */
+ *  Base class for fixed-stack iterators that traverse a hash-trie in reverse order. The base
+ *  iterator performs a depth-first post-order traversal, traversing sub-nodes (right to left).
+ *
+ *  @tparam T the trie node type we are iterating over
+ */
 private[immutable] abstract class ChampBaseReverseIterator[A, T <: Node[T]] extends AbstractIterator[A] {
 
   import Node.MaxDepth

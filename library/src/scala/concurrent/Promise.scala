@@ -51,7 +51,6 @@ trait Promise[T] {
   /** Completes the promise with either an exception or a value.
    *
    *  @param result     Either the value or the exception to complete the promise with.
-   *
    *  $promiseCompletion
    */
   def complete(result: Try[T]): this.type =
@@ -86,7 +85,6 @@ trait Promise[T] {
   /** Completes the promise with a value.
    *
    *  @param value The value to complete the promise with.
-   *
    *  $promiseCompletion
    */
   def success(value: T): this.type = complete(Success(value))
@@ -102,9 +100,7 @@ trait Promise[T] {
   /** Completes the promise with an exception.
    *
    *  @param cause    The throwable to complete the promise with.
-   *
    *  $allowedThrowables
-   *
    *  $promiseCompletion
    */
   def failure(cause: Throwable): this.type = complete(Failure(cause))

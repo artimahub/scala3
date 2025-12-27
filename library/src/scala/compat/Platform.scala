@@ -64,7 +64,7 @@ object Platform {
    *  Note that if `elemClass` is a subclass of [[scala.AnyVal]] then the returned value is an Array of the corresponding java primitive type.
    *  For example, the following code `scala.compat.Platform.createArray(classOf[Int], 4)` returns an array of the java primitive type `int`.
    *
-   *  For a [[scala.AnyVal]] array, the values of the array are set to 0 for ''numeric value types'' ([[scala.Double]], [[scala.Float]], [[scala.Long]], [[scala.Int]], [[scala.Char]],
+   *  For a [[scala.AnyVal]] array, the values of the array are set to 0 for *numeric value types* ([[scala.Double]], [[scala.Float]], [[scala.Long]], [[scala.Int]], [[scala.Char]],
    *  [[scala.Short]], and [[scala.Byte]]), and `false` for [[scala.Boolean]]. Creation of an array of type [[scala.Unit]] is not possible.
    *
    *  For subclasses of [[scala.AnyRef]], the values of the array are set to `null`.

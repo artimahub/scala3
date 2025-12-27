@@ -18,14 +18,14 @@ import scala.language.`2.13`
 import language.experimental.captureChecking
 
 /** This trait forms part of collections that can be augmented
-  * using a `+=` operator and that can be cleared of all elements using
-  * a `clear` method.
-  *
-  * @define coll growable collection
-  * @define Coll `Growable`
-  * @define add add
-  * @define Add Add
-  */
+ *  using a `+=` operator and that can be cleared of all elements using
+ *  a `clear` method.
+ *
+ *  @define coll growable collection
+ *  @define Coll `Growable`
+ *  @define add add
+ *  @define Add Add
+ */
 trait Growable[-A] extends Clearable {
 
   /** ${Add}s a single element to this $coll.

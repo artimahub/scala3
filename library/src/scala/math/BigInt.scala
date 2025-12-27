@@ -70,9 +70,9 @@ object BigInt {
 
   /** Translates the sign-magnitude representation of a BigInt into a BigInt.
    *
-   * @param  signum    signum of the number (-1 for negative, 0 for zero, 1
+   *  @param  signum    signum of the number (-1 for negative, 0 for zero, 1
    *                   for positive).
-   * @param  magnitude big-endian binary representation of the magnitude of
+   *  @param  magnitude big-endian binary representation of the magnitude of
    *                   the number.
    */
   def apply(signum: Int, magnitude: Array[Byte]): BigInt =
@@ -139,7 +139,7 @@ object BigInt {
   //   *
   //   * Licensed under the Apache License, Version 2.0 (the "License")
   /**
-   * Returns the greatest common divisor of a and b. Returns 0 if a == 0 && b == 0.
+   *  Returns the greatest common divisor of a and b. Returns 0 if a == 0 && b == 0.
    */
   private def longGcd(a: Long, b: Long): Long = {
     // both a and b must be >= 0

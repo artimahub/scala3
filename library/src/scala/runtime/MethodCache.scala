@@ -31,7 +31,8 @@ private[scala] sealed abstract class MethodCache {
    *  is compatible with receiver class `forReceiver`. If none is cached,
    *  `null` is returned. If `null` is returned, find's caller should look-
    *  up the right method using whichever means it prefers, and add it to
-   *  the cache for later use. */
+   *  the cache for later use. 
+   */
   def find(forReceiver: JClass[?]): JMethod | Null
   def add(forReceiver: JClass[?], forMethod: JMethod): MethodCache
 }

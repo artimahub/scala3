@@ -125,8 +125,8 @@ private[immutable] abstract class LongMapIterator[V, T](it: LongMap[V]) extends 
   push(it)
 
   /**
-    * What value do we assign to a tip?
-    */
+   *  What value do we assign to a tip?
+   */
   def valueOf(tip: LongMap.Tip[V]): T
 
   def hasNext = index != 0
@@ -163,7 +163,7 @@ private[immutable] class LongMapKeyIterator[V](it: LongMap[V]) extends LongMapIt
 
 /**
   *  Specialised immutable map structure for long keys, based on
-  *  [[https://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.37.5452 Fast Mergeable Long Maps]]
+  *  [Fast Mergeable Long Maps](https://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.37.5452)
   *  by Okasaki and Gill. Essentially a trie based on binary digits of the integers.
   *
   *  Note: This class is as of 2.8 largely superseded by HashMap.
@@ -210,8 +210,8 @@ sealed abstract class LongMap[+T] extends AbstractMap[Long, T]
   }
 
   /**
-    * Loops over the key, value pairs of the map in unsigned order of the keys.
-    */
+   *  Loops over the key, value pairs of the map in unsigned order of the keys.
+   */
   override final def foreach[U](f: ((Long, T)) => U): Unit = this match {
     case LongMap.Bin(_, _, left, right) => { left.foreach(f); right.foreach(f) }
     case LongMap.Tip(key, value) => f((key, value))
@@ -230,11 +230,11 @@ sealed abstract class LongMap[+T] extends AbstractMap[Long, T]
   }
 
   /**
-    * Loop over the keys of the map. The same as keys.foreach(f), but may
-    * be more efficient.
-    *
-    * @param f The loop body
-    */
+   *  Loop over the keys of the map. The same as keys.foreach(f), but may
+   *  be more efficient.
+   *
+   *  @param f The loop body
+   */
   final def foreachKey[U](f: Long => U): Unit = this match {
     case LongMap.Bin(_, _, left, right) => { left.foreachKey(f); right.foreachKey(f) }
     case LongMap.Tip(key, _) => f(key)
@@ -247,11 +247,11 @@ sealed abstract class LongMap[+T] extends AbstractMap[Long, T]
   }
 
   /**
-    * Loop over the values of the map. The same as values.foreach(f), but may
-    * be more efficient.
-    *
-    * @param f The loop body
-    */
+   *  Loop over the values of the map. The same as values.foreach(f), but may
+   *  be more efficient.
+   *
+   *  @param f The loop body
+   */
   final def foreachValue[U](f: T => U): Unit = this match {
     case LongMap.Bin(_, _, left, right) => { left.foreachValue(f); right.foreachValue(f) }
     case LongMap.Tip(_, value) => f(value)

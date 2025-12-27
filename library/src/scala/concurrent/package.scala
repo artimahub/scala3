@@ -152,7 +152,7 @@ package concurrent {
     /**
      * Await the "completed" state of an `Awaitable`.
      *
-     * Although this method is blocking, the internal use of [[scala.concurrent.blocking blocking]] ensures that
+     * Although this method is blocking, the internal use of [blocking](scala.concurrent.blocking) ensures that
      * the underlying [[ExecutionContext]] is given an opportunity to properly manage the blocking.
      *
      * WARNING: It is strongly discouraged to supply lengthy timeouts since the progress of the calling thread will be
@@ -162,12 +162,12 @@ package concurrent {
      *         the `Awaitable` to be awaited
      * @param  atMost
      *         maximum wait time, which may be negative (no waiting is done),
-     *         [[scala.concurrent.duration.Duration.Inf Duration.Inf]] for unbounded waiting, or a finite positive
+     *         [Duration.Inf](scala.concurrent.duration.Duration.Inf) for unbounded waiting, or a finite positive
      *         duration
      * @return the `awaitable`
      * @throws InterruptedException     if the current thread is interrupted while waiting
      * @throws TimeoutException         if after waiting for the specified time this `Awaitable` is still not ready
-     * @throws IllegalArgumentException if `atMost` is [[scala.concurrent.duration.Duration.Undefined Duration.Undefined]]
+     * @throws IllegalArgumentException if `atMost` is [Duration.Undefined](scala.concurrent.duration.Duration.Undefined)
      */
     @throws(classOf[TimeoutException])
     @throws(classOf[InterruptedException])
@@ -182,7 +182,7 @@ package concurrent {
     /**
      * Await and return the result (of type `T`) of an `Awaitable`.
      *
-     * Although this method is blocking, the internal use of [[scala.concurrent.blocking blocking]] ensures that
+     * Although this method is blocking, the internal use of [blocking](scala.concurrent.blocking) ensures that
      * the underlying [[ExecutionContext]] is given an opportunity to properly manage the blocking.
      *
      * WARNING: It is strongly discouraged to supply lengthy timeouts since the progress of the calling thread will be
@@ -192,12 +192,12 @@ package concurrent {
      *         the `Awaitable` to be awaited
      * @param  atMost
      *         maximum wait time, which may be negative (no waiting is done),
-     *         [[scala.concurrent.duration.Duration.Inf Duration.Inf]] for unbounded waiting, or a finite positive
+     *         [Duration.Inf](scala.concurrent.duration.Duration.Inf) for unbounded waiting, or a finite positive
      *         duration
      * @return the result value if `awaitable` is completed within the specific maximum wait time
      * @throws InterruptedException     if the current thread is interrupted while waiting
      * @throws TimeoutException         if after waiting for the specified time `awaitable` is still not ready
-     * @throws IllegalArgumentException if `atMost` is [[scala.concurrent.duration.Duration.Undefined Duration.Undefined]]
+     * @throws IllegalArgumentException if `atMost` is [Duration.Undefined](scala.concurrent.duration.Duration.Undefined)
      */
     @throws(classOf[TimeoutException])
     @throws(classOf[InterruptedException])

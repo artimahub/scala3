@@ -44,7 +44,7 @@ import scala.Predef.{ // unimport char-related implicit conversions to avoid tri
  *
  *  $multipleResults
  *
- *  @see [[https://docs.scala-lang.org/overviews/collections-2.13/concrete-mutable-collection-classes.html#stringbuilders "Scala's Collection Library overview"]]
+ *  @see ["Scala's Collection Library overview"](https://docs.scala-lang.org/overviews/collections-2.13/concrete-mutable-collection-classes.html#stringbuilders)
  *  section on `StringBuilders` for more information.
  *
  *  @define Coll `mutable.IndexedSeq`
@@ -70,13 +70,13 @@ final class StringBuilder(val underlying: java.lang.StringBuilder) extends Abstr
   def this(capacity: Int) = this(new java.lang.StringBuilder(capacity))
 
   /** Constructs a string builder with initial characters
-    *  equal to characters of `str`.
-    */
+   *  equal to characters of `str`.
+   */
   def this(str: String) = this(new java.lang.StringBuilder(str))
 
   /** Constructs a string builder initialized with string value `initValue`
-    *  and with additional character capacity `initCapacity`.
-    */
+   *  and with additional character capacity `initCapacity`.
+   */
   def this(initCapacity: Int, initValue: String) =
     this(new java.lang.StringBuilder(initValue.length + initCapacity).append(initValue))
 

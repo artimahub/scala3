@@ -106,13 +106,13 @@ trait ExecutionContext {
 
 /**
  * An [[ExecutionContext]] that is also a
- * Java [[java.util.concurrent.Executor Executor]].
+ * Java [Executor](java.util.concurrent.Executor).
  */
 trait ExecutionContextExecutor extends ExecutionContext with Executor
 
 /**
  * An [[ExecutionContext]] that is also a
- * Java [[java.util.concurrent.ExecutorService ExecutorService]].
+ * Java [ExecutorService](java.util.concurrent.ExecutorService).
  */
 trait ExecutionContextExecutorService extends ExecutionContextExecutor with ExecutorService
 
@@ -249,14 +249,14 @@ object ExecutionContext {
 
   /** Creates an `ExecutionContext` from the given `ExecutorService`.
    *
-   *  @param e         the `ExecutorService` to use. If `null`, a new `ExecutorService` is created with [[scala.concurrent.ExecutionContext$.global default configuration]].
+   *  @param e         the `ExecutorService` to use. If `null`, a new `ExecutorService` is created with [default configuration](scala.concurrent.ExecutionContext$.global).
    *  @param reporter  a function for error reporting
    *  @return          the `ExecutionContext` using the given `ExecutorService`
    */
   def fromExecutorService(e: ExecutorService | Null, reporter: Throwable => Unit): ExecutionContextExecutorService =
     impl.ExecutionContextImpl.fromExecutorService(e, reporter)
 
-  /** Creates an `ExecutionContext` from the given `ExecutorService` with the [[scala.concurrent.ExecutionContext$.defaultReporter default reporter]].
+  /** Creates an `ExecutionContext` from the given `ExecutorService` with the [default reporter](scala.concurrent.ExecutionContext$.defaultReporter).
    *
    *  If it is guaranteed that none of the executed tasks are blocking, a single-threaded `ExecutorService`
    *  can be used to create an `ExecutionContext` as follows:
@@ -266,28 +266,28 @@ object ExecutionContext {
    *  val ec = ExecutionContext.fromExecutorService(Executors.newSingleThreadExecutor())
    *  }}}
    *
-   *  @param e the `ExecutorService` to use. If `null`, a new `ExecutorService` is created with [[scala.concurrent.ExecutionContext$.global default configuration]].
+   *  @param e the `ExecutorService` to use. If `null`, a new `ExecutorService` is created with [default configuration](scala.concurrent.ExecutionContext$.global).
    *  @return  the `ExecutionContext` using the given `ExecutorService`
    */
   def fromExecutorService(e: ExecutorService | Null): ExecutionContextExecutorService = fromExecutorService(e, defaultReporter)
 
   /** Creates an `ExecutionContext` from the given `Executor`.
    *
-   *  @param e         the `Executor` to use. If `null`, a new `Executor` is created with [[scala.concurrent.ExecutionContext$.global default configuration]].
+   *  @param e         the `Executor` to use. If `null`, a new `Executor` is created with [default configuration](scala.concurrent.ExecutionContext$.global).
    *  @param reporter  a function for error reporting
    *  @return          the `ExecutionContext` using the given `Executor`
    */
   def fromExecutor(e: Executor | Null, reporter: Throwable => Unit): ExecutionContextExecutor =
     impl.ExecutionContextImpl.fromExecutor(e, reporter)
 
-  /** Creates an `ExecutionContext` from the given `Executor` with the [[scala.concurrent.ExecutionContext$.defaultReporter default reporter]].
+  /** Creates an `ExecutionContext` from the given `Executor` with the [default reporter](scala.concurrent.ExecutionContext$.defaultReporter).
    *
-   *  @param e the `Executor` to use. If `null`, a new `Executor` is created with [[scala.concurrent.ExecutionContext$.global default configuration]].
+   *  @param e the `Executor` to use. If `null`, a new `Executor` is created with [default configuration](scala.concurrent.ExecutionContext$.global).
    *  @return  the `ExecutionContext` using the given `Executor`
    */
   def fromExecutor(e: Executor | Null): ExecutionContextExecutor = fromExecutor(e, defaultReporter)
 
-  /** The default reporter simply prints the stack trace of the `Throwable` to [[java.lang.System#err System.err]].
+  /** The default reporter simply prints the stack trace of the `Throwable` to [System.err](java.lang.System#err).
    *
    *  @return the function for error reporting
    */

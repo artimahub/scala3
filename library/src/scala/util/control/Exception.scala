@@ -170,6 +170,7 @@ object Exception {
 
   /** !!! Not at all sure of every factor which goes into this,
    *  and/or whether we need multiple standard variations.
+   *
    *  @return true if `x` is $protectedExceptions otherwise false.
    */
   def shouldRethrow(x: Throwable): Boolean = x match {
@@ -205,11 +206,12 @@ object Exception {
    *  Pass a different value for rethrow if you want to probably
    *  unwisely allow catching control exceptions and other throwables
    *  which the rest of the world may expect to get through.
+   *  @group logic-container
+   *
    *  @tparam T result type of bodies used in try and catch blocks
    *  @param pf Partial function used when applying catch logic to determine result value
    *  @param fin Finally logic which if defined will be invoked after catch logic
    *  @param rethrow Predicate on throwables determining when to rethrow a caught [[Throwable]]
-   *  @group logic-container
    */
   class Catch[+T](
     val pf: Catcher[T],
@@ -252,12 +254,13 @@ object Exception {
     def either[U >: T](body: => U): Either[Throwable, U] = toEither(Right(body))
 
     /** Applies this catch logic to the supplied body, mapping the result
-     * into `Try[T]` - `Failure` if an exception was caught, `Success(T)` otherwise.
+     *  into `Try[T]` - `Failure` if an exception was caught, `Success(T)` otherwise.
      */
     def withTry[U >: T](body: => U): scala.util.Try[U] = toTry(Success(body))
 
     /** Creates a `Catch` object with the same `isDefinedAt` logic as this one,
-      * but with the supplied `apply` method replacing the current one. */
+     *  but with the supplied `apply` method replacing the current one. 
+     */
     def withApply[U](f: Throwable => U): Catch[U] = {
       val pf2 = new Catcher[U] {
         def isDefinedAt(x: Throwable): Boolean = pf isDefinedAt x
@@ -283,12 +286,12 @@ object Exception {
 
   /** A `Catch` object which catches everything.
    *  @group canned-behavior
-   **/
+   */
   final def allCatch[T]: Catch[T] = new Catch(allCatcher[T]) withDesc "<everything>"
 
   /** A `Catch` object which catches non-fatal exceptions.
    *  @group canned-behavior
-   **/
+   */
   final def nonFatalCatch[T]: Catch[T] = new Catch(nonFatalCatcher[T]) withDesc "<non-fatal>"
 
   /** Creates a `Catch` object which will catch any of the supplied exceptions.
@@ -337,13 +340,13 @@ object Exception {
   }
 
   /** Returns a partially constructed `Catch` object, which you must give
-    * an exception handler function as an argument to `by`.
-    * @example
-    * {{{
-    *   handling(classOf[MalformedURLException], classOf[NullPointerException]) by (_.printStackTrace)
-    * }}}
-    *  @group dsl
-    */
+   *  an exception handler function as an argument to `by`.
+   *  @example
+   *  {{{
+   *    handling(classOf[MalformedURLException], classOf[NullPointerException]) by (_.printStackTrace)
+   *  }}}
+   *  @group dsl
+   */
   def handling[T](exceptions: Class[?]*): By[Throwable => T, Catch[T]] = {
     def fun(f: Throwable => T): Catch[T] = catching(exceptions*) withApply f
     new By[Throwable => T, Catch[T]](fun)

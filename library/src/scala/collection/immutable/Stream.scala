@@ -50,16 +50,16 @@ sealed abstract class Stream[+A] extends AbstractSeq[A]
   override protected def className: String = "Stream"
 
   /** Applies the given function `f` to each element of this linear sequence
-    * (while respecting the order of the elements).
-    *
-    *  @param f The treatment to apply to each element.
-    *  @note  Overridden here as final to trigger tail-call optimization, which
-    *  replaces 'this' with 'tail' at each iteration. This is absolutely
-    *  necessary for allowing the GC to collect the underlying Stream as elements
-    *  are consumed.
-    *  @note  This function will force the realization of the entire Stream
-    *  unless the `f` throws an exception.
-    */
+   *  (while respecting the order of the elements).
+   *  @note  Overridden here as final to trigger tail-call optimization, which
+   *  replaces 'this' with 'tail' at each iteration. This is absolutely
+   *  necessary for allowing the GC to collect the underlying Stream as elements
+   *  are consumed.
+   *  @note  This function will force the realization of the entire Stream
+   *  unless the `f` throws an exception.
+   *
+   *  @param f The treatment to apply to each element.
+   */
   @tailrec
   override final def foreach[U](f: A => U): Unit = {
     if (!this.isEmpty) {
@@ -116,10 +116,10 @@ sealed abstract class Stream[+A] extends AbstractSeq[A]
   @inline def print(sep: String): Unit = Console.print(this.force.mkString(sep))
 
   /** The stream resulting from the concatenation of this stream with the argument stream.
-    *
-    * @param suffix The collection that gets appended to this stream
-    * @return The stream containing elements of this stream and the iterable object.
-    */
+   *
+   *  @param suffix The collection that gets appended to this stream
+   *  @return The stream containing elements of this stream and the iterable object.
+   */
   def lazyAppendedAll[B >: A](suffix: => collection.IterableOnce[B]): Stream[B] =
     if (isEmpty) iterableFactory.from(suffix) else Stream.cons[B](head, tail.lazyAppendedAll(suffix))
 
@@ -364,9 +364,10 @@ object Stream extends SeqFactory[Stream] {
     */
   object cons {
     /** A stream consisting of a given first element and remaining elements.
-      *  @param hd   The first element of the result stream
-      *  @param tl   The remaining elements of the result stream
-      */
+     *
+     *  @param hd   The first element of the result stream
+     *  @param tl   The remaining elements of the result stream
+     */
     def apply[A](hd: A, tl: => Stream[A]): Stream[A] = new Cons(hd, tl)
 
     /** Maps a stream to its head and tail. */
@@ -488,11 +489,11 @@ object Stream extends SeqFactory[Stream] {
   }
 
   /** An infinite Stream that repeatedly applies a given function to a start value.
-    *
-    *  @param start the start value of the Stream
-    *  @param f     the function that's repeatedly applied
-    *  @return      the Stream returning the infinite sequence of values `start, f(start), f(f(start)), ...`
-    */
+   *
+   *  @param start the start value of the Stream
+   *  @param f     the function that's repeatedly applied
+   *  @return      the Stream returning the infinite sequence of values `start, f(start), f(f(start)), ...`
+   */
   def iterate[A](start: A)(f: A => A): Stream[A] = {
     cons(start, iterate(f(start))(f))
   }
@@ -517,12 +518,12 @@ object Stream extends SeqFactory[Stream] {
   def from(start: Int): Stream[Int] = from(start, 1)
 
   /**
-    * Creates an infinite Stream containing the given element expression (which
-    * is computed for each occurrence).
-    *
-    * @param elem the element composing the resulting Stream
-    * @return the Stream containing an infinite number of elem
-    */
+   *  Creates an infinite Stream containing the given element expression (which
+   *  is computed for each occurrence).
+   *
+   *  @param elem the element composing the resulting Stream
+   *  @return the Stream containing an infinite number of elem
+   */
   def continually[A](elem: => A): Stream[A] = cons(elem, continually(elem))
 
 

@@ -21,7 +21,7 @@ import scala.language.`2.13`
   * them are printed using the regular generic type syntax.
   *
   * Example of usage:
-  {{{
+```
     scala> class Map[T, U]
     defined class Map
 
@@ -33,7 +33,7 @@ import scala.language.`2.13`
 
     scala> def foo: Int Map Int = ???
     foo: Int Map Int
-  }}}
+```
   *
   * @param enabled whether to show this type as an infix type operator.
   */

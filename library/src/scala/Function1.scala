@@ -20,25 +20,25 @@ object Function1 {
 
   implicit final class UnliftOps[A, B] private[Function1](private val f: A => Option[B]) extends AnyVal {
     /** Converts an optional function to a partial function.
-      *
-      * @example Unlike [[Function.unlift]], this [[UnliftOps.unlift]] method can be used in extractors.
-      *          {{{
-      *          val of: Int => Option[String] = { i =>
-      *            if (i == 2) {
-      *              Some("matched by an optional function")
-      *            } else {
-      *              None
-      *            }
-      *          }
-      *
-      *          util.Random.nextInt(4) match {
-      *            case of.unlift(m) => // Convert an optional function to a pattern
-      *              println(m)
-      *            case _ =>
-      *              println("Not matched")
-      *          }
-      *          }}}
-      */
+     *
+     *  @example Unlike [[Function.unlift]], this [[UnliftOps.unlift]] method can be used in extractors.
+     *           {{{
+     *           val of: Int => Option[String] = { i =>
+     *             if (i == 2) {
+     *               Some("matched by an optional function")
+     *             } else {
+     *               None
+     *             }
+     *           }
+     *
+     *           util.Random.nextInt(4) match {
+     *             case of.unlift(m) => // Convert an optional function to a pattern
+     *               println(m)
+     *             case _ =>
+     *               println("Not matched")
+     *           }
+     *           }}}
+     */
     def unlift: PartialFunction[A, B] = Function.unlift(f)
   }
 
@@ -67,6 +67,7 @@ object Function1 {
 @annotation.implicitNotFound(msg = "No implicit view available from ${T1} => ${R}.")
 trait Function1[@specialized(Specializable.Arg) -T1, @specialized(Specializable.Return) +R] extends AnyRef {
   /** Applies the body of this function to the argument.
+   *
    *  @return   the result of function application.
    */
   def apply(v1: T1): R

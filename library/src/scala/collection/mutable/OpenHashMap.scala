@@ -36,12 +36,12 @@ object OpenHashMap extends MapFactory[OpenHashMap] {
     new GrowableBuilder[(K, V), OpenHashMap[K, V]](empty)
 
   /** A hash table entry.
-    *
-    * The entry is occupied if and only if its `value` is a `Some`;
-    * deleted if and only if its `value` is `None`.
-    * If its `key` is not the default value of type `Key`, the entry is occupied.
-    * If the entry is occupied, `hash` contains the hash value of `key`.
-    */
+   *
+   *  The entry is occupied if and only if its `value` is a `Some`;
+   *  deleted if and only if its `value` is `None`.
+   *  If its `key` is not the default value of type `Key`, the entry is occupied.
+   *  If the entry is occupied, `hash` contains the hash value of `key`.
+   */
   final private class OpenEntry[Key, Value](var key: Key,
                                             var hash: Int,
                                             var value: Option[Value])
@@ -125,10 +125,10 @@ class OpenHashMap[Key, Value](initialSize : Int)
   }
 
   /** Returns the index of the first slot in the hash table (in probe order)
-    * that is, in order of preference, either occupied by the given key, deleted, or empty.
-    *
-    * @param hash hash value for `key`
-    */
+   *  that is, in order of preference, either occupied by the given key, deleted, or empty.
+   *
+   *  @param hash hash value for `key`
+   */
   private def findIndex(key: Key, hash: Int): Int = {
     var index = hash & mask
     var j = 0

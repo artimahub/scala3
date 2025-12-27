@@ -35,33 +35,33 @@ trait Map[K, +V]
   override final def toMap[K2, V2](implicit ev: (K, V) <:< (K2, V2)): Map[K2, V2] = Map.from(this.asInstanceOf[Map[K2, V2]])
 
   /** The same map with a given default function.
-    *  Note: The default is only used for `apply`. Other methods like `get`, `contains`, `iterator`, `keys`, etc.
-    *  are not affected by `withDefault`.
-    *
-    *  Invoking transformer methods (e.g. `map`) will not preserve the default value.
-    *
-    *  @param d     the function mapping keys to values, used for non-present keys
-    *  @return      a wrapper of the map with a default value
-    */
+   *  Note: The default is only used for `apply`. Other methods like `get`, `contains`, `iterator`, `keys`, etc.
+   *  are not affected by `withDefault`.
+   *
+   *  Invoking transformer methods (e.g. `map`) will not preserve the default value.
+   *
+   *  @param d     the function mapping keys to values, used for non-present keys
+   *  @return      a wrapper of the map with a default value
+   */
   def withDefault[V1 >: V](d: K -> V1): Map[K, V1] = new Map.WithDefault[K, V1](this, d)
 
   /** The same map with a given default value.
-    *  Note: The default is only used for `apply`. Other methods like `get`, `contains`, `iterator`, `keys`, etc.
-    *  are not affected by `withDefaultValue`.
-    *
-    *  Invoking transformer methods (e.g. `map`) will not preserve the default value.
-    *
-    *  @param d     default value used for non-present keys
-    *  @return      a wrapper of the map with a default value
-    */
+   *  Note: The default is only used for `apply`. Other methods like `get`, `contains`, `iterator`, `keys`, etc.
+   *  are not affected by `withDefaultValue`.
+   *
+   *  Invoking transformer methods (e.g. `map`) will not preserve the default value.
+   *
+   *  @param d     default value used for non-present keys
+   *  @return      a wrapper of the map with a default value
+   */
   def withDefaultValue[V1 >: V](d: V1): Map[K, V1] = new Map.WithDefault[K, V1](this, _ => d)
 }
 
 /** Base trait of immutable Maps implementations
-  *
-  * @define coll immutable map
-  * @define Coll `immutable.Map`
-  */
+ *
+ *  @define coll immutable map
+ *  @define Coll `immutable.Map`
+ */
 transparent trait MapOps[K, +V, +CC[X, +Y] <: MapOps[X, Y, CC, ?], +C <: MapOps[K, V, CC, C]]
   extends IterableOps[(K, V), Iterable, C]
     with collection.MapOps[K, V, CC, C]
@@ -72,7 +72,7 @@ transparent trait MapOps[K, +V, +CC[X, +Y] <: MapOps[X, Y, CC, ?], +C <: MapOps[
   /** Removes a key from this map, returning a new map.
     *
     * @param key the key to be removed
-    * @return a new map without a binding for ''key''
+    * @return a new map without a binding for *key*
     */
   def removed(key: K): C
 
@@ -105,16 +105,16 @@ transparent trait MapOps[K, +V, +CC[X, +Y] <: MapOps[X, Y, CC, ?], +C <: MapOps[
   def updated[V1 >: V](key: K, value: V1): CC[K, V1]
 
   /**
-   * Updates a mapping for the specified key and its current optionally mapped value
-   * (`Some` if there is current mapping, `None` if not).
+   *  Updates a mapping for the specified key and its current optionally mapped value
+   *  (`Some` if there is current mapping, `None` if not).
    *
-   * If the remapping function returns `Some(v)`, the mapping is updated with the new value `v`.
-   * If the remapping function returns `None`, the mapping is removed (or remains absent if initially absent).
-   * If the function itself throws an exception, the exception is rethrown, and the current mapping is left unchanged.
+   *  If the remapping function returns `Some(v)`, the mapping is updated with the new value `v`.
+   *  If the remapping function returns `None`, the mapping is removed (or remains absent if initially absent).
+   *  If the function itself throws an exception, the exception is rethrown, and the current mapping is left unchanged.
    *
-   * @param key the key value
-   * @param remappingFunction a function that receives current optionally mapped value and returns a new mapping
-   * @return A new map with the updated mapping with the key
+   *  @param key the key value
+   *  @param remappingFunction a function that receives current optionally mapped value and returns a new mapping
+   *  @return A new map with the updated mapping with the key
    */
   def updatedWith[V1 >: V](key: K)(remappingFunction: Option[V] => Option[V1]): CC[K,V1] = {
     val previousValue = this.get(key)
@@ -136,11 +136,11 @@ transparent trait MapOps[K, +V, +CC[X, +Y] <: MapOps[X, Y, CC, ?], +C <: MapOps[
   override def + [V1 >: V](kv: (K, V1)): CC[K, V1] = updated(kv._1, kv._2)
 
   /** This function transforms all the values of mappings contained
-    *  in this map with function `f`.
-    *
-    *  @param f A function over keys and values
-    *  @return  the updated map
-    */
+   *  in this map with function `f`.
+   *
+   *  @param f A function over keys and values
+   *  @return  the updated map
+   */
   def transform[W](f: (K, V) => W): CC[K, W] = map { case (k, v) => (k, f(k, v)) }
 
   override def keySet: Set[K] = new ImmutableKeySet

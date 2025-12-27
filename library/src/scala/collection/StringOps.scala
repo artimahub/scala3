@@ -68,8 +68,8 @@ object StringOps {
   class WithFilter(p: Char => Boolean, s: String) {
 
     /** Applies `f` to each element for its side effects.
-      * Note: [U] parameter needed to help scalac's type inference.
-      */
+     *  Note: [U] parameter needed to help scalac's type inference.
+     */
     def foreach[U](f: Char => U): Unit = {
       val len = s.length
       var i = 0
@@ -81,11 +81,11 @@ object StringOps {
     }
 
     /** Builds a new collection by applying a function to all chars of this filtered string.
-      *
-      *  @param f      the function to apply to each char.
-      *  @return       a new collection resulting from applying the given function
-      *                `f` to each char of this string and collecting the results.
-      */
+     *
+     *  @param f      the function to apply to each char.
+     *  @return       a new collection resulting from applying the given function
+     *                `f` to each char of this string and collecting the results.
+     */
     def map[B](f: Char => B): immutable.IndexedSeq[B] = {
       val len = s.length
       val b = immutable.IndexedSeq.newBuilder[B]
@@ -118,12 +118,12 @@ object StringOps {
     }
 
     /** Builds a new collection by applying a function to all chars of this filtered string
-      * and using the elements of the resulting collections.
-      *
-      *  @param f      the function to apply to each char.
-      *  @return       a new collection resulting from applying the given collection-valued function
-      *                `f` to each char of this string and concatenating the results.
-      */
+     *  and using the elements of the resulting collections.
+     *
+     *  @param f      the function to apply to each char.
+     *  @return       a new collection resulting from applying the given collection-valued function
+     *                `f` to each char of this string and concatenating the results.
+     */
     def flatMap[B](f: Char => IterableOnce[B]^): immutable.IndexedSeq[B] = {
       val len = s.length
       val b = immutable.IndexedSeq.newBuilder[B]
@@ -164,20 +164,20 @@ object StringOps {
 }
 
 /** Provides extension methods for strings.
-  *
-  * Some of these methods treat strings as a plain collection of [[Char]]s
-  * without any regard for Unicode handling. Unless the user takes Unicode
-  * handling in to account or makes sure the strings don't require such handling,
-  * these methods may result in unpaired or invalidly paired surrogate code
-  * units.
-  *
-  * @define unicodeunaware This method treats a string as a plain sequence of
-  *                        Char code units and makes no attempt to keep
-  *                        surrogate pairs or codepoint sequences together.
-  *                        The user is responsible for making sure such cases
-  *                        are handled correctly. Failing to do so may result in
-  *                        an invalid Unicode string.
-  */
+ *
+ *  Some of these methods treat strings as a plain collection of [[Char]]s
+ *  without any regard for Unicode handling. Unless the user takes Unicode
+ *  handling in to account or makes sure the strings don't require such handling,
+ *  these methods may result in unpaired or invalidly paired surrogate code
+ *  units.
+ *
+ *  @define unicodeunaware This method treats a string as a plain sequence of
+ *                        Char code units and makes no attempt to keep
+ *                        surrogate pairs or codepoint sequences together.
+ *                        The user is responsible for making sure such cases
+ *                        are handled correctly. Failing to do so may result in
+ *                        an invalid Unicode string.
+ */
 final class StringOps(private val s: String) extends AnyVal { self =>
   import StringOps._
 
@@ -199,11 +199,11 @@ final class StringOps(private val s: String) extends AnyVal { self =>
   def lengthIs: Int = s.length
 
   /** Builds a new collection by applying a function to all chars of this string.
-    *
-    *  @param f      the function to apply to each char.
-    *  @return       a new collection resulting from applying the given function
-    *                `f` to each char of this string and collecting the results.
-    */
+   *
+   *  @param f      the function to apply to each char.
+   *  @return       a new collection resulting from applying the given function
+   *                `f` to each char of this string and collecting the results.
+   */
   def map[B](f: Char => B): immutable.IndexedSeq[B] = {
     val len = s.length
     val dst = new Array[AnyRef](len)
@@ -233,12 +233,12 @@ final class StringOps(private val s: String) extends AnyVal { self =>
   }
 
   /** Builds a new collection by applying a function to all chars of this string
-    * and using the elements of the resulting collections.
-    *
-    *  @param f      the function to apply to each char.
-    *  @return       a new collection resulting from applying the given collection-valued function
-    *                `f` to each char of this string and concatenating the results.
-    */
+   *  and using the elements of the resulting collections.
+   *
+   *  @param f      the function to apply to each char.
+   *  @return       a new collection resulting from applying the given collection-valued function
+   *                `f` to each char of this string and concatenating the results.
+   */
   def flatMap[B](f: Char => IterableOnce[B]^): immutable.IndexedSeq[B] = {
     val len = s.length
     val b = immutable.IndexedSeq.newBuilder[B]
@@ -308,12 +308,12 @@ final class StringOps(private val s: String) extends AnyVal { self =>
   }
 
   /** Returns a new collection containing the chars from this string followed by the elements from the
-    * right hand operand.
-    *
-    *  @param suffix the collection to append.
-    *  @return       a new collection which contains all chars
-    *                of this string followed by all elements of `suffix`.
-    */
+   *  right hand operand.
+   *
+   *  @param suffix the collection to append.
+   *  @return       a new collection which contains all chars
+   *                of this string followed by all elements of `suffix`.
+   */
   def concat[B >: Char](suffix: IterableOnce[B]^): immutable.IndexedSeq[B] = {
     val b = immutable.IndexedSeq.newBuilder[B]
     val k = suffix.knownSize
@@ -357,13 +357,13 @@ final class StringOps(private val s: String) extends AnyVal { self =>
   def ++(xs: String): String = concat(xs)
 
   /** Returns a collection with an element appended until a given target length is reached.
-    *
-    *  @param  len   the target length
-    *  @param  elem  the padding value
-    *  @return a collection consisting of
-    *          this string followed by the minimal number of occurrences of `elem` so
-    *          that the resulting collection has a length of at least `len`.
-    */
+   *
+   *  @param  len   the target length
+   *  @param  elem  the padding value
+   *  @return a collection consisting of
+   *          this string followed by the minimal number of occurrences of `elem` so
+   *          that the resulting collection has a length of at least `len`.
+   */
   def padTo[B >: Char](len: Int, elem: B): immutable.IndexedSeq[B]  = {
     val sLen = s.length
     if (sLen >= len) new WrappedString(s) else {
@@ -469,18 +469,18 @@ final class StringOps(private val s: String) extends AnyVal { self =>
   @inline def :++ (suffix: String): String = s + suffix
 
   /** Produces a new collection where a slice of characters in this string is replaced by another collection.
-    *
-    * Patching at negative indices is the same as patching starting at 0.
-    * Patching at indices at or larger than the length of the original string appends the patch to the end.
-    * If more values are replaced than actually exist, the excess is ignored.
-    *
-    *  @param  from     the index of the first replaced char
-    *  @param  other    the replacement collection
-    *  @param  replaced the number of chars to drop in the original string
-    *  @return          a new collection consisting of all chars of this string
-    *                   except that `replaced` chars starting from `from` are replaced
-    *                   by `other`.
-    */
+   *
+   *  Patching at negative indices is the same as patching starting at 0.
+   *  Patching at indices at or larger than the length of the original string appends the patch to the end.
+   *  If more values are replaced than actually exist, the excess is ignored.
+   *
+   *  @param  from     the index of the first replaced char
+   *  @param  other    the replacement collection
+   *  @param  replaced the number of chars to drop in the original string
+   *  @return          a new collection consisting of all chars of this string
+   *                   except that `replaced` chars starting from `from` are replaced
+   *                   by `other`.
+   */
   def patch[B >: Char](from: Int, other: IterableOnce[B]^, replaced: Int): immutable.IndexedSeq[B] = {
     val len = s.length
     @inline def slc(off: Int, length: Int): WrappedString =
@@ -716,15 +716,15 @@ final class StringOps(private val s: String) extends AnyVal { self =>
     else updated(0, s.charAt(0).toUpper)
 
   /** Returns this string with the given `prefix` stripped. If this string does not
-    *  start with `prefix`, it is returned unchanged.
-    */
+   *  start with `prefix`, it is returned unchanged.
+   */
   def stripPrefix(prefix: String): String =
     if (s.startsWith(prefix)) s.substring(prefix.length)
     else s
 
   /** Returns this string with the given `suffix` stripped. If this string does not
-    *  end with `suffix`, it is returned unchanged.
-    */
+   *  end with `suffix`, it is returned unchanged.
+   */
   def stripSuffix(suffix: String): String =
     if (s.endsWith(suffix)) s.substring(0, s.length - suffix.length)
     else s
@@ -740,10 +740,10 @@ final class StringOps(private val s: String) extends AnyVal { self =>
   def replaceAllLiterally(literal: String, replacement: String): String = s.replace(literal, replacement)
 
   /** For every line in this string:
-    *
-    *  Strip a leading prefix consisting of blanks or control characters
-    *  followed by `marginChar` from the line.
-    */
+   *
+   *  Strip a leading prefix consisting of blanks or control characters
+   *  followed by `marginChar` from the line.
+   */
   def stripMargin(marginChar: Char): String = {
     val sb = new JStringBuilder(s.length)
     for (line <- linesWithSeparators) {
@@ -759,10 +759,10 @@ final class StringOps(private val s: String) extends AnyVal { self =>
   }
 
   /** For every line in this string:
-    *
-    *  Strip a leading prefix consisting of blanks or control characters
-    *  followed by `|` from the line.
-    */
+   *
+   *  Strip a leading prefix consisting of blanks or control characters
+   *  followed by `|` from the line.
+   */
   def stripMargin: String = stripMargin('|')
 
   private def escape(ch: Char): String = if (
@@ -772,54 +772,54 @@ final class StringOps(private val s: String) extends AnyVal { self =>
   else "\\" + ch
 
   /** Splits this string around the separator character
-    *
-    * If this string is the empty string, returns an array of strings
-    * that contains a single empty string.
-    *
-    * If this string is not the empty string, returns an array containing
-    * the substrings terminated by the start of the string, the end of the
-    * string or the separator character, excluding empty trailing substrings
-    *
-    * If the separator character is a surrogate character, only split on
-    * matching surrogate characters if they are not part of a surrogate pair
-    *
-    * The behaviour follows, and is implemented in terms of <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html#split(java.lang.String)">String.split(re: String)</a>
-    *
-    *
-    * @example {{{
-    * "a.b".split('.') //returns Array("a", "b")
-    *
-    * //splitting the empty string always returns the array with a single
-    * //empty string
-    * "".split('.') //returns Array("")
-    *
-    * //only trailing empty substrings are removed
-    * "a.".split('.') //returns Array("a")
-    * ".a.".split('.') //returns Array("", "a")
-    * "..a..".split('.') //returns Array("", "", "a")
-    *
-    * //all parts are empty and trailing
-    * ".".split('.') //returns Array()
-    * "..".split('.') //returns Array()
-    *
-    * //surrogate pairs
-    * val high = 0xD852.toChar
-    * val low = 0xDF62.toChar
-    * val highstring = high.toString
-    * val lowstring = low.toString
-    *
-    * //well-formed surrogate pairs are not split
-    * val highlow = highstring + lowstring
-    * highlow.split(high) //returns Array(highlow)
-    *
-    * //bare surrogate characters are split
-    * val bare = "_" + highstring + "_"
-    * bare.split(high) //returns Array("_", "_")
-    *
-    *  }}}
-    *
-    * @param separator the character used as a delimiter
-    */
+   *
+   *  If this string is the empty string, returns an array of strings
+   *  that contains a single empty string.
+   *
+   *  If this string is not the empty string, returns an array containing
+   *  the substrings terminated by the start of the string, the end of the
+   *  string or the separator character, excluding empty trailing substrings
+   *
+   *  If the separator character is a surrogate character, only split on
+   *  matching surrogate characters if they are not part of a surrogate pair
+   *
+   *  The behaviour follows, and is implemented in terms of <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html#split(java.lang.String)">String.split(re: String)</a>
+   *
+   *
+   *  @example {{{
+   *  "a.b".split('.') //returns Array("a", "b")
+   *
+   *  //splitting the empty string always returns the array with a single
+   *  //empty string
+   *  "".split('.') //returns Array("")
+   *
+   *  //only trailing empty substrings are removed
+   *  "a.".split('.') //returns Array("a")
+   *  ".a.".split('.') //returns Array("", "a")
+   *  "..a..".split('.') //returns Array("", "", "a")
+   *
+   *  //all parts are empty and trailing
+   *  ".".split('.') //returns Array()
+   *  "..".split('.') //returns Array()
+   *
+   *  //surrogate pairs
+   *  val high = 0xD852.toChar
+   *  val low = 0xDF62.toChar
+   *  val highstring = high.toString
+   *  val lowstring = low.toString
+   *
+   *  //well-formed surrogate pairs are not split
+   *  val highlow = highstring + lowstring
+   *  highlow.split(high) //returns Array(highlow)
+   *
+   *  //bare surrogate characters are split
+   *  val bare = "_" + highstring + "_"
+   *  bare.split(high) //returns Array("_", "_")
+   *
+   * }}}
+   *
+   *  @param separator the character used as a delimiter
+   */
   def split(separator: Char): Array[String] = s.split(escape(separator))
 
   @throws(classOf[java.util.regex.PatternSyntaxException])
@@ -829,13 +829,13 @@ final class StringOps(private val s: String) extends AnyVal { self =>
   }
 
   /** You can follow a string with `.r`, turning it into a `Regex`. E.g.
-    *
-    *  `"""A\w*""".r`   is the regular expression for ASCII-only identifiers starting with `A`.
-    *
-    *  `"""(?<month>\d\d)-(?<day>\d\d)-(?<year>\d\d\d\d)""".r` matches dates
-    *  and provides its subcomponents through groups named "month", "day" and
-    *  "year".
-    */
+   *
+   *  `"""A\w*""".r`   is the regular expression for ASCII-only identifiers starting with `A`.
+   *
+   *  `"""(?<month>\d\d)-(?<day>\d\d)-(?<year>\d\d\d\d)""".r` matches dates
+   *  and provides its subcomponents through groups named "month", "day" and
+   *  "year".
+   */
   def r: Regex = new Regex(s)
 
   /** You can follow a string with `.r(g1, ... , gn)`, turning it into a `Regex`,
@@ -970,9 +970,9 @@ final class StringOps(private val s: String) extends AnyVal { self =>
    *
    *  See [[scala.StringContext#f]] for a formatting interpolator that
    *  checks the format string at compilation.
+   *  @throws java.util.IllegalFormatException if the format contains syntax or conversion errors
    *
    *  @param args the arguments used to instantiating the pattern.
-   *  @throws java.util.IllegalFormatException if the format contains syntax or conversion errors
    */
   def format(args: Any*): String =
     java.lang.String.format(s, args.map(unwrapArg)*)
@@ -985,10 +985,10 @@ final class StringOps(private val s: String) extends AnyVal { self =>
    *    classes deriving from `ScalaNumber` (such as `scala.BigInt` and
    *    `scala.BigDecimal`) are unwrapped to pass a type which `Formatter`
    *    understands.
+   *  @throws java.util.IllegalFormatException if the format contains syntax or conversion errors
    *
    *  @param l    an instance of `java.util.Locale`
    *  @param args the arguments used to instantiating the pattern.
-   *  @throws java.util.IllegalFormatException if the format contains syntax or conversion errors
    */
   def formatLocal(l: java.util.Locale, args: Any*): String =
     java.lang.String.format(l, s, args.map(unwrapArg)*)
@@ -1019,8 +1019,8 @@ final class StringOps(private val s: String) extends AnyVal { self =>
   }
 
   /** Applies `f` to each element for its side effects.
-    * Note: [U] parameter needed to help scalac's type inference.
-    */
+   *  Note: [U] parameter needed to help scalac's type inference.
+   */
   def foreach[U](f: Char => U): Unit = {
     val len = s.length
     var i = 0
@@ -1031,11 +1031,11 @@ final class StringOps(private val s: String) extends AnyVal { self =>
   }
 
   /** Tests whether a predicate holds for all chars of this string.
-    *
-    *  @param   p     the predicate used to test elements.
-    *  @return        `true` if this string is empty or the given predicate `p`
-    *                 holds for all chars of this string, otherwise `false`.
-    */
+   *
+   *  @param   p     the predicate used to test elements.
+   *  @return        `true` if this string is empty or the given predicate `p`
+   *                 holds for all chars of this string, otherwise `false`.
+   */
   def forall(@deprecatedName("f", "2.13.3") p: Char => Boolean): Boolean = {
     var i = 0
     val len = s.length
@@ -1200,23 +1200,23 @@ final class StringOps(private val s: String) extends AnyVal { self =>
   def init: String = if(s.isEmpty) throw new UnsupportedOperationException("init of empty String") else slice(0, s.length-1)
 
   /** A string containing the first `n` chars of this string.
-    * @note $unicodeunaware
-    */
+   *  @note $unicodeunaware
+   */
   def take(n: Int): String = slice(0, min(n, s.length))
 
   /** The rest of the string without its `n` first chars.
-    * @note $unicodeunaware
-    */
+   *  @note $unicodeunaware
+   */
   def drop(n: Int): String = slice(min(n, s.length), s.length)
 
   /** A string containing the last `n` chars of this string.
-    * @note $unicodeunaware
-    */
+   *  @note $unicodeunaware
+   */
   def takeRight(n: Int): String = drop(s.length - max(n, 0))
 
   /** The rest of the string without its `n` last chars.
-    * @note $unicodeunaware
-    */
+   *  @note $unicodeunaware
+   */
   def dropRight(n: Int): String = take(s.length - max(n, 0))
 
   /** Iterates over the tails of this string. The first value will be this
@@ -1467,27 +1467,27 @@ final class StringOps(private val s: String) extends AnyVal { self =>
 
 
   /** Computes the multiset difference between this string and another sequence.
-    *
-    *  @param that   the sequence of chars to remove
-    *  @return       a new string which contains all chars of this string
-    *                except some of occurrences of elements that also appear in `that`.
-    *                If an element value `x` appears
-    *                ''n'' times in `that`, then the first ''n'' occurrences of `x` will not form
-    *                part of the result, but any following occurrences will.
-    *  @note         $unicodeunaware
-    */
+   *  @note         $unicodeunaware
+   *
+   *  @param that   the sequence of chars to remove
+   *  @return       a new string which contains all chars of this string
+   *                except some of occurrences of elements that also appear in `that`.
+   *                If an element value `x` appears
+   *                *n* times in `that`, then the first *n* occurrences of `x` will not form
+   *                part of the result, but any following occurrences will.
+   */
   def diff[B >: Char](that: Seq[B]): String = new WrappedString(s).diff(that).unwrap
 
   /** Computes the multiset intersection between this string and another sequence.
-    *
-    *  @param that   the sequence of chars to intersect with.
-    *  @return       a new string which contains all chars of this string
-    *                which also appear in `that`.
-    *                If an element value `x` appears
-    *                ''n'' times in `that`, then the first ''n'' occurrences of `x` will be retained
-    *                in the result, but any following occurrences will be omitted.
-    * @note          $unicodeunaware
-    */
+   *  @note          $unicodeunaware
+   *
+   *  @param that   the sequence of chars to intersect with.
+   *  @return       a new string which contains all chars of this string
+   *                which also appear in `that`.
+   *                If an element value `x` appears
+   *                *n* times in `that`, then the first *n* occurrences of `x` will be retained
+   *                in the result, but any following occurrences will be omitted.
+   */
   def intersect[B >: Char](that: Seq[B]): String = new WrappedString(s).intersect(that).unwrap
 
   /** Selects all distinct chars of this string ignoring the duplicates.
@@ -1507,17 +1507,17 @@ final class StringOps(private val s: String) extends AnyVal { self =>
   def distinctBy[B](f: Char -> B): String = new WrappedString(s).distinctBy(f).unwrap
 
   /** Sorts the characters of this string according to an Ordering.
-    *
-    *  The sort is stable. That is, elements that are equal (as determined by
-    *  `ord.compare`) appear in the same order in the sorted sequence as in the original.
-    *
-    *  @see [[scala.math.Ordering]]
-    *
-    *  @param  ord the ordering to be used to compare elements.
-    *  @return     a string consisting of the chars of this string
-    *              sorted according to the ordering `ord`.
-    *  @note       $unicodeunaware
-    */
+   *
+   *  The sort is stable. That is, elements that are equal (as determined by
+   *  `ord.compare`) appear in the same order in the sorted sequence as in the original.
+   *
+   *  @see [[scala.math.Ordering]]
+   *  @note       $unicodeunaware
+   *
+   *  @param  ord the ordering to be used to compare elements.
+   *  @return     a string consisting of the chars of this string
+   *              sorted according to the ordering `ord`.
+   */
   def sorted[B >: Char](implicit ord: Ordering[B]): String = new WrappedString(s).sorted(using ord).unwrap
 
   /** Sorts this string according to a comparison function.
@@ -1582,7 +1582,7 @@ final class StringOps(private val s: String) extends AnyVal { self =>
 
   /** Iterates over combinations of elements.
    *
-   *  A '''combination''' of length `n` is a sequence of `n` elements selected in order of their first index in this sequence.
+   *  A **combination** of length `n` is a sequence of `n` elements selected in order of their first index in this sequence.
    *
    *  For example, `"xyx"` has two combinations of length 2. The `x` is selected first: `"xx"`, `"xy"`.
    *  The sequence `"yx"` is not returned as a combination because it is subsumed by `"xy"`.
@@ -1602,8 +1602,6 @@ final class StringOps(private val s: String) extends AnyVal { self =>
    *  As a consequence, `"xyx".combinations(3).next()` is `"xxy"`: the combination does not reflect the order
    *  of the original sequence, but the order in which elements were selected, by "first index";
    *  the order of each `x` element is also arbitrary.
-   *
-   *  @return   An Iterator which traverses the n-element combinations of this string.
    *  @example {{{
    *    "abbbc".combinations(2).foreach(println)
    *    // ab
@@ -1615,6 +1613,8 @@ final class StringOps(private val s: String) extends AnyVal { self =>
    *    // ba
    *  }}}
    *  @note     $unicodeunaware
+   *
+   *  @return   An Iterator which traverses the n-element combinations of this string.
    */
   def combinations(n: Int): Iterator[String] = new WrappedString(s).combinations(n).map(_.unwrap)
 

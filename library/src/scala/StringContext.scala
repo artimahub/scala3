@@ -80,8 +80,6 @@ case class StringContext(parts: String*) {
    *    println(s"1 + 1 = \${1 + 1}")
    *  }}}
    *  will print the string `1 + 1 = 2`.
-   *
-   *  @param `args` The arguments to be inserted into the resulting string.
    *  @throws IllegalArgumentException
    *          if the number of `parts` in the enclosing `StringContext` does not exceed
    *          the number of arguments `arg` by exactly 1.
@@ -90,6 +88,8 @@ case class StringContext(parts: String*) {
    *          that does not start a valid escape sequence.
    *  @note   The Scala compiler may replace a call to this method with an equivalent, but more efficient,
    *          use of a StringBuilder.
+   *
+   *  @param `args` The arguments to be inserted into the resulting string.
    */
   def s(args: Any*): String = macro ??? // fasttracked to scala.tools.reflect.FastStringInterpolator::interpolateS
   object s {
@@ -138,7 +138,7 @@ case class StringContext(parts: String*) {
    *
    *  For example, the raw processed string `raw"a\nb"` is equal to the scala string `"a\\nb"`.
    *
-   *  ''Note:'' Even when using the raw interpolator, Scala will process Unicode escapes.
+   *  *Note:* Even when using the raw interpolator, Scala will process Unicode escapes.
    *  Unicode processing in the raw interpolator is deprecated as of scala 2.13.2 and
    *  will be removed in the future
    *  For example:
@@ -146,13 +146,13 @@ case class StringContext(parts: String*) {
    *    scala> raw"\u005cu0023"
    *    res0: String = #
    *  }}}
-   *
-   *  @param `args` The arguments to be inserted into the resulting string.
    *  @throws IllegalArgumentException
    *          if the number of `parts` in the enclosing `StringContext` does not exceed
    *          the number of arguments `arg` by exactly 1.
    *  @note   The Scala compiler may replace a call to this method with an equivalent, but more efficient,
    *          use of a StringBuilder.
+   *
+   *  @param `args` The arguments to be inserted into the resulting string.
    */
   def raw(args: Any*): String = macro ??? // fasttracked to scala.tools.reflect.FastStringInterpolator::interpolateRaw
 
@@ -174,8 +174,6 @@ case class StringContext(parts: String*) {
    *    val name = "James"
    *    println(f"\$name%s is \$height%2.2f meters tall")  // James is 1.90 meters tall
    *  }}}
-   *
-   *  @param `args` The arguments to be inserted into the resulting string.
    *  @throws IllegalArgumentException
    *          if the number of `parts` in the enclosing `StringContext` does not exceed
    *          the number of arguments `arg` by exactly 1.
@@ -183,16 +181,7 @@ case class StringContext(parts: String*) {
    *          if a `parts` string contains a backslash (`\`) character
    *          that does not start a valid escape sequence.
    *
-   *  Note: The `f` method works by assembling a format string from all the `parts` strings and using
-   *  `java.lang.String.format` to format all arguments with that format string. The format string is
-   *  obtained by concatenating all `parts` strings, and performing two transformations:
-   *
-   *   1. Let a _formatting position_ be a start of any `parts` string except the first one.
-   *      If a formatting position does not refer to a `%` character (which is assumed to
-   *      start a format specifier), then the string format specifier `%s` is inserted.
-   *
-   *   2. Any `%` characters not in formatting positions must begin one of the conversions
-   *      `%%` (the literal percent) or `%n` (the platform-specific line separator).
+   *  @param `args` The arguments to be inserted into the resulting string.
    */
   def f[A >: Any](args: A*): String = macro ??? // fasttracked to scala.tools.reflect.FormatInterpolator::interpolateF
 }
@@ -413,15 +402,15 @@ object StringContext {
    *  index of the first index of a backslash character followed by a `u`
    *  character
    *
-   * If a backslash is followed by one or more `u` characters and there is
-   * an odd number of backslashes immediately preceding the `u`, processing
-   * the escape is attempted and an invalid escape is an error.
-   * The odd backslashes rule is, well, odd, but is grandfathered in from
-   * pre-2.13.2 times, when this same rule existed in the scanner, and was also
-   * odd. Since escape handling here is for backwards compatibility only, that
-   * backwards compatibility is also retained.
-   * Otherwise, the backslash is not taken to introduce an escape and the
-   * backslash is taken to be literal
+   *  If a backslash is followed by one or more `u` characters and there is
+   *  an odd number of backslashes immediately preceding the `u`, processing
+   *  the escape is attempted and an invalid escape is an error.
+   *  The odd backslashes rule is, well, odd, but is grandfathered in from
+   *  pre-2.13.2 times, when this same rule existed in the scanner, and was also
+   *  odd. Since escape handling here is for backwards compatibility only, that
+   *  backwards compatibility is also retained.
+   *  Otherwise, the backslash is not taken to introduce an escape and the
+   *  backslash is taken to be literal
    */
   private def replaceU(str: String, backslash: Int): String = {
     val len = str.length()
