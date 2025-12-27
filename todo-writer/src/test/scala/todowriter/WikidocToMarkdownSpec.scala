@@ -38,6 +38,21 @@ class WikidocToMarkdownSpec extends AnyFlatSpec with Matchers:
     WikidocToMarkdown.migrate(in) should include("*italic*")
   }
 
+  it should "convert bold+italic (5 quotes) to triple asterisks" in {
+    val in = "'''''This is bold and italic.'''''"
+    WikidocToMarkdown.migrate(in) should be("***This is bold and italic.***")
+  }
+
+  it should "handle bold+italic spanning multiple lines" in {
+    val in = """'''''It should be noted that this trait is implemented using the [[DelayedInit]]
+              |functionality, which means that fields of the object will not have been initialized
+              |before the main method has been executed.'''''""".stripMargin
+    val out = WikidocToMarkdown.migrate(in)
+    out should startWith("***It should be noted")
+    out should endWith("executed.***")
+    out should include("[[DelayedInit]]")
+  }
+
   it should "not transform inside code blocks" in {
     val in = """Start
               |{{{

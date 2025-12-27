@@ -10,7 +10,9 @@ import scala.util.matching.Regex
  *    - [[Name]] (no spaces) -> left unchanged as [[Name]]
  *    - [[target display text]] -> [display text](target)
  *    - [[https://url display text]] -> [display text](https://url)
- *  - Bold/italic: '''bold''' -> **bold**, ''italic'' -> *italic*
+ *  - Bold+italic: '''''text''''' -> ***text***
+ *  - Bold: '''bold''' -> **bold**
+ *  - Italic: ''italic'' -> *italic*
  *  - Do not perform link/bold/italic transformations inside code fences.
  *
  *  This is intentionally small and focused for unit tests; it can be extended
@@ -19,6 +21,8 @@ import scala.util.matching.Regex
 object WikidocToMarkdown:
 
   private val WikiLink: Regex = """\[\[([^\]]+)\]\]""".r
+  // Use (?s) flag to make . match newlines for multi-line bold+italic
+  private val BoldItalic: Regex = """(?s)'''''(.*?)'''''""".r
   private val Bold: Regex = """'''(.*?)'''""".r
   private val Italic: Regex = """''(.*?)''""".r
 
@@ -45,7 +49,15 @@ object WikidocToMarkdown:
       s"[$displayText]($target)"
 
   def migrate(inner: String): String =
-    val lines = inner.linesIterator.toList
+    import java.util.regex.Matcher
+
+    // First pass: apply multi-line bold+italic outside of code blocks
+    val preprocessed = applyOutsideCodeBlocks(inner, content =>
+      BoldItalic.replaceAllIn(content, m => Matcher.quoteReplacement(s"***${m.group(1)}***"))
+    )
+
+    // Second pass: line-by-line processing
+    val lines = preprocessed.linesIterator.toList
     val out = collection.mutable.ListBuffer[String]()
     var inCode = false
 
@@ -64,11 +76,34 @@ object WikidocToMarkdown:
         // apply inline conversions only outside code fences
         var l = raw
         // wikilinks conversion
-        import java.util.regex.Matcher
         l = WikiLink.replaceAllIn(l, m => Matcher.quoteReplacement(convertWikiLink(m.group(1))))
-        // bold then italic
+        // bold and italic (single-line only at this point)
         l = Bold.replaceAllIn(l, m => Matcher.quoteReplacement(s"**${m.group(1)}**"))
         l = Italic.replaceAllIn(l, m => Matcher.quoteReplacement(s"*${m.group(1)}*"))
         out += l
 
     out.mkString("\n")
+
+  /** Apply a transformation function only to content outside {{{ ... }}} code blocks. */
+  private def applyOutsideCodeBlocks(content: String, transform: String => String): String =
+    val codeBlockPattern = """(?s)\{\{\{.*?\}\}\}""".r
+    val codeBlocks = collection.mutable.ArrayBuffer[(Int, Int, String)]()
+
+    // Find all code blocks and their positions
+    for m <- codeBlockPattern.findAllMatchIn(content) do
+      codeBlocks += ((m.start, m.end, m.matched))
+
+    if codeBlocks.isEmpty then
+      transform(content)
+    else
+      // Build result by processing segments between code blocks
+      val sb = new StringBuilder
+      var pos = 0
+      for (start, end, block) <- codeBlocks do
+        if pos < start then
+          sb.append(transform(content.substring(pos, start)))
+        sb.append(block)
+        pos = end
+      if pos < content.length then
+        sb.append(transform(content.substring(pos)))
+      sb.toString
