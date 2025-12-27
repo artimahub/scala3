@@ -17,9 +17,19 @@ class WikidocToMarkdownSpec extends AnyFlatSpec with Matchers:
     out should include("More text.")
   }
 
-  it should "convert wikilinks to markdown links" in {
+  it should "leave simple wikilinks unchanged" in {
     val in = "Refer to [[OtherClass]] for details."
-    WikidocToMarkdown.migrate(in) should include("[OtherClass](OtherClass)")
+    WikidocToMarkdown.migrate(in) should include("[[OtherClass]]")
+  }
+
+  it should "convert wikilinks with display text to markdown links" in {
+    val in = "See [[scala.Double the double type]] for more."
+    WikidocToMarkdown.migrate(in) should include("[the double type](scala.Double)")
+  }
+
+  it should "convert URL wikilinks to markdown links" in {
+    val in = "Read [[https://docs.scala-lang.org/overview Value Classes]] for details."
+    WikidocToMarkdown.migrate(in) should include("[Value Classes](https://docs.scala-lang.org/overview)")
   }
 
   it should "convert bold and italic markup" in {
@@ -56,8 +66,9 @@ class WikidocToMarkdownSpec extends AnyFlatSpec with Matchers:
               |}}}
               |""".stripMargin
     val out = WikidocToMarkdown.migrate(in)
-    out should include("[A](A)")
-    out should include("[B](B)")
+    // Simple wikilinks without display text are left unchanged
+    out should include("[[A]]")
+    out should include("[[B]]")
     // Use split with negative limit to preserve trailing empty segments when the
     // content ends with a fence marker.
     out.split("```", -1).length should be (5) // 2 code fences -> 4 markers + surrounding splits
