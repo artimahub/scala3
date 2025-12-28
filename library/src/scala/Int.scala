@@ -457,7 +457,7 @@ object Int extends AnyValCompanion {
 
   /** Transforms a value type into a boxed reference type.
    *
-   *  Runtime implementation determined by `scala.runtime.BoxesRunTime.boxToInteger`. See [src/library/scala/runtime/BoxesRunTime.java](https://github.com/scala/scala).
+   *  Runtime implementation determined by `scala.runtime.BoxesRunTime.boxToInteger`. See [here](https://github.com/scala/scala3/blob/main/library/src/scala/runtime/BoxesRunTime.java) for details.
    *
    *  @param  x   the Int to be boxed
    *  @return     a java.lang.Integer offering `x` as its underlying value.
@@ -468,7 +468,7 @@ object Int extends AnyValCompanion {
    *  method is not typesafe: it accepts any Object, but will throw
    *  an exception if the argument is not a java.lang.Integer.
    *
-   *  Runtime implementation determined by `scala.runtime.BoxesRunTime.unboxToInt`. See [src/library/scala/runtime/BoxesRunTime.java](https://github.com/scala/scala).
+   *  Runtime implementation determined by `scala.runtime.BoxesRunTime.unboxToInt`. See [here](https://github.com/scala/scala3/blob/main/library/src/scala/runtime/BoxesRunTime.java) for details.
    *
    *  @param  x   the java.lang.Integer to be unboxed.
    *  @throws     ClassCastException  if the argument is not a java.lang.Integer
