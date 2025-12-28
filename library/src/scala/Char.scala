@@ -457,7 +457,7 @@ object Char extends AnyValCompanion {
 
   /** Transforms a value type into a boxed reference type.
    *
-   *  Runtime implementation determined by `scala.runtime.BoxesRunTime.boxToCharacter`. See [src/library/scala/runtime/BoxesRunTime.java](https://github.com/scala/scala).
+   *  Runtime implementation determined by `scala.runtime.BoxesRunTime.boxToCharacter`. See [here](https://github.com/scala/scala3/blob/main/library/src/scala/runtime/BoxesRunTime.java) for details.
    *
    *  @param  x   the Char to be boxed
    *  @return     a java.lang.Character offering `x` as its underlying value.
@@ -468,7 +468,7 @@ object Char extends AnyValCompanion {
    *  method is not typesafe: it accepts any Object, but will throw
    *  an exception if the argument is not a java.lang.Character.
    *
-   *  Runtime implementation determined by `scala.runtime.BoxesRunTime.unboxToChar`. See [src/library/scala/runtime/BoxesRunTime.java](https://github.com/scala/scala).
+   *  Runtime implementation determined by `scala.runtime.BoxesRunTime.unboxToChar`. See [here](https://github.com/scala/scala3/blob/main/library/src/scala/runtime/BoxesRunTime.java) for details.
    *
    *  @param  x   the java.lang.Character to be unboxed.
    *  @throws     ClassCastException  if the argument is not a java.lang.Character

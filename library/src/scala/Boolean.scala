@@ -116,7 +116,7 @@ object Boolean extends AnyValCompanion {
 
   /** Transforms a value type into a boxed reference type.
    *
-   *  Runtime implementation determined by `scala.runtime.BoxesRunTime.boxToBoolean`. See [src/library/scala/runtime/BoxesRunTime.java](https://github.com/scala/scala).
+   *  Runtime implementation determined by `scala.runtime.BoxesRunTime.boxToBoolean`. See [here](https://github.com/scala/scala3/blob/main/library/src/scala/runtime/BoxesRunTime.java) for details.
    *
    *  @param  x   the Boolean to be boxed
    *  @return     a java.lang.Boolean offering `x` as its underlying value.
@@ -127,7 +127,7 @@ object Boolean extends AnyValCompanion {
    *  method is not typesafe: it accepts any Object, but will throw
    *  an exception if the argument is not a java.lang.Boolean.
    *
-   *  Runtime implementation determined by `scala.runtime.BoxesRunTime.unboxToBoolean`. See [src/library/scala/runtime/BoxesRunTime.java](https://github.com/scala/scala).
+   *  Runtime implementation determined by `scala.runtime.BoxesRunTime.unboxToBoolean`. See [here](https://github.com/scala/scala3/blob/main/library/src/scala/runtime/BoxesRunTime.java) for details.
    *
    *  @param  x   the java.lang.Boolean to be unboxed.
    *  @throws     ClassCastException  if the argument is not a java.lang.Boolean
