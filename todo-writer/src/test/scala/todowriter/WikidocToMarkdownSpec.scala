@@ -88,3 +88,49 @@ class WikidocToMarkdownSpec extends AnyFlatSpec with Matchers:
     // content ends with a fence marker.
     out.split("```", -1).length should be (5) // 2 code fences -> 4 markers + surrounding splits
   }
+
+  it should "convert = Title = to # Title" in {
+    val in = "= My Title ="
+    WikidocToMarkdown.migrate(in) should be("# My Title")
+  }
+
+  it should "convert == Section == to ## Section" in {
+    val in = "== My Section =="
+    WikidocToMarkdown.migrate(in) should be("## My Section")
+  }
+
+  it should "convert === Subsection === to ### Subsection" in {
+    val in = "=== My Subsection ==="
+    WikidocToMarkdown.migrate(in) should be("### My Subsection")
+  }
+
+  it should "preserve leading whitespace in heading conversions" in {
+    val in = "  == Indented Section =="
+    WikidocToMarkdown.migrate(in) should be("  ## Indented Section")
+  }
+
+  it should "convert multiple heading levels in one document" in {
+    val in = """= Title =
+              |Some intro text.
+              |== Section One ==
+              |Section one content.
+              |=== Subsection ===
+              |More details.
+              |== Section Two ==
+              |Another section.""".stripMargin
+    val out = WikidocToMarkdown.migrate(in)
+    out should include("# Title")
+    out should include("## Section One")
+    out should include("### Subsection")
+    out should include("## Section Two")
+    out should not include "="
+  }
+
+  it should "not convert headings inside code blocks" in {
+    val in = """{{{
+              |= Not A Title =
+              |}}}""".stripMargin
+    val out = WikidocToMarkdown.migrate(in)
+    out should include("= Not A Title =")
+    out should not include "# Not A Title"
+  }

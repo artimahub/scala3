@@ -13,6 +13,10 @@ import scala.util.matching.Regex
  *  - Bold+italic: '''''text''''' -> ***text***
  *  - Bold: '''bold''' -> **bold**
  *  - Italic: ''italic'' -> *italic*
+ *  - Headings:
+ *    - = Title = -> # Title
+ *    - == Section == -> ## Section
+ *    - === Subsection === -> ### Subsection
  *  - Do not perform link/bold/italic transformations inside code fences.
  *
  *  This is intentionally small and focused for unit tests; it can be extended
@@ -25,6 +29,10 @@ object WikidocToMarkdown:
   private val BoldItalic: Regex = """(?s)'''''(.*?)'''''""".r
   private val Bold: Regex = """'''(.*?)'''""".r
   private val Italic: Regex = """''(.*?)''""".r
+  // Wikidoc heading patterns - order matters (=== before == before =)
+  private val Heading3: Regex = """^(\s*)===\s*(.+?)\s*===\s*$""".r
+  private val Heading2: Regex = """^(\s*)==\s*(.+?)\s*==\s*$""".r
+  private val Heading1: Regex = """^(\s*)=\s*(.+?)\s*=\s*$""".r
 
   /** Convert a wikilink's inner content to the appropriate format.
    *
@@ -75,6 +83,12 @@ object WikidocToMarkdown:
       else
         // apply inline conversions only outside code fences
         var l = raw
+        // heading conversions (check more specific patterns first)
+        l = l match
+          case Heading3(indent, text) => s"$indent### $text"
+          case Heading2(indent, text) => s"$indent## $text"
+          case Heading1(indent, text) => s"$indent# $text"
+          case _ => l
         // wikilinks conversion
         l = WikiLink.replaceAllIn(l, m => Matcher.quoteReplacement(convertWikiLink(m.group(1))))
         // bold and italic (single-line only at this point)
