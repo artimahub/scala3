@@ -1,4 +1,3 @@
-
 package todowriter
 
 import org.scalatest.flatspec.AnyFlatSpec
@@ -29,7 +28,7 @@ class ScaladocCheckerLinkSpec extends AnyFlatSpec with Matchers:
     val port = serverSocket.getLocalPort
     val running = new AtomicBoolean(true)
     val started = new java.util.concurrent.CountDownLatch(1)
-  
+
     val thread = new Thread(() =>
       try
         // Signal that the server thread has started
@@ -48,7 +47,7 @@ class ScaladocCheckerLinkSpec extends AnyFlatSpec with Matchers:
               while line != null && line.nonEmpty do line = in.readLine()
             catch case _: Throwable => ()
             try in.close() catch case _: Throwable => ()
-  
+
             val parts = requestLine.split(" ")
             val path = if parts.length >= 2 then parts(1) else "/"
             val code = handlers.getOrElse(path, 200)
@@ -65,7 +64,7 @@ class ScaladocCheckerLinkSpec extends AnyFlatSpec with Matchers:
     thread.start()
     // Wait for server thread to be running
     started.await()
-  
+
     SimpleServer(port, () =>
       running.set(false)
       try serverSocket.close() catch case _: Throwable => ()
@@ -140,5 +139,29 @@ class ScaladocCheckerLinkSpec extends AnyFlatSpec with Matchers:
       val entryOpt = broken.find(_._3 == badUrl)
       entryOpt shouldBe defined
       entryOpt.get._4.startsWith("Error:") should be (true)
+    }
+  }
+
+  it should "detect links inside markdown [label](url) and report broken ones" in {
+    val content = """package test
+                    |
+                    |/** Example with markdown link.
+                    | *  See [docs](http://example.com/docs)
+                    | *  And a bad link: [bad](http://example.com/bad)
+                    | */
+                    |def foo(): Unit = ()
+                    |""".stripMargin
+    withTempFile(content) { path =>
+      def checker(url: String): Option[String] =
+        if url.endsWith("/docs") then None
+        else if url.endsWith("/bad") then Some("HTTP 404")
+        else Some("Error")
+      val broken = ScaladocChecker.findBrokenLinks(path.getParent, checker)
+      val urls = broken.map(_._3)
+      urls should contain ("http://example.com/bad")
+      urls should not contain ("http://example.com/docs")
+      val entry = broken.find(_._3 == "http://example.com/bad")
+      entry shouldBe defined
+      entry.get._4 should include("404")
     }
   }
