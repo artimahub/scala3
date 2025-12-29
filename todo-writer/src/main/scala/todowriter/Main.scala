@@ -10,7 +10,8 @@ object Main:
       json: Boolean = false,
       help: Boolean = false,
       skipTodo: Boolean = false,
-      migrateMarkdown: Boolean = false
+      migrateMarkdown: Boolean = false,
+      listBrokenLink: Boolean = false
   )
 
   def main(args: Array[String]): Unit =
@@ -31,7 +32,7 @@ object Main:
           System.err.println(s"Error: folder not found: $folder")
           System.exit(2)
  
-        run(folder, config.fix, config.json, config.skipTodo, config.migrateMarkdown)
+        run(folder, config.fix, config.json, config.skipTodo, config.migrateMarkdown, config.listBrokenLink)
 
   private def parseArgs(args: List[String]): Config =
     args match
@@ -41,6 +42,7 @@ object Main:
       case "--json" :: rest => parseArgs(rest).copy(json = true)
       case "--skip-todo" :: rest => parseArgs(rest).copy(skipTodo = true)
       case "--migrate-markdown" :: rest => parseArgs(rest).copy(migrateMarkdown = true)
+      case "--list-broken-link" :: rest => parseArgs(rest).copy(listBrokenLink = true)
       case arg :: rest if arg.startsWith("-") =>
         System.err.println(s"Unknown option: $arg")
         parseArgs(rest)
@@ -59,19 +61,31 @@ object Main:
               |  --dry               Dry run (do not write changes to files)
               |  --migrate-markdown  Migrate Wikidoc-style scaladoc to Markdown (applies in-place unless --dry)
               |  --skip-todo         Do not insert TODO placeholders for missing tags when fixing
+              |  --list-broken-link  Check Scaladoc for broken HTTP/HTTPS links and list them
               |  --json              Output results as JSON
               |  --help              Show this help message
               |
               |Exit codes:
               |  0                   No issues found (or --fix applied successfully)
-              |  1                   Issues found (dry run)
+              |  1                   Issues found (dry run) or broken links found (when --list-broken-link)
               |  2                   Error (folder not found, etc.)
               |""".stripMargin)
 
-  private def run(folder: Path, dry: Boolean, json: Boolean, skipTodo: Boolean, migrateMarkdown: Boolean): Unit =
+  private def run(folder: Path, dry: Boolean, json: Boolean, skipTodo: Boolean, migrateMarkdown: Boolean, listBrokenLink: Boolean): Unit =
     // Perform optional migration before checking so subsequent checks see migrated content.
     if migrateMarkdown then
       performMigration(folder, dry)
+ 
+    // If the user requested link checking, perform that pass and exit.
+    if listBrokenLink then
+      val broken = ScaladocChecker.findBrokenLinks(folder)
+      if broken.isEmpty then
+        println("No broken links found.")
+        System.exit(0)
+      else
+        for (path, line, url, err) <- broken do
+          println(s"$path:$line -> $url => $err")
+        System.exit(1)
  
     val results = ScaladocChecker.checkDirectory(folder)
     val summary = ScaladocChecker.summarize(results)

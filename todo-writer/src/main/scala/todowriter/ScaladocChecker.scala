@@ -3,6 +3,7 @@ package todowriter
 import java.io.File
 import java.nio.file.{Files, Path, Paths}
 import scala.jdk.CollectionConverters.*
+import java.net.{HttpURLConnection, URL}
 
 /** Result of checking a single Scaladoc/declaration pair. */
 case class CheckResult(
@@ -101,6 +102,72 @@ object ScaladocChecker:
   /** Check all files under a directory and return results. */
   def checkDirectory(root: Path): List[FileResult] =
     findScalaFiles(root).map(checkFile)
+  
+  /** Find broken HTTP/HTTPS links referenced inside Scaladoc blocks using a custom checker.
+    *
+    *  Returns a list of tuples: (filePath, lineNumber, url, errorDescription)
+    *  The lineNumber points to the Scaladoc physical line containing the link.
+    *
+    *  This variant is useful for testing (inject a fake checker). The checker
+    *  should return None for a healthy URL, or Some(errorDescription) for a broken URL.
+    */
+  def findBrokenLinks(root: Path, checkUrl: String => Option[String]): List[(String, Int, String, String)] =
+    val linkRegex = raw"https?://[^\s\)\]\}\>\"']+".r
+    val files = findScalaFiles(root)
+    val results = collection.mutable.ListBuffer[(String, Int, String, String)]()
+
+    for path <- files do
+      val text = Files.readString(path)
+      val blocks = ScaladocBlock.findAll(text)
+      for block <- blocks do
+        for m <- linkRegex.findAllMatchIn(block.content) do
+          val url = m.matched
+          val before = block.content.substring(0, m.start)
+          val offsetLines = before.count(_ == '\n')
+          val linkLine = block.lineNumber + offsetLines
+          checkUrl(url) match
+            case Some(err) => results += ((path.toString, linkLine, url, err))
+            case None      => ()
+
+    results.toList
+
+  /** Default network-backed findBrokenLinks implementation (kept for normal usage). */
+  def findBrokenLinks(root: Path): List[(String, Int, String, String)] =
+    def defaultCheck(u: String): Option[String] =
+      var conn: HttpURLConnection | Null = null
+      try
+        val connection = URL(u).openConnection().asInstanceOf[HttpURLConnection]
+        conn = connection
+        connection.setConnectTimeout(5000)
+        connection.setReadTimeout(5000)
+        connection.setInstanceFollowRedirects(true)
+        // Try HEAD first; fallback to GET if server rejects HEAD
+        try
+          connection.setRequestMethod("HEAD")
+          connection.connect()
+          val code = connection.getResponseCode
+          if code >= 400 then Some(s"HTTP $code") else None
+        catch
+          case _: java.net.ProtocolException =>
+            // HEAD not supported; try GET
+            connection.disconnect()
+            val gconn = URL(u).openConnection().asInstanceOf[HttpURLConnection]
+            conn = gconn
+            gconn.setConnectTimeout(5000)
+            gconn.setReadTimeout(5000)
+            gconn.setInstanceFollowRedirects(true)
+            gconn.setRequestMethod("GET")
+            gconn.connect()
+            val gcode = gconn.getResponseCode
+            if gcode >= 400 then Some(s"HTTP $gcode") else None
+      catch
+        case e: Exception =>
+          Some(s"Error: ${e.getMessage}")
+      finally
+        if conn != null then try conn.disconnect() catch case _: Throwable => ()
+    end defaultCheck
+
+    findBrokenLinks(root, defaultCheck)
 
   /** Generate summary statistics from file results. */
   def summarize(results: List[FileResult]): Summary =
