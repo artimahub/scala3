@@ -236,7 +236,7 @@ sealed abstract class Either[+A, +B] extends Product with Serializable {
    *  Left[String, Either[String, Int]]("flower").joinRight // Result: Left("flower")
    *  }}}
    *
-   * This method, and `joinLeft`, are analogous to `Option#flatten`
+   *  This method, and `joinLeft`, are analogous to `Option#flatten`
    */
   def joinRight[A1 >: A, B1 >: B, C](implicit ev: B1 <:< Either[A1, C]): Either[A1, C] = this match {
     case Right(b) => b
@@ -272,6 +272,7 @@ sealed abstract class Either[+A, +B] extends Product with Serializable {
    *  Right(12).foreach(println) // prints "12"
    *  Left(12).foreach(println)  // doesn't print
    *  }}}
+   *
    *  @param f The side-effecting function to execute.
    */
   def foreach[U](f: B => U): Unit = this match {
@@ -365,20 +366,20 @@ sealed abstract class Either[+A, +B] extends Product with Serializable {
 
 
   /** Returns the right value if this is right
-    * or this value if this is left
-    *
-    * @example {{{
-    * val  l: Either[String, Either[String, Int]] = Left("pancake")
-    * val rl: Either[String, Either[String, Int]] = Right(Left("flounder"))
-    * val rr: Either[String, Either[String, Int]] = Right(Right(7))
-    *
-    *  l.flatten //Either[String, Int]: Left("pancake")
-    * rl.flatten //Either[String, Int]: Left("flounder")
-    * rr.flatten //Either[String, Int]: Right(7)
-    * }}}
-    *
-    * Equivalent to `flatMap(id => id)`
-    */
+   *  or this value if this is left
+   *
+   *  @example {{{
+   *  val  l: Either[String, Either[String, Int]] = Left("pancake")
+   *  val rl: Either[String, Either[String, Int]] = Right(Left("flounder"))
+   *  val rr: Either[String, Either[String, Int]] = Right(Right(7))
+   *
+   *  l.flatten //Either[String, Int]: Left("pancake")
+   *  rl.flatten //Either[String, Int]: Left("flounder")
+   *  rr.flatten //Either[String, Int]: Right(7)
+   *}}}
+   *
+   *  Equivalent to `flatMap(id => id)`
+   */
   def flatten[A1 >: A, B1](implicit ev: B <:< Either[A1, B1]): Either[A1, B1] = flatMap(ev)
 
   /** The given function is applied if this is a `Right`.
@@ -466,12 +467,12 @@ final case class Left[+A, +B](value: A) extends Either[A, B] {
   def isRight = false
 
   /**
-    * Upcasts this `Left[A, B]` to `Either[A, B1]`
-    * {{{
-    *   Left(1)                   // Either[Int, Nothing]
-    *   Left(1).withRight[String] // Either[Int, String]
-    * }}}
-    */
+   *  Upcasts this `Left[A, B]` to `Either[A, B1]`
+   * {{{
+   *   Left(1)                   // Either[Int, Nothing]
+   *   Left(1).withRight[String] // Either[Int, String]
+   * }}}
+   */
   def withRight[B1 >: B]: Either[A, B1] = this
 
 }
@@ -483,12 +484,12 @@ final case class Right[+A, +B](value: B) extends Either[A, B] {
   def isRight = true
 
   /**
-    * Upcasts this `Right[A, B]` to `Either[A1, B]`
-    * {{{
-    *   Right("x")               // Either[Nothing, String]
-    *   Right("x").withLeft[Int] // Either[Int, String]
-    * }}}
-    */
+   *  Upcasts this `Right[A, B]` to `Either[A1, B]`
+   * {{{
+   *   Right("x")               // Either[Nothing, String]
+   *   Right("x").withLeft[Int] // Either[Int, String]
+   * }}}
+   */
   def withLeft[A1 >: A]: Either[A1, B] = this
 
 }
@@ -553,6 +554,7 @@ object Either {
      *  Left(12).left.foreach(x => println(x))  // prints "12"
      *  Right(12).left.foreach(x => println(x)) // doesn't print
      *  }}}
+     *
      *  @param f The side-effecting function to execute.
      */
     def foreach[U](f: A => U): Unit = e match {
@@ -606,6 +608,7 @@ object Either {
      *  Left(12).left.flatMap(x => Left("scala")) // Left("scala")
      *  Right(12).left.flatMap(x => Left("scala")) // Right(12)
      *  }}}
+     *
      *  @param f The function to bind across `Left`.
      */
     def flatMap[A1, B1 >: B](f: A => Either[A1, B1]): Either[A1, B1] = e match {
@@ -712,6 +715,7 @@ object Either {
      *  Right(12).right.foreach(x => println(x)) // prints "12"
      *  Left(12).right.foreach(x => println(x))  // doesn't print
      *  }}}
+     *
      *  @param f The side-effecting function to execute.
      */
     def foreach[U](f: B => U): Unit = e match {

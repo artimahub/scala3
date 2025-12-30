@@ -107,13 +107,13 @@ trait ExecutionContext {
 
 /**
  * An [[ExecutionContext]] that is also a
- * Java [[http://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/concurrent/Executor.html Executor]].
+ * Java [Executor](http://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/concurrent/Executor.html).
  */
 trait ExecutionContextExecutor extends ExecutionContext with Executor
 
 /**
  * An [[ExecutionContext]] that is also a
- * Java [[http://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/concurrent/ExecutorService.html ExecutorService]].
+ * Java [ExecutorService](http://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/concurrent/ExecutorService.html).
  */
 trait ExecutionContextExecutorService extends ExecutionContextExecutor with ExecutorService
 
@@ -170,26 +170,26 @@ object ExecutionContext {
 
   object Implicits {
     /**
-     * The implicit global `ExecutionContext`. Import `global` when you want to provide the global
-     * `ExecutionContext` implicitly.
+     *  The implicit global `ExecutionContext`. Import `global` when you want to provide the global
+     *  `ExecutionContext` implicitly.
      *
-     * The default `ExecutionContext` implementation is backed by a work-stealing thread pool. By default,
-     * the thread pool uses a target number of worker threads equal to the number of
-     * [[https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Runtime.html#availableProcessors() available processors]].
+     *  The default `ExecutionContext` implementation is backed by a work-stealing thread pool. By default,
+     *  the thread pool uses a target number of worker threads equal to the number of
+     *  [available processors](https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Runtime.html#availableProcessors()).
      */
     implicit final def global: ExecutionContext = ExecutionContext.global
   }
 
   /** Creates an `ExecutionContext` from the given `ExecutorService`.
    *
-   *  @param e         the `ExecutorService` to use. If `null`, a new `ExecutorService` is created with [[scala.concurrent.ExecutionContext$.global default configuration]].
+   *  @param e         the `ExecutorService` to use. If `null`, a new `ExecutorService` is created with [default configuration](scala.concurrent.ExecutionContext$.global).
    *  @param reporter  a function for error reporting
    *  @return          the `ExecutionContext` using the given `ExecutorService`
    */
   def fromExecutorService(e: ExecutorService, reporter: Throwable => Unit): ExecutionContextExecutorService =
     impl.ExecutionContextImpl.fromExecutorService(e, reporter)
 
-  /** Creates an `ExecutionContext` from the given `ExecutorService` with the [[scala.concurrent.ExecutionContext$.defaultReporter default reporter]].
+  /** Creates an `ExecutionContext` from the given `ExecutorService` with the [default reporter](scala.concurrent.ExecutionContext$.defaultReporter).
    *
    *  If it is guaranteed that none of the executed tasks are blocking, a single-threaded `ExecutorService`
    *  can be used to create an `ExecutionContext` as follows:
@@ -199,28 +199,28 @@ object ExecutionContext {
    *  val ec = ExecutionContext.fromExecutorService(Executors.newSingleThreadExecutor())
    *  }}}
    *
-   *  @param e the `ExecutorService` to use. If `null`, a new `ExecutorService` is created with [[scala.concurrent.ExecutionContext$.global default configuration]].
+   *  @param e the `ExecutorService` to use. If `null`, a new `ExecutorService` is created with [default configuration](scala.concurrent.ExecutionContext$.global).
    *  @return  the `ExecutionContext` using the given `ExecutorService`
    */
   def fromExecutorService(e: ExecutorService): ExecutionContextExecutorService = fromExecutorService(e, defaultReporter)
 
   /** Creates an `ExecutionContext` from the given `Executor`.
    *
-   *  @param e         the `Executor` to use. If `null`, a new `Executor` is created with [[scala.concurrent.ExecutionContext$.global default configuration]].
+   *  @param e         the `Executor` to use. If `null`, a new `Executor` is created with [default configuration](scala.concurrent.ExecutionContext$.global).
    *  @param reporter  a function for error reporting
    *  @return          the `ExecutionContext` using the given `Executor`
    */
   def fromExecutor(e: Executor, reporter: Throwable => Unit): ExecutionContextExecutor =
     impl.ExecutionContextImpl.fromExecutor(e, reporter)
 
-  /** Creates an `ExecutionContext` from the given `Executor` with the [[scala.concurrent.ExecutionContext$.defaultReporter default reporter]].
+  /** Creates an `ExecutionContext` from the given `Executor` with the [default reporter](scala.concurrent.ExecutionContext$.defaultReporter).
    *
-   *  @param e the `Executor` to use. If `null`, a new `Executor` is created with [[scala.concurrent.ExecutionContext$.global default configuration]].
+   *  @param e the `Executor` to use. If `null`, a new `Executor` is created with [default configuration](scala.concurrent.ExecutionContext$.global).
    *  @return  the `ExecutionContext` using the given `Executor`
    */
   def fromExecutor(e: Executor): ExecutionContextExecutor = fromExecutor(e, defaultReporter)
 
-  /** The default reporter simply prints the stack trace of the `Throwable` to [[http://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/System.html#err System.err]].
+  /** The default reporter simply prints the stack trace of the `Throwable` to [System.err](http://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/System.html#err).
    *
    *  @return the function for error reporting
    */

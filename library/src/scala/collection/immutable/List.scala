@@ -35,10 +35,10 @@ import scala.runtime.Statics.releaseFence
  *  pattern, for example, random access or FIFO, consider using a collection more suited to this than `List`.
  *
  *  ==Performance==
- *  '''Time:''' `List` has `O(1)` prepend and head/tail access. Most other operations are `O(n)` on the number of elements in the list.
+ *  **Time:** `List` has `O(1)` prepend and head/tail access. Most other operations are `O(n)` on the number of elements in the list.
  *  This includes the index-based lookup of elements, `length`, `append` and `reverse`.
  *
- *  '''Space:''' `List` implements '''structural sharing''' of the tail list. This means that many operations are either
+ *  **Space:** `List` implements **structural sharing** of the tail list. This means that many operations are either
  *  zero- or constant-memory cost.
  *  {{{
  *  val mainList = List(3, 2, 1)
@@ -69,7 +69,7 @@ import scala.runtime.Statics.releaseFence
  *        objects that rely on structural sharing), will be serialized and deserialized with multiple lists, one for
  *        each reference to it. I.e. structural sharing is lost after serialization/deserialization.
  *
- *  @see  [[https://docs.scala-lang.org/overviews/collections-2.13/concrete-immutable-collection-classes.html#lists "Scala's Collection Library overview"]]
+ *  @see  ["Scala's Collection Library overview"](https://docs.scala-lang.org/overviews/collections-2.13/concrete-immutable-collection-classes.html#lists)
  *  section on `Lists` for more information.
  *
  *  @define coll list
@@ -92,23 +92,24 @@ sealed abstract class List[+A]
   override def iterableFactory: SeqFactory[List] = List
 
   /** Adds an element at the beginning of this list.
-    *  @param elem the element to prepend.
-    *  @return  a list which contains `x` as first element and
-    *           which continues with this list.
-    *  Example:
-    *  {{{1 :: List(2, 3) = List(2, 3).::(1) = List(1, 2, 3)}}}
-    */
+   *
+   *  @param elem the element to prepend.
+   *  @return  a list which contains `x` as first element and
+   *           which continues with this list.
+   *  Example:
+   *  {{{1 :: List(2, 3) = List(2, 3).::(1) = List(1, 2, 3)}}}
+   */
   def :: [B >: A](elem: B): List[B] =  new ::(elem, this)
 
   /** Adds the elements of a given list in front of this list.
-    *
-    * Example:
-    * {{{List(1, 2) ::: List(3, 4) = List(3, 4).:::(List(1, 2)) = List(1, 2, 3, 4)}}}
-    *
-    *  @param prefix  The list elements to prepend.
-    *  @return a list resulting from the concatenation of the given
-    *    list `prefix` and this list.
-    */
+   *
+   *  Example:
+   *  {{{List(1, 2) ::: List(3, 4) = List(3, 4).:::(List(1, 2)) = List(1, 2, 3, 4)}}}
+   *
+   *  @param prefix  The list elements to prepend.
+   *  @return a list resulting from the concatenation of the given
+   *    list `prefix` and this list.
+   */
   def ::: [B >: A](prefix: List[B]): List[B] =
     if (isEmpty) prefix
     else if (prefix.isEmpty) this
@@ -127,12 +128,12 @@ sealed abstract class List[+A]
     }
 
   /** Adds the elements of a given list in reverse order in front of this list.
-    *  `xs reverse_::: ys` is equivalent to
-    *  `xs.reverse ::: ys` but is more efficient.
-    *
-    *  @param prefix the prefix to reverse and then prepend
-    *  @return       the concatenation of the reversed prefix and the current list.
-    */
+   *  `xs reverse_::: ys` is equivalent to
+   *  `xs.reverse ::: ys` but is more efficient.
+   *
+   *  @param prefix the prefix to reverse and then prepend
+   *  @return       the concatenation of the reversed prefix and the current list.
+   */
   def reverse_:::[B >: A](prefix: List[B]): List[B] = {
     var these: List[B] = this
     var pres = prefix

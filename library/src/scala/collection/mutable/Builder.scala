@@ -16,13 +16,13 @@ import scala.language.`2.13`
 import language.experimental.captureChecking
 
 /** Base trait for collection builders.
-  *
-  * After calling `result()` the behavior of a Builder (which is not also a [[scala.collection.mutable.ReusableBuilder]])
-  * is undefined. No further methods should be called. It is common for mutable collections to be their own non-reusable
-  * Builder, in which case `result()` simply returns `this`.
-  *
-  * @see [[scala.collection.mutable.ReusableBuilder]] for Builders which can be reused after calling `result()`
-  */
+ *
+ *  After calling `result()` the behavior of a Builder (which is not also a [[scala.collection.mutable.ReusableBuilder]])
+ *  is undefined. No further methods should be called. It is common for mutable collections to be their own non-reusable
+ *  Builder, in which case `result()` simply returns `this`.
+ *
+ *  @see [[scala.collection.mutable.ReusableBuilder]] for Builders which can be reused after calling `result()`
+ */
 trait Builder[-A, +To] extends Growable[A] { self: Builder[A, To]^ =>
 
   /** Clears the contents of this builder.

@@ -32,9 +32,9 @@ import scala.collection.mutable.ListBuffer
  *
  *  ==Caveats==
  *
- *  '''''It should be noted that this trait is implemented using the [[DelayedInit]]
+ *  ***It should be noted that this trait is implemented using the [[DelayedInit]]
  *  functionality, which means that fields of the object will not have been initialized
- *  before the main method has been executed.'''''
+ *  before the main method has been executed.***
  *
  *  Future versions of this trait will no longer extend `DelayedInit`.
  *

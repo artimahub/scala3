@@ -19,6 +19,7 @@ import scala.language.`2.13`
 /** A tuple of 2 elements; the canonical representation of a [[scala.Product2]].
  *
  *  @constructor  Create a new tuple with 2 elements. Note that it is more idiomatic to create a Tuple2 via `(t1, t2)`
+ *
  *  @param  _1   Element 1 of this Tuple2
  *  @param  _2   Element 2 of this Tuple2
  */

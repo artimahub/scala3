@@ -112,16 +112,16 @@ object ArraySeq extends StrictOptimizedClassTagSeqFactory[ArraySeq] { self =>
   def newBuilder[A : ClassTag]: Builder[A, ArraySeq[A]] = ArrayBuilder.make[A].mapResult(make)
 
   /**
-   * Wraps an existing `Array` into a `ArraySeq` of the proper primitive specialization type
-   * without copying.
+   *  Wraps an existing `Array` into a `ArraySeq` of the proper primitive specialization type
+   *  without copying.
    *
-   * Note that an array containing boxed primitives can be converted to a `ArraySeq` without
-   * copying. For example, `val a: Array[Any] = Array(1)` is an array of `Object` at runtime,
-   * containing `Integer`s. An `ArraySeq[Int]` can be obtained with a cast:
-   * `ArraySeq.make(a).asInstanceOf[ArraySeq[Int]]`. The values are still
-   * boxed, the resulting instance is an [[ArraySeq.ofRef]]. Writing
-   * `ArraySeq.make(a.asInstanceOf[Array[Int]])` does not work, it throws a `ClassCastException`
-   * at runtime.
+   *  Note that an array containing boxed primitives can be converted to a `ArraySeq` without
+   *  copying. For example, `val a: Array[Any] = Array(1)` is an array of `Object` at runtime,
+   *  containing `Integer`s. An `ArraySeq[Int]` can be obtained with a cast:
+   *  `ArraySeq.make(a).asInstanceOf[ArraySeq[Int]]`. The values are still
+   *  boxed, the resulting instance is an [[ArraySeq.ofRef]]. Writing
+   *  `ArraySeq.make(a.asInstanceOf[Array[Int]])` does not work, it throws a `ClassCastException`
+   *  at runtime.
    */
   def make[T](x: Array[T]): ArraySeq[T] = ((x: @unchecked) match {
     case null              => null

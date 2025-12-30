@@ -15,7 +15,7 @@ package scala.jdk
 import scala.language.`2.13`
 import scala.collection.convert.StreamExtensions
 
-/** This object provides extension methods to create [[java.util.stream.Stream Java Streams]] that
+/** This object provides extension methods to create [Java Streams](java.util.stream.Stream) that
   * operate on Scala collections (sequentially or in parallel). For more information on Java
   * streams, consult the documentation
   * ([[https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/stream/package-summary.html]]).
@@ -47,17 +47,17 @@ import scala.collection.convert.StreamExtensions
   * }}}
   *
   * A Java [[Stream]] provides operations on a sequence of elements. Streams are created from
-  * [[java.util.Spliterator Spliterators]], which are similar to Iterators with the additional
+  * [Spliterators](java.util.Spliterator), which are similar to Iterators with the additional
   * capability to partition off some of their elements. This partitioning, if supported by the
   * Spliterator, is used for parallelizing Stream operations.
   *
-  * Scala collections have a method [[scala.collection.IterableOnce.stepper `stepper`]] that
+  * Scala collections have a method [`stepper`](scala.collection.IterableOnce.stepper) that
   * returns a [[scala.collection.Stepper]] for the collection, which in turn can be converted to a
   * Spliterator for creating a Java Stream.
   *
   * The `asJavaSeqStream ` extension method is available on any Scala collection. The
   * `asJavaParStream` extension method can only be invoked on collections where the return type of
-  * the [[scala.collection.IterableOnce.stepper `stepper`]] method is marked with the
+  * the [`stepper`](scala.collection.IterableOnce.stepper) method is marked with the
   * [[scala.collection.Stepper.EfficientSplit]] marker trait. This trait is added to steppers that
   * support partitioning, and therefore efficient parallel processing.
   *

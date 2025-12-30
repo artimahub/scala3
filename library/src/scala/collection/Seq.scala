@@ -59,32 +59,29 @@ trait Seq[+A]
 object Seq extends SeqFactory.Delegate[Seq](immutable.Seq)
 
 /** Base trait for Seq operations
-  *
-  * @tparam A the element type of the collection
-  * @tparam CC type constructor of the collection (e.g. `List`, `Set`). Operations returning a collection
-  *             with a different type of element `B` (e.g. `map`) return a `CC[B]`.
-  * @tparam C  type of the collection (e.g. `List[Int]`, `String`, `BitSet`). Operations returning a collection
-  *             with the same type of element (e.g. `drop`, `filter`) return a `C`.
-  * @define orderDependent
-  * @define orderDependentFold
-  * @define mayNotTerminateInf
-  *
-  *    Note: may not terminate for infinite-sized collections.
-  *
-  * @define willNotTerminateInf
-  *
-  *    Note: will not terminate for infinite-sized collections.
-  *
-  * @define coll sequence
-  * @define Coll `Seq`
-  */
+ *  @define orderDependent
+ *  @define orderDependentFold
+ *  @define mayNotTerminateInf
+ *
+ *  @define willNotTerminateInf
+ *
+ *  @define coll sequence
+ *  @define Coll `Seq`
+ *
+ *  @tparam A the element type of the collection
+ *  @tparam CC type constructor of the collection (e.g. `List`, `Set`). Operations returning a collection
+ *             with a different type of element `B` (e.g. `map`) return a `CC[B]`.
+ *  @tparam C  type of the collection (e.g. `List[Int]`, `String`, `BitSet`). Operations returning a collection
+ *             with the same type of element (e.g. `drop`, `filter`) return a `C`.
+ */
 transparent trait SeqOps[+A, +CC[_], +C] extends Any
   with IterableOps[A, CC, C] { self: SeqOps[A, CC, C]^ =>
 
   override def view: SeqView[A]^{this} = new SeqView.Id[A](this)
 
   /** Gets the element at the specified index. This operation is provided for convenience in `Seq`. It should
-    * not be assumed to be efficient unless you have an `IndexedSeq`. */
+   *  not be assumed to be efficient unless you have an `IndexedSeq`. 
+   */
   @throws[IndexOutOfBoundsException]
   def apply(i: Int): A
 
@@ -116,10 +113,10 @@ transparent trait SeqOps[+A, +CC[_], +C] extends Any
   def prepended[B >: A](elem: B): CC[B]^{this} = iterableFactory.from(new View.Prepended(elem, this))
 
   /** Alias for `prepended`.
-    *
-    * Note that :-ending operators are right associative (see example).
-    * A mnemonic for `+:` vs. `:+` is: the COLon goes on the COLlection side.
-    */
+   *
+   *  Note that :-ending operators are right associative (see example).
+   *  A mnemonic for `+:` vs. `:+` is: the COLon goes on the COLlection side.
+   */
   @`inline` final def +: [B >: A](elem: B): CC[B]^{this} = prepended(elem)
 
   /** A copy of this $coll with an element appended.
@@ -238,15 +235,15 @@ transparent trait SeqOps[+A, +CC[_], +C] extends Any
   def reverseIterator: Iterator[A]^{this} = reversed.iterator
 
   /** Tests whether this $coll contains the given sequence at a given index.
-    *
-    * '''Note''': If the both the receiver object `this` and the argument
-    * `that` are infinite sequences this method may not terminate.
-    *
-    * @param  that    the sequence to test
-    * @param  offset  the index where the sequence is searched.
-    * @return `true` if the sequence `that` is contained in this $coll at
-    *         index `offset`, otherwise `false`.
-    */
+   *
+   *  **Note**: If the both the receiver object `this` and the argument
+   *  `that` are infinite sequences this method may not terminate.
+   *
+   *  @param  that    the sequence to test
+   *  @param  offset  the index where the sequence is searched.
+   *  @return `true` if the sequence `that` is contained in this $coll at
+   *         index `offset`, otherwise `false`.
+   */
   def startsWith[B >: A](that: IterableOnce[B]^, offset: Int = 0): Boolean = {
     val i = iterator drop offset
     val j = that.iterator
@@ -258,10 +255,11 @@ transparent trait SeqOps[+A, +CC[_], +C] extends Any
   }
 
   /** Tests whether this $coll ends with the given sequence.
-    *  $willNotTerminateInf
-    *  @param  that    the sequence to test
-    *  @return `true` if this $coll has `that` as a suffix, `false` otherwise.
-    */
+   *  $willNotTerminateInf
+   *
+   *  @param  that    the sequence to test
+   *  @return `true` if this $coll has `that` as a suffix, `false` otherwise.
+   */
   def endsWith[B >: A](that: Iterable[B]^): Boolean = {
     if (that.isEmpty) true
     else {
@@ -423,6 +421,7 @@ transparent trait SeqOps[+A, +CC[_], +C] extends Any
 
   /** Finds first index after or at a start index where this $coll contains a given sequence as a slice.
    *  $mayNotTerminateInf
+   *
    *  @param  that    the sequence to test
    *  @param  from    the start index
    *  @return  the first index `>= from` such that the elements of this $coll starting at this index
@@ -514,6 +513,7 @@ transparent trait SeqOps[+A, +CC[_], +C] extends Any
 
   /** Tests whether this $coll contains a given sequence as a slice.
    *  $mayNotTerminateInf
+   *
    *  @param  that    the sequence to test
    *  @return  `true` if this $coll contains a slice with the same elements
    *           as `that`, otherwise `false`.
@@ -550,7 +550,7 @@ transparent trait SeqOps[+A, +CC[_], +C] extends Any
 
   /** Iterates over combinations of elements.
    *
-   *  A '''combination''' of length `n` is a sequence of `n` elements selected in order of their first index in this sequence.
+   *  A **combination** of length `n` is a sequence of `n` elements selected in order of their first index in this sequence.
    *
    *  For example, `"xyx"` has two combinations of length 2. The `x` is selected first: `"xx"`, `"xy"`.
    *  The sequence `"yx"` is not returned as a combination because it is subsumed by `"xy"`.
@@ -572,8 +572,6 @@ transparent trait SeqOps[+A, +CC[_], +C] extends Any
    *  the order of each `x` element is also arbitrary.
    *
    *  $willForceEvaluation
-   *
-   *  @return   An Iterator which traverses the n-element combinations of this $coll.
    *  @example {{{
    *    Seq('a', 'b', 'b', 'b', 'c').combinations(2).foreach(println)
    *    // List(a, b)
@@ -584,6 +582,8 @@ transparent trait SeqOps[+A, +CC[_], +C] extends Any
    *    // List(b, b)
    *    // List(b, a)
    *  }}}
+   *
+   *  @return   An Iterator which traverses the n-element combinations of this $coll.
    */
   def combinations(n: Int): Iterator[C^{this}]^{this} =
     if (n < 0 || n > size) Iterator.empty
@@ -708,18 +708,18 @@ transparent trait SeqOps[+A, +CC[_], +C] extends Any
   }
 
   /** Sorts this $coll according to an Ordering.
-    *
-    *  The sort is stable. That is, elements that are equal (as determined by
-    *  `ord.compare`) appear in the same order in the sorted sequence as in the original.
-    *
-    *  @see [[scala.math.Ordering]]
-    *
-    *  $willForceEvaluation
-    *
-    *  @param  ord the ordering to be used to compare elements.
-    *  @return     a $coll consisting of the elements of this $coll
-    *              sorted according to the ordering `ord`.
-    */
+   *
+   *  The sort is stable. That is, elements that are equal (as determined by
+   *  `ord.compare`) appear in the same order in the sorted sequence as in the original.
+   *
+   *  @see [[scala.math.Ordering]]
+   *
+   *  $willForceEvaluation
+   *
+   *  @param  ord the ordering to be used to compare elements.
+   *  @return     a $coll consisting of the elements of this $coll
+   *              sorted according to the ordering `ord`.
+   */
   def sorted[B >: A](implicit ord: Ordering[B]): C^{this} = {
     val len = this.length
     val b = newSpecificBuilder
@@ -830,19 +830,19 @@ transparent trait SeqOps[+A, +CC[_], +C] extends Any
   def lengthCompare(that: Iterable[?]^): Int = super.sizeCompare(that)
 
   /** Returns a value class containing operations for comparing the length of this $coll to a test value.
-    *
-    * These operations are implemented in terms of [[lengthCompare(Int) `lengthCompare(Int)`]], and
-    * allow the following more readable usages:
-    *
-    * {{{
-    * this.lengthIs < len     // this.lengthCompare(len) < 0
-    * this.lengthIs <= len    // this.lengthCompare(len) <= 0
-    * this.lengthIs == len    // this.lengthCompare(len) == 0
-    * this.lengthIs != len    // this.lengthCompare(len) != 0
-    * this.lengthIs >= len    // this.lengthCompare(len) >= 0
-    * this.lengthIs > len     // this.lengthCompare(len) > 0
-    * }}}
-    */
+   *
+   *  These operations are implemented in terms of [`lengthCompare(Int)`](lengthCompare(Int)), and
+   *  allow the following more readable usages:
+   *
+   * {{{
+   * this.lengthIs < len     // this.lengthCompare(len) < 0
+   * this.lengthIs <= len    // this.lengthCompare(len) <= 0
+   * this.lengthIs == len    // this.lengthCompare(len) == 0
+   * this.lengthIs != len    // this.lengthCompare(len) != 0
+   * this.lengthIs >= len    // this.lengthCompare(len) >= 0
+   * this.lengthIs > len     // this.lengthCompare(len) > 0
+   * }}}
+   */
   @inline final def lengthIs: IterableOps.SizeCompareOps^{this} = new IterableOps.SizeCompareOps(caps.unsafe.unsafeAssumePure(this) /* see comment in SizeCompareOps*/)
 
   override def isEmpty: Boolean = lengthCompare(0) == 0
@@ -886,14 +886,14 @@ transparent trait SeqOps[+A, +CC[_], +C] extends Any
   }
 
   /** Computes the multiset difference between this $coll and another sequence.
-    *
-    *  @param that   the sequence of elements to remove
-    *  @return       a new $coll which contains all elements of this $coll
-    *                except some of the occurrences of elements that also appear in `that`.
-    *                If an element value `x` appears
-    *                ''n'' times in `that`, then the first ''n'' occurrences of `x` will not form
-    *                part of the result, but any following occurrences will.
-    */
+   *
+   *  @param that   the sequence of elements to remove
+   *  @return       a new $coll which contains all elements of this $coll
+   *                except some of the occurrences of elements that also appear in `that`.
+   *                If an element value `x` appears
+   *                *n* times in `that`, then the first *n* occurrences of `x` will not form
+   *                part of the result, but any following occurrences will.
+   */
   def diff[B >: A](that: Seq[B]): C^{this} = {
     val occ = occCounts(that)
     fromSpecific(iterator.filter { x =>
@@ -911,14 +911,14 @@ transparent trait SeqOps[+A, +CC[_], +C] extends Any
   }
 
   /** Computes the multiset intersection between this $coll and another sequence.
-    *
-    *  @param that   the sequence of elements to intersect with.
-    *  @return       a new $coll which contains all elements of this $coll
-    *                which also appear in `that`.
-    *                If an element value `x` appears
-    *                ''n'' times in `that`, then the first ''n'' occurrences of `x` will be retained
-    *                in the result, but any following occurrences will be omitted.
-    */
+   *
+   *  @param that   the sequence of elements to intersect with.
+   *  @return       a new $coll which contains all elements of this $coll
+   *                which also appear in `that`.
+   *                If an element value `x` appears
+   *                *n* times in `that`, then the first *n* occurrences of `x` will be retained
+   *                in the result, but any following occurrences will be omitted.
+   */
   def intersect[B >: A](that: Seq[B]): C^{this} = {
     val occ = occCounts(that)
     fromSpecific(iterator.filter { x =>
@@ -978,48 +978,45 @@ transparent trait SeqOps[+A, +CC[_], +C] extends Any
   }
 
   /** Searches this sorted sequence for a specific element. If the sequence is an
-    * `IndexedSeq`, a binary search is used. Otherwise, a linear search is used.
-    *
-    * The sequence should be sorted with the same `Ordering` before calling; otherwise,
-    * the results are undefined.
-    *
-    * @see [[scala.collection.IndexedSeq]]
-    * @see [[scala.math.Ordering]]
-    * @see [[scala.collection.SeqOps]], method `sorted`
-    *
-    * @param elem the element to find.
-    * @param ord  the ordering to be used to compare elements.
-    *
-    * @return a `Found` value containing the index corresponding to the element in the
-    *         sequence, or the `InsertionPoint` where the element would be inserted if
-    *         the element is not in the sequence.
-    */
+   *  `IndexedSeq`, a binary search is used. Otherwise, a linear search is used.
+   *
+   *  The sequence should be sorted with the same `Ordering` before calling; otherwise,
+   *  the results are undefined.
+   *
+   *  @see [[scala.collection.IndexedSeq]]
+   *  @see [[scala.math.Ordering]]
+   *  @see [[scala.collection.SeqOps]], method `sorted`
+   *
+   *  @param elem the element to find.
+   *  @param ord  the ordering to be used to compare elements.
+   *  @return a `Found` value containing the index corresponding to the element in the
+   *         sequence, or the `InsertionPoint` where the element would be inserted if
+   *         the element is not in the sequence.
+   */
   def search[B >: A](elem: B)(implicit ord: Ordering[B]): SearchResult =
     linearSearch(view, elem, 0)(using ord)
 
   /** Searches within an interval in this sorted sequence for a specific element. If this
-    * sequence is an `IndexedSeq`, a binary search is used. Otherwise, a linear search
-    * is used.
-    *
-    * The sequence should be sorted with the same `Ordering` before calling; otherwise,
-    * the results are undefined.
-    *
-    * @see [[scala.collection.IndexedSeq]]
-    * @see [[scala.math.Ordering]]
-    * @see [[scala.collection.SeqOps]], method `sorted`
-    *
-    * @param elem the element to find.
-    * @param from the index where the search starts.
-    * @param to   the index following where the search ends.
-    * @param ord  the ordering to be used to compare elements.
-    *
-    * @return a `Found` value containing the index corresponding to the element in the
-    *         sequence, or the `InsertionPoint` where the element would be inserted if
-    *         the element is not in the sequence.
-    *
-    * @note if `to <= from`, the search space is empty, and an `InsertionPoint` at `from`
-    *       is returned
-    */
+   *  sequence is an `IndexedSeq`, a binary search is used. Otherwise, a linear search
+   *  is used.
+   *
+   *  The sequence should be sorted with the same `Ordering` before calling; otherwise,
+   *  the results are undefined.
+   *
+   *  @see [[scala.collection.IndexedSeq]]
+   *  @see [[scala.math.Ordering]]
+   *  @see [[scala.collection.SeqOps]], method `sorted`
+   *  @note if `to <= from`, the search space is empty, and an `InsertionPoint` at `from`
+   *       is returned
+   *
+   *  @param elem the element to find.
+   *  @param from the index where the search starts.
+   *  @param to   the index following where the search ends.
+   *  @param ord  the ordering to be used to compare elements.
+   *  @return a `Found` value containing the index corresponding to the element in the
+   *         sequence, or the `InsertionPoint` where the element would be inserted if
+   *         the element is not in the sequence.
+   */
   def search[B >: A](elem: B, from: Int, to: Int) (implicit ord: Ordering[B]): SearchResult =
     linearSearch(view.slice(from, to), elem, math.max(0, from))(using ord)
 
@@ -1041,18 +1038,18 @@ object SeqOps {
 
   // KMP search utilities
 
- /**  A KMP implementation, based on the undoubtedly reliable wikipedia entry.
-   *  Note: I made this private to keep it from entering the API.  That can be reviewed.
-   *
-   *  @param  S       Sequence that may contain target
-   *  @param  m0      First index of S to consider
-   *  @param  m1      Last index of S to consider (exclusive)
-   *  @param  W       Target sequence
-   *  @param  n0      First index of W to match
-   *  @param  n1      Last index of W to match (exclusive)
-   *  @param  forward Direction of search (from beginning==true, from end==false)
-   *  @return Index of start of sequence if found, -1 if not (relative to beginning of S, not m0).
-   */
+ /** A KMP implementation, based on the undoubtedly reliable wikipedia entry.
+  *  Note: I made this private to keep it from entering the API.  That can be reviewed.
+  *
+  *  @param  S       Sequence that may contain target
+  *  @param  m0      First index of S to consider
+  *  @param  m1      Last index of S to consider (exclusive)
+  *  @param  W       Target sequence
+  *  @param  n0      First index of W to match
+  *  @param  n1      Last index of W to match (exclusive)
+  *  @param  forward Direction of search (from beginning==true, from end==false)
+  *  @return Index of start of sequence if found, -1 if not (relative to beginning of S, not m0).
+  */
   private def kmpSearch[B](S: scala.collection.Seq[B], m0: Int, m1: Int, W: scala.collection.Seq[B], n0: Int, n1: Int, forward: Boolean): Int = {
     // Check for redundant case when target has single valid element
     def clipR(x: Int, y: Int) = if (x < y) x else -1
@@ -1168,11 +1165,11 @@ object SeqOps {
   }
 
  /** Makes a jump table for KMP search.
-   *
-   *  @param  Wopt The target sequence
-   *  @param  wlen Just in case we're only IndexedSeq and not IndexedSeqOptimized
-   *  @return KMP jump table for target sequence
-   */
+  *
+  *  @param  Wopt The target sequence
+  *  @param  wlen Just in case we're only IndexedSeq and not IndexedSeqOptimized
+  *  @return KMP jump table for target sequence
+  */
   private def kmpJumpTable[B](Wopt: IndexedSeqView[B]^, wlen: Int) = {
     val arr = new Array[Int](wlen)
     var pos = 2

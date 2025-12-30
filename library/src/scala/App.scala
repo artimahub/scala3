@@ -34,16 +34,16 @@ import scala.collection.mutable.ListBuffer
  *
  *  ==Caveats==
  *
- *  '''''It should be noted that this trait is implemented using the [[DelayedInit]]
+ *  ***It should be noted that this trait is implemented using the [[DelayedInit]]
  *  functionality, which means that fields of the object will not have been initialized
- *  before the main method has been executed.'''''
+ *  before the main method has been executed.***
  *
  *  Future versions of this trait will no longer extend `DelayedInit`.
  *
  *  In Scala 3, the `DelayedInit` feature was dropped. `App` exists only in a limited form
  *  that also does not support command line arguments and will be deprecated in the future.
  *
- *  [[https://docs.scala-lang.org/scala3/book/methods-main-methods.html @main]] methods are the
+ *  [@main](https://docs.scala-lang.org/scala3/book/methods-main-methods.html) methods are the
  *  recommended scheme to generate programs that can be invoked from the command line in Scala 3.
  *
  *  {{{

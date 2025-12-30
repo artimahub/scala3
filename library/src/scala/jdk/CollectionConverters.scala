@@ -20,7 +20,7 @@ import scala.collection.convert.{AsJavaExtensions, AsScalaExtensions}
   * When writing Java code, use the explicit conversion methods defined in
   * [[javaapi.CollectionConverters]] instead.
   *
-  * Note: to create [[java.util.stream.Stream Java Streams]] that operate on Scala collections
+  * Note: to create [Java Streams](java.util.stream.Stream) that operate on Scala collections
   * (sequentially or in parallel), use [[StreamConverters]].
   *
   * {{{

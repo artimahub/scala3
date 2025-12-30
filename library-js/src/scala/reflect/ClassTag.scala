@@ -47,7 +47,7 @@ import scala.runtime.BoxedUnit
  * }}}
  *
  * See [[scala.reflect.api.TypeTags]] for more examples, or the
- * [[http://docs.scala-lang.org/overviews/reflection/typetags-manifests.html Reflection Guide: TypeTags]]
+ * [Reflection Guide: TypeTags](http://docs.scala-lang.org/overviews/reflection/typetags-manifests.html)
  * for more details.
  *
  */
@@ -70,11 +70,11 @@ trait ClassTag[T] extends ClassManifestDeprecatedApis[T] with Equals with Serial
 
   /** A ClassTag[T] can serve as an extractor that matches only objects of type T.
    *
-   * The compiler tries to turn unchecked type tests in pattern matches into checked ones
-   * by wrapping a `(_: T)` type pattern as `ct(_: T)`, where `ct` is the `ClassTag[T]` instance.
-   * Type tests necessary before calling other extractors are treated similarly.
-   * `SomeExtractor(...)` is turned into `ct(SomeExtractor(...))` if `T` in `SomeExtractor.unapply(x: T)`
-   * is uncheckable, but we have an instance of `ClassTag[T]`.
+   *  The compiler tries to turn unchecked type tests in pattern matches into checked ones
+   *  by wrapping a `(_: T)` type pattern as `ct(_: T)`, where `ct` is the `ClassTag[T]` instance.
+   *  Type tests necessary before calling other extractors are treated similarly.
+   *  `SomeExtractor(...)` is turned into `ct(SomeExtractor(...))` if `T` in `SomeExtractor.unapply(x: T)`
+   *  is uncheckable, but we have an instance of `ClassTag[T]`.
    */
   def unapply(x: Any): Option[T] =
     if (runtimeClass.isInstance(x)) Some(x.asInstanceOf[T])

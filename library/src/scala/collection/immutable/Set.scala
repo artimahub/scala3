@@ -29,10 +29,10 @@ trait Set[A] extends Iterable[A]
 }
 
 /** Base trait for immutable set operations
-  *
-  * @define coll immutable set
-  * @define Coll `immutable.Set`
-  */
+ *
+ *  @define coll immutable set
+ *  @define Coll `immutable.Set`
+ */
 transparent trait SetOps[A, +CC[X], +C <: SetOps[A, CC, C]]
   extends collection.SetOps[A, CC, C] {
 
@@ -360,8 +360,8 @@ object Set extends IterableFactory[Set] {
 abstract class AbstractSet[A] extends scala.collection.AbstractSet[A] with Set[A]
 
 /** Builder for Set.
-  * $multipleResults
-  */
+ *  $multipleResults
+ */
 private final class SetBuilderImpl[A] extends ReusableBuilder[A, Set[A]] {
   private var elems: Set[A] = Set.empty
   private var switchedToHashSetBuilder: Boolean = false

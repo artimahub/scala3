@@ -128,8 +128,8 @@ private[immutable] abstract class IntMapIterator[V, T](it: IntMap[V]) extends Ab
   push(it)
 
   /**
-    * What value do we assign to a tip?
-    */
+   *  What value do we assign to a tip?
+   */
   def valueOf(tip: IntMap.Tip[V]): T
 
   def hasNext = index != 0
@@ -167,10 +167,10 @@ private[immutable] class IntMapKeyIterator[V](it: IntMap[V]) extends IntMapItera
 import IntMap._
 
 /** Specialised immutable map structure for integer keys, based on
-  *  [[https://ittc.ku.edu/~andygill/papers/IntMap98.pdf Fast Mergeable Integer Maps]]
+  *  [Fast Mergeable Integer Maps](https://ittc.ku.edu/~andygill/papers/IntMap98.pdf)
   *  by Okasaki and Gill. Essentially a trie based on binary digits of the integers.
   *
-  *  '''Note:''' This class is as of 2.8 largely superseded by HashMap.
+  *  **Note:** This class is as of 2.8 largely superseded by HashMap.
   *
   *  @tparam T    type of the values associated with integer keys.
   *
@@ -215,8 +215,8 @@ sealed abstract class IntMap[+T] extends AbstractMap[Int, T]
   }
 
   /**
-    * Loops over the key, value pairs of the map in unsigned order of the keys.
-    */
+   *  Loops over the key, value pairs of the map in unsigned order of the keys.
+   */
   override final def foreach[U](f: ((Int, T)) => U): Unit = this match {
     case IntMap.Bin(_, _, left, right) => { left.foreach(f); right.foreach(f) }
     case IntMap.Tip(key, value) => f((key, value))
@@ -235,11 +235,11 @@ sealed abstract class IntMap[+T] extends AbstractMap[Int, T]
   }
 
   /**
-    * Loop over the keys of the map. The same as `keys.foreach(f)`, but may
-    * be more efficient.
-    *
-    * @param f The loop body
-    */
+   *  Loop over the keys of the map. The same as `keys.foreach(f)`, but may
+   *  be more efficient.
+   *
+   *  @param f The loop body
+   */
   final def foreachKey[U](f: Int => U): Unit = this match {
     case IntMap.Bin(_, _, left, right) => { left.foreachKey(f); right.foreachKey(f) }
     case IntMap.Tip(key, _) => f(key)
@@ -252,11 +252,11 @@ sealed abstract class IntMap[+T] extends AbstractMap[Int, T]
   }
 
   /**
-    * Loop over the values of the map. The same as `values.foreach(f)`, but may
-    * be more efficient.
-    *
-    * @param f The loop body
-    */
+   *  Loop over the values of the map. The same as `values.foreach(f)`, but may
+   *  be more efficient.
+   *
+   *  @param f The loop body
+   */
   final def foreachValue[U](f: T => U): Unit = this match {
     case IntMap.Bin(_, _, left, right) => { left.foreachValue(f); right.foreachValue(f) }
     case IntMap.Tip(_, value) => f(value)

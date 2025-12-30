@@ -345,9 +345,9 @@ sealed class PriorityQueue[A](implicit val ord: Ordering[A])
   }
 
   /** Returns a regular queue containing the same elements.
-    *
-    *  Note: the order of elements is undefined.
-    */
+   *
+   *  Note: the order of elements is undefined.
+   */
   def toQueue: Queue[A] = new Queue[A] ++= this.iterator
 
   /** Returns a textual representation of a queue as a string.

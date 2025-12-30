@@ -44,7 +44,7 @@ import scala.language.`2.13`
     * The underlying basis for the whole package is Java's `Process` and
     * `ProcessBuilder` classes. While there's no need to use these Java classes,
     * they impose boundaries on what is possible. One cannot, for instance,
-    * retrieve a ''process id'' for whatever is executing.
+    * retrieve a *process id* for whatever is executing.
     *
     * When executing an external process, one can provide a command's name,
     * arguments to it, the directory in which it will be executed and what

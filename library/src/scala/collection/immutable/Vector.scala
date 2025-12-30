@@ -68,11 +68,11 @@ object Vector extends StrictOptimizedSeqFactory[Vector] {
   def newBuilder[A]: ReusableBuilder[A, Vector[A]] = new VectorBuilder[A]
 
   /** Creates a Vector with the same element at each index.
-    *
-    * Unlike `fill`, which takes a by-name argument for the value and can thereby
-    * compute different values for each index, this method guarantees that all
-    * elements are identical. This allows sparse allocation in O(log n) time and space.
-    */
+   *
+   *  Unlike `fill`, which takes a by-name argument for the value and can thereby
+   *  compute different values for each index, this method guarantees that all
+   *  elements are identical. This allows sparse allocation in O(log n) time and space.
+   */
   private[collection] def fillSparse[A](n: Int)(elem: A): Vector[A] = {
     //TODO Make public; this method is private for now because it is not forward binary compatible
     if(n <= 0) Vector0
@@ -96,26 +96,26 @@ object Vector extends StrictOptimizedSeqFactory[Vector] {
 
 
 /** Vector is a general-purpose, immutable data structure.  It provides random access and updates
-  * in O(log n) time, as well as very fast append/prepend/tail/init (amortized O(1), worst case O(log n)).
-  * Because vectors strike a good balance between fast random selections and fast random functional updates,
-  * they are currently the default implementation of immutable indexed sequences.
-  *
-  * Vectors are implemented by radix-balanced finger trees of width 32. There is a separate subclass
-  * for each level (0 to 6, with 0 being the empty vector and 6 a tree with a maximum width of 64 at the
-  * top level).
-  *
-  * Tree balancing:
-  * - Only the first dimension of an array may have a size < WIDTH
-  * - In a `data` (central) array the first dimension may be up to WIDTH-2 long, in `prefix1` and `suffix1` up
-  *   to WIDTH, and in other `prefix` and `suffix` arrays up to WIDTH-1
-  * - `prefix1` and `suffix1` are never empty
-  * - Balancing does not cross the main data array (i.e. prepending never touches the suffix and appending never touches
-  *   the prefix). The level is increased/decreased when the affected side plus main data is already full/empty
-  * - All arrays are left-aligned and truncated
-  *
-  * In addition to the data slices (`prefix1`, `prefix2`, ..., `dataN`, ..., `suffix2`, `suffix1`) we store a running
-  * count of elements after each prefix for more efficient indexing without having to dereference all prefix arrays.
-  */
+ *  in O(log n) time, as well as very fast append/prepend/tail/init (amortized O(1), worst case O(log n)).
+ *  Because vectors strike a good balance between fast random selections and fast random functional updates,
+ *  they are currently the default implementation of immutable indexed sequences.
+ *
+ *  Vectors are implemented by radix-balanced finger trees of width 32. There is a separate subclass
+ *  for each level (0 to 6, with 0 being the empty vector and 6 a tree with a maximum width of 64 at the
+ *  top level).
+ *
+ *  Tree balancing:
+ *  - Only the first dimension of an array may have a size < WIDTH
+ *  - In a `data` (central) array the first dimension may be up to WIDTH-2 long, in `prefix1` and `suffix1` up
+ *   to WIDTH, and in other `prefix` and `suffix` arrays up to WIDTH-1
+ *  - `prefix1` and `suffix1` are never empty
+ *  - Balancing does not cross the main data array (i.e. prepending never touches the suffix and appending never touches
+ *   the prefix). The level is increased/decreased when the affected side plus main data is already full/empty
+ *  - All arrays are left-aligned and truncated
+ *
+ *  In addition to the data slices (`prefix1`, `prefix2`, ..., `dataN`, ..., `suffix2`, `suffix1`) we store a running
+ *  count of elements after each prefix for more efficient indexing without having to dereference all prefix arrays.
+ */
 sealed abstract class Vector[+A] private[immutable] (private[immutable] final val prefix1: Arr1)
   extends AbstractSeq[A]
     with IndexedSeq[A]
@@ -1162,11 +1162,11 @@ private final class Vector6[+A](_prefix1: Arr1, private[immutable] val len1: Int
 
 
 /** Helper class for vector slicing. It is initialized with the validated start and end index,
-  * then the vector slices are added in succession with `consider`. No matter what the dimension
-  * of the originating vector is or where the cut is performed, this always results in a
-  * structure with the highest-dimensional data in the middle and fingers of decreasing dimension
-  * at both ends, which can be turned into a new vector with very little rebalancing.
-  */
+ *  then the vector slices are added in succession with `consider`. No matter what the dimension
+ *  of the originating vector is or where the cut is performed, this always results in a
+ *  structure with the highest-dimensional data in the middle and fingers of decreasing dimension
+ *  at both ends, which can be turned into a new vector with very little rebalancing.
+ */
 private final class VectorSliceBuilder(lo: Int, hi: Int) {
   //println(s"***** VectorSliceBuilder($lo, $hi)")
 

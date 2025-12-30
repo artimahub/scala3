@@ -73,8 +73,8 @@ sealed class ListSet[A]
   override def iterableFactory: IterableFactory[ListSet] = ListSet
 
   /**
-    * Represents an entry in the `ListSet`.
-    */
+   *  Represents an entry in the `ListSet`.
+   */
   protected class Node(override protected val elem: A) extends ListSet[A] {
 
     override def size = sizeInternal(this, 0)

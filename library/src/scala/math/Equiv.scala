@@ -22,7 +22,7 @@ import scala.annotation.migration
  *  equivalence and a representation of equivalence on some type. This
  *  trait is for representing the latter.
  *
- *  An [[https://en.wikipedia.org/wiki/Equivalence_relation equivalence relation]]
+ *  An [equivalence relation](https://en.wikipedia.org/wiki/Equivalence_relation)
  *  is a binary relation on a type. This relation is exposed as
  *  the `equiv` method of the `Equiv` trait.  The relation must be:
  *
@@ -96,8 +96,8 @@ object Equiv extends LowPriorityEquiv {
 
   trait ExtraImplicits {
     /** Not in the standard scope due to the potential for divergence:
-      * For instance `implicitly[Equiv[Any]]` diverges in its presence.
-      */
+     *  For instance `implicitly[Equiv[Any]]` diverges in its presence.
+     */
     implicit def seqEquiv[CC[X] <: scala.collection.Seq[X], T](implicit eqv: Equiv[T]): Equiv[CC[T]] =
       new IterableEquiv[CC, T](eqv)
 

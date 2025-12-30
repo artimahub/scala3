@@ -28,9 +28,9 @@ trait Seq[+A] extends Iterable[A]
 }
 
 /**
-  * @define coll immutable sequence
-  * @define Coll `immutable.Seq`
-  */
+ *  @define coll immutable sequence
+ *  @define Coll `immutable.Seq`
+ */
 transparent trait SeqOps[+A, +CC[B] <: caps.Pure, +C] extends Any with collection.SeqOps[A, CC, C] with caps.Pure
 
 /**

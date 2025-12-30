@@ -21,14 +21,13 @@ import scala.collection.mutable.{RedBlackTree => RB}
 import scala.collection.{SortedIterableFactory, SortedSetFactoryDefaults, Stepper, StepperShape, StrictOptimizedIterableOps, StrictOptimizedSortedSetOps, mutable}
 
 /**
-  * A mutable sorted set implemented using a mutable red-black tree as underlying data structure.
-  *
-  * @param ordering the implicit ordering used to compare objects of type `A`.
-  * @tparam A the type of the keys contained in this tree set.
-  *
-  * @define Coll mutable.TreeSet
-  * @define coll mutable tree set
-  */
+ *  A mutable sorted set implemented using a mutable red-black tree as underlying data structure.
+ *  @define Coll mutable.TreeSet
+ *  @define coll mutable tree set
+ *
+ *  @tparam A the type of the keys contained in this tree set.
+ *  @param ordering the implicit ordering used to compare objects of type `A`.
+ */
 // Original API designed in part by Lucien Pereira
 sealed class TreeSet[A] private (private val tree: RB.Tree[A, Null])(implicit val ordering: Ordering[A])
   extends AbstractSet[A]
@@ -119,8 +118,8 @@ sealed class TreeSet[A] private (private val tree: RB.Tree[A, Null])(implicit va
     self: TreeSetProjection^{} =>
 
     /**
-      * Given a possible new lower bound, chooses and returns the most constraining one (the maximum).
-      */
+     *  Given a possible new lower bound, chooses and returns the most constraining one (the maximum).
+     */
     private def pickLowerBound(newFrom: Option[A]): Option[A] = (from, newFrom) match {
       case (Some(fr), Some(newFr)) => Some(ordering.max(fr, newFr))
       case (None, _) => newFrom
@@ -128,8 +127,8 @@ sealed class TreeSet[A] private (private val tree: RB.Tree[A, Null])(implicit va
     }
 
     /**
-      * Given a possible new upper bound, chooses and returns the most constraining one (the minimum).
-      */
+     *  Given a possible new upper bound, chooses and returns the most constraining one (the minimum).
+     */
     private def pickUpperBound(newUntil: Option[A]): Option[A] = (until, newUntil) match {
       case (Some(unt), Some(newUnt)) => Some(ordering.min(unt, newUnt))
       case (None, _) => newUntil
@@ -137,8 +136,8 @@ sealed class TreeSet[A] private (private val tree: RB.Tree[A, Null])(implicit va
     }
 
     /**
-      * Returns true if the argument is inside the view bounds (between `from` and `until`).
-      */
+     *  Returns true if the argument is inside the view bounds (between `from` and `until`).
+     */
     private def isInsideViewBounds(key: A): Boolean = {
       val afterFrom = from.isEmpty || ordering.compare(from.get, key) <= 0
       val beforeUntil = until.isEmpty || ordering.compare(key, until.get) < 0

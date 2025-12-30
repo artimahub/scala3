@@ -26,7 +26,7 @@ import scala.runtime.Statics.releaseFence
 /** A `Buffer` implementation backed by a list. It provides constant time
   *  prepend and append. Most other operations are linear.
   *
-  *  @see [[https://docs.scala-lang.org/overviews/collections-2.13/concrete-mutable-collection-classes.html#list-buffers "Scala's Collection Library overview"]]
+  *  @see ["Scala's Collection Library overview"](https://docs.scala-lang.org/overviews/collections-2.13/concrete-mutable-collection-classes.html#list-buffers)
   *  section on `List Buffers` for more information.
   *
   *  @tparam A    the type of this list buffer's elements.
@@ -181,8 +181,8 @@ class ListBuffer[A]
   }
 
   /** Reduces the length of the buffer, and nulls out last0
-    *  if this reduces the length to 0.
-    */
+   *  if this reduces the length to 0.
+   */
   private def reduceLengthBy(num: Int): Unit = {
     len -= num
     if (len <= 0)   // obviously shouldn't be < 0, but still better not to leak

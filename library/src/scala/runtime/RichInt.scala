@@ -29,8 +29,8 @@ final class RichInt(val self: Int) extends AnyVal with ScalaNumberProxy[Int] wit
   override def byteValue   = self.toByte
   override def shortValue  = self.toShort
 
-  /** Returns `'''true'''` if this number has no decimal component.
-    * Always `'''true'''` for `RichInt`.
+  /** Returns `**true**` if this number has no decimal component.
+    * Always `**true**` for `RichInt`.
     */
   @deprecated("isWhole on an integer type is always true", "2.12.15")
   def isWhole = true
@@ -73,7 +73,7 @@ final class RichInt(val self: Int) extends AnyVal with ScalaNumberProxy[Int] wit
   /** Like `until`, but includes the last index. */
   /**
     * @param end The final bound of the range to make.
-    * @return A [[scala.collection.immutable.Range]] from `'''this'''` up to
+    * @return A [[scala.collection.immutable.Range]] from `**this**` up to
     *         and including `end`.
     */
   def to(end: Int): Range.Inclusive = Range.inclusive(self, end)
@@ -81,7 +81,7 @@ final class RichInt(val self: Int) extends AnyVal with ScalaNumberProxy[Int] wit
   /**
     * @param end The final bound of the range to make.
     * @param step The number to increase by for each step of the range.
-    * @return A [[scala.collection.immutable.Range]] from `'''this'''` up to
+    * @return A [[scala.collection.immutable.Range]] from `**this**` up to
     *         and including `end`.
     */
   def to(end: Int, step: Int): Range.Inclusive = Range.inclusive(self, end, step)

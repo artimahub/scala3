@@ -30,9 +30,9 @@ trait SortedSet[A]
 }
 
 /**
-  * @define coll immutable sorted set
-  * @define Coll `immutable.SortedSet`
-  */
+ *  @define coll immutable sorted set
+ *  @define Coll `immutable.SortedSet`
+ */
 transparent trait SortedSetOps[A, +CC[X] <: SortedSet[X], +C <: SortedSetOps[A, CC, C]]
   extends SetOps[A, Set, C]
      with collection.SortedSetOps[A, CC, C] {
