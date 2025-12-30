@@ -27,7 +27,7 @@ import scala.runtime.PStatics.VM_MaxArraySize
  *  access take constant time (amortized time). Prepends and removes are
  *  linear in the buffer size.
  *
- *  @see [[https://docs.scala-lang.org/overviews/collections-2.13/concrete-mutable-collection-classes.html#array-buffers "Scala's Collection Library overview"]]
+ *  @see ["Scala's Collection Library overview"](https://docs.scala-lang.org/overviews/collections-2.13/concrete-mutable-collection-classes.html#array-buffers)
  *  section on `Array Buffers` for more information.
  *
  *  @tparam A    the type of this arraybuffer's elements.
@@ -245,11 +245,12 @@ class ArrayBuffer[A] private (initialElements: Array[AnyRef], initialSize: Int)
   }
 
   /** Sorts this $coll in place according to an Ordering.
-    *
-    * @see [[scala.collection.mutable.IndexedSeqOps.sortInPlace]]
-    * @param  ord the ordering to be used to compare elements.
-    * @return modified input $coll sorted according to the ordering `ord`.
-    */
+   *
+   *  @see [[scala.collection.mutable.IndexedSeqOps.sortInPlace]]
+   *
+   *  @param  ord the ordering to be used to compare elements.
+   *  @return modified input $coll sorted according to the ordering `ord`.
+   */
   override def sortInPlace[B >: A]()(implicit ord: Ordering[B]): this.type = {
     if (length > 1) {
       mutationCount += 1

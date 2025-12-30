@@ -27,9 +27,9 @@ trait Set[A]
 }
 
 /**
-  * @define coll mutable set
-  * @define Coll `mutable.Set`
-  */
+ *  @define coll mutable set
+ *  @define Coll `mutable.Set`
+ */
 transparent trait SetOps[A, +CC[X], +C <: SetOps[A, CC, C]]
   extends collection.SetOps[A, CC, C]
     with IterableOps[A, CC, C] // only needed so we can use super[IterableOps] below

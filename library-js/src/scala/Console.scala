@@ -157,26 +157,26 @@ object Console extends AnsiColor {
    *  @example {{{
    *  withOut(Console.err) { println("This goes to default _error_") }
    *  }}}
+   *  @see `withOut[T](out:OutputStream)(thunk: => T)`
+   *  @group io-redefinition
    *
    *  @param out the new output stream.
    *  @param thunk the code to execute with
    *               the new output stream active
    *  @return the results of `thunk`
-   *  @see `withOut[T](out:OutputStream)(thunk: => T)`
-   *  @group io-redefinition
    */
   def withOut[T](out: PrintStream)(thunk: =>T): T =
     outVar.withValue(out)(thunk)
 
   /** Sets the default output stream for the duration
    *  of execution of one thunk.
+   *  @see `withOut[T](out:PrintStream)(thunk: => T)`
+   *  @group io-redefinition
    *
    *  @param out the new output stream.
    *  @param thunk the code to execute with
    *               the new output stream active
    *  @return the results of `thunk`
-   *  @see `withOut[T](out:PrintStream)(thunk: => T)`
-   *  @group io-redefinition
    */
   def withOut[T](out: OutputStream)(thunk: =>T): T =
     withOut(new PrintStream(out))(thunk)
@@ -186,26 +186,26 @@ object Console extends AnsiColor {
    *  @example {{{
    *  withErr(Console.out) { err.println("This goes to default _out_") }
    *  }}}
+   *  @see `withErr[T](err:OutputStream)(thunk: =>T)`
+   *  @group io-redefinition
    *
    *  @param err the new error stream.
    *  @param thunk the code to execute with
    *               the new error stream active
    *  @return the results of `thunk`
-   *  @see `withErr[T](err:OutputStream)(thunk: =>T)`
-   *  @group io-redefinition
    */
   def withErr[T](err: PrintStream)(thunk: =>T): T =
     errVar.withValue(err)(thunk)
 
   /** Sets the default error stream for the duration
    *  of execution of one thunk.
+   *  @see `withErr[T](err:PrintStream)(thunk: =>T)`
+   *  @group io-redefinition
    *
    *  @param err the new error stream.
    *  @param thunk the code to execute with
    *               the new error stream active
    *  @return the results of `thunk`
-   *  @see `withErr[T](err:PrintStream)(thunk: =>T)`
-   *  @group io-redefinition
    */
   def withErr[T](err: OutputStream)(thunk: =>T): T =
     withErr(new PrintStream(err))(thunk)
@@ -220,26 +220,25 @@ object Console extends AnsiColor {
    *    println(readLine)
    *  }
    *  }}}
+   *  @see `withIn[T](in:InputStream)(thunk: =>T)`
+   *  @group io-redefinition
    *
    *  @param thunk the code to execute with
    *               the new input stream active
-   *
    *  @return the results of `thunk`
-   *  @see `withIn[T](in:InputStream)(thunk: =>T)`
-   *  @group io-redefinition
    */
   def withIn[T](reader: Reader)(thunk: =>T): T =
     inVar.withValue(new BufferedReader(reader))(thunk)
 
   /** Sets the default input stream for the duration
    *  of execution of one thunk.
+   *  @see `withIn[T](reader:Reader)(thunk: =>T)`
+   *  @group io-redefinition
    *
    *  @param in the new input stream.
    *  @param thunk the code to execute with
    *               the new input stream active
    *  @return the results of `thunk`
-   *  @see `withIn[T](reader:Reader)(thunk: =>T)`
-   *  @group io-redefinition
    */
   def withIn[T](in: InputStream)(thunk: =>T): T =
     withIn(new InputStreamReader(in))(thunk)

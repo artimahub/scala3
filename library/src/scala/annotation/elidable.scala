@@ -118,8 +118,8 @@ object elidable {
    *  the sentiment being expressed when using the annotation is at cross
    *  purposes with the one being expressed via `-Xelide-below`.  This
    *  confusion reaches its zenith at level `OFF`, where the annotation means
-   *  ''never elide this method'' but `-Xelide-below OFF` is how you would
-   *  say ''elide everything possible''.
+   *  *never elide this method* but `-Xelide-below OFF` is how you would
+   *  say *elide everything possible*.
    *
    *  With no simple remedy at hand, the issue is now at least documented,
    *  and aliases `MAXIMUM` and `MINIMUM` are offered.

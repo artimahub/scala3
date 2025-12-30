@@ -27,56 +27,56 @@ import scala.runtime.{AbstractFunction1, AbstractFunction2}
 import IterableOnce.elemsToCopyToArray
 
 /**
-  * A template trait for collections which can be traversed either once only
-  * or one or more times.
-  *
-  * Note: `IterableOnce` does not extend [[IterableOnceOps]]. This is different than the general
-  * design of the collections library, which uses the following pattern:
-  * {{{
-  *   trait Seq extends Iterable with SeqOps
-  *   trait SeqOps extends IterableOps
-  *
-  *   trait IndexedSeq extends Seq with IndexedSeqOps
-  *   trait IndexedSeqOps extends SeqOps
-  * }}}
-  *
-  * The goal is to provide a minimal interface without any sequential operations. This allows
-  * third-party extension like Scala parallel collections to integrate at the level of IterableOnce
-  * without inheriting unwanted implementations.
-  *
-  * @define coll collection
-  * @define ccoll $coll
-  */
+ *  A template trait for collections which can be traversed either once only
+ *  or one or more times.
+ *
+ *  Note: `IterableOnce` does not extend [[IterableOnceOps]]. This is different than the general
+ *  design of the collections library, which uses the following pattern:
+ * {{{
+ *   trait Seq extends Iterable with SeqOps
+ *   trait SeqOps extends IterableOps
+ *
+ *   trait IndexedSeq extends Seq with IndexedSeqOps
+ *   trait IndexedSeqOps extends SeqOps
+ * }}}
+ *
+ *  The goal is to provide a minimal interface without any sequential operations. This allows
+ *  third-party extension like Scala parallel collections to integrate at the level of IterableOnce
+ *  without inheriting unwanted implementations.
+ *
+ *  @define coll collection
+ *  @define ccoll $coll
+ */
 trait IterableOnce[+A] extends Any { this: IterableOnce[A]^ =>
 
   /** An [[scala.collection.Iterator]] over the elements of this $coll.
-    *
-    * If an `IterableOnce` object is in fact an [[scala.collection.Iterator]], this method always returns itself,
-    * in its current state, but if it is an [[scala.collection.Iterable]], this method always returns a new
-    * [[scala.collection.Iterator]].
-    */
+   *
+   *  If an `IterableOnce` object is in fact an [[scala.collection.Iterator]], this method always returns itself,
+   *  in its current state, but if it is an [[scala.collection.Iterable]], this method always returns a new
+   *  [[scala.collection.Iterator]].
+   */
   def iterator: Iterator[A]^{this}
 
   /** Returns a [[scala.collection.Stepper]] for the elements of this collection.
-    *
-    * The `Stepper` enables creating a Java stream to operate on the collection, see
-    * [[scala.jdk.StreamConverters]]. For collections holding primitive values, the `Stepper` can be
-    * used as an iterator which doesn't box the elements.
-    *
-    * The implicit [[scala.collection.StepperShape]] parameter defines the resulting `Stepper` type according to the
-    * element type of this collection.
-    *
-    *   - For collections of `Int`, `Short`, `Byte` or `Char`, an [[scala.collection.IntStepper]] is returned
-    *   - For collections of `Double` or `Float`, a [[scala.collection.DoubleStepper]] is returned
-    *   - For collections of `Long` a [[scala.collection.LongStepper]] is returned
-    *   - For any other element type, an [[scala.collection.AnyStepper]] is returned
-    *
-    * Note that this method is overridden in subclasses and the return type is refined to
-    * `S with EfficientSplit`, for example [[scala.collection.IndexedSeqOps.stepper]]. For `Stepper`s marked with
-    * [[scala.collection.Stepper.EfficientSplit]], the converters in [[scala.jdk.StreamConverters]]
-    * allow creating parallel streams, whereas bare `Stepper`s can be converted only to sequential
-    * streams.
-    */
+   *
+   *  The `Stepper` enables creating a Java stream to operate on the collection, see
+   *  [[scala.jdk.StreamConverters]]. For collections holding primitive values, the `Stepper` can be
+   *  used as an iterator which doesn't box the elements.
+   *
+   *  The implicit [[scala.collection.StepperShape]] parameter defines the resulting `Stepper` type according to the
+   *  element type of this collection.
+   *
+   *   - For collections of `Int`, `Short`, `Byte` or `Char`, an [[scala.collection.IntStepper]] is returned
+   *   - For collections of `Double` or `Float`, a [[scala.collection.DoubleStepper]] is returned
+   *   - For collections of `Long` a [[scala.collection.LongStepper]] is returned
+   *   - For any other element type, an [[scala.collection.AnyStepper]] is returned
+   *
+   *  Note that this method is overridden in subclasses and the return type is refined to
+   *  `S with EfficientSplit`, for example [[scala.collection.IndexedSeqOps.stepper]]. For `Stepper`s marked with
+   *  [[scala.collection.Stepper.EfficientSplit]], the converters in [[scala.jdk.StreamConverters]]
+   *  allow creating parallel streams, whereas bare `Stepper`s can be converted only to sequential
+   *  streams.
+   */
   def stepper[S <: Stepper[?]](implicit shape: StepperShape[A, S]): S^{this} = {
     import convert.impl._
     val s: Any = shape.shape match {
@@ -301,39 +301,39 @@ object IterableOnce {
 }
 
 /** This implementation trait can be mixed into an `IterableOnce` to get the basic methods that are shared between
-  * `Iterator` and `Iterable`. The `IterableOnce` must support multiple calls to `iterator` but may or may not
-  * return the same `Iterator` every time.
-  *
-  * @define orderDependent
-  *
-  *              Note: might return different results for different runs, unless the underlying collection type is ordered.
-  * @define orderDependentReduce
-  *
-  *              Note: might return different results for different runs, unless the
-  *              underlying collection type is ordered or the operator is associative
-  *              and commutative.
-  * @define orderIndependentReduce
-  *
-  *              Note: might return different results for different runs, unless either
-  *              of the following conditions is met: (1) the operator is associative,
-  *              and the underlying collection type is ordered; or (2) the operator is
-  *              associative and commutative.
-  * @define mayNotTerminateInf
-  *
-  *              Note: may not terminate for infinite-sized collections.
-  * @define willNotTerminateInf
-  *
-  *              Note: will not terminate for infinite-sized collections.
-  * @define willForceEvaluation
-  *              Note: Even when applied to a view or a lazy collection it will always force the elements.
-  * @define consumesIterator
-  *              After calling this method, one should discard the iterator it was called
-  * on. Using it is undefined and subject to change.
-  * @define undefinedOrder
-  *              The order of applications of the operator is unspecified and may be nondeterministic.
-  * @define exactlyOnce
-  *              Each element appears exactly once in the computation.
-  */
+ *  `Iterator` and `Iterable`. The `IterableOnce` must support multiple calls to `iterator` but may or may not
+ *  return the same `Iterator` every time.
+ *
+ *  @define orderDependent
+ *
+ *              Note: might return different results for different runs, unless the underlying collection type is ordered.
+ *  @define orderDependentReduce
+ *
+ *              Note: might return different results for different runs, unless the
+ *              underlying collection type is ordered or the operator is associative
+ *              and commutative.
+ *  @define orderIndependentReduce
+ *
+ *              Note: might return different results for different runs, unless either
+ *              of the following conditions is met: (1) the operator is associative,
+ *              and the underlying collection type is ordered; or (2) the operator is
+ *              associative and commutative.
+ *  @define mayNotTerminateInf
+ *
+ *              Note: may not terminate for infinite-sized collections.
+ *  @define willNotTerminateInf
+ *
+ *              Note: will not terminate for infinite-sized collections.
+ *  @define willForceEvaluation
+ *              Note: Even when applied to a view or a lazy collection it will always force the elements.
+ *  @define consumesIterator
+ *              After calling this method, one should discard the iterator it was called
+ *  on. Using it is undefined and subject to change.
+ *  @define undefinedOrder
+ *              The order of applications of the operator is unspecified and may be nondeterministic.
+ *  @define exactlyOnce
+ *              Each element appears exactly once in the computation.
+ */
 transparent trait IterableOnceOps[+A, +CC[_], +C] extends Any { this: IterableOnce[A]^ =>
   /////////////////////////////////////////////////////////////// Abstract methods that must be implemented
 
@@ -590,15 +590,15 @@ transparent trait IterableOnceOps[+A, +CC[_], +C] extends Any { this: IterableOn
 
   /** Tests whether this $coll is known to have a finite size.
    *  All strict collections are known to have finite size. For a non-strict
-   *  collection such as `Stream`, the predicate returns `'''true'''` if all
-   *  elements have been computed. It returns `'''false'''` if the stream is
+   *  collection such as `Stream`, the predicate returns `**true**` if all
+   *  elements have been computed. It returns `**false**` if the stream is
    *  not yet evaluated to the end. Non-empty Iterators usually return
-   *  `'''false'''` even if they were created from a collection with a known
+   *  `**false**` even if they were created from a collection with a known
    *  finite size.
    *
    *  Note: many collection methods will not work on collections of infinite sizes.
    *  The typical failure mode is an infinite loop. These methods always attempt a
-   *  traversal without checking first that `hasDefiniteSize` returns `'''true'''`.
+   *  traversal without checking first that `hasDefiniteSize` returns `**true**`.
    *  However, checking `hasDefiniteSize` can provide an assurance that size is
    *  well-defined and non-termination is not a concern.
    *
@@ -612,8 +612,8 @@ transparent trait IterableOnceOps[+A, +CC[_], +C] extends Any { this: IterableOn
    *
    *  @see method `knownSize` for a more useful alternative
    *
-   *  @return  `'''true'''` if this collection is known to have finite size,
-   *           `'''false'''` otherwise.
+   *  @return  `**true**` if this collection is known to have finite size,
+   *           `**false**` otherwise.
    */
   @deprecated("Check .knownSize instead of .hasDefiniteSize for more actionable information (see scaladoc for details)", "2.13.0")
   def hasDefiniteSize: Boolean = true
@@ -1041,14 +1041,13 @@ transparent trait IterableOnceOps[+A, +CC[_], +C] extends Any { this: IterableOn
    *  or the end of the array is reached, or `n` elements have been copied.
    *
    *  If `start` is less than zero, it is taken as zero.
+   *  @note    Reuse: $consumesIterator
    *
+   *  @tparam B      the type of the elements of the array.
    *  @param  dest   the array to fill.
    *  @param  start  the starting index of xs.
    *  @param  n      the maximal number of elements to copy.
-   *  @tparam B      the type of the elements of the array.
    *  @return        the number of elements written to the array
-   *
-   *  @note    Reuse: $consumesIterator
    */
   def copyToArray[B >: A](
     @deprecatedName("xs", since="2.13.17") dest: Array[B],
@@ -1265,11 +1264,11 @@ transparent trait IterableOnceOps[+A, +CC[_], +C] extends Any { this: IterableOn
    *
    *  $mayNotTerminateInf
    *  $orderDependent
+   *  @example    `Seq("a", 1, 5L).collectFirst { case x: Int => x*10 } = Some(10)`
    *
    *  @param pf   the partial function
    *  @return     an option value containing pf applied to the first
    *              value for which it is defined, or `None` if none exists.
-   *  @example    `Seq("a", 1, 5L).collectFirst { case x: Int => x*10 } = Some(10)`
    */
   def collectFirst[B](pf: PartialFunction[A, B]^): Option[B] = {
     // Presumably the fastest way to get in and out of a partial function is for a sentinel function to return itself
@@ -1290,7 +1289,7 @@ transparent trait IterableOnceOps[+A, +CC[_], +C] extends Any { this: IterableOn
    *  Since this method degenerates to `foldLeft` for sequential (non-parallel) collections,
    *  where the combining operation is ignored, it is advisable to prefer `foldLeft` for that case.
    *
-   *  For [[https://github.com/scala/scala-parallel-collections parallel collections]],
+   *  For [parallel collections](https://github.com/scala/scala-parallel-collections),
    *  use the `aggregate` method specified by `scala.collection.parallel.ParIterableLike`.
    *
    *  @param   z      the start value, a neutral element for `seqop`.

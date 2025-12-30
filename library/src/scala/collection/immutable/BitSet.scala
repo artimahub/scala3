@@ -23,7 +23,7 @@ import scala.annotation.{implicitNotFound, nowarn}
 
 /** A class for immutable bitsets.
   *  $bitsetinfo
-  *  @see [[https://docs.scala-lang.org/overviews/collections-2.13/concrete-immutable-collection-classes.html#immutable-bitsets "Scala's Collection Library overview"]]
+  *  @see ["Scala's Collection Library overview"](https://docs.scala-lang.org/overviews/collections-2.13/concrete-immutable-collection-classes.html#immutable-bitsets)
   *  section on `Immutable BitSets` for more information.
   *
   *  @define Coll `immutable.BitSet`
@@ -66,7 +66,7 @@ sealed abstract class BitSet
   }
 
   /** Updates word at index `idx`; enlarges set if `idx` outside range of set.
-    */
+   */
   protected def updateWord(idx: Int, w: Long): BitSet
 
   override def map(f: Int => Int): BitSet = strictOptimizedMap(newSpecificBuilder, f)
@@ -123,8 +123,8 @@ object BitSet extends SpecificIterableFactory[Int, BitSet] {
   }
 
   /** A bitset containing all the bits in an array, wrapping the existing
-    *  array without copying.
-    */
+   *  array without copying.
+   */
   def fromBitMaskNoCopy(elems: Array[Long]): BitSet = {
     val len = elems.length
     if (len == 0) empty

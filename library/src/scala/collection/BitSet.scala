@@ -99,12 +99,12 @@ transparent trait BitSetOps[+C <: BitSet & BitSetOps[C]]
   protected[collection] def nwords: Int
 
   /** The words at index `idx`, or 0L if outside the range of the set
-    *  '''Note:''' requires `idx >= 0`
-    */
+   *  **Note:** requires `idx >= 0`
+   */
   protected[collection] def word(idx: Int): Long
 
   /** Creates a new set of this kind from an array of longs
-    */
+   */
   protected[collection] def fromBitMaskNoCopy(elems: Array[Long]): C
 
   def contains(elem: Int): Boolean =
@@ -295,7 +295,7 @@ transparent trait BitSetOps[+C <: BitSet & BitSetOps[C]]
   /**
     * Builds a new bitset by applying a function to all elements of this bitset.
     * @param f the function to apply to each element.
-    * @return a new bitset resulting from applying the given function ''f'' to
+    * @return a new bitset resulting from applying the given function *f* to
     *         each element of this bitset and collecting the results
     */
   def map(f: Int => Int): C = fromSpecific(new View.Map(this, f))

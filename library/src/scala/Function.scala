@@ -29,16 +29,16 @@ object Function {
 
   /** Turns a function `A => Option[B]` into a `PartialFunction[A, B]`.
    *
-   *  '''Important note''': this transformation implies the original function
+   *  **Important note**: this transformation implies the original function
    *  may be called 2 or more times on each logical invocation, because the
    *  only way to supply an implementation of `isDefinedAt` is to call the
    *  function and examine the return value.
    *  See also [[scala.PartialFunction]], method `applyOrElse`.
+   *  @see [[scala.PartialFunction]], method `lift`.
    *
    *  @param   f    a function `T => Option[R]`
    *  @return       a partial function defined for those inputs where
    *                f returns `Some(_)` and undefined where `f` returns `None`.
-   *  @see [[scala.PartialFunction]], method `lift`.
    */
   def unlift[T, R](f: T => Option[R]): PartialFunction[T, R] = PartialFunction.unlifted(f)
 

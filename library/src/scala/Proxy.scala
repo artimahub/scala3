@@ -22,7 +22,7 @@ import scala.language.`2.13`
  *    def equals(other: Any): Boolean
  *    def toString(): String
  *  }}}
- *  '''Note:''' forwarding methods in this way will most likely create
+ *  **Note:** forwarding methods in this way will most likely create
  *  an asymmetric equals method, which is not generally recommended.
  */
 @deprecated("Explicitly override hashCode, equals and toString instead.", "2.13.0")

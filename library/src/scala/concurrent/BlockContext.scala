@@ -47,15 +47,15 @@ import scala.language.`2.13`
 trait BlockContext {
 
   /** Used internally by the framework;
-    * Designates (and eventually executes) a thunk which potentially blocks the calling `java.lang.Thread`.
-    *
-    * Clients must use `scala.concurrent.blocking` or `scala.concurrent.Await` instead.
-    *
-    * In implementations of this method it is RECOMMENDED to first check if `permission` is `null` and
-    * if it is, throw an `IllegalArgumentException`.
-    *
-    * @throws IllegalArgumentException if the `permission` is `null`
-    */
+   *  Designates (and eventually executes) a thunk which potentially blocks the calling `java.lang.Thread`.
+   *
+   *  Clients must use `scala.concurrent.blocking` or `scala.concurrent.Await` instead.
+   *
+   *  In implementations of this method it is RECOMMENDED to first check if `permission` is `null` and
+   *  if it is, throw an `IllegalArgumentException`.
+   *
+   *  @throws IllegalArgumentException if the `permission` is `null`
+   */
   def blockOn[T](thunk: => T)(implicit permission: CanAwait): T
 }
 
@@ -86,8 +86,8 @@ object BlockContext {
   final def current: BlockContext = prefer(contextLocal.get)
 
   /**
-   * Installs a current `BlockContext` around executing `body`.
-   **/
+   *  Installs a current `BlockContext` around executing `body`.
+   */
   final def withBlockContext[T](blockContext: BlockContext)(body: => T): T = {
     val old = contextLocal.get // can be null
     if (old eq blockContext) body
@@ -98,9 +98,10 @@ object BlockContext {
   }
 
   /**
-   * Installs the BlockContext `blockContext` around the invocation to `f` and passes in the previously installed BlockContext to `f`.
-   * @return the value produced by applying `f`
-   **/
+   *  Installs the BlockContext `blockContext` around the invocation to `f` and passes in the previously installed BlockContext to `f`.
+   *
+   *  @return the value produced by applying `f`
+   */
   final def usingBlockContext[I, T](blockContext: BlockContext)(f: BlockContext => T): T = {
     val old = contextLocal.get // can be null
     if (old eq blockContext) f(prefer(old))

@@ -43,6 +43,7 @@ object Varargs {
    *    case Varargs(argVarargs) => ???
    *      // argVarargs: Seq[Expr[Int]]
    *
+   *
    */
   def unapply[T](expr: Expr[Seq[T]])(using Quotes): Option[Seq[Expr[T]]] = {
     import quotes.reflect.*

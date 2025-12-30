@@ -139,13 +139,13 @@ import scala.runtime.ScalaRunTime.nullForGC
   */
 object Using {
   /** Performs an operation using a resource, and then releases the resource,
-    * even if the operation throws an exception.
-    *
-    * $suppressionBehavior
-    *
-    * @return a [[Try]] containing an exception if one or more were thrown,
-    *         or the result of the operation if no exceptions were thrown
-    */
+   *  even if the operation throws an exception.
+   *
+   *  $suppressionBehavior
+   *
+   *  @return a [[Try]] containing an exception if one or more were thrown,
+   *         or the result of the operation if no exceptions were thrown
+   */
   def apply[R: Releasable, A](resource: => R)(f: R => A): Try[A] = Try { Using.resource(resource)(f) }
 
   /** A resource manager.
@@ -159,7 +159,7 @@ object Using {
     *
     * @note It is recommended for API designers to require an implicit `Manager`
     *       for the creation of custom resources, and to call `acquire` during those
-    *       resources' construction. Doing so guarantees that the resource ''must'' be
+    *       resources' construction. Doing so guarantees that the resource *must* be
     *       automatically managed, and makes it impossible to forget to do so.
     *
     *
@@ -181,17 +181,17 @@ object Using {
     private var resources: List[Resource[?]] = Nil
 
     /** Registers the specified resource with this manager, so that
-      * the resource is released when the manager is closed, and then
-      * returns the (unmodified) resource.
-      */
+     *  the resource is released when the manager is closed, and then
+     *  returns the (unmodified) resource.
+     */
     def apply[R: Releasable](resource: R): resource.type = {
       acquire(resource)
       resource
     }
 
     /** Registers the specified resource with this manager, so that
-      * the resource is released when the manager is closed.
-      */
+     *  the resource is released when the manager is closed.
+     */
     def acquire[R: Releasable](resource: R): Unit = {
       if (resource == null) throw new NullPointerException("null resource")
       if (closed) throw new IllegalStateException("Manager has already been closed")
@@ -278,18 +278,18 @@ object Using {
   }
 
   /** Performs an operation using a resource, and then releases the resource,
-    * even if the operation throws an exception. This method behaves similarly
-    * to Java's try-with-resources.
-    *
-    * $suppressionBehavior
-    *
-    * @param resource the resource
-    * @param body     the operation to perform with the resource
-    * @tparam R the type of the resource
-    * @tparam A the return type of the operation
-    * @return the result of the operation, if neither the operation nor
-    *         releasing the resource throws
-    */
+   *  even if the operation throws an exception. This method behaves similarly
+   *  to Java's try-with-resources.
+   *
+   *  $suppressionBehavior
+   *
+   *  @tparam R the type of the resource
+   *  @tparam A the return type of the operation
+   *  @param resource the resource
+   *  @param body     the operation to perform with the resource
+   *  @return the result of the operation, if neither the operation nor
+   *         releasing the resource throws
+   */
   def resource[R, A](resource: R)(body: R => A)(implicit releasable: Releasable[R]): A = {
     if (resource == null) throw new NullPointerException("null resource")
 
@@ -311,20 +311,20 @@ object Using {
   }
 
   /** Performs an operation using two resources, and then releases the resources
-    * in reverse order, even if the operation throws an exception. This method
-    * behaves similarly to Java's try-with-resources.
-    *
-    * $suppressionBehavior
-    *
-    * @param resource1 the first resource
-    * @param resource2 the second resource
-    * @param body      the operation to perform using the resources
-    * @tparam R1 the type of the first resource
-    * @tparam R2 the type of the second resource
-    * @tparam A  the return type of the operation
-    * @return the result of the operation, if neither the operation nor
-    *         releasing the resources throws
-    */
+   *  in reverse order, even if the operation throws an exception. This method
+   *  behaves similarly to Java's try-with-resources.
+   *
+   *  $suppressionBehavior
+   *
+   *  @tparam R1 the type of the first resource
+   *  @tparam R2 the type of the second resource
+   *  @tparam A  the return type of the operation
+   *  @param resource1 the first resource
+   *  @param resource2 the second resource
+   *  @param body      the operation to perform using the resources
+   *  @return the result of the operation, if neither the operation nor
+   *         releasing the resources throws
+   */
   def resources[R1: Releasable, R2: Releasable, A](
       resource1: R1,
       resource2: => R2
@@ -337,22 +337,22 @@ object Using {
     }
 
   /** Performs an operation using three resources, and then releases the resources
-    * in reverse order, even if the operation throws an exception. This method
-    * behaves similarly to Java's try-with-resources.
-    *
-    * $suppressionBehavior
-    *
-    * @param resource1 the first resource
-    * @param resource2 the second resource
-    * @param resource3 the third resource
-    * @param body      the operation to perform using the resources
-    * @tparam R1 the type of the first resource
-    * @tparam R2 the type of the second resource
-    * @tparam R3 the type of the third resource
-    * @tparam A  the return type of the operation
-    * @return the result of the operation, if neither the operation nor
-    *         releasing the resources throws
-    */
+   *  in reverse order, even if the operation throws an exception. This method
+   *  behaves similarly to Java's try-with-resources.
+   *
+   *  $suppressionBehavior
+   *
+   *  @tparam R1 the type of the first resource
+   *  @tparam R2 the type of the second resource
+   *  @tparam R3 the type of the third resource
+   *  @tparam A  the return type of the operation
+   *  @param resource1 the first resource
+   *  @param resource2 the second resource
+   *  @param resource3 the third resource
+   *  @param body      the operation to perform using the resources
+   *  @return the result of the operation, if neither the operation nor
+   *         releasing the resources throws
+   */
   def resources[R1: Releasable, R2: Releasable, R3: Releasable, A](
       resource1: R1,
       resource2: => R2,
@@ -368,24 +368,24 @@ object Using {
     }
 
   /** Performs an operation using four resources, and then releases the resources
-    * in reverse order, even if the operation throws an exception. This method
-    * behaves similarly to Java's try-with-resources.
-    *
-    * $suppressionBehavior
-    *
-    * @param resource1 the first resource
-    * @param resource2 the second resource
-    * @param resource3 the third resource
-    * @param resource4 the fourth resource
-    * @param body      the operation to perform using the resources
-    * @tparam R1 the type of the first resource
-    * @tparam R2 the type of the second resource
-    * @tparam R3 the type of the third resource
-    * @tparam R4 the type of the fourth resource
-    * @tparam A  the return type of the operation
-    * @return the result of the operation, if neither the operation nor
-    *         releasing the resources throws
-    */
+   *  in reverse order, even if the operation throws an exception. This method
+   *  behaves similarly to Java's try-with-resources.
+   *
+   *  $suppressionBehavior
+   *
+   *  @tparam R1 the type of the first resource
+   *  @tparam R2 the type of the second resource
+   *  @tparam R3 the type of the third resource
+   *  @tparam R4 the type of the fourth resource
+   *  @tparam A  the return type of the operation
+   *  @param resource1 the first resource
+   *  @param resource2 the second resource
+   *  @param resource3 the third resource
+   *  @param resource4 the fourth resource
+   *  @param body      the operation to perform using the resources
+   *  @return the result of the operation, if neither the operation nor
+   *         releasing the resources throws
+   */
   def resources[R1: Releasable, R2: Releasable, R3: Releasable, R4: Releasable, A](
       resource1: R1,
       resource2: => R2,

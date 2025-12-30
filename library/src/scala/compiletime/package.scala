@@ -107,6 +107,7 @@ transparent inline def codeOf(arg: Any): String =
  *  twice(m) // error: expected a constant value but found: m
  *  ```
  *  @syntax markdown
+ *
  */
 inline def requireConst(inline x: Boolean | Byte | Short | Int | Long | Float | Double | Char | String): Unit =
   // implemented in dotty.tools.dotc.typer.Inliner

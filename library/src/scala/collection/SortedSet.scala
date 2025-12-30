@@ -53,11 +53,11 @@ transparent trait SortedSetOps[A, +CC[X] <: SortedSet[X], +C <: SortedSetOps[A, 
      with SortedOps[A, C] {
 
   /** The companion object of this sorted set, providing various factory methods.
-    *
-    * @note When implementing a custom collection type and refining `CC` to the new type, this
-    *       method needs to be overridden to return a factory for the new type (the compiler will
-    *       issue an error otherwise).
-    */
+   *
+   *  @note When implementing a custom collection type and refining `CC` to the new type, this
+   *       method needs to be overridden to return a factory for the new type (the compiler will
+   *       issue an error otherwise).
+   */
   def sortedIterableFactory: SortedIterableFactory[CC]
 
   /** Widens the type of this set to its unsorted counterpart. */
@@ -168,9 +168,9 @@ object SortedSetOps {
   private[collection] final val zipOrdMsg = "No implicit Ordering[${B}] found to build a SortedSet[(${A}, ${B})]. You may want to upcast to a Set[${A}] first by calling `unsorted`."
 
   /** Specialize `WithFilter` for sorted collections
-    *
-    * @define coll sorted collection
-    */
+   *
+   *  @define coll sorted collection
+   */
   class WithFilter[+A, +IterableCC[_], +CC[X] <: SortedSet[X]](
     self: SortedSetOps[A, CC, ?] & IterableOps[A, IterableCC, ?],
     p: A => Boolean

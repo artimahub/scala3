@@ -22,7 +22,7 @@ import java.lang.String
 import scala.annotation.nowarn
 
 /** Base trait for set collections.
-  */
+ */
 trait Set[A]
   extends Iterable[A]
     with SetOps[A, Set, Set[A]]
@@ -85,10 +85,10 @@ trait Set[A]
 }
 
 /** Base trait for set operations
-  *
-  * @define coll set
-  * @define Coll `Set`
-  */
+ *
+ *  @define coll set
+ *  @define Coll `Set`
+ */
 transparent trait SetOps[A, +CC[_], +C <: SetOps[A, CC, C]]
   extends IterableOps[A, CC, C]
      with (A => Boolean)
@@ -147,12 +147,11 @@ transparent trait SetOps[A, +CC[_], +C <: SetOps[A, CC, C]]
   }
 
   /** An Iterator including all subsets containing exactly len elements.
-    *  If the elements in 'This' type is ordered, then the subsets will also be in the same order.
-    *  ListSet(1,2,3).subsets => {{1},{2},{3},{1,2},{1,3},{2,3},{1,2,3}}
-    *
-    *  $willForceEvaluation
-    *
-    */
+   *  If the elements in 'This' type is ordered, then the subsets will also be in the same order.
+   *  ListSet(1,2,3).subsets => {{1},{2},{3},{1,2},{1,3},{2,3},{1,2,3}}
+   *
+   *  $willForceEvaluation
+   */
   private class SubsetsItr(elms: IndexedSeq[A], len: Int) extends AbstractIterator[C] {
     private val idxs = Array.range(0, len+1)
     private var _hasNext = true

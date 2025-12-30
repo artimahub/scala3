@@ -44,7 +44,7 @@ import scala.annotation.meta._
  *  The Scala compiler also warns about using definitions annotated with [[java.lang.Deprecated]]. However it is
  *  recommended to use the Scala `@deprecated` annotation in Scala code because it allows providing a deprecation message.
  *
- *  '''`@deprecated` in the Scala language and its standard library'''<br/>
+ *  **`@deprecated` in the Scala language and its standard library**<br/>
  *
  *  A deprecated element of the Scala language or a definition in the Scala standard library will
  *  be preserved at least for the current major version.
@@ -53,7 +53,7 @@ import scala.annotation.meta._
  *  all 2.13.x releases, but may be removed in the future. (A deprecated element
  *  might be kept longer to ease migration, but developers should not rely on this.)
  *
- *  @see    The official documentation on [[https://www.scala-lang.org/news/2.11.0/#binary-compatibility binary compatibility]].
+ *  @see    The official documentation on [binary compatibility](https://www.scala-lang.org/news/2.11.0/#binary-compatibility).
  *  @param  message the message to print during compilation if the definition is accessed
  *  @param  since   a string identifying the first version in which the definition was deprecated
  *  @see    [[scala.deprecatedInheritance]]

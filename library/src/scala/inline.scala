@@ -18,7 +18,7 @@ import scala.language.`2.13`
  * An annotation for methods that the optimizer should inline.
  *
  * Note that by default, the Scala optimizer is disabled and no callsites are inlined. See
- * `-opt:help` and [[https://docs.scala-lang.org/overviews/compiler-options/optimizer.html the overview document]]
+ * `-opt:help` and [the overview document](https://docs.scala-lang.org/overviews/compiler-options/optimizer.html)
  * for information on how to enable the optimizer and inliner.
  *
  * When inlining is enabled, the inliner will always try to inline methods or callsites annotated

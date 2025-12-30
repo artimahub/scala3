@@ -140,7 +140,7 @@ package object math {
    *
    *  @param  x the ordinate coordinate
    *  @param  y the abscissa coordinate
-   *  @return the ''theta'' component of the point `(r, theta)` in polar
+   *  @return the *theta* component of the point `(r, theta)` in polar
    *          coordinates that corresponds to the point `(x, y)` in
    *          Cartesian coordinates.
    *  @group polar-coords
@@ -148,13 +148,13 @@ package object math {
   def atan2(y: Double, x: Double): Double = java.lang.Math.atan2(y, x)
 
   /** Returns the square root of the sum of the squares of both given `Double`
-    * values without intermediate underflow or overflow.
-    *
-    * The ''r'' component of the point `(r, theta)` in polar
-    * coordinates that corresponds to the point `(x, y)` in
-    * Cartesian coordinates.
-    * @group polar-coords
-    */
+   *  values without intermediate underflow or overflow.
+   *
+   *  The *r* component of the point `(r, theta)` in polar
+   *  coordinates that corresponds to the point `(x, y)` in
+   *  Cartesian coordinates.
+   *  @group polar-coords
+   */
   def hypot(x: Double, y: Double): Double = java.lang.Math.hypot(x, y)
 
   // -----------------------------------------------------------------------
@@ -228,12 +228,12 @@ package object math {
   def min(x: Double, y: Double): Double = java.lang.Math.min(x, y)
 
   /** @group signs
-    * @note Forwards to [[java.lang.Integer]]
-    */
+   *  @note Forwards to [[java.lang.Integer]]
+   */
   def signum(x: Int): Int       = java.lang.Integer.signum(x)
   /** @group signs
-    * @note Forwards to [[java.lang.Long]]
-    */
+   *  @note Forwards to [[java.lang.Long]]
+   */
   def signum(x: Long): Long     = java.lang.Long.signum(x)
   /** @group signs */
   def signum(x: Float): Float   = java.lang.Math.signum(x)
@@ -326,8 +326,8 @@ package object math {
   def exp(x: Double): Double = java.lang.Math.exp(x)
 
   /** Returns `exp(x) - 1`.
-    *  @group explog
-    */
+   *  @group explog
+   */
   def expm1(x: Double): Double = java.lang.Math.expm1(x)
 
   /** @group explog */
@@ -349,13 +349,13 @@ package object math {
   def log(x: Double): Double = java.lang.Math.log(x)
 
   /** Returns the natural logarithm of the sum of the given `Double` value and 1.
-    *  @group explog
-    */
+   *  @group explog
+   */
   def log1p(x: Double): Double = java.lang.Math.log1p(x)
 
   /** Returns the base 10 logarithm of the given `Double` value.
-    *  @group explog
-    */
+   *  @group explog
+   */
   def log10(x: Double): Double = java.lang.Math.log10(x)
 
   // -----------------------------------------------------------------------
@@ -363,18 +363,18 @@ package object math {
   // -----------------------------------------------------------------------
 
   /** Returns the hyperbolic sine of the given `Double` value.
-    * @group hyperbolic
-    */
+   *  @group hyperbolic
+   */
   def sinh(x: Double): Double = java.lang.Math.sinh(x)
 
   /** Returns the hyperbolic cosine of the given `Double` value.
-    * @group hyperbolic
-    */
+   *  @group hyperbolic
+   */
   def cosh(x: Double): Double = java.lang.Math.cosh(x)
 
   /** Returns the hyperbolic tangent of the given `Double` value.
-    * @group hyperbolic
-    */
+   *  @group hyperbolic
+   */
   def tanh(x: Double):Double = java.lang.Math.tanh(x)
 
   // -----------------------------------------------------------------------
@@ -382,13 +382,13 @@ package object math {
   // -----------------------------------------------------------------------
 
   /** Returns the size of an ulp of the given `Double` value.
-    * @group ulp
-    */
+   *  @group ulp
+   */
   def ulp(x: Double): Double = java.lang.Math.ulp(x)
 
   /** Returns the size of an ulp of the given `Float` value.
-    * @group ulp
-    */
+   *  @group ulp
+   */
   def ulp(x: Float): Float = java.lang.Math.ulp(x)
 
   /** @group exact */

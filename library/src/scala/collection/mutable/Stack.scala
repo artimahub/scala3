@@ -61,11 +61,11 @@ class Stack[A] protected (array: Array[AnyRef | Null], start: Int, end: Int)
   def push(elem: A): this.type = prepend(elem)
 
   /** Pushes two or more elements onto the stack. The last element
-    *  of the sequence will be on top of the new stack.
-    *
-    *  @param   elems      the element sequence.
-    *  @return the stack with the new elements on top.
-    */
+   *  of the sequence will be on top of the new stack.
+   *
+   *  @param   elems      the element sequence.
+   *  @return the stack with the new elements on top.
+   */
   def push(elem1: A, elem2: A, elems: A*): this.type = {
     val k = elems.knownSize
     ensureSize(length + (if(k >= 0) k + 2 else 3))

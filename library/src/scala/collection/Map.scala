@@ -90,16 +90,16 @@ trait Map[K, +V]
 }
 
 /** Base Map implementation type
-  *
-  * @tparam K Type of keys
-  * @tparam V Type of values
-  * @tparam CC type constructor of the map (e.g. `HashMap`). Operations returning a collection
-  *            with a different type of entries `(L, W)` (e.g. `map`) return a `CC[L, W]`.
-  * @tparam C  type of the map (e.g. `HashMap[Int, String]`). Operations returning a collection
-  *            with the same type of element (e.g. `drop`, `filter`) return a `C`.
-  * @define coll map
-  * @define Coll `Map`
-  */
+ *  @define coll map
+ *  @define Coll `Map`
+ *
+ *  @tparam K Type of keys
+ *  @tparam V Type of values
+ *  @tparam CC type constructor of the map (e.g. `HashMap`). Operations returning a collection
+ *            with a different type of entries `(L, W)` (e.g. `map`) return a `CC[L, W]`.
+ *  @tparam C  type of the map (e.g. `HashMap[Int, String]`). Operations returning a collection
+ *            with the same type of element (e.g. `drop`, `filter`) return a `C`.
+ */
 // Note: the upper bound constraint on CC is useful only to
 // erase CC to IterableOps instead of Object
 transparent trait MapOps[K, +V, +CC[_, _] <: IterableOps[?, AnyConstr, ?], +C]
@@ -133,16 +133,16 @@ transparent trait MapOps[K, +V, +CC[_, _] <: IterableOps[?, AnyConstr, ?], +C]
   }
 
   /** Similar to `fromIterable`, but returns a Map collection type.
-    * Note that the return type is now `CC[K2, V2]`.
-    */
+   *  Note that the return type is now `CC[K2, V2]`.
+   */
   @`inline` protected final def mapFromIterable[K2, V2](it: Iterable[(K2, V2)]^): CC[K2, V2]^{it} = mapFactory.from(it)
 
   /** The companion object of this map, providing various factory methods.
-    *
-    * @note When implementing a custom collection type and refining `CC` to the new type, this
-    *       method needs to be overridden to return a factory for the new type (the compiler will
-    *       issue an error otherwise).
-    */
+   *
+   *  @note When implementing a custom collection type and refining `CC` to the new type, this
+   *       method needs to be overridden to return a factory for the new type (the compiler will
+   *       issue an error otherwise).
+   */
   def mapFactory: MapFactory[CC]
 
   /** Optionally returns the value associated with a key.
@@ -300,9 +300,9 @@ transparent trait MapOps[K, +V, +CC[_, _] <: IterableOps[?, AnyConstr, ?], +C]
    *
    *  The method implemented here throws an exception,
    *  but it may be overridden by subclasses.
+   *  @throws NoSuchElementException if no default value is defined
    *
    *  @param key the given key value for which a binding is missing.
-   *  @throws NoSuchElementException if no default value is defined
    */
   @throws[NoSuchElementException]
   def default(key: K): V =
@@ -326,11 +326,11 @@ transparent trait MapOps[K, +V, +CC[_, _] <: IterableOps[?, AnyConstr, ?], +C]
   def isDefinedAt(key: K): Boolean = contains(key)
 
   /** Builds a new map by applying a function to all elements of this $coll.
-    *
-    *  @param f      the function to apply to each element.
-    *  @return       a new $coll resulting from applying the given function
-    *                `f` to each element of this $coll and collecting the results.
-    */
+   *
+   *  @param f      the function to apply to each element.
+   *  @return       a new $coll resulting from applying the given function
+   *                `f` to each element of this $coll and collecting the results.
+   */
   def map[K2, V2](f: ((K, V)) => (K2, V2)): CC[K2, V2]^{this, f} = mapFactory.from(new View.Map(this, f))
 
   /** Builds a new collection by applying a partial function to all elements of this $coll
@@ -347,22 +347,22 @@ transparent trait MapOps[K, +V, +CC[_, _] <: IterableOps[?, AnyConstr, ?], +C]
     mapFactory.from(new View.Collect(this, pf))
 
   /** Builds a new map by applying a function to all elements of this $coll
-    *  and using the elements of the resulting collections.
-    *
-    *  @param f      the function to apply to each element.
-    *  @return       a new $coll resulting from applying the given collection-valued function
-    *                `f` to each element of this $coll and concatenating the results.
-    */
+   *  and using the elements of the resulting collections.
+   *
+   *  @param f      the function to apply to each element.
+   *  @return       a new $coll resulting from applying the given collection-valued function
+   *                `f` to each element of this $coll and concatenating the results.
+   */
   def flatMap[K2, V2](f: ((K, V)) => IterableOnce[(K2, V2)]^): CC[K2, V2]^{this, f} = mapFactory.from(new View.FlatMap(this, f))
 
   /** Returns a new $coll containing the elements from the left hand operand followed by the elements from the
-    *  right hand operand. The element type of the $coll is the most specific superclass encompassing
-    *  the element types of the two operands.
-    *
-    *  @param suffix   the iterable to append.
-    *  @return       a new $coll which contains all elements
-    *                of this $coll followed by all elements of `suffix`.
-    */
+   *  right hand operand. The element type of the $coll is the most specific superclass encompassing
+   *  the element types of the two operands.
+   *
+   *  @param suffix   the iterable to append.
+   *  @return       a new $coll which contains all elements
+   *                of this $coll followed by all elements of `suffix`.
+   */
   def concat[V2 >: V](suffix: collection.IterableOnce[(K, V2)]^): CC[K, V2]^{this, suffix} = mapFactory.from(suffix match {
     case it: Iterable[(K, V2)] => new View.Concat(this, it)
     case _ => iterator.concat(suffix.iterator)
@@ -425,7 +425,7 @@ object MapOps {
 
 
   /** The implementation class of the set returned by `keySet`, for pure maps.
-    */
+   */
   private class LazyKeySet[K, +V, +CC[_, _] <: IterableOps[?, AnyConstr, ?], +C](mp: MapOps[K, V, CC, C]) extends AbstractSet[K] with DefaultSerializable {
     def iterator: Iterator[K] = mp.keysIterator
     def diff(that: Set[K]): Set[K] = LazyKeySet.this.fromSpecific(this.view.filterNot(that))

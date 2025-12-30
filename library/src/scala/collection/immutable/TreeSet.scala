@@ -25,20 +25,19 @@ import scala.runtime.AbstractFunction1
 
 
 /** This class implements immutable sorted sets using a tree.
-  *
-  *  @tparam A         the type of the elements contained in this tree set
-  *  @param ordering   the implicit ordering used to compare objects of type `A`
-  *
-  *  @see [[https://docs.scala-lang.org/overviews/collections-2.13/concrete-immutable-collection-classes.html#red-black-trees "Scala's Collection Library overview"]]
-  *  section on `Red-Black Trees` for more information.
-  *
-  *  @define Coll `immutable.TreeSet`
-  *  @define coll immutable tree set
-  *  @define orderDependent
-  *  @define orderDependentFold
-  *  @define mayNotTerminateInf
-  *  @define willNotTerminateInf
-  */
+ *  @see ["Scala's Collection Library overview"](https://docs.scala-lang.org/overviews/collections-2.13/concrete-immutable-collection-classes.html#red-black-trees)
+ *  section on `Red-Black Trees` for more information.
+ *
+ *  @define Coll `immutable.TreeSet`
+ *  @define coll immutable tree set
+ *  @define orderDependent
+ *  @define orderDependentFold
+ *  @define mayNotTerminateInf
+ *  @define willNotTerminateInf
+ *
+ *  @tparam A         the type of the elements contained in this tree set
+ *  @param ordering   the implicit ordering used to compare objects of type `A`
+ */
 final class TreeSet[A] private[immutable] (private[immutable] val tree: RB.Tree[A, Any] | Null)(implicit val ordering: Ordering[A])
   extends AbstractSet[A]
     with SortedSet[A]

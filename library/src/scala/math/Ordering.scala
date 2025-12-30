@@ -21,72 +21,72 @@ import scala.annotation.migration
 import scala.annotation.unchecked.uncheckedOverride
 
 /** Ordering is a trait whose instances each represent a strategy for sorting
-  * instances of a type.
-  *
-  * Ordering's companion object defines many implicit objects to deal with
-  * subtypes of [[AnyVal]] (e.g. `Int`, `Double`), `String`, and others.
-  *
-  * To sort instances by one or more member variables, you can take advantage
-  * of these built-in orderings using [[Ordering.by]] and [[Ordering.on]]:
-  *
-  * {{{
-  * import scala.util.Sorting
-  * val pairs = Array(("a", 5, 2), ("c", 3, 1), ("b", 1, 3))
-  *
-  * // sort by 2nd element
-  * Sorting.quickSort(pairs)(Ordering.by[(String, Int, Int), Int](_._2))
-  *
-  * // sort by the 3rd element, then 1st
-  * Sorting.quickSort(pairs)(Ordering[(Int, String)].on(x => (x._3, x._1)))
-  * }}}
-  *
-  * An `Ordering[T]` is implemented by specifying the [[compare]] method,
-  * `compare(a: T, b: T): Int`, which decides how to order two instances
-  * `a` and `b`. Instances of `Ordering[T]` can be used by things like
-  * `scala.util.Sorting` to sort collections like `Array[T]`.
-  *
-  * For example:
-  *
-  * {{{
-  * import scala.util.Sorting
-  *
-  * case class Person(name:String, age:Int)
-  * val people = Array(Person("bob", 30), Person("ann", 32), Person("carl", 19))
-  *
-  * // sort by age
-  * object AgeOrdering extends Ordering[Person] {
-  *   def compare(a:Person, b:Person) = a.age.compare(b.age)
-  * }
-  * Sorting.quickSort(people)(AgeOrdering)
-  * }}}
-  *
-  * This trait and [[scala.math.Ordered]] both provide this same functionality, but
-  * in different ways. A type `T` can be given a single way to order itself by
-  * extending `Ordered`. Using `Ordering`, this same type may be sorted in many
-  * other ways. `Ordered` and `Ordering` both provide implicits allowing them to be
-  * used interchangeably.
-  *
-  * You can `import scala.math.Ordering.Implicits._` to gain access to other
-  * implicit orderings.
-  *
-  * @see [[scala.math.Ordered]], [[scala.util.Sorting]], [[scala.math.Ordering.Implicits]]
-  */
+ *  instances of a type.
+ *
+ *  Ordering's companion object defines many implicit objects to deal with
+ *  subtypes of [[AnyVal]] (e.g. `Int`, `Double`), `String`, and others.
+ *
+ *  To sort instances by one or more member variables, you can take advantage
+ *  of these built-in orderings using [[Ordering.by]] and [[Ordering.on]]:
+ *
+ * {{{
+ * import scala.util.Sorting
+ * val pairs = Array(("a", 5, 2), ("c", 3, 1), ("b", 1, 3))
+ *
+ * // sort by 2nd element
+ * Sorting.quickSort(pairs)(Ordering.by[(String, Int, Int), Int](_._2))
+ *
+ * // sort by the 3rd element, then 1st
+ * Sorting.quickSort(pairs)(Ordering[(Int, String)].on(x => (x._3, x._1)))
+ * }}}
+ *
+ *  An `Ordering[T]` is implemented by specifying the [[compare]] method,
+ *  `compare(a: T, b: T): Int`, which decides how to order two instances
+ *  `a` and `b`. Instances of `Ordering[T]` can be used by things like
+ *  `scala.util.Sorting` to sort collections like `Array[T]`.
+ *
+ *  For example:
+ *
+ * {{{
+ * import scala.util.Sorting
+ *
+ * case class Person(name:String, age:Int)
+ * val people = Array(Person("bob", 30), Person("ann", 32), Person("carl", 19))
+ *
+ * // sort by age
+ * object AgeOrdering extends Ordering[Person] {
+ *   def compare(a:Person, b:Person) = a.age.compare(b.age)
+ * }
+ * Sorting.quickSort(people)(AgeOrdering)
+ * }}}
+ *
+ *  This trait and [[scala.math.Ordered]] both provide this same functionality, but
+ *  in different ways. A type `T` can be given a single way to order itself by
+ *  extending `Ordered`. Using `Ordering`, this same type may be sorted in many
+ *  other ways. `Ordered` and `Ordering` both provide implicits allowing them to be
+ *  used interchangeably.
+ *
+ *  You can `import scala.math.Ordering.Implicits._` to gain access to other
+ *  implicit orderings.
+ *
+ *  @see [[scala.math.Ordered]], [[scala.util.Sorting]], [[scala.math.Ordering.Implicits]]
+ */
 trait Ordering[T] extends Comparator[T] with PartialOrdering[T] with Serializable {
   outer =>
 
   /** Returns whether a comparison between `x` and `y` is defined, and if so
-    * the result of `compare(x, y)`.
-    */
+   *  the result of `compare(x, y)`.
+   */
   def tryCompare(x: T, y: T): Some[Int] = Some(compare(x, y))
 
  /** Returns an integer whose sign communicates how x compares to y.
-   *
-   * The result sign has the following meaning:
-   *
-   *  - negative if x < y
-   *  - positive if x > y
-   *  - zero otherwise (if x == y)
-   */
+  *
+  *  The result sign has the following meaning:
+  *
+  *  - negative if x < y
+  *  - positive if x > y
+  *  - zero otherwise (if x == y)
+  */
   def compare(x: T, y: T): Int
 
   /** Returns true if `x` <= `y` in the ordering. */
@@ -111,75 +111,75 @@ trait Ordering[T] extends Comparator[T] with PartialOrdering[T] with Serializabl
   @uncheckedOverride def min[U <: T](x: U, y: U): U = if (lteq(x, y)) x else y
 
   /** Returns the opposite ordering of this one.
-    *
-    * Implementations overriding this method MUST override [[isReverseOf]]
-    * as well if they change the behavior at all (for example, caching does
-    * not require overriding it).
-    */
+   *
+   *  Implementations overriding this method MUST override [[isReverseOf]]
+   *  as well if they change the behavior at all (for example, caching does
+   *  not require overriding it).
+   */
   override def reverse: Ordering[T] = new Ordering.Reverse[T](this)
 
   /** Returns whether or not the other ordering is the opposite
-    * ordering of this one.
-    *
-    * Equivalent to `other == this.reverse`.
-    *
-    * Implementations should only override this method if they are overriding
-    * [[reverse]] as well.
-    */
+   *  ordering of this one.
+   *
+   *  Equivalent to `other == this.reverse`.
+   *
+   *  Implementations should only override this method if they are overriding
+   *  [[reverse]] as well.
+   */
   def isReverseOf(other: Ordering[?]): Boolean = other match {
     case that: Ordering.Reverse[_] => that.outer == this
     case _ => false
   }
 
   /** Given f, a function from U into T, creates an Ordering[U] whose compare
-    * function is equivalent to:
-    *
-    * {{{
-    * def compare(x:U, y:U) = Ordering[T].compare(f(x), f(y))
-    * }}}
-    */
+   *  function is equivalent to:
+   *
+   * {{{
+   * def compare(x:U, y:U) = Ordering[T].compare(f(x), f(y))
+   * }}}
+   */
   def on[U](f: U => T): Ordering[U] = new Ordering[U] {
     def compare(x: U, y: U) = outer.compare(f(x), f(y))
   }
 
   /** Creates an Ordering[T] whose compare function returns the
-    * result of this Ordering's compare function, if it is non-zero,
-    * or else the result of `other`s compare function.
-    *
-    * @example
-    * {{{
-    * case class Pair(a: Int, b: Int)
-    *
-    * val pairOrdering = Ordering.by[Pair, Int](_.a)
-    *                            .orElse(Ordering.by[Pair, Int](_.b))
-    * }}}
-    *
-    * @param other an Ordering to use if this Ordering returns zero
-    */
+   *  result of this Ordering's compare function, if it is non-zero,
+   *  or else the result of `other`s compare function.
+   *
+   *  @example
+   *  {{{
+   *  case class Pair(a: Int, b: Int)
+   *
+   *  val pairOrdering = Ordering.by[Pair, Int](_.a)
+   *                             .orElse(Ordering.by[Pair, Int](_.b))
+   *  }}}
+   *
+   *  @param other an Ordering to use if this Ordering returns zero
+   */
   def orElse(other: Ordering[T]): Ordering[T] = (x, y) => {
     val res1 = outer.compare(x, y)
     if (res1 != 0) res1 else other.compare(x, y)
   }
 
   /** Given f, a function from T into S, creates an Ordering[T] whose compare
-    * function returns the result of this Ordering's compare function,
-    * if it is non-zero, or else a result equivalent to:
-    *
-    * {{{
-    * Ordering[S].compare(f(x), f(y))
-    * }}}
-    *
-    * This function is equivalent to passing the result of `Ordering.by(f)`
-    * to `orElse`.
-    *
-    * @example
-    * {{{
-    * case class Pair(a: Int, b: Int)
-    *
-    * val pairOrdering = Ordering.by[Pair, Int](_.a)
-    *                            .orElseBy[Int](_.b)
-    * }}}
-    */
+   *  function returns the result of this Ordering's compare function,
+   *  if it is non-zero, or else a result equivalent to:
+   *
+   * {{{
+   * Ordering[S].compare(f(x), f(y))
+   * }}}
+   *
+   *  This function is equivalent to passing the result of `Ordering.by(f)`
+   *  to `orElse`.
+   *
+   *  @example
+   *  {{{
+   *  case class Pair(a: Int, b: Int)
+   *
+   *  val pairOrdering = Ordering.by[Pair, Int](_.a)
+   *                             .orElseBy[Int](_.b)
+   *  }}}
+   */
   def orElseBy[S](f: T => S)(implicit ord: Ordering[S]): Ordering[T] = (x, y) => {
     val res1 = outer.compare(x, y)
     if (res1 != 0) res1 else ord.compare(f(x), f(y))
@@ -187,8 +187,8 @@ trait Ordering[T] extends Comparator[T] with PartialOrdering[T] with Serializabl
 
   /** This inner class defines comparison operators available for `T`.
    *
-   * It can't extend `AnyVal` because it is not a top-level class
-   * or a member of a statically accessible object.
+   *  It can't extend `AnyVal` because it is not a top-level class
+   *  or a member of a statically accessible object.
    */
   class OrderingOps(lhs: T) {
     def <(rhs: T): Boolean = lt(lhs, rhs)
@@ -201,8 +201,8 @@ trait Ordering[T] extends Comparator[T] with PartialOrdering[T] with Serializabl
   }
 
   /** This implicit method augments `T` with the comparison operators defined
-    * in `scala.math.Ordering.Ops`.
-    */
+   *  in `scala.math.Ordering.Ops`.
+   */
   implicit def mkOrderingOps(lhs: T): OrderingOps = new OrderingOps(lhs)
 }
 
@@ -290,8 +290,8 @@ object Ordering extends LowPriorityOrderingImplicits {
 
   trait ExtraImplicits {
     /** Not in the standard scope due to the potential for divergence:
-      * For instance `implicitly[Ordering[Any]]` diverges in its presence.
-      */
+     *  For instance `implicitly[Ordering[Any]]` diverges in its presence.
+     */
     implicit def seqOrdering[CC[X] <: scala.collection.Seq[X], T](implicit ord: Ordering[T]): Ordering[CC[T]] =
       new IterableOrdering[CC, T](ord)
 
@@ -299,13 +299,13 @@ object Ordering extends LowPriorityOrderingImplicits {
       new IterableOrdering[CC, T](ord)
 
     /** This implicit creates a conversion from any value for which an
-      * implicit `Ordering` exists to the class which creates infix operations.
-      * With it imported, you can write methods as follows:
-      *
-      * {{{
-      * def lessThan[T: Ordering](x: T, y: T) = x < y
-      * }}}
-      */
+     *  implicit `Ordering` exists to the class which creates infix operations.
+     *  With it imported, you can write methods as follows:
+     *
+     * {{{
+     * def lessThan[T: Ordering](x: T, y: T) = x < y
+     * }}}
+     */
     implicit def infixOrderingOps[T](x: T)(implicit ord: Ordering[T]): Ordering[T]#OrderingOps = new ord.OrderingOps(x)
   }
 
@@ -323,15 +323,15 @@ object Ordering extends LowPriorityOrderingImplicits {
   }
 
   /** Given f, a function from T into S, creates an Ordering[T] whose compare
-    * function is equivalent to:
-    *
-    * {{{
-    * def compare(x:T, y:T) = Ordering[S].compare(f(x), f(y))
-    * }}}
-    *
-    * This function is an analogue to Ordering.on where the Ordering[S]
-    * parameter is passed implicitly.
-    */
+   *  function is equivalent to:
+   *
+   * {{{
+   * def compare(x:T, y:T) = Ordering[S].compare(f(x), f(y))
+   * }}}
+   *
+   *  This function is an analogue to Ordering.on where the Ordering[S]
+   *  parameter is passed implicitly.
+   */
   def by[T, S](f: T => S)(implicit ord: Ordering[S]): Ordering[T] = new Ordering[T] {
     def compare(x: T, y: T) = ord.compare(f(x), f(y))
     override def lt(x: T, y: T): Boolean = ord.lt(f(x), f(y))

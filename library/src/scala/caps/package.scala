@@ -146,8 +146,7 @@ final class reserve extends annotation.StaticAnnotation
 final class use extends annotation.StaticAnnotation
 
 /** A trait that used to allow expressing existential types. Replaced by
-*  root.Result instances.
-*/
+*  root.Result instances.*/
 @experimental
 @deprecated
 sealed trait Exists extends Capability

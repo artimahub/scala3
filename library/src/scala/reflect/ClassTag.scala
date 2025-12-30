@@ -66,11 +66,11 @@ trait ClassTag[T] extends ClassManifestDeprecatedApis[T] with Equals with Serial
 
   /** A ClassTag[T] can serve as an extractor that matches only objects of type T.
    *
-   * The compiler tries to turn unchecked type tests in pattern matches into checked ones
-   * by wrapping a `(_: T)` type pattern as `ct(_: T)`, where `ct` is the `ClassTag[T]` instance.
-   * Type tests necessary before calling other extractors are treated similarly.
-   * `SomeExtractor(...)` is turned into `ct(SomeExtractor(...))` if `T` in `SomeExtractor.unapply(x: T)`
-   * is uncheckable, but we have an instance of `ClassTag[T]`.
+   *  The compiler tries to turn unchecked type tests in pattern matches into checked ones
+   *  by wrapping a `(_: T)` type pattern as `ct(_: T)`, where `ct` is the `ClassTag[T]` instance.
+   *  Type tests necessary before calling other extractors are treated similarly.
+   *  `SomeExtractor(...)` is turned into `ct(SomeExtractor(...))` if `T` in `SomeExtractor.unapply(x: T)`
+   *  is uncheckable, but we have an instance of `ClassTag[T]`.
    */
   def unapply(x: Any): Option[T] =
     if (runtimeClass.isInstance(x)) Some(x.asInstanceOf[T])

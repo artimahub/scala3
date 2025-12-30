@@ -19,29 +19,29 @@ import scala.collection.StringParsers
 object Duration {
 
   /**
-   * Constructs a Duration from the given length and unit. Observe that nanosecond precision may be lost if
+   *  Constructs a Duration from the given length and unit. Observe that nanosecond precision may be lost if
    *
    *  - the unit is NANOSECONDS
    *  - and the length has an absolute value greater than `2^53`
    *
-   * Infinite inputs (and NaN) are converted into [[Duration.Inf]], [[Duration.MinusInf]] and [[Duration.Undefined]], respectively.
+   *  Infinite inputs (and NaN) are converted into [[Duration.Inf]], [[Duration.MinusInf]] and [[Duration.Undefined]], respectively.
    *
-   * @throws IllegalArgumentException if the length was finite but the resulting duration cannot be expressed as a [[FiniteDuration]]
+   *  @throws IllegalArgumentException if the length was finite but the resulting duration cannot be expressed as a [[FiniteDuration]]
    */
   def apply(length: Double, unit: TimeUnit): Duration     = fromNanos(unit.toNanos(1) * length)
 
   /**
-   * Constructs a finite duration from the given length and time unit. The unit given is retained
-   * throughout calculations as long as possible, so that it can be retrieved later.
+   *  Constructs a finite duration from the given length and time unit. The unit given is retained
+   *  throughout calculations as long as possible, so that it can be retrieved later.
    */
   def apply(length: Long, unit: TimeUnit): FiniteDuration = new FiniteDuration(length, unit)
 
   /**
-   * Constructs a finite duration from the given length and time unit, where the latter is
-   * looked up in a list of string representation. Valid choices are:
+   *  Constructs a finite duration from the given length and time unit, where the latter is
+   *  looked up in a list of string representation. Valid choices are:
    *
-   * `d, day, h, hr, hour, m, min, minute, s, sec, second, ms, milli, millisecond, µs, micro, microsecond, ns, nano, nanosecond`
-   * and their pluralized forms (for every but the first mentioned form of each unit, i.e. no "ds", but "days").
+   *  `d, day, h, hr, hour, m, min, minute, s, sec, second, ms, milli, millisecond, µs, micro, microsecond, ns, nano, nanosecond`
+   *  and their pluralized forms (for every but the first mentioned form of each unit, i.e. no "ds", but "days").
    */
   def apply(length: Long, unit: String): FiniteDuration   = new FiniteDuration(length,  Duration.timeUnit(unit))
 
@@ -49,12 +49,12 @@ object Duration {
   // private final val maxPreciseDouble = 9007199254740992d // not used after https://github.com/scala/scala/pull/9233
 
   /**
-   * Parses String into Duration.  Format is `"<length><unit>"`, where
-   * whitespace is allowed before, between and after the parts. Infinities are
-   * designated by `"Inf"`, `"PlusInf"`, `"+Inf"`, `"Duration.Inf"` and `"-Inf"`, `"MinusInf"` or `"Duration.MinusInf"`.
-   * Undefined is designated by `"Duration.Undefined"`.
+   *  Parses String into Duration.  Format is `"<length><unit>"`, where
+   *  whitespace is allowed before, between and after the parts. Infinities are
+   *  designated by `"Inf"`, `"PlusInf"`, `"+Inf"`, `"Duration.Inf"` and `"-Inf"`, `"MinusInf"` or `"Duration.MinusInf"`.
+   *  Undefined is designated by `"Duration.Undefined"`.
    *
-   * @throws NumberFormatException if format is not parsable
+   *  @throws NumberFormatException if format is not parsable
    */
   def apply(s: String): Duration = {
     val s1: String = s filterNot (_.isWhitespace)
@@ -99,30 +99,30 @@ object Duration {
     timeUnitLabels.flatMap{ case (unit, names) => expandLabels(names) map (_ -> unit) }.toMap
 
   /**
-   * Extracts length and time unit out of a string, where the format must match the description for [[Duration$.apply(s:String)* apply(String)]].
-   * The extractor will not match for malformed strings or non-finite durations.
+   *  Extracts length and time unit out of a string, where the format must match the description for [[Duration$.apply(s:String)* apply(String)]].
+   *  The extractor will not match for malformed strings or non-finite durations.
    */
   def unapply(s: String): Option[(Long, TimeUnit)] =
     ( try Some(apply(s)) catch { case _: RuntimeException => None } ) flatMap unapply
 
   /**
-   * Extracts length and time unit out of a duration, if it is finite.
+   *  Extracts length and time unit out of a duration, if it is finite.
    */
   def unapply(d: Duration): Option[(Long, TimeUnit)] =
     if (d.isFinite) Some((d.length, d.unit)) else None
 
   /**
-   * Constructs a possibly infinite or undefined Duration from the given number of nanoseconds.
+   *  Constructs a possibly infinite or undefined Duration from the given number of nanoseconds.
    *
    *  - `Double.PositiveInfinity` is mapped to [[Duration.Inf]]
    *  - `Double.NegativeInfinity` is mapped to [[Duration.MinusInf]]
    *  - `Double.NaN` is mapped to [[Duration.Undefined]]
    *  - `-0d` is mapped to [[Duration.Zero]] (exactly like `0d`)
    *
-   * The semantics of the resulting Duration objects matches the semantics of their Double
-   * counterparts with respect to arithmetic operations.
+   *  The semantics of the resulting Duration objects matches the semantics of their Double
+   *  counterparts with respect to arithmetic operations.
    *
-   * @throws IllegalArgumentException if the length was finite but the resulting duration cannot be expressed as a [[FiniteDuration]]
+   *  @throws IllegalArgumentException if the length was finite but the resulting duration cannot be expressed as a [[FiniteDuration]]
    */
   def fromNanos(nanos: Double): Duration = {
     if (nanos.isInfinite)
@@ -143,11 +143,11 @@ object Duration {
   private final val ns_per_d   = ns_per_h   * 24
 
   /**
-   * Constructs a finite duration from the given number of nanoseconds. The
-   * result will have the coarsest possible time unit which can exactly express
-   * this duration.
+   *  Constructs a finite duration from the given number of nanoseconds. The
+   *  result will have the coarsest possible time unit which can exactly express
+   *  this duration.
    *
-   * @throws IllegalArgumentException for `Long.MinValue` since that would lead to inconsistent behavior afterwards (cannot be negated)
+   *  @throws IllegalArgumentException for `Long.MinValue` since that would lead to inconsistent behavior afterwards (cannot be negated)
    */
   def fromNanos(nanos: Long): FiniteDuration = {
          if (nanos % ns_per_d   == 0) Duration(nanos / ns_per_d  , DAYS)
@@ -174,7 +174,7 @@ object Duration {
    *
    * The particular comparison semantics mirror those of Double.NaN.
    *
-   * '''''Use [[eq]] when checking an input of a method against this value.'''''
+   * ***Use [[eq]] when checking an input of a method against this value.***
    */
   val Undefined: Infinite = new Infinite {
     override def toString() = "Duration.Undefined"
@@ -264,35 +264,35 @@ object Duration {
   // Java Factories
 
   /**
-   * Constructs a finite duration from the given length and time unit. The unit given is retained
-   * throughout calculations as long as possible, so that it can be retrieved later.
+   *  Constructs a finite duration from the given length and time unit. The unit given is retained
+   *  throughout calculations as long as possible, so that it can be retrieved later.
    */
   def create(length: Long, unit: TimeUnit): FiniteDuration = apply(length, unit)
   /**
-   * Constructs a Duration from the given length and unit. Observe that nanosecond precision may be lost if
+   *  Constructs a Duration from the given length and unit. Observe that nanosecond precision may be lost if
    *
    *  - the unit is NANOSECONDS
    *  - and the length has an absolute value greater than `2^53`
    *
-   * Infinite inputs (and NaN) are converted into [[Duration.Inf]], [[Duration.MinusInf]] and [[Duration.Undefined]], respectively.
+   *  Infinite inputs (and NaN) are converted into [[Duration.Inf]], [[Duration.MinusInf]] and [[Duration.Undefined]], respectively.
    *
-   * @throws IllegalArgumentException if the length was finite but the resulting duration cannot be expressed as a [[FiniteDuration]]
+   *  @throws IllegalArgumentException if the length was finite but the resulting duration cannot be expressed as a [[FiniteDuration]]
    */
   def create(length: Double, unit: TimeUnit): Duration     = apply(length, unit)
   /**
-   * Constructs a finite duration from the given length and time unit, where the latter is
-   * looked up in a list of string representation. Valid choices are:
+   *  Constructs a finite duration from the given length and time unit, where the latter is
+   *  looked up in a list of string representation. Valid choices are:
    *
-   * `d, day, h, hour, min, minute, s, sec, second, ms, milli, millisecond, µs, micro, microsecond, ns, nano, nanosecond`
-   * and their pluralized forms (for every but the first mentioned form of each unit, i.e. no "ds", but "days").
+   *  `d, day, h, hour, min, minute, s, sec, second, ms, milli, millisecond, µs, micro, microsecond, ns, nano, nanosecond`
+   *  and their pluralized forms (for every but the first mentioned form of each unit, i.e. no "ds", but "days").
    */
   def create(length: Long, unit: String): FiniteDuration   = apply(length, unit)
   /**
-   * Parses String into Duration.  Format is `"<length><unit>"`, where
-   * whitespace is allowed before, between and after the parts. Infinities are
-   * designated by `"Inf"`, `"PlusInf"`, `"+Inf"` and `"-Inf"` or `"MinusInf"`.
+   *  Parses String into Duration.  Format is `"<length><unit>"`, where
+   *  whitespace is allowed before, between and after the parts. Infinities are
+   *  designated by `"Inf"`, `"PlusInf"`, `"+Inf"` and `"-Inf"` or `"MinusInf"`.
    *
-   * @throws NumberFormatException if format is not parsable
+   *  @throws NumberFormatException if format is not parsable
    */
   def create(s: String): Duration                          = apply(s)
 
@@ -307,8 +307,8 @@ object Duration {
 /**
  * <h2>Utility for working with java.util.concurrent.TimeUnit durations.</h2>
  *
- * '''''This class is not meant as a general purpose representation of time, it is
- * optimized for the needs of `scala.concurrent`.'''''
+ * ***This class is not meant as a general purpose representation of time, it is
+ * optimized for the needs of `scala.concurrent`.***
  *
  * <h2>Basic Usage</h2>
  *
@@ -325,7 +325,7 @@ object Duration {
  * duration <= Duration.Inf
  * }}}
  *
- * '''''Invoking inexpressible conversions (like calling `toSeconds` on an infinite duration) will throw an IllegalArgumentException.'''''
+ * ***Invoking inexpressible conversions (like calling `toSeconds` on an infinite duration) will throw an IllegalArgumentException.***
  *
  * <p/>
  * Implicits are also provided for Int, Long and Double. Example usage:
@@ -335,7 +335,7 @@ object Duration {
  * val duration = 100.millis
  * }}}
  *
- * '''''The DSL provided by the implicit conversions always allows construction of finite durations, even for infinite Double inputs; use Duration.Inf instead.'''''
+ * ***The DSL provided by the implicit conversions always allows construction of finite durations, even for infinite Double inputs; use Duration.Inf instead.***
  *
  * Extractors, parsing and arithmetic are also included:
  * {{{
@@ -373,63 +373,63 @@ object Duration {
  */
 sealed abstract class Duration extends Serializable with Ordered[Duration] {
   /**
-   * Obtains the length of this Duration measured in the unit obtained by the `unit` method.
+   *  Obtains the length of this Duration measured in the unit obtained by the `unit` method.
    *
-   * $exc
+   *  $exc
    */
   def length: Long
   /**
-   * Obtains the time unit in which the length of this duration is measured.
+   *  Obtains the time unit in which the length of this duration is measured.
    *
-   * $exc
+   *  $exc
    */
   def unit: TimeUnit
   /**
-   * Returns the length of this duration measured in whole nanoseconds, rounding towards zero.
+   *  Returns the length of this duration measured in whole nanoseconds, rounding towards zero.
    *
-   * $exc
+   *  $exc
    */
   def toNanos: Long
   /**
-   * Returns the length of this duration measured in whole microseconds, rounding towards zero.
+   *  Returns the length of this duration measured in whole microseconds, rounding towards zero.
    *
-   * $exc
+   *  $exc
    */
   def toMicros: Long
   /**
-   * Returns the length of this duration measured in whole milliseconds, rounding towards zero.
+   *  Returns the length of this duration measured in whole milliseconds, rounding towards zero.
    *
-   * $exc
+   *  $exc
    */
   def toMillis: Long
   /**
-   * Returns the length of this duration measured in whole seconds, rounding towards zero.
+   *  Returns the length of this duration measured in whole seconds, rounding towards zero.
    *
-   * $exc
+   *  $exc
    */
   def toSeconds: Long
   /**
-   * Returns the length of this duration measured in whole minutes, rounding towards zero.
+   *  Returns the length of this duration measured in whole minutes, rounding towards zero.
    *
-   * $exc
+   *  $exc
    */
   def toMinutes: Long
   /**
-   * Returns the length of this duration measured in whole hours, rounding towards zero.
+   *  Returns the length of this duration measured in whole hours, rounding towards zero.
    *
-   * $exc
+   *  $exc
    */
   def toHours: Long
   /**
-   * Returns the length of this duration measured in whole days, rounding towards zero.
+   *  Returns the length of this duration measured in whole days, rounding towards zero.
    *
-   * $exc
+   *  $exc
    */
   def toDays: Long
   /**
-   * Returns the number of nanoseconds as floating point number, scaled down to the given unit.
-   * The result may not precisely represent this duration due to the Double datatype's inherent
-   * limitations (mantissa size effectively 53 bits). Non-finite durations are represented as
+   *  Returns the number of nanoseconds as floating point number, scaled down to the given unit.
+   *  The result may not precisely represent this duration due to the Double datatype's inherent
+   *  limitations (mantissa size effectively 53 bits). Non-finite durations are represented as
    *  - [[Duration.Undefined]] is mapped to Double.NaN
    *  - [[Duration.Inf]] is mapped to Double.PositiveInfinity
    *  - [[Duration.MinusInf]] is mapped to Double.NegativeInfinity
@@ -437,36 +437,36 @@ sealed abstract class Duration extends Serializable with Ordered[Duration] {
   def toUnit(unit: TimeUnit): Double
 
   /**
-   * Returns the sum of that duration and this. When involving non-finite summands the semantics match those
-   * of Double.
+   *  Returns the sum of that duration and this. When involving non-finite summands the semantics match those
+   *  of Double.
    *
-   * $ovf
+   *  $ovf
    */
   def +(other: Duration): Duration
   /**
-   * Returns the difference of that duration and this. When involving non-finite summands the semantics match those
-   * of Double.
+   *  Returns the difference of that duration and this. When involving non-finite summands the semantics match those
+   *  of Double.
    *
-   * $ovf
+   *  $ovf
    */
   def -(other: Duration): Duration
   /**
-   * Returns this duration multiplied by the scalar factor. When involving non-finite factors the semantics match those
-   * of Double.
+   *  Returns this duration multiplied by the scalar factor. When involving non-finite factors the semantics match those
+   *  of Double.
    *
-   * $ovf
+   *  $ovf
    */
   def *(factor: Double): Duration
   /**
-   * Returns this duration divided by the scalar factor. When involving non-finite factors the semantics match those
-   * of Double.
+   *  Returns this duration divided by the scalar factor. When involving non-finite factors the semantics match those
+   *  of Double.
    *
-   * $ovf
+   *  $ovf
    */
   def /(divisor: Double): Duration
   /**
-   * Returns the quotient of this and that duration as floating-point number. The semantics are
-   * determined by Double as if calculating the quotient of the nanosecond lengths of both factors.
+   *  Returns the quotient of this and that duration as floating-point number. The semantics are
+   *  determined by Double as if calculating the quotient of the nanosecond lengths of both factors.
    */
   def /(divisor: Duration): Double
   /**
@@ -479,26 +479,26 @@ sealed abstract class Duration extends Serializable with Ordered[Duration] {
    */
   def isFinite: Boolean
   /**
-   * Returns the smaller of this and that duration as determined by the natural ordering.
+   *  Returns the smaller of this and that duration as determined by the natural ordering.
    */
   def min(other: Duration): Duration = if (this < other) this else other
   /**
-   * Returns the larger of this and that duration as determined by the natural ordering.
+   *  Returns the larger of this and that duration as determined by the natural ordering.
    */
   def max(other: Duration): Duration = if (this > other) this else other
 
   // Java API
 
   /**
-   * Returns this duration divided by the scalar factor. When involving non-finite factors the semantics match those
-   * of Double.
+   *  Returns this duration divided by the scalar factor. When involving non-finite factors the semantics match those
+   *  of Double.
    *
-   * $ovf
+   *  $ovf
    */
   def div(divisor: Double): Duration = this / divisor
   /**
-   * Returns the quotient of this and that duration as floating-point number. The semantics are
-   * determined by Double as if calculating the quotient of the nanosecond lengths of both factors.
+   *  Returns the quotient of this and that duration as floating-point number. The semantics are
+   *  determined by Double as if calculating the quotient of the nanosecond lengths of both factors.
    */
   def div(other: Duration): Double   = this / other
   def gt(other: Duration): Boolean   = this > other
@@ -506,17 +506,17 @@ sealed abstract class Duration extends Serializable with Ordered[Duration] {
   def lt(other: Duration): Boolean   = this < other
   def lteq(other: Duration): Boolean = this <= other
   /**
-   * Returns the difference of that duration and this. When involving non-finite summands the semantics match those
-   * of Double.
+   *  Returns the difference of that duration and this. When involving non-finite summands the semantics match those
+   *  of Double.
    *
-   * $ovf
+   *  $ovf
    */
   def minus(other: Duration): Duration = this - other
   /**
-   * Returns this duration multiplied by the scalar factor. When involving non-finite factors the semantics match those
-   * of Double.
+   *  Returns this duration multiplied by the scalar factor. When involving non-finite factors the semantics match those
+   *  of Double.
    *
-   * $ovf
+   *  $ovf
    */
   def mul(factor: Double): Duration    = this * factor
   /**
@@ -524,10 +524,10 @@ sealed abstract class Duration extends Serializable with Ordered[Duration] {
    */
   def neg(): Duration                  = -this
   /**
-   * Returns the sum of that duration and this. When involving non-finite summands the semantics match those
-   * of Double.
+   *  Returns the sum of that duration and this. When involving non-finite summands the semantics match those
+   *  of Double.
    *
-   * $ovf
+   *  $ovf
    */
   def plus(other: Duration): Duration  = this + other
   /**
@@ -564,8 +564,8 @@ object FiniteDuration {
 }
 
 /**
- * This class represents a finite duration. Its addition and subtraction operators are overloaded to retain
- * this guarantee statically. The range of this class is limited to `+-(2^63-1)`ns, which is roughly 292  years.
+ *  This class represents a finite duration. Its addition and subtraction operators are overloaded to retain
+ *  this guarantee statically. The range of this class is limited to `+-(2^63-1)`ns, which is roughly 292  years.
  */
 final class FiniteDuration(val length: Long, val unit: TimeUnit) extends Duration {
   import FiniteDuration._
@@ -662,16 +662,16 @@ final class FiniteDuration(val length: Long, val unit: TimeUnit) extends Duratio
   // overloaded methods taking Long so that you can calculate while statically staying finite
 
   /**
-   * Returns the quotient of this duration and the given integer factor.
+   *  Returns the quotient of this duration and the given integer factor.
    *
-   * @throws java.lang.ArithmeticException if the factor is 0
+   *  @throws java.lang.ArithmeticException if the factor is 0
    */
   def /(divisor: Long): FiniteDuration = fromNanos(toNanos / divisor)
 
   /**
-   * Returns the product of this duration and the given integer factor.
+   *  Returns the product of this duration and the given integer factor.
    *
-   * @throws IllegalArgumentException if the result would overflow the range of FiniteDuration
+   *  @throws IllegalArgumentException if the result would overflow the range of FiniteDuration
    */
   def *(factor: Long): FiniteDuration  = new FiniteDuration(safeMul(length, factor), unit)
 
@@ -696,16 +696,16 @@ final class FiniteDuration(val length: Long, val unit: TimeUnit) extends Duratio
   }
 
   /**
-   * Returns the quotient of this duration and the given integer factor.
+   *  Returns the quotient of this duration and the given integer factor.
    *
-   * @throws java.lang.ArithmeticException if the factor is 0
+   *  @throws java.lang.ArithmeticException if the factor is 0
    */
   def div(divisor: Long): FiniteDuration = this / divisor
 
   /**
-   * Returns the product of this duration and the given integer factor.
+   *  Returns the product of this duration and the given integer factor.
    *
-   * @throws IllegalArgumentException if the result would overflow the range of FiniteDuration
+   *  @throws IllegalArgumentException if the result would overflow the range of FiniteDuration
    */
   def mul(factor: Long): FiniteDuration  = this * factor
 

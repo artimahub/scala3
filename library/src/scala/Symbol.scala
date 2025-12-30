@@ -35,7 +35,8 @@ object Symbol extends UniquenessCache[String, Symbol] {
 }
 
 /** This is private so it won't appear in the library API, but
-  * abstracted to offer some hope of reusability.  */
+ *  abstracted to offer some hope of reusability.  
+ */
 private[scala] abstract class UniquenessCache[K, V] {
   import java.lang.ref.WeakReference
   import java.util.WeakHashMap
