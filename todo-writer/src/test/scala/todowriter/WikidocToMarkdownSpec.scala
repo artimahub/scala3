@@ -22,9 +22,16 @@ class WikidocToMarkdownSpec extends AnyFlatSpec with Matchers:
     WikidocToMarkdown.migrate(in) should include("[[OtherClass]]")
   }
 
-  it should "convert wikilinks with display text to markdown links" in {
+  it should "leave wikilinks with display text unchanged when target is not a URL" in {
     val in = "See [[scala.Double the double type]] for more."
-    WikidocToMarkdown.migrate(in) should include("[the double type](scala.Double)")
+    WikidocToMarkdown.migrate(in) should include("[[scala.Double the double type]]")
+  }
+
+  it should "leave code artifact wikilinks unchanged" in {
+    // Links to Scala code artifacts should not be converted to markdown links
+    // because the target (e.g., scala.collection.immutable.Vector) is not a valid URL
+    val in = "Returns an immutable [[scala.collection.immutable.Vector Vector]]."
+    WikidocToMarkdown.migrate(in) should include("[[scala.collection.immutable.Vector Vector]]")
   }
 
   it should "convert URL wikilinks to markdown links" in {
@@ -121,4 +128,50 @@ class WikidocToMarkdownSpec extends AnyFlatSpec with Matchers:
     val first = WikidocToMarkdown.migrateScaladocInner(inner)
     val second = WikidocToMarkdown.migrateScaladocInner(first)
     first should be (second)
+  }
+
+  it should "convert = Title = to # Title" in {
+    val in = "= My Title ="
+    WikidocToMarkdown.migrate(in) should be("# My Title")
+  }
+
+  it should "convert == Section == to ## Section" in {
+    val in = "== My Section =="
+    WikidocToMarkdown.migrate(in) should be("## My Section")
+  }
+
+  it should "convert === Subsection === to ### Subsection" in {
+    val in = "=== My Subsection ==="
+    WikidocToMarkdown.migrate(in) should be("### My Subsection")
+  }
+
+  it should "preserve leading whitespace in heading conversions" in {
+    val in = "  == Indented Section =="
+    WikidocToMarkdown.migrate(in) should be("  ## Indented Section")
+  }
+
+  it should "convert multiple heading levels in one document" in {
+    val in = """= Title =
+              |Some intro text.
+              |== Section One ==
+              |Section one content.
+              |=== Subsection ===
+              |More details.
+              |== Section Two ==
+              |Another section.""".stripMargin
+    val out = WikidocToMarkdown.migrate(in)
+    out should include("# Title")
+    out should include("## Section One")
+    out should include("### Subsection")
+    out should include("## Section Two")
+    out should not include "="
+  }
+
+  it should "not convert headings inside code blocks" in {
+    val in = """{{{
+              |= Not A Title =
+              |}}}""".stripMargin
+    val out = WikidocToMarkdown.migrate(in)
+    out should include("= Not A Title =")
+    out should not include "# Not A Title"
   }
