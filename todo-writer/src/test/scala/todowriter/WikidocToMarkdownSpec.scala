@@ -22,9 +22,16 @@ class WikidocToMarkdownSpec extends AnyFlatSpec with Matchers:
     WikidocToMarkdown.migrate(in) should include("[[OtherClass]]")
   }
 
-  it should "convert wikilinks with display text to markdown links" in {
+  it should "leave wikilinks with display text unchanged when target is not a URL" in {
     val in = "See [[scala.Double the double type]] for more."
-    WikidocToMarkdown.migrate(in) should include("[the double type](scala.Double)")
+    WikidocToMarkdown.migrate(in) should include("[[scala.Double the double type]]")
+  }
+
+  it should "leave code artifact wikilinks unchanged" in {
+    // Links to Scala code artifacts should not be converted to markdown links
+    // because the target (e.g., scala.collection.immutable.Vector) is not a valid URL
+    val in = "Returns an immutable [[scala.collection.immutable.Vector Vector]]."
+    WikidocToMarkdown.migrate(in) should include("[[scala.collection.immutable.Vector Vector]]")
   }
 
   it should "convert URL wikilinks to markdown links" in {

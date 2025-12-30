@@ -7,9 +7,8 @@ import scala.util.matching.Regex
  *  Rules implemented:
  *  - Triple-brace code blocks {{{ ... }}} -> fenced code blocks ``` ... ```
  *  - Wikilinks:
- *    - [[Name]] (no spaces) -> left unchanged as [[Name]]
- *    - [[target display text]] -> [display text](target)
- *    - [[https://url display text]] -> [display text](https://url)
+ *    - [[https://url display text]] -> [display text](https://url) (only URLs are converted)
+ *    - All other forms (e.g., [[Name]], [[scala.Double the double type]]) -> left unchanged
  *  - Bold+italic: '''''text''''' -> ***text***
  *  - Bold: '''bold''' -> **bold**
  *  - Italic: ''italic'' -> *italic*
@@ -36,25 +35,25 @@ object WikidocToMarkdown:
 
   /** Convert a wikilink's inner content to the appropriate format.
    *
-   *  - No spaces: leave as [[content]] (simple reference)
    *  - URL with display text: [[https://url text]] -> [text](https://url)
-   *  - Reference with display text: [[target text]] -> [text](target)
+   *  - All other forms are left unchanged as [[content]] (Scala2 wikidoc style)
+   *
+   *  Note: Links to code artifacts like [[scala.Double the double type]] are NOT
+   *  converted to markdown links because they are not valid URLs. These are
+   *  Scala2 wikidoc-style links that documentation tools handle specially.
    */
   private def convertWikiLink(content: String): String =
     val spaceIdx = content.indexOf(' ')
-    if spaceIdx < 0 then
-      // No space - simple reference like [[scala.Double]], leave unchanged
-      s"[[$content]]"
-    else if content.startsWith("http://") || content.startsWith("https://") then
+    if spaceIdx > 0 && (content.startsWith("http://") || content.startsWith("https://")) then
       // URL link: [[https://example.com/path Display Text]]
       val url = content.substring(0, spaceIdx)
       val displayText = content.substring(spaceIdx + 1)
       s"[$displayText]($url)"
     else
-      // Reference with display text: [[scala.Double the double type]]
-      val target = content.substring(0, spaceIdx)
-      val displayText = content.substring(spaceIdx + 1)
-      s"[$displayText]($target)"
+      // All other forms: leave unchanged as wikidoc-style link
+      // This includes simple refs like [[scala.Double]] and
+      // refs with display text like [[scala.Double the double type]]
+      s"[[$content]]"
 
   def migrate(inner: String): String =
     import java.util.regex.Matcher
