@@ -158,7 +158,7 @@ object Main:
       var any = false
       while matcher.find() do
         val inner = matcher.group(1)
-        val migrated = WikidocToMarkdown.migrate(inner)
+        val migrated = WikidocToMarkdown.migrateScaladocInner(inner)
         if migrated != inner then
           any = true
           // Preserve surrounding comment markers, replace inner content
