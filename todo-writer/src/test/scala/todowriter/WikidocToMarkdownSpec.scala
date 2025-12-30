@@ -88,3 +88,37 @@ class WikidocToMarkdownSpec extends AnyFlatSpec with Matchers:
     // content ends with a fence marker.
     out.split("```", -1).length should be (5) // 2 code fences -> 4 markers + surrounding splits
   }
+
+  // Moved idempotency tests
+
+  it should "be idempotent (running migrate twice yields the same output)" in {
+    val in = """Intro
+              |
+              |{{{
+              | [[Link]]
+              | '''bold'''
+              |}}}
+              |
+              |See [[scala.Double the double type]] outside code.
+              |""".stripMargin
+
+    val first = WikidocToMarkdown.migrate(in)
+    val second = WikidocToMarkdown.migrate(first)
+
+    // The second run must not change the output produced by the first run.
+    first should be (second)
+  }
+
+  it should "migrateScaladocInner stable for triple-brace example from Exception.scala (idempotent)" in {
+    val inner =
+      """
+       *  {{{
+       *    handling(classOf[MalformedURLException], classOf[NullPointerException]) by (_.printStackTrace)
+       *  }}}
+       *  @group dsl
+       """.stripMargin
+
+    val first = WikidocToMarkdown.migrateScaladocInner(inner)
+    val second = WikidocToMarkdown.migrateScaladocInner(first)
+    first should be (second)
+  }
