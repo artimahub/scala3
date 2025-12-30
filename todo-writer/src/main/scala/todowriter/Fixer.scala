@@ -66,10 +66,12 @@ object Fixer:
       // Check if block is single-line
       val originalBlockText = currentText.substring(block.startIndex, block.endIndex)
       val isSingleLine = !originalBlockText.contains('\n')
-
+  
       // When insertTodo = false (skip-todo mode), skip single-line scaladocs entirely
-      // since there's nothing to fix without inserting TODO tags
-      val shouldSkip = !insertTodo && isSingleLine
+      // since there's nothing to fix without inserting TODO tags. Also avoid touching
+      // blocks that contain code fences (triple-brace or ```), which can have
+      // formatting-sensitive spacing that should not be altered in skip-todo mode.
+      val shouldSkip = !insertTodo && (isSingleLine || block.content.contains("{{{") || block.content.contains("```"))
 
       // Only proceed if there is something to change (either tags to insert or alignment to adjust)
       if !shouldSkip && ((tparamsToInsert.nonEmpty || paramsToInsert.nonEmpty || returnToInsert) || (!insertTodo && issues.nonEmpty)) then
@@ -103,10 +105,13 @@ object Fixer:
         val lineStartIdx = currentText.lastIndexOf('\n', block.startIndex - 1)
         val replacementStart = if lineStartIdx < 0 then 0 else lineStartIdx + 1
 
-        currentText = currentText.substring(0, replacementStart) +
+        // Splice the formatted block into the document, but avoid making a no-op edit.
+        val candidate = currentText.substring(0, replacementStart) +
           newBlock +
           currentText.substring(replacementEnd)
-        fixCount += 1
+        if (candidate != currentText) then
+          currentText = candidate
+          fixCount += 1
 
     (currentText, fixCount)
 

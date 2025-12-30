@@ -58,7 +58,8 @@ object WikidocToMarkdown:
   def migrate(inner: String): String =
     import java.util.regex.Matcher
 
-    // First pass: apply multi-line bold+italic outside of code blocks
+    // First pass: apply multi-line bold+italic outside of code blocks.
+    // Protect both Wikidoc triple-brace blocks ({{{ }}}) and fenced Markdown blocks (``` ```).
     val preprocessed = applyOutsideCodeBlocks(inner, content =>
       BoldItalic.replaceAllIn(content, m => Matcher.quoteReplacement(s"***${m.group(1)}***"))
     )
@@ -70,12 +71,16 @@ object WikidocToMarkdown:
 
     for raw <- lines do
       val trimmed = raw.trim
-      if trimmed == "{{{" then
+      // Treat both {{{ / }}} and ``` as code fence markers so we preserve their contents.
+      val lead = raw.takeWhile(_.isWhitespace)
+      if (trimmed == "{{{" || (trimmed.startsWith("```") && !inCode)) then
         inCode = true
-        out += "```"
-      else if trimmed == "}}}" then
+        // Always emit fenced backticks for code fence openings so migration is stable.
+        out += s"${lead}```"
+      else if (trimmed == "}}}" || (trimmed.startsWith("```") && inCode)) then
         inCode = false
-        out += "```"
+        // Always emit fenced backticks for code fence closings so migration is stable.
+        out += s"${lead}```"
       else if inCode then
         // preserve code block content verbatim
         out += raw
@@ -97,9 +102,10 @@ object WikidocToMarkdown:
 
     out.mkString("\n")
 
-  /** Apply a transformation function only to content outside {{{ ... }}} code blocks. */
+  /** Apply a transformation function only to content outside code blocks ({{{ ... }}} or ``` ... ```). */
   private def applyOutsideCodeBlocks(content: String, transform: String => String): String =
-    val codeBlockPattern = """(?s)\{\{\{.*?\}\}\}""".r
+    // Match either triple-brace blocks or fenced code blocks (non-greedy).
+    val codeBlockPattern = """(?s)(\{\{\{.*?\}\}\}|```.*?```)""".r
     val codeBlocks = collection.mutable.ArrayBuffer[(Int, Int, String)]()
 
     // Find all code blocks and their positions
@@ -120,3 +126,104 @@ object WikidocToMarkdown:
       if pos < content.length then
         sb.append(transform(content.substring(pos)))
       sb.toString
+
+  /** Migrate the inner content of a Scaladoc comment while preserving the
+   *  original leading '*' markers and blank-line placement.
+   *
+   *  This accepts the raw inner string matched by the Scaladoc regex (which
+   *  typically starts with a newline and lines that begin with " * ...").
+   *  It strips the leading '*' markers, runs the normal migrate() transformation,
+   *  then re-inserts '*' markers so the resulting inner content can be safely
+   *  spliced back into the original comment without changing its structure.
+   */
+  def migrateScaladocInner(inner: String): String =
+    // If the scaladoc inner already contains fenced code (```), assume it was
+    // migrated previously and return unchanged to ensure idempotency.
+    if inner.contains("```") then inner
+    else {
+      val startsWithNewline = inner.startsWith("\n")
+      val origLines = inner.split("\n", -1).toList
+
+      // Strip leading '*' and a single optional space, but normalize marker lines.
+      val cleanedLines = origLines.map { line =>
+        val starIdx = line.indexOf('*')
+        if starIdx >= 0 then
+          val after = line.substring(starIdx + 1)
+          val afterNoLeading = after.dropWhile(_.isWhitespace)
+          // For triple-brace or fenced-code markers preserve the original spacing after the asterisk
+          // (do not add or remove spaces) so we can round-trip without changes.
+          if afterNoLeading.startsWith("{{{") || afterNoLeading.startsWith("}}}") || afterNoLeading.startsWith("```") then
+            after
+          else
+            if after.startsWith(" ") then after.drop(1) else after
+        else line
+      }
+
+      val cleaned = cleanedLines.mkString("\n")
+   
+      // Normalize triple-brace markers to fenced backticks for migrate(), preserving leading whitespace.
+      val cleanedArr = cleaned.split("\n", -1).toArray
+      val normalizedForMigrate = cleanedArr.map { ln =>
+        val t = ln.trim
+        if t == "{{{" || t == "}}}" then
+          val lead = ln.takeWhile(_.isWhitespace)
+          s"$lead```"
+        else ln
+      }.mkString("\n")
+
+      val migratedNorm = migrate(normalizedForMigrate)
+
+      // Keep migrated output as-is (do not restore {{{ }}}) so the migration is stable/idempotent.
+      val migratedRestored = migratedNorm
+
+      // Re-apply scaladoc '*' markers.
+      val migLines = migratedRestored.split("\n", -1).toList
+      val out = new StringBuilder
+
+      if startsWithNewline then
+        out.append("\n")
+        var prevWasStarOnly = false
+        for idx <- migLines.indices do
+          val line = migLines(idx)
+          // Avoid inserting a star-only blank line immediately before a triple-brace marker,
+          // and avoid emitting consecutive star-only blank lines; both cause oscillation.
+          val nextIsMarker =
+            if idx + 1 < migLines.length then
+              val n = migLines(idx + 1).trim
+              n == "{{{" || n == "}}}" || n == "```"
+            else false
+          if line.isEmpty then
+            if !nextIsMarker && !prevWasStarOnly then
+              out.append(" *")
+              prevWasStarOnly = true
+            else
+              () // skip unstable/duplicate blank star line
+          else
+            out.append(" * ").append(line)
+            prevWasStarOnly = false
+          if idx < migLines.length - 1 then out.append("\n")
+      else
+        if migLines.nonEmpty then out.append(migLines.head)
+        if migLines.length > 1 then
+          out.append("\n")
+          val tail = migLines.tail
+          var prevWasStarOnly = false
+          for idx <- tail.indices do
+            val line = tail(idx)
+            val nextIsMarker =
+              if idx + 1 < tail.length then
+                val n = tail(idx + 1).trim
+                n == "{{{" || n == "}}}" || n == "```"
+              else false
+            if line.isEmpty then
+              if !nextIsMarker && !prevWasStarOnly then
+                out.append(" *")
+                prevWasStarOnly = true
+              else ()
+            else
+              out.append(" * ").append(line)
+              prevWasStarOnly = false
+            if idx < tail.length - 1 then out.append("\n")
+
+      out.toString
+    }
