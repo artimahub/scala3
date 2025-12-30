@@ -141,3 +141,35 @@ class WikidocToMarkdownSpec extends AnyFlatSpec with Matchers:
     out should include("= Not A Title =")
     out should not include "# Not A Title"
   }
+
+  it should "be idempotent (running migrate twice yields the same output)" in {
+    val in = """Intro
+              |
+              |{{{
+              | [[Link]]
+              | '''bold'''
+              |}}}
+              |
+              |See [[scala.Double the double type]] outside code.
+              |""".stripMargin
+
+    val first = WikidocToMarkdown.migrate(in)
+    val second = WikidocToMarkdown.migrate(first)
+
+    // The second run must not change the output produced by the first run.
+    first should be (second)
+  }
+
+  it should "migrateScaladocInner stable for triple-brace example from Exception.scala (idempotent)" in {
+    val inner =
+      """
+       *  {{{
+       *    handling(classOf[MalformedURLException], classOf[NullPointerException]) by (_.printStackTrace)
+       *  }}}
+       *  @group dsl
+       """.stripMargin
+
+    val first = WikidocToMarkdown.migrateScaladocInner(inner)
+    val second = WikidocToMarkdown.migrateScaladocInner(first)
+    first should be (second)
+  }
