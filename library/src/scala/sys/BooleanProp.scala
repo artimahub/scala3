@@ -17,13 +17,13 @@ import scala.language.`2.13`
 import scala.language.implicitConversions
 
 /** A few additional conveniences for Boolean properties.
- */
+ *  */
 trait BooleanProp extends Prop[Boolean] {
   /** The semantics of value are determined at Prop creation.  See methods
-   *  `valueIsTrue` and `keyExists` in object BooleanProp for examples.
-   *
-   *  @return   true if the current String is considered true, false otherwise
-   */
+ *  `valueIsTrue` and `keyExists` in object BooleanProp for examples.
+ *
+ *  @return   true if the current String is considered true, false otherwise
+ *    */
   def value: Boolean
 
   /** Alter this property so that `value` will be true. */

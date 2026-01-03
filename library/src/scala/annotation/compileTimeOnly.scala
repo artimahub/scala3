@@ -16,6 +16,7 @@ import scala.language.`2.13`
 import scala.annotation.meta._
 
 /**
+ *
  * An annotation that designates that an annottee should not be referred to after
  * type checking (which includes macro expansion).
  *
@@ -29,6 +30,6 @@ import scala.annotation.meta._
  *
  * @param  message the error message to print during compilation if a reference remains
  *                 after type checking
- */
+ *  */
 @getter @setter @beanGetter @beanSetter @companionClass @companionMethod
 final class compileTimeOnly(message: String) extends scala.annotation.StaticAnnotation

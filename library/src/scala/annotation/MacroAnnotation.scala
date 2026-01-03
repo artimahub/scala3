@@ -12,7 +12,7 @@ import scala.quoted.*
  *  See: `MacroAnnotation.transform`
  *
  *  @syntax markdown
- */
+ *  */
 @experimental
 trait MacroAnnotation extends StaticAnnotation:
 

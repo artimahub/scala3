@@ -24,22 +24,22 @@ import scala.language.`2.13`
  *
  *  @param  f      the function to obtain the current value at any point in time
  *  @param  body   the computation to run to completion in another thread
- */
+ *  */
 @deprecated("`DelayedLazyVal` Will be removed in the future.", since = "2.13.0")
 class DelayedLazyVal[T](f: () => T, body: => Unit)(implicit exec: ExecutionContext){
   @volatile private var _isDone = false
   private lazy val complete = f()
 
   /** Whether the computation is complete.
-   *
-   *  @return true if the computation is complete.
-   */
+ *
+ *  @return true if the computation is complete.
+ *    */
   def isDone: Boolean = _isDone
 
   /** The current result of f(), or the final result if complete.
-   *
-   *  @return the current value
-   */
+ *
+ *  @return the current value
+ *    */
   def apply(): T = if (isDone) complete else f()
 
   exec.execute(() => {

@@ -20,17 +20,17 @@ import scala.collection.generic.DefaultSerializable
 import scala.collection.immutable.List
 
 /** A simple mutable map backed by a list, so it preserves insertion order.
-  *
-  *  @tparam K    the type of the keys contained in this list map.
-  *  @tparam V    the type of the values assigned to keys in this list map.
-  *
-  *  @define Coll `mutable.ListMap`
-  *  @define coll mutable list map
-  *  @define mayNotTerminateInf
-  *  @define willNotTerminateInf
-  *  @define orderDependent
-  *  @define orderDependentFold
-  */
+ *
+ *  @tparam K    the type of the keys contained in this list map.
+ *  @tparam V    the type of the values assigned to keys in this list map.
+ *
+ *  @define Coll `mutable.ListMap`
+ *  @define coll mutable list map
+ *  @define mayNotTerminateInf
+ *  @define willNotTerminateInf
+ *  @define orderDependent
+ *  @define orderDependentFold
+ *   */
 @deprecated("Use an immutable.ListMap assigned to a var instead of mutable.ListMap", "2.13.0")
 class ListMap[K, V]
   extends AbstractMap[K, V]
@@ -73,9 +73,9 @@ class ListMap[K, V]
 }
 
 /** $factoryInfo
-  *  @define Coll `mutable.ListMap`
-  *  @define coll mutable list map
-  */
+ *  @define Coll `mutable.ListMap`
+ *  @define coll mutable list map
+ *   */
 @SerialVersionUID(3L)
 @deprecated("Use an immutable.ListMap assigned to a var instead of mutable.ListMap", "2.13.0")
 object ListMap extends MapFactory[ListMap] {

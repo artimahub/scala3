@@ -11,5 +11,5 @@ package scala
 import language.experimental.captureChecking
 
 /** An annotation that designates a main function
- */
+ *  */
 class main extends scala.annotation.Annotation {}

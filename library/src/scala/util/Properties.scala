@@ -24,7 +24,7 @@ object Properties extends PropertiesTrait {
   protected def pickJarBasedOn: Class[Option[?]] = classOf[Option[?]]
 
   /** Scala manifest attributes.
-   */
+ *    */
   val ScalaCompilerVersion = new AttributeName("Scala-Compiler-Version")
 }
 
@@ -73,41 +73,41 @@ private[scala] trait PropertiesTrait {
   def scalaPropOrNone(name: String): Option[String]      = Option(scalaProps.getProperty(name)).orElse(propOrNone("scala." + name))
 
   /** The version of the Scala runtime, if this is not a snapshot.
-   */
+ *    */
   val releaseVersion = scalaPropOrNone("maven.version.number").filterNot(_.endsWith("-SNAPSHOT"))
 
   /** The version of the Scala runtime, if this is a snapshot.
-   */
+ *    */
   val developmentVersion = scalaPropOrNone("maven.version.number").filter(_.endsWith("-SNAPSHOT")).flatMap(_ => scalaPropOrNone("version.number"))
 
   /** The version of the Scala runtime, or the empty string if unknown.
-   *
-   *  Note that the version of the Scala library need not correlate with the version of the Scala compiler
-   *  used to emit either the library or user code.
-   *
-   *  For example, Scala 3.0 and 3.1 use the Scala 2.13 library, which is reflected in this version string.
-   *  For the Dotty version, see `dotty.tools.dotc.config.Properties.versionNumberString`.
-   */
+ *
+ *  Note that the version of the Scala library need not correlate with the version of the Scala compiler
+ *  used to emit either the library or user code.
+ *
+ *  For example, Scala 3.0 and 3.1 use the Scala 2.13 library, which is reflected in this version string.
+ *  For the Dotty version, see `dotty.tools.dotc.config.Properties.versionNumberString`.
+ *    */
   def versionNumberString = scalaPropOrEmpty("version.number")
 
   /** A verbose alternative to [[versionNumberString]].
-   */
+ *    */
   val versionString         = s"version ${scalaPropOrElse("version.number", "(unknown)")}"
   val copyrightString       = scalaPropOrElse("copyright.string", "Copyright 2002-2025, LAMP/EPFL and Lightbend, Inc. dba Akka")
 
   /** This is the encoding to use reading in source files, overridden with -encoding.
-   *  Note that it uses "prop" i.e. looks in the scala jar, not the system properties.
-   */
+ *  Note that it uses "prop" i.e. looks in the scala jar, not the system properties.
+ *    */
   def sourceEncoding        = scalaPropOrElse("file.encoding", "UTF-8")
   def sourceReader          = scalaPropOrElse("source.reader", "scala.tools.nsc.io.SourceReader")
 
   /** This is the default text encoding, overridden (unreliably) with
-   *  `JAVA_OPTS="-Dfile.encoding=Foo"`
-   */
+ *  `JAVA_OPTS="-Dfile.encoding=Foo"`
+ *    */
   def encodingString        = propOrElse("file.encoding", "UTF-8")
 
   /** The default end of line character.
-   */
+ *    */
   def lineSeparator: String = System.lineSeparator()
 
   /* Various well-known properties. */
@@ -169,21 +169,21 @@ private[scala] trait PropertiesTrait {
   def scalacCmd             = if (isWin) "scalac.bat" else "scalac"
 
   /** Compares the given specification version to the specification version of the platform.
-   *
-   *  @param version a specification version number (legacy forms acceptable)
-   *  @return `true` if the specification version of the current runtime
-   *    is equal to or higher than the version denoted by the given string.
-   *  @throws NumberFormatException if the given string is not a version string
-   *
-   *  @example {{{
-   *  // In this example, the runtime's Java specification is assumed to be at version 8.
-   *  isJavaAtLeast("1.8")            // true
-   *  isJavaAtLeast("8")              // true
-   *  isJavaAtLeast("9")              // false
-   *  isJavaAtLeast("9.1")            // false
-   *  isJavaAtLeast("1.9")            // throws
-   *  }}}
-   */
+ *
+ *  @param version a specification version number (legacy forms acceptable)
+ *  @return `true` if the specification version of the current runtime
+ *    is equal to or higher than the version denoted by the given string.
+ *  @throws NumberFormatException if the given string is not a version string
+ *
+ *  @example {{{
+ *  // In this example, the runtime's Java specification is assumed to be at version 8.
+ *  isJavaAtLeast("1.8")            // true
+ *  isJavaAtLeast("8")              // true
+ *  isJavaAtLeast("9")              // false
+ *  isJavaAtLeast("9.1")            // false
+ *  isJavaAtLeast("1.9")            // throws
+ *   ```
+ *    */
   def isJavaAtLeast(version: String): Boolean = {
     def versionOf(s: String, depth: Int): (Int, String) =
       s.indexOf('.') match {
@@ -221,8 +221,8 @@ private[scala] trait PropertiesTrait {
   }
 
   /** Compares the given specification version to the major version of the platform.
-   *  @param version a specification major version number
-   */
+ *  @param version a specification major version number
+ *    */
   def isJavaAtLeast(version: Int): Boolean = isJavaAtLeast(math.max(version, 0).toString)
 
   // provide a main method so version info can be obtained by running this

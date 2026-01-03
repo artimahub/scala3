@@ -19,9 +19,9 @@ import language.experimental.captureChecking
 import scala.annotation.{nowarn, tailrec}
 
 /** Base trait for linearly accessed sequences that have efficient `head` and
-  *  `tail` operations.
-  *  Known subclasses: List, LazyList
-  */
+ *  `tail` operations.
+ *  Known subclasses: List, LazyList
+ */
 trait LinearSeq[+A] extends Seq[A]
   with LinearSeqOps[A, LinearSeq, LinearSeq[A]]
   with IterableFactoryDefaults[A, LinearSeq] {
@@ -38,22 +38,22 @@ object LinearSeq extends SeqFactory.Delegate[LinearSeq](immutable.LinearSeq)
 transparent trait LinearSeqOps[+A, +CC[X] <: LinearSeq[X], +C <: LinearSeq[A] & LinearSeqOps[A, CC, C]] extends Any with SeqOps[A, CC, C] with caps.Pure { self =>
 
   /** @inheritdoc
-   *
-   *  Note: *Must* be overridden in subclasses. The default implementation that is inherited from [[SeqOps]]
-   *     uses `lengthCompare`, which is defined here to use `isEmpty`.
-   */
+ *
+ *  Note: *Must* be overridden in subclasses. The default implementation that is inherited from [[SeqOps]]
+ *     uses `lengthCompare`, which is defined here to use `isEmpty`.
+ *    */
   override def isEmpty: Boolean
 
   /** @inheritdoc
-   *
-   *  Note: *Must* be overridden in subclasses. The default implementation is inherited from [[IterableOps]].
-   */
+ *
+ *  Note: *Must* be overridden in subclasses. The default implementation is inherited from [[IterableOps]].
+ *    */
   def head: A
 
   /** @inheritdoc
-   *
-   *  Note: *Must* be overridden in subclasses. The default implementation is inherited from [[IterableOps]].
-   */
+ *
+ *  Note: *Must* be overridden in subclasses. The default implementation is inherited from [[IterableOps]].
+ *    */
   def tail: C
 
   override def headOption: Option[A] =
@@ -287,8 +287,8 @@ transparent trait StrictOptimizedLinearSeqOps[+A, +CC[X] <: LinearSeq[X], +C <: 
 }
 
 /** A specialized Iterator for LinearSeqs that is lazy enough for Stream and LazyList. This is accomplished by not
-  * evaluating the tail after returning the current head.
-  */
+ *  evaluating the tail after returning the current head.
+ */
 private[collection] final class LinearSeqIterator[A](coll: LinearSeqOps[A, LinearSeq, LinearSeq[A]]) extends AbstractIterator[A] {
   // A call-by-need cell
   private final class LazyCell(st: => LinearSeqOps[A, LinearSeq, LinearSeq[A]]) { lazy val v = st }

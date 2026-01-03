@@ -19,8 +19,8 @@ import scala.language.`2.13`
  *  Instances of `ControlThrowable` should not normally be caught.
  *
  *  As a convenience, `NonFatal` does not match `ControlThrowable`.
- *
- *  {{{
+
+ *   ```
  *  import scala.util.control.{Breaks, NonFatal}, Breaks.{break, breakable}
  *
  *  breakable {
@@ -33,7 +33,7 @@ import scala.language.`2.13`
  *      }
  *    }
  *  }
- *  }}}
+ *   ```
  *
  *  Suppression is disabled, because flow control should not suppress
  *  an exceptional condition. Stack traces are also disabled, allowing
@@ -41,7 +41,7 @@ import scala.language.`2.13`
  *
  *  Instances of `ControlThrowable` should not normally have a cause.
  *  Legacy subclasses may set a cause using `initCause`.
- */
+ *  */
 abstract class ControlThrowable(message: String | Null) extends Throwable(
   message, /*cause*/ null, /*enableSuppression=*/ false, /*writableStackTrace*/ false) {
 

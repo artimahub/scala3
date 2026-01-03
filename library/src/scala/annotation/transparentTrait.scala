@@ -6,6 +6,6 @@ import language.experimental.captureChecking
  *  Scala 3 code would use the modifier `transparent` instead. Transparent traits
  *  are not inferred when combined with other types in an intersection.
  *  See reference/other-new-features/transparent-traits.html for details.
- */
+ *  */
 @deprecated(message = "Transparent traits/classes via annotations is no longer supported. Use instead the `transparent` modifier", since = "3.8.0")
 final class transparentTrait extends StaticAnnotation

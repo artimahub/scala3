@@ -6,8 +6,9 @@ import java.util.concurrent.CountDownLatch
 import scala.annotation.*
 
 /**
+ *
  * Helper methods used in thread-safe lazy vals.
- */
+ *  */
 object LazyVals {
   @nowarn
   private val unsafe: sun.misc.Unsafe^ = { // do not let unsafe leak
@@ -50,9 +51,10 @@ object LazyVals {
   sealed trait LazyValControlState extends Serializable
 
   /**
-   * Used to indicate the state of a lazy val that is being
-   * evaluated and of which other threads await the result.
-   */
+ *
+ * Used to indicate the state of a lazy val that is being
+ * evaluated and of which other threads await the result.
+ *    */
   final class Waiting extends CountDownLatch(1) with LazyValControlState {
     /* #20856 If not fully evaluated yet, serialize as if not-evaluat*ing* yet.
      * This strategy ensures the "serializability" condition of parallel
@@ -67,9 +69,10 @@ object LazyVals {
   }
 
   /**
-   * Used to indicate the state of a lazy val that is currently being
-   * evaluated with no other thread awaiting its result.
-   */
+ *
+ * Used to indicate the state of a lazy val that is currently being
+ * evaluated with no other thread awaiting its result.
+ *    */
   object Evaluating extends LazyValControlState {
     /* #20856 If not fully evaluated yet, serialize as if not-evaluat*ing* yet.
      * See longer comment in `Waiting.writeReplace()`.
@@ -78,9 +81,10 @@ object LazyVals {
   }
 
   /**
-   * Used to indicate the state of a lazy val that has been evaluated to
-   * `null`.
-   */
+ *
+ * Used to indicate the state of a lazy val that has been evaluated to
+ * `null`.
+ *    */
   object NullValue extends LazyValControlState
 
   final val BITS_PER_LAZY_VAL = 2L

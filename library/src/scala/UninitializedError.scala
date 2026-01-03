@@ -15,7 +15,7 @@ package scala
 import scala.language.`2.13`
 
 /** This class represents uninitialized variable/value errors.
- */
+ *  */
 // TODO: remove
 @deprecated("will be removed in a future release", since = "2.12.7")
 final class UninitializedError extends RuntimeException("uninitialized value")

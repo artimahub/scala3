@@ -16,9 +16,9 @@ import scala.language.`2.13`
 import language.experimental.captureChecking
 
 /** A trait for cloneable collections.
-  *
-  *  @tparam C    Type of the collection, covariant and with reference types as upperbound.
-  */
+ *
+ *  @tparam C    Type of the collection, covariant and with reference types as upperbound.
+ *   */
 trait Cloneable[+C <: AnyRef] extends scala.Cloneable {
   override def clone(): C = super.clone().asInstanceOf[C]
 }

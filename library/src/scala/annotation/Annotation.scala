@@ -15,6 +15,7 @@ package scala.annotation
 import scala.language.`2.13`
 
 /**
+ *
  * A base class for annotations.
  *
  * Annotations extending this class directly are not preserved in the classfile. To enable storing
@@ -24,5 +25,5 @@ import scala.language.`2.13`
  * Annotation classes defined in Scala are not stored in classfiles in a Java-compatible manner
  * and therefore not visible in Java reflection. In order to achieve this, the annotation has to
  * be written in Java.
- */
+ *  */
 abstract class Annotation

@@ -22,21 +22,21 @@ object Product1 {
 }
 
 /** Product1 is a Cartesian product of 1 component.
- */
+ *  */
 trait Product1[@specialized(Int, Long, Double) +T1] extends Any with Product {
   /** The arity of this product.
-   *  @return 1
-   */
+ *  @return 1
+ *    */
   override def productArity: Int = 1
 
   
   /** Returns the n-th projection of this product if 0 <= n < productArity,
-   *  otherwise throws an `IndexOutOfBoundsException`.
-   *
-   *  @param n number of the projection to be returned
-   *  @return  same as `._(n+1)`, for example `productElement(0)` is the same as `._1`.
-   *  @throws  IndexOutOfBoundsException if the `n` is out of range(n < 0 || n >= 1).
-   */
+ *  otherwise throws an `IndexOutOfBoundsException`.
+ *
+ *  @param n number of the projection to be returned
+ *  @return  same as `._(n+1)`, for example `productElement(0)` is the same as `._1`.
+ *  @throws  IndexOutOfBoundsException if the `n` is out of range(n < 0 || n >= 1).
+ *    */
 
   @throws(classOf[IndexOutOfBoundsException])
   override def productElement(n: Int): Any = n match { 
@@ -45,8 +45,8 @@ trait Product1[@specialized(Int, Long, Double) +T1] extends Any with Product {
  }
 
   /** A projection of element 1 of this Product.
-   *  @return   A projection of element 1.
-   */
+ *  @return   A projection of element 1.
+ *    */
   def _1: T1
 
 

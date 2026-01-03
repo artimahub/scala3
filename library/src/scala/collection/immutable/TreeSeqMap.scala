@@ -20,31 +20,31 @@ import language.experimental.captureChecking
 import scala.annotation.tailrec
 
 /** This class implements an immutable map that preserves order using
-  * a hash map for the key to value mapping to provide efficient lookup,
-  * and a tree for the ordering of the keys to provide efficient
-  * insertion/modification order traversal and destructuring.
-  *
-  * By default insertion order (`TreeSeqMap.OrderBy.Insertion`)
-  * is used, but modification order (`TreeSeqMap.OrderBy.Modification`)
-  * can be used instead if so specified at creation.
-  *
-  * The `orderingBy(orderBy: TreeSeqMap.OrderBy): TreeSeqMap[K, V]` method
-  * can be used to switch to the specified ordering for the returned map.
-  *
-  * A key can be manually refreshed (i.e. placed at the end) via the
-  * `refresh(key: K): TreeSeqMap[K, V]` method (regardless of the ordering in
-  * use).
-  *
-  * Internally, an ordinal counter is increased for each insertion/modification
-  * and then the current ordinal is used as key in the tree map. After 2^32^
-  * insertions/modifications the entire map is copied (thus resetting the ordinal
-  * counter).
-  *
-  *  @tparam K the type of the keys contained in this map.
-  *  @tparam V the type of the values associated with the keys in this map.
-  * @define coll immutable tree seq map
-  * @define Coll `immutable.TreeSeqMap`
-  */
+ * a hash map for the key to value mapping to provide efficient lookup,
+ * and a tree for the ordering of the keys to provide efficient
+ * insertion/modification order traversal and destructuring.
+ *
+ * By default insertion order (`TreeSeqMap.OrderBy.Insertion`)
+ * is used, but modification order (`TreeSeqMap.OrderBy.Modification`)
+ * can be used instead if so specified at creation.
+ *
+ * The `orderingBy(orderBy: TreeSeqMap.OrderBy): TreeSeqMap[K, V]` method
+ * can be used to switch to the specified ordering for the returned map.
+ *
+ * A key can be manually refreshed (i.e. placed at the end) via the
+ * `refresh(key: K): TreeSeqMap[K, V]` method (regardless of the ordering in
+ * use).
+ *
+ * Internally, an ordinal counter is increased for each insertion/modification
+ * and then the current ordinal is used as key in the tree map. After 2^32^
+ * insertions/modifications the entire map is copied (thus resetting the ordinal
+ * counter).
+ *
+ *  @tparam K the type of the keys contained in this map.
+ *  @tparam V the type of the values associated with the keys in this map.
+ * @define coll immutable tree seq map
+ * @define Coll `immutable.TreeSeqMap`
+ *   */
 final class TreeSeqMap[K, +V] private (
     private val ordering: TreeSeqMap.Ordering[K],
     private val mapping: TreeSeqMap.Mapping[K, V],
@@ -625,15 +625,16 @@ object TreeSeqMap extends MapFactory[TreeSeqMap] {
     }
 
     /**
-      * A combined transform and filter function. Returns an `Ordering` such that
-      * for each `(key, value)` mapping in this map, if `f(key, value) == None`
-      * the map contains no mapping for key, and if `f(key, value) == Some(x)` the
-      * map contains `(key, x)`.
-      *
-      * @tparam S  The type of the values in the resulting `LongMap`.
-      * @param f   The transforming function.
-      * @return    The modified map.
-      */
+ *
+ * A combined transform and filter function. Returns an `Ordering` such that
+ * for each `(key, value)` mapping in this map, if `f(key, value) == None`
+ * the map contains no mapping for key, and if `f(key, value) == Some(x)` the
+ * map contains `(key, x)`.
+ *
+ * @tparam S  The type of the values in the resulting `LongMap`.
+ * @param f   The transforming function.
+ * @return    The modified map.
+ *       */
     final def modifyOrRemove[S](f: (Int, T) => Option[S]): Ordering[S] = this match {
       case Zero => Zero
       case Tip(key, value) =>

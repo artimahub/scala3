@@ -407,7 +407,7 @@ object ToExpr {
     }
   }
 
-  /** Default implementation of `ToExpr[H *: T]`. */
+  /**: T]`. */
   given TupleConsToExpr [H: Type: ToExpr, T <: Tuple: Type: ToExpr]: ToExpr[H *: T] with {
     def apply(tup: H *: T)(using Quotes): Expr[H *: T] =
       val head = Expr[H](tup.head)

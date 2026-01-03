@@ -14,9 +14,10 @@ import scala.language.`2.13`
 import scala.annotation.migration
 
 /**
+ *
  * Core Scala types. They are always available without an explicit import.
  * @contentDiagram hideNodes "scala.Serializable"
- */
+ *  */
 package object scala {
   type Cloneable    = java.lang.Cloneable
   type Serializable = java.io.Serializable

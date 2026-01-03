@@ -42,7 +42,7 @@ import scala.language.`2.13`
  *  convenience value `Breaks`.
  *
  *  Example usage:
- *  {{{
+ *   ```
  *  val mybreaks = new Breaks
  *  import mybreaks.{break, breakable}
  *
@@ -52,21 +52,21 @@ import scala.language.`2.13`
  *      f(x)
  *    }
  *  }
- *  }}}
+ *   ```
  *  Calls to `break` from one instance of `Breaks` will never
  *  resume at the `breakable` of some other instance.
  *
  *  Any intervening exception handlers should use `NonFatal`,
  *  or use `Try` for evaluation:
- *  {{{
+ *   ```
  *  val mybreaks = new Breaks
  *  import mybreaks.{break, breakable}
  *
  *  breakable {
  *    for (x <- xs) Try { if (quit) break else f(x) }.foreach(println)
  *  }
- *  }}}
- */
+ *   ```
+ *  */
 class Breaks {
 
   private val breakException = new BreakControl
@@ -83,16 +83,16 @@ class Breaks {
   }
 
   /** Try a computation that produces a value, supplying a default
-   *  to be used if the computation terminates with a `break`.
-   *
-   * {{{
-   * tryBreakable {
-   *   (1 to 3).map(i => if (math.random < .5) break else i * 2)
-   * } catchBreak {
-   *   Vector.empty
-   * }
-   * }}}
-   */
+ *  to be used if the computation terminates with a `break`.
+
+ *  ```
+ * tryBreakable {
+ *   (1 to 3).map(i => if (math.random < .5) break else i * 2)
+ * } catchBreak {
+ *   Vector.empty
+ * }
+ *  ```
+ *    */
   def tryBreakable[T](op: => T): TryBlock[T] =
     new TryBlock[T] {
       def catchBreak(onBreak: => T) =
@@ -100,18 +100,18 @@ class Breaks {
     }
 
   /** Break from the dynamically closest enclosing breakable block that also uses
-   *  this `Breaks` instance.
-   *
-   *  @note This might be different from the statically closest enclosing block!
-   *  @note Invocation without parentheses relies on the conversion to "empty application".
-   */
+ *  this `Breaks` instance.
+ *
+ *  @note This might be different from the statically closest enclosing block!
+ *  @note Invocation without parentheses relies on the conversion to "empty application".
+ *    */
   def break(): Nothing = throw breakException
 }
 
 /** An object that can be used for the break control abstraction.
  *
  *  Example usage:
- *  {{{
+ *   ```
  *  import Breaks.{break, breakable}
  *
  *  breakable {
@@ -119,8 +119,8 @@ class Breaks {
  *      if (...) break
  *    }
  *  }
- *  }}}
- */
+ *   ```
+ *  */
 object Breaks extends Breaks
 
 private class BreakControl extends ControlThrowable

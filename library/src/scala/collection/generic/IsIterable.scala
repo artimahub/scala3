@@ -32,15 +32,15 @@ import caps.unsafe.untrackedCaptures
  *  1. type member `C`, which represents the type returned by transformation operations that preserve the collection’s elements type
  *  1. method `apply`, which provides a way to convert between the type we wish to add extension methods to, `Repr`, and `IterableOps[A, Iterable, C]`.
  *
- * ===Usage===
+ * ### Usage
  *
  * One must provide `IsIterable` as an implicit parameter type of an implicit
  * conversion. Its usage is shown below. Our objective in the following example
  * is to provide a generic extension method `mapReduce` to any type that extends
  * or can be converted to `Iterable`. In our example, this includes
  * `String`.
- *
- * {{{
+
+ *  ```
  *    import scala.collection.{Iterable, IterableOps}
  *    import scala.collection.generic.IsIterable
  *
@@ -60,7 +60,7 @@ import caps.unsafe.untrackedCaptures
  *  // See it in action!
  *  List(1, 2, 3).mapReduce(_ * 2)(_ + _) // res0: Int = 12
  *  "Yeah, well, you know, that's just, like, your opinion, man.".mapReduce(x => 1)(_ + _) // res1: Int = 59
- *}}}
+ * ```
  *
  * Here, we begin by creating a class `ExtensionMethods` which contains our
  * `mapReduce` extension method.
@@ -88,11 +88,11 @@ import caps.unsafe.untrackedCaptures
  * (See the `IsIterable` companion object, which contains a precise
  * specification of the available implicits.)
  *
- * ''Note'': Currently, it's not possible to combine the implicit conversion and
+ * *Note*: Currently, it's not possible to combine the implicit conversion and
  * the class with the extension methods into an implicit class due to
  * limitations of type inference.
  *
- * ===Implementing `IsIterable` for New Types===
+ * ### Implementing `IsIterable` for New Types
  *
  * One must simply provide an implicit value of type `IsIterable`
  * specific to the new type, or an implicit conversion which returns an
@@ -100,27 +100,27 @@ import caps.unsafe.untrackedCaptures
  *
  * Below is an example of an implementation of the `IsIterable` trait
  * where the `Repr` type is `Range`.
- *
- *{{{
+
+ * ```
  * implicit val rangeRepr: IsIterable[Range] { type A = Int; type C = IndexedSeq[Int] } =
  *   new IsIterable[Range] {
  *     type A = Int
  *     type C = IndexedSeq[Int]
  *     def apply(coll: Range): IterableOps[Int, IndexedSeq, IndexedSeq[Int]] = coll
  *   }
- *}}}
+ * ```
  *
  * (Note that in practice the `IsIterable[Range]` instance is already provided by
  * the standard library, and it is defined as an `IsSeq[Range]` instance)
- */
+ *  */
 transparent trait IsIterable[Repr] extends IsIterableOnce[Repr] {
 
   /** The type returned by transformation operations that preserve the same elements
-    * type (e.g. `filter`, `take`).
-    *
-    * In practice, this type is often `Repr` itself, excepted in the case
-    * of `SeqView[A]` (and other `View[A]` subclasses), where it is “only” `View[A]`.
-    */
+ * type (e.g. `filter`, `take`).
+ *
+ * In practice, this type is often `Repr` itself, excepted in the case
+ * of `SeqView[A]` (and other `View[A]` subclasses), where it is “only” `View[A]`.
+ *     */
   type C
 
   @deprecated("'conversion' is now a method named 'apply'", "2.13.0")

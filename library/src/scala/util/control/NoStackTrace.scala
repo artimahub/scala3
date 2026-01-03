@@ -21,7 +21,7 @@ import scala.language.`2.13`
  *  [[scala.sys.SystemProperties]].
  *
  *  @note Since JDK 1.7, a similar effect can be achieved with `class Ex extends Throwable(..., writableStackTrace = false)`
- */
+ *  */
 trait NoStackTrace extends Throwable {
   override def fillInStackTrace(): Throwable =
     if (NoStackTrace.noSuppression) super.fillInStackTrace()

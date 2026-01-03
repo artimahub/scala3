@@ -15,15 +15,16 @@ package scala
 import scala.language.`2.13`
 
 /**
-  * Annotation for specifying the `serialVersionUID` field of a (serializable) class.
-  *
-  * On the JVM, a class with this annotation will receive a `private`, `static`,
-  * and `final` field called `serialVersionUID` with the provided `value`,
-  * which the JVM's serialization mechanism uses to determine serialization
-  * compatibility between different versions of a class.
-  *
-  * @see [[java.io.Serializable]]
-  * @see [[Serializable]]
-  */
+ *
+ * Annotation for specifying the `serialVersionUID` field of a (serializable) class.
+ *
+ * On the JVM, a class with this annotation will receive a `private`, `static`,
+ * and `final` field called `serialVersionUID` with the provided `value`,
+ * which the JVM's serialization mechanism uses to determine serialization
+ * compatibility between different versions of a class.
+ *
+ * @see [[java.io.Serializable]]
+ * @see [[Serializable]]
+ *   */
 @deprecatedInheritance("Scheduled for being final in the future", "2.13.0")
 class SerialVersionUID(value: Long) extends scala.annotation.ConstantAnnotation

@@ -49,7 +49,7 @@ object boundary:
       new Break(label.unsafeAssumePure, value)
 
   /** Labels are targets indicating which boundary will be exited by a `break`.
-   */
+ *    */
   @implicitNotFound("explain=A Label is generated from an enclosing `scala.util.boundary` call.\nMaybe that boundary is missing?")
   final class Label[-T] extends caps.Control
 

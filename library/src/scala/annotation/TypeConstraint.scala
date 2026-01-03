@@ -24,5 +24,5 @@ import scala.language.`2.13`
  *  down is not a proper constrained type, and this marker should not be
  *  applied.  A Scala compiler will drop such annotations in cases where it
  *  would rewrite a type constraint.
- */
+ *  */
 trait TypeConstraint extends Annotation

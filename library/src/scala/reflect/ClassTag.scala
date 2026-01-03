@@ -21,6 +21,7 @@ import scala.runtime.ClassValueCompat
 
 /**
  *
+
  * A `ClassTag[T]` stores the erased class of a given type `T`, accessible via the `runtimeClass`
  * field. This is particularly useful for instantiating `Array`s whose element types are unknown
  * at compile time.
@@ -29,7 +30,7 @@ import scala.runtime.ClassValueCompat
  * its argument types. This runtime information is enough for runtime `Array` creation.
  *
  * For example:
- * {{{
+ *  ```
  *   scala> def mkArray[T : ClassTag](elems: T*) = Array[T](elems*)
  *   def mkArray[T](elems: T*)(using ClassTag[T]): Array[T]
  *
@@ -38,14 +39,14 @@ import scala.runtime.ClassValueCompat
  *
  *   scala> mkArray("Japan","Brazil","Germany")
  *   val res1: Array[String] = Array(Japan, Brazil, Germany)
- * }}}
+ *  ```
  *
  * For compile-time type information in macros, see the facilities in the
  * [[scala.quoted]] package.
  * For limited runtime type checks beyond what `Class[?]` provides, see
  * [[scala.reflect.TypeTest]] and [[scala.reflect.Typeable]].
  *
- */
+ *  */
 @nowarn("""cat=deprecation&origin=scala\.reflect\.ClassManifestDeprecatedApis""")
 @implicitNotFound(msg = "No ClassTag available for ${T}")
 trait ClassTag[T] extends ClassManifestDeprecatedApis[T] with Equals with Serializable {
@@ -53,8 +54,8 @@ trait ClassTag[T] extends ClassManifestDeprecatedApis[T] with Equals with Serial
   // class tags, and all tags in general, should be as minimalistic as possible
 
   /** A class representing the type `U` to which `T` would be erased.
-   *  Note that there is no subtyping relationship between `T` and `U`.
-   */
+ *  Note that there is no subtyping relationship between `T` and `U`.
+ *    */
   def runtimeClass: jClass[?]
 
   /** Produces a `ClassTag` that knows how to instantiate an `Array[Array[T]]`. */
@@ -66,11 +67,11 @@ trait ClassTag[T] extends ClassManifestDeprecatedApis[T] with Equals with Serial
 
   /** A ClassTag[T] can serve as an extractor that matches only objects of type T.
    *
-   * The compiler tries to turn unchecked type tests in pattern matches into checked ones
-   * by wrapping a `(_: T)` type pattern as `ct(_: T)`, where `ct` is the `ClassTag[T]` instance.
-   * Type tests necessary before calling other extractors are treated similarly.
-   * `SomeExtractor(...)` is turned into `ct(SomeExtractor(...))` if `T` in `SomeExtractor.unapply(x: T)`
-   * is uncheckable, but we have an instance of `ClassTag[T]`.
+   *  The compiler tries to turn unchecked type tests in pattern matches into checked ones
+   *  by wrapping a `(_: T)` type pattern as `ct(_: T)`, where `ct` is the `ClassTag[T]` instance.
+   *  Type tests necessary before calling other extractors are treated similarly.
+   *  `SomeExtractor(...)` is turned into `ct(SomeExtractor(...))` if `T` in `SomeExtractor.unapply(x: T)`
+   *  is uncheckable, but we have an instance of `ClassTag[T]`.
    */
   def unapply(x: Any): Option[T] =
     if (runtimeClass.isInstance(x)) Some(x.asInstanceOf[T])
@@ -89,8 +90,9 @@ trait ClassTag[T] extends ClassManifestDeprecatedApis[T] with Equals with Serial
 }
 
 /**
+ *
  * Class tags corresponding to primitive types and constructor/extractor for ClassTags.
- */
+ *  */
 object ClassTag {
   private val ObjectTYPE = classOf[java.lang.Object]
   private val NothingTYPE = classOf[scala.runtime.Nothing$]

@@ -69,10 +69,10 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
       summon[FromExpr[T]].unapply(self)
 
     /** Returns the value of this expression.
-     *
-     *  Emits an error and throws if the expression does not represent a value or possibly contains side effects.
-     *  Otherwise returns the value.
-     */
+ *
+ *  Emits an error and throws if the expression does not represent a value or possibly contains side effects.
+ *  Otherwise returns the value.
+ *      */
     @deprecated("Use valueOrAbort", "3.1.0")
     def valueOrError(using FromExpr[T]): T =
       val fromExpr = summon[FromExpr[T]]
@@ -370,9 +370,9 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
     end PackageClauseMethods
 
     /** Tree representing an import in the source code.
-     *
-     *  See also documentation on `Selector`.
-     */
+ *
+ *  See also documentation on `Selector`.
+ *      */
     type Import <: Statement
 
     /** `TypeTest` that allows testing at runtime in a pattern match if a `Tree` is an `Import`. */
@@ -408,8 +408,8 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
     end ImportMethods
 
     /** Tree representing an export clause in the source code.
-     *  Export forwarders generated from this clause appear in the same scope.
-     */
+ *  Export forwarders generated from this clause appear in the same scope.
+ *      */
     type Export <: Statement
 
     /** `TypeTest` that allows testing at runtime in a pattern match if a `Tree` is an `Export`. */
@@ -532,8 +532,8 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
         /** The primary constructor of this class. */
         def constructor: DefDef
         /** List of extended parent classes or traits.
-         *  The first parent is always a class.
-         */
+ *  The first parent is always a class.
+ *          */
         def parents: List[Tree /* Term | TypeTree */]
         /** Self-type of the class
          *
@@ -562,8 +562,8 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
     // ValOrDefDef
 
     /** Tree representing a value or method definition in the source code.
-     *  This includes `def`, `val`, `lazy val`, `var`, `object` and parameter definitions.
-     */
+ *  This includes `def`, `val`, `lazy val`, `var`, `object` and parameter definitions.
+ *      */
     type ValOrDefDef <: Definition
 
     /** `TypeTest` that allows testing at runtime in a pattern match if a `Tree` is a `ValOrDefDef`. */
@@ -653,8 +653,8 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
         def returnTpt: TypeTree
 
         /** The tree of the implementation of the method.
-         *  Returns `None` if the method does not have an implementation.
-         */
+ *  Returns `None` if the method does not have an implementation.
+ *          */
         def rhs: Option[Term]
       end extension
     end DefDefMethods
@@ -883,8 +883,8 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
         def appliedToArgs(args: List[Term]): Apply
 
         /** The current tree applied to given argument lists:
-        *  `tree (argss(0)) ... (argss(argss.length -1))`
-        */
+         *  `tree (argss(0)) ... (argss(argss.length -1))`
+         */
         def appliedToArgss(argss: List[List[Term]]): Term
 
         /** The current tree applied to (): `tree()`. */
@@ -925,23 +925,23 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
       def term(tp: TermRef): Ref
 
       /** Creates a reference tree from a symbol
-      *
-      *  If `sym` refers to a class member `foo` in class `C`,
-      *  returns a tree representing `C.this.foo`.
-      *
-      *  If `sym` refers to an object member `foo` in object C, itself in prefix
-      *  `pre` (which might include `.this`, if it contains a class),
-      *  returns `pre.C.foo`.
-      *
-      *  If `sym` refers to a local definition `foo`, returns
-      *  a tree representing `foo`.
-      *
-      *  @note In all cases, the constructed tree should only
-      *  be spliced into the places where such accesses make sense.
-      *  For example, it is incorrect to have `C.this.foo` outside
-      *  the class body of `C`, or have `foo` outside the lexical
-      *  scope for the definition of `foo`.
-      */
+       *
+       *  If `sym` refers to a class member `foo` in class `C`,
+       *  returns a tree representing `C.this.foo`.
+       *
+       *  If `sym` refers to an object member `foo` in object C, itself in prefix
+       *  `pre` (which might include `.this`, if it contains a class),
+       *  returns `pre.C.foo`.
+       *
+       *  If `sym` refers to a local definition `foo`, returns
+       *  a tree representing `foo`.
+       *
+       *  @note In all cases, the constructed tree should only
+       *  be spliced into the places where such accesses make sense.
+       *  For example, it is incorrect to have `C.this.foo` outside
+       *  the class body of `C`, or have `foo` outside the lexical
+       *  scope for the definition of `foo`.
+       */
       def apply(sym: Symbol): Ref
     }
 
@@ -1007,11 +1007,11 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
       def apply(qualifier: Term, symbol: Symbol): Select
 
       /** Selects a field or a non-overloaded method by name
-      *
-      *  @note The method will produce an assertion error if the selected
-      *        method is overloaded. The method `overloaded` should be used
-      *        in that case.
-      */
+       *
+       *  @note The method will produce an assertion error if the selected
+       *        method is overloaded. The method `overloaded` should be used
+       *        in that case.
+       */
       def unique(qualifier: Term, name: String): Select
 
       /** Calls an overloaded method with the given type and term parameters. */
@@ -1175,8 +1175,8 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
     end NamedArgMethods
 
     /** Tree representing an application of arguments.
-     *  It represents a single list of arguments, multiple argument lists will have nested `Apply`s
-     */
+ *  It represents a single list of arguments, multiple argument lists will have nested `Apply`s
+ *      */
     type Apply <: Term
 
     /** `TypeTest` that allows testing at runtime in a pattern match if a `Tree` is an `Apply`. */
@@ -1331,10 +1331,10 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
     given TypedTypeTest: TypeTest[Tree, Typed]
 
     /** Tree representing a type ascription `x: T` in the source code.
-     *
-     *  Also represents a pattern that contains a term `x`.
-     *  Other `: T` patterns use the more general `TypedOrTest`.
-     */
+ *
+ *  Also represents a pattern that contains a term `x`.
+ *  Other `: T` patterns use the more general `TypedOrTest`.
+ *      */
     type Typed <: Term & TypedOrTest
 
     /** Module object of `type Typed`. */
@@ -1431,14 +1431,14 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
     given ClosureTypeTest: TypeTest[Tree, Closure]
 
     /** A lambda `(...) => ...` in the source code is represented as
-     *  a local method and a closure:
-     *
-     *  {
-     *    def m(...) = ...
-     *    closure(m)
-     *  }
-     *
-     */
+ *  a local method and a closure:
+ *
+ *  {
+ *    def m(...) = ...
+ *    closure(m)
+ *  }
+ *
+ *      */
     type Closure <: Term
 
     /** Module object of `type Closure`. */
@@ -1877,9 +1877,9 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
       def of[T <: AnyKind](using Type[T]): TypeTree
 
       /** Returns a type tree reference to the symbol
-       *
-       *  @param typeSymbol The type symbol for which we are creating a type tree reference.
-       */
+ *
+ *  @param typeSymbol The type symbol for which we are creating a type tree reference.
+ *        */
       def ref(typeSymbol: Symbol): TypeTree
     }
 
@@ -2028,11 +2028,11 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
     /** Methods of the module object `val Refined`. */
     trait RefinedModule { this: Refined.type =>
       /** Creates and types a Refined AST node.
-        * @param tpt - parent type being refined
-        * @param refinements - List of definitions represesenting refinements
-        * @param refineCls - symbol of the class of which the refinement definitions originally come from
-        * @return
-        */
+ * @param tpt - parent type being refined
+ * @param refinements - List of definitions represesenting refinements
+ * @param refineCls - symbol of the class of which the refinement definitions originally come from
+ * @return
+ *         */
       def apply(tpt: TypeTree, refinements: List[Definition], refineCls: Symbol): Refined
       def copy(original: Tree)(tpt: TypeTree, refinements: List[Definition]): Refined
       def unapply(x: Refined): (TypeTree, List[Definition])
@@ -2268,9 +2268,9 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
     end TypeBoundsTreeMethods
 
     /** Type tree representing wildcard type bounds written in the source.
-    *  The wildcard type `?` (for example in in `List[?]`) will be a type tree that
-    *  represents a type but has `TypeBounds` inside.
-    */
+ *  The wildcard type `?` (for example in in `List[?]`) will be a type tree that
+ *  represents a type but has `TypeBounds` inside.
+ *     */
     type WildcardTypeTree <: Tree
 
     /** `TypeTest` that allows testing at runtime in a pattern match if a `Tree` is a `WildcardTypeTree`. */
@@ -2393,11 +2393,11 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
 
     /** Methods of the module object `val Unapply`. */
     trait UnapplyModule { this: Unapply.type =>
-      /** Creates an `Unapply` tree representing a pattern `<fun>(<patterns*>)(using <implicits*>)`. */
+      /**>)(using <implicits*>)`. */
       def apply(fun: Term, implicits: List[Term], patterns: List[Tree]): Unapply
-      /** Copies an `Unapply` tree representing a pattern `<fun>(<patterns*>)(using <implicits*>)`. */
+      /**>)(using <implicits*>)`. */
       def copy(original: Tree)(fun: Term, implicits: List[Term], patterns: List[Tree]): Unapply
-      /** Matches an `Unapply(fun, implicits, patterns)` tree representing a pattern `<fun>(<patterns*>)(using <implicits*>)`. */
+      /**>)(using <implicits*>)`. */
       def unapply(x: Unapply): (Term, List[Term], List[Tree])
     }
 
@@ -2486,8 +2486,8 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
     end ParamClauseMethods
 
     /** A term parameter clause `(x1: X1, ..., xn: Xx)`
-     *  Can also be `(implicit X1, ..., Xn)`, `(given X1, ..., Xn)` or `(given x1: X1, ..., xn: Xn)`
-     */
+ *  Can also be `(implicit X1, ..., Xn)`, `(given X1, ..., Xn)` or `(given x1: X1, ..., xn: Xn)`
+ *      */
     type TermParamClause <: ParamClause
 
     /** `TypeTest` that allows testing at runtime in a pattern match if a `ParamClause` is a `TermParamClause`. */
@@ -2555,11 +2555,11 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
     /////////////////////
 
     /** Import/Export selectors:
-     *  - SimpleSelector: `.bar` in `import foo.bar`
-     *  - RenameSelector: `.{bar => baz}` in `export foo.{bar => baz}`
-     *  - OmitSelector: `.{bar => _}` in `import foo.{bar => _}`
-     *  - GivenSelector: `.given`/`.{given T}` in `export foo.given`/`import foo.{given T}`
-     */
+ *  - SimpleSelector: `.bar` in `import foo.bar`
+ *  - RenameSelector: `.{bar => baz}` in `export foo.{bar => baz}`
+ *  - OmitSelector: `.{bar => _}` in `import foo.{bar => _}`
+ *  - GivenSelector: `.given`/`.{given T}` in `export foo.given`/`import foo.{given T}`
+ *      */
     type Selector <: AnyRef
 
     /** Module object of `type Selector`. */
@@ -2724,8 +2724,8 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
         def asType: Type[?]
 
         /** Is `self` type the same as `that` type?
-        *  This is the case iff `self <:< that` and `that <:< self`.
-        */
+ *  This is the case iff `self <:< that` and `that <:< self`.
+ *         */
         def =:=(that: TypeRepr): Boolean
 
         /** Is this type a subtype of that type? */
@@ -2743,8 +2743,8 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
         def widen: TypeRepr
 
         /** Widen from TermRef to its underlying non-termref
-         *  base type, while also skipping ByName types.
-         */
+ *  base type, while also skipping ByName types.
+ *          */
         def widenTermRefByName: TypeRepr
 
         /** Widen from ByName type to its result type. */
@@ -2757,8 +2757,8 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
         def dealiasKeepOpaques: TypeRepr
 
         /** A simplified version of this type which is equivalent wrt =:= to this type.
-        *  Reduces typerefs, applied match types, and and or types.
-        */
+ *  Reduces typerefs, applied match types, and and or types.
+ *         */
         def simplified: TypeRepr
 
         def classSymbol: Option[Symbol]
@@ -2776,51 +2776,51 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
         def baseClasses: List[Symbol]
 
         /** The least type instance of given class which is a super-type
-        *  of this type.  Example:
-        *  {{{
-        *    class D[T]
-        *    class C extends p.D[Int]
-        *    ThisType(C).baseType(D) = p.D[Int]
-        * }}}
-        */
+ *  of this type.  Example:
+ *   ```
+ *    class D[T]
+ *    class C extends p.D[Int]
+ *    ThisType(C).baseType(D) = p.D[Int]
+ *  ```
+ *         */
         def baseType(cls: Symbol): TypeRepr
 
         /** Is this type an instance of a non-bottom subclass of the given class `cls`? */
         def derivesFrom(cls: Symbol): Boolean
 
         /** Is this type a function type?
-        *
-        *  @return true if the dealiased type of `self` without refinement is `FunctionN[T1, T2, ..., Tn]`
-        *
-        *  @note The function
-        *
-        *     - returns true for `given Int => Int` and `erased Int => Int`
-        *     - returns false for `List[Int]`, despite that `List[Int] <:< Int => Int`.
-        */
+ *
+ *  @return true if the dealiased type of `self` without refinement is `FunctionN[T1, T2, ..., Tn]`
+ *
+ *  @note The function
+ *
+ *     - returns true for `given Int => Int` and `erased Int => Int`
+ *     - returns false for `List[Int]`, despite that `List[Int] <:< Int => Int`.
+ *         */
         def isFunctionType: Boolean
 
         /** Is this type an context function type?
-        *
-        *  @see `isFunctionType`
-        */
+ *
+ *  @see `isFunctionType`
+ *         */
         def isContextFunctionType: Boolean
 
         /** Is this type a function type with erased parameters?
-        *
-        *  @see `isFunctionType`
-        */
+ *
+ *  @see `isFunctionType`
+ *         */
         def isErasedFunctionType: Boolean
 
         /** Is this type a dependent function type?
-        *
-        *  @see `isFunctionType`
-        */
+ *
+ *  @see `isFunctionType`
+ *         */
         def isDependentFunctionType: Boolean
 
         /** Is this type a `TupleN` type?
-         *
-         * @return true if the dealiased type of `self` is `TupleN[T1, T2, ..., Tn]`
-         */
+ *
+ * @return true if the dealiased type of `self` is `TupleN[T1, T2, ..., Tn]`
+ *          */
         def isTupleN: Boolean
 
         /** The type <this . sym>, reduced if possible. */
@@ -3230,13 +3230,13 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
     trait RecursiveTypeModule { this: RecursiveType.type =>
 
       /** Creates a RecType, normalizing its contents. This means:
-      *
-      *   1. Nested Rec types on the type's spine are merged with the outer one.
-      *   2. Any refinement of the form `type T = z.T` on the spine of the type
-      *      where `z` refers to the created rec-type is replaced by
-      *      `type T`. This avoids infinite recursions later when we
-      *      try to follow these references.
-      */
+       *
+       *   1. Nested Rec types on the type's spine are merged with the outer one.
+       *   2. Any refinement of the form `type T = z.T` on the spine of the type
+       *      where `z` refers to the created rec-type is replaced by
+       *      `type T`. This avoids infinite recursions later when we
+       *      try to follow these references.
+       */
       def apply(parentExp: RecursiveType => TypeRepr): RecursiveType
 
       def unapply(x: RecursiveType): Some[TypeRepr]
@@ -3387,9 +3387,9 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
     end TypeLambdaMethods
 
     /** Case of a `MatchType` containing pattern `case P => R`.
-     *
-     *  Note: cases with type bindings are represented nested in a `TypeLambda`.
-     */
+ *
+ *  Note: cases with type bindings are represented nested in a `TypeLambda`.
+ *      */
     type MatchCase <: TypeRepr
 
     /** `TypeTest` that allows testing at runtime in a pattern match if a `TypeRepr` is a `MatchCase`. */
@@ -3741,22 +3741,21 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
     /** Methods of the module object `val Implicits`. */
     trait ImplicitsModule { self: Implicits.type =>
       /** Finds a given instance of type `T` in the current scope provided by the current enclosing splice.
-      *  Returns an `ImplicitSearchResult`.
-      *
-      *  @param tpe type of the implicit parameter
-      */
+ *  Returns an `ImplicitSearchResult`.
+ *
+ *  @param tpe type of the implicit parameter
+ *       */
       def search(tpe: TypeRepr): ImplicitSearchResult
 
       /** Finds a given instance of type `T` in the current scope provided by the current enclosing splice,
-      *  while excluding certain symbols from the initial implicit search.
-      *  Returns an `ImplicitSearchResult`.
-      *
-      *  @param tpe type of the implicit parameter
-      *  @param ignored Symbols ignored during the initial implicit search
-      *
-      *  @note if an found given requires additional search for other given instances,
-      *  this additional search will NOT exclude the symbols from the `ignored` list.
-      */
+       *  while excluding certain symbols from the initial implicit search.
+       *  Returns an `ImplicitSearchResult`.
+       *  @note if an found given requires additional search for other given instances,
+       *  this additional search will NOT exclude the symbols from the `ignored` list.
+       *
+       *  @param tpe type of the implicit parameter
+       *  @param ignored Symbols ignored during the initial implicit search
+       */
       def searchIgnoring(tpe: TypeRepr)(ignored: Symbol*): ImplicitSearchResult
     }
 
@@ -3813,8 +3812,8 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
     /////////////
 
     /** Symbol of a definition.
-    *   Symbols can be compared with `==` to know if two definitions are the same.
-    */
+ *   Symbols can be compared with `==` to know if two definitions are the same.
+ *     */
     type Symbol <: AnyRef
 
     /** Module object of `type Symbol`. */
@@ -4128,100 +4127,98 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
       /** Generates a new method symbol with the given parent, name and type.
        *
        *  To define a member method of a class, use the `newMethod` within the `decls` function of `newClass`.
+       *  @note As a macro can only splice code into the point at which it is expanded, all generated symbols must be
+       *        direct or indirect children of the reflection context's owner.
        *
        *  @param parent The owner of the method
        *  @param name The name of the method
        *  @param tpe The type of the method (MethodType, PolyType, ByNameType)
-       *
        *  This symbol starts without an accompanying definition.
        *  It is the meta-programmer's responsibility to provide exactly one corresponding definition by passing
        *  this symbol to the DefDef constructor.
-       *
-       *  @note As a macro can only splice code into the point at which it is expanded, all generated symbols must be
-       *        direct or indirect children of the reflection context's owner.
        */
       def newMethod(parent: Symbol, name: String, tpe: TypeRepr): Symbol
 
       /** Works as the other newMethod, but with additional parameters.
-      *
-      *  To define a member method of a class, use the `newMethod` within the `decls` function of `newClass`.
-      *
-      *  @param parent The owner of the method
-      *  @param name The name of the method
-      *  @param tpe The type of the method (MethodType, PolyType, ByNameType)
-      *  @param flags extra flags to with which the symbol should be constructed. `Method` flag will be added. Can be `Private | Protected | Override | Deferred | Final | Method | Implicit | Given | Local | JavaStatic | Synthetic | Artifact`
-      *  @param privateWithin the symbol within which this new method symbol should be private. May be noSymbol.
-      */
+       *
+       *  To define a member method of a class, use the `newMethod` within the `decls` function of `newClass`.
+       *
+       *  @param parent The owner of the method
+       *  @param name The name of the method
+       *  @param tpe The type of the method (MethodType, PolyType, ByNameType)
+       *  @param flags extra flags to with which the symbol should be constructed. `Method` flag will be added. Can be `Private | Protected | Override | Deferred | Final | Method | Implicit | Given | Local | JavaStatic | Synthetic | Artifact`
+       *  @param privateWithin the symbol within which this new method symbol should be private. May be noSymbol.
+       */
       // Keep: `flags` doc aligned with QuotesImpl's `validMethodFlags`
       def newMethod(parent: Symbol, name: String, tpe: TypeRepr, flags: Flags, privateWithin: Symbol): Symbol
 
       /** Generates a new val/var/lazy val symbol with the given parent, name and type.
-      *
-      *  This symbol starts without an accompanying definition.
-      *  It is the meta-programmer's responsibility to provide exactly one corresponding definition by passing
-      *  this symbol to the ValDef constructor.
-      *
-      *  Note: Also see ValDef.let
-      *
-      *  @param parent The owner of the val/var/lazy val
-      *  @param name The name of the val/var/lazy val
-      *  @param tpe The type of the val/var/lazy val
-      *  @param flags extra flags to with which the symbol should be constructed. Can be `Private | Protected | Override | Deferred | Final | Param | Implicit | Lazy | Mutable | Local | ParamAccessor | Module | Package | Case | CaseAccessor | Given | Enum | JavaStatic | Synthetic | Artifact`
-      *  @param privateWithin the symbol within which this new method symbol should be private. May be noSymbol.
-      *  @note As a macro can only splice code into the point at which it is expanded, all generated symbols must be
-      *        direct or indirect children of the reflection context's owner.
-      */
+       *
+       *  This symbol starts without an accompanying definition.
+       *  It is the meta-programmer's responsibility to provide exactly one corresponding definition by passing
+       *  this symbol to the ValDef constructor.
+       *
+       *  Note: Also see ValDef.let
+       *  @note As a macro can only splice code into the point at which it is expanded, all generated symbols must be
+       *        direct or indirect children of the reflection context's owner.
+       *
+       *  @param parent The owner of the val/var/lazy val
+       *  @param name The name of the val/var/lazy val
+       *  @param tpe The type of the val/var/lazy val
+       *  @param flags extra flags to with which the symbol should be constructed. Can be `Private | Protected | Override | Deferred | Final | Param | Implicit | Lazy | Mutable | Local | ParamAccessor | Module | Package | Case | CaseAccessor | Given | Enum | JavaStatic | Synthetic | Artifact`
+       *  @param privateWithin the symbol within which this new method symbol should be private. May be noSymbol.
+       */
       // Keep: `flags` doc aligned with QuotesImpl's `validValFlags`
       def newVal(parent: Symbol, name: String, tpe: TypeRepr, flags: Flags, privateWithin: Symbol): Symbol
 
       /** Generates a pattern bind symbol with the given parent, name and type.
-      *
-      *  This symbol starts without an accompanying definition.
-      *  It is the meta-programmer's responsibility to provide exactly one corresponding definition by passing
-      *  this symbol to the BindDef constructor.
-      *
-      *  @param parent The owner of the binding
-      *  @param name The name of the binding
-      *  @param flags extra flags to with which the symbol should be constructed. `Case` flag will be added. Can be `Case`
-      *  @param tpe The type of the binding
-      *  @note As a macro can only splice code into the point at which it is expanded, all generated symbols must be
-      *        direct or indirect children of the reflection context's owner.
-      */
+       *
+       *  This symbol starts without an accompanying definition.
+       *  It is the meta-programmer's responsibility to provide exactly one corresponding definition by passing
+       *  this symbol to the BindDef constructor.
+       *  @note As a macro can only splice code into the point at which it is expanded, all generated symbols must be
+       *        direct or indirect children of the reflection context's owner.
+       *
+       *  @param parent The owner of the binding
+       *  @param name The name of the binding
+       *  @param flags extra flags to with which the symbol should be constructed. `Case` flag will be added. Can be `Case`
+       *  @param tpe The type of the binding
+       */
       // Keep: `flags` doc aligned with QuotesImpl's `validBindFlags`
       def newBind(parent: Symbol, name: String, flags: Flags, tpe: TypeRepr): Symbol
 
       /** Generates a new type symbol for a type alias with the given parent, name and type
-        *
-        *  This symbol starts without an accompanying definition.
-        *  It is the meta-programmer's responsibility to provide exactly one corresponding definition by passing
-        *  this symbol to the TypeDef constructor.
-        *
-        *  @param parent The owner of the type
-        *  @param name The name of the type
-        *  @param flags extra flags to with which symbol can be constructed. Can be `Private` | `Protected` | `Override` | `Final` | `Infix` | `Local`
-        *  @param tpe The rhs the type alias
-        *  @param privateWithin the symbol within which this new type symbol should be private. May be noSymbol.
-        *  @note As a macro can only splice code into the point at which it is expanded, all generated symbols must be
-        *        direct or indirect children of the reflection context's owner.
-        */
+       *
+       *  This symbol starts without an accompanying definition.
+       *  It is the meta-programmer's responsibility to provide exactly one corresponding definition by passing
+       *  this symbol to the TypeDef constructor.
+       *  @note As a macro can only splice code into the point at which it is expanded, all generated symbols must be
+       *        direct or indirect children of the reflection context's owner.
+       *
+       *  @param parent The owner of the type
+       *  @param name The name of the type
+       *  @param flags extra flags to with which symbol can be constructed. Can be `Private` | `Protected` | `Override` | `Final` | `Infix` | `Local`
+       *  @param tpe The rhs the type alias
+       *  @param privateWithin the symbol within which this new type symbol should be private. May be noSymbol.
+       */
       @experimental
       // Keep: `flags` doc aligned with QuotesImpl's `validTypeAliasFlags`
       def newTypeAlias(parent: Symbol, name: String, flags: Flags, tpe: TypeRepr, privateWithin: Symbol): Symbol
 
       /** Generates a new type symbol for a type bounds with the given parent, name and type
-        *
-        *  This symbol starts without an accompanying definition.
-        *  It is the meta-programmer's responsibility to provide exactly one corresponding definition by passing
-        *  this symbol to the TypeDef constructor.
-        *
-        *  @param parent The owner of the type
-        *  @param name The name of the type
-        *  @param flags extra flags to with which symbol can be constructed. `Deferred` flag will be added. Can be `Private` | `Protected` | `Override` | `Deferred` | `Final` | `Infix` | `Local`
-        *  @param tpe The bounds of the type
-        *  @param privateWithin the symbol within which this new type symbol should be private. May be noSymbol.
-        *  @note As a macro can only splice code into the point at which it is expanded, all generated symbols must be
-        *        direct or indirect children of the reflection context's owner.
-        */
+       *
+       *  This symbol starts without an accompanying definition.
+       *  It is the meta-programmer's responsibility to provide exactly one corresponding definition by passing
+       *  this symbol to the TypeDef constructor.
+       *  @note As a macro can only splice code into the point at which it is expanded, all generated symbols must be
+       *        direct or indirect children of the reflection context's owner.
+       *
+       *  @param parent The owner of the type
+       *  @param name The name of the type
+       *  @param flags extra flags to with which symbol can be constructed. `Deferred` flag will be added. Can be `Private` | `Protected` | `Override` | `Deferred` | `Final` | `Infix` | `Local`
+       *  @param tpe The bounds of the type
+       *  @param privateWithin the symbol within which this new type symbol should be private. May be noSymbol.
+       */
       @experimental
       // Keep: `flags` doc aligned with QuotesImpl's `validBoundedTypeFlags`
       def newBoundedType(parent: Symbol, name: String, flags: Flags, tpe: TypeBounds, privateWithin: Symbol): Symbol
@@ -4303,7 +4300,6 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
          *      tp.memberType(symbol)
          *      symbol.typeRef
          *      symbol.termRef
-         *
          */
         def tree: Tree
 
@@ -4320,8 +4316,8 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
         def isDefinedInCurrentRun: Boolean
 
         /** Dummy val symbol that owns all statements within the initialization of the class.
-        *  This may also contain local definitions such as classes defined in a `locally` block in the class.
-        */
+ *  This may also contain local definitions such as classes defined in a `locally` block in the class.
+ *         */
         def isLocalDummy: Boolean
 
         /** Is this symbol a class representing a refinement? */
@@ -4439,17 +4435,17 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
         def declarations: List[Symbol]
 
         /** The symbols of each type parameter list and value parameter list of this
-          *  method, or Nil if this isn't a method.
-          */
+ *  method, or Nil if this isn't a method.
+ *           */
         def paramSymss: List[List[Symbol]]
 
         /** Returns all symbols overridden by this symbol. */
         def allOverriddenSymbols: Iterator[Symbol]
 
         /** The symbol overriding this symbol in given subclass `ofclazz`.
-         *
-         *  @param ofclazz is a subclass of this symbol's owner
-         */
+ *
+ *  @param ofclazz is a subclass of this symbol's owner
+ *          */
         def overridingSymbol(ofclazz: Symbol): Symbol
 
         /** The primary constructor of a class or trait, `noSymbol` if not applicable. */
@@ -4529,9 +4525,9 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
         def typeRef: TypeRef
 
         /** Term reference to the symbol usable in the scope of its owner.
-         *
-         *  @pre symbol.isType returns false
-         */
+ *
+ *  @pre symbol.isType returns false
+ *          */
         def termRef: TermRef
       end extension
     }
@@ -4560,12 +4556,12 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
       extension (self: Signature)
 
         /** The signatures of the method parameters.
-          *
-          *  Each *type parameter section* is represented by a single Int corresponding
-          *  to the number of type parameters in the section.
-          *  Each *term parameter* is represented by a String corresponding to the fully qualified
-          *  name of the parameter type.
-          */
+         *
+         *  Each *type parameter section* is represented by a single Int corresponding
+         *  to the number of type parameters in the section.
+         *  Each *term parameter* is represented by a String corresponding to the fully qualified
+         *  name of the parameter type.
+         */
         def paramSigs: List[String | Int]
 
         /** The signature of the result type. */
@@ -4681,10 +4677,10 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
       def Array_update: Symbol
 
       /** A dummy class symbol that is used to indicate repeated parameters
-      *  compiled by the Scala compiler.
-      *
-      *  @see Repeated
-      */
+ *  compiled by the Scala compiler.
+ *
+ *  @see Repeated
+ *       */
       def RepeatedParamClass: Symbol
 
       /** The class symbol of class `scala.annotation.reflection.Repeated`. */
@@ -4703,68 +4699,68 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
       def ProductClass: Symbol
 
       /** Function-like object that maps arity to symbols for classes `scala.FunctionX`.
-      *   -  0th element is `Function0`
-      *   -  1st element is `Function1`
-      *   -  ...
-      *   -  Nth element is `FunctionN`
-      */
+ *   -  0th element is `Function0`
+ *   -  1st element is `Function1`
+ *   -  ...
+ *   -  Nth element is `FunctionN`
+ *       */
       @deprecated("Use overload of `FunctionClass` with 1 or 2 arguments", "3.4")
       def FunctionClass(arity: Int, isImplicit: Boolean = false, isErased: Boolean = false): Symbol
 
       /** Class symbol of a function class `scala.FunctionN`.
-       *
-       *  @param arity the arity of the function where `0 <= arity`
-       *  @return class symbol of `scala.FunctionN` where `N == arity`
-       */
+ *
+ *  @param arity the arity of the function where `0 <= arity`
+ *  @return class symbol of `scala.FunctionN` where `N == arity`
+ *        */
       def FunctionClass(arity: Int): Symbol
 
       /** Class symbol of a context function class `scala.FunctionN` or `scala.ContextFunctionN`.
-       *
-       *  @param arity the arity of the function where `0 <= arity`
-       *  @param isContextual if it is a `scala.ContextFunctionN`
-       *  @return class symbol of `scala.FunctionN` or `scala.ContextFunctionN` where `N == arity`
-       */
+ *
+ *  @param arity the arity of the function where `0 <= arity`
+ *  @param isContextual if it is a `scala.ContextFunctionN`
+ *  @return class symbol of `scala.FunctionN` or `scala.ContextFunctionN` where `N == arity`
+ *        */
       def FunctionClass(arity: Int, isContextual: Boolean): Symbol
 
       /** The `scala.PolyFunction` built-in trait. */
       def PolyFunctionClass: Symbol
 
       /** Function-like object that maps arity to symbols for classes `scala.TupleX`.
-      *   -  0th element is `NoSymbol`
-      *   -  1st element is `NoSymbol`
-      *   -  2st element is `Tuple2`
-      *   -  ...
-      *   - 22nd element is `Tuple22`
-      *   - 23nd element is `NoSymbol`  // TODO update when we will have more tuples
-      *   - ...
-      */
+       *   -  0th element is `NoSymbol`
+       *   -  1st element is `NoSymbol`
+       *   -  2st element is `Tuple2`
+       *   -  ...
+       *   - 22nd element is `Tuple22`
+       *   - 23nd element is `NoSymbol`  // TODO update when we will have more tuples
+       *   - ...
+       */
       def TupleClass(arity: Int): Symbol
 
       /** Returns `true` if `sym` is a `Tuple1`, `Tuple2`, ... `Tuple22`. */
       def isTupleClass(sym: Symbol): Boolean
 
       /** Contains Scala primitive value classes:
-      *   - Byte
-      *   - Short
-      *   - Int
-      *   - Long
-      *   - Float
-      *   - Double
-      *   - Char
-      *   - Boolean
-      *   - Unit
-      */
+ *   - Byte
+ *   - Short
+ *   - Int
+ *   - Long
+ *   - Float
+ *   - Double
+ *   - Char
+ *   - Boolean
+ *   - Unit
+ *       */
       def ScalaPrimitiveValueClasses: List[Symbol]
 
       /** Contains Scala numeric value classes:
-      *   - Byte
-      *   - Short
-      *   - Int
-      *   - Long
-      *   - Float
-      *   - Double
-      *   - Char
-      */
+ *   - Byte
+ *   - Short
+ *   - Int
+ *   - Long
+ *   - Float
+ *   - Double
+ *   - Char
+ *       */
       def ScalaNumericValueClasses: List[Symbol]
 
     }
@@ -4793,8 +4789,8 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
       def AbsOverride: Flags
 
       /** Is this generated by Scala compiler.
-       *  Corresponds to ACC_SYNTHETIC in the JVM.
-       */
+ *  Corresponds to ACC_SYNTHETIC in the JVM.
+ *        */
       def Artifact: Flags
 
       /** Is this symbol `case`. */
@@ -5466,8 +5462,8 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
     given ConstantPrinter: Printer[Constant] = Printer.ConstantCode
 
     /** Module object of `type Printer`.
-     *  Contains custom printers such as `TreeCode`, `TreeAnsiCode`, `TreeCases`, `TypeReprCode`, ..., `SymbolFullName` and `FlagsCombination`.
-     */
+ *  Contains custom printers such as `TreeCode`, `TreeAnsiCode`, `TreeCases`, `TypeReprCode`, ..., `SymbolFullName` and `FlagsCombination`.
+ *      */
     val Printer: PrinterModule
 
     /** Methods of the module object `val Printer`. */
@@ -5476,32 +5472,32 @@ trait Quotes { self: runtime.QuoteUnpickler & runtime.QuoteMatching =>
       def TreeCode: Printer[Tree]
 
       /** Prints fully elaborated version of the source code.
-       *  Same as `TreeCode` but does not print full package prefixes.
-       */
+ *  Same as `TreeCode` but does not print full package prefixes.
+ *        */
       def TreeShortCode: Printer[Tree]
 
       /** Prints fully elaborated version of the source code using ANSI colors. */
       def TreeAnsiCode: Printer[Tree]
 
       /** Prints a pattern like representation of the `Tree`.
-       *  It displays the structure of the AST.
-       */
+ *  It displays the structure of the AST.
+ *        */
       def TreeStructure: Printer[Tree]
 
       /** Prints the type in source code. */
       def TypeReprCode: Printer[TypeRepr]
 
       /** Prints the type in source code.
-       *  Same as `TypeReprCode` but does not print full package prefixes.
-       */
+ *  Same as `TypeReprCode` but does not print full package prefixes.
+ *        */
       def TypeReprShortCode: Printer[TypeRepr]
 
       /** Prints the type in source code using ANSI colors. */
       def TypeReprAnsiCode: Printer[TypeRepr]
 
       /** Prints a pattern like representation of the `TypeRepr`.
-       *  It displays the structure of the type.
-       */
+ *  It displays the structure of the type.
+ *        */
       def TypeReprStructure: Printer[TypeRepr]
 
       /** Prints the constant in source code. */

@@ -19,6 +19,7 @@ import scala.language.`2.13`
 /** A tuple of 17 elements; the canonical representation of a [[scala.Product17]].
  *
  *  @constructor  Create a new tuple with 17 elements. Note that it is more idiomatic to create a Tuple17 via `(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15, t16, t17)`
+ *
  *  @param  _1   Element 1 of this Tuple17
  *  @param  _2   Element 2 of this Tuple17
  *  @param  _3   Element 3 of this Tuple17

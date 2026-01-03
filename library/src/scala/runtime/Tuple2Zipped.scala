@@ -24,7 +24,7 @@ import scala.language.implicitConversions
  *  @define coll collection
  *  @define collectExample
  *  @define willNotTerminateInf
- */
+ *  */
 @deprecated("Use scala.collection.LazyZip2.", "2.13.0")
 trait ZippedIterable2[+El1, +El2] extends Any {
   def iterator: Iterator[(El1, El2)]

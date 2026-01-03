@@ -33,7 +33,7 @@ import scala.collection.mutable.{Builder, ReusableBuilder}
  *
  *  @define coll immutable seq map
  *  @define Coll `immutable.SeqMap`
- */
+ *  */
 
 trait SeqMap[K, +V]
   extends Map[K, V]

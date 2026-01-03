@@ -6,7 +6,7 @@ import language.experimental.captureChecking
  *
  *  Programmers usually do not need to use any annotations. They are intended for complex initialization
  *  code in static objects.
- */
+ *  */
 @experimental
 object init:
 

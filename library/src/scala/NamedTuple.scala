@@ -7,10 +7,10 @@ import language.experimental.captureChecking
 object NamedTuple:
 
   /** The type to which named tuples get mapped to. For instance,
-   *      (name: String, age: Int)
-   *  gets mapped to
-   *      NamedTuple[("name", "age"), (String, Int)]
-   */
+ *      (name: String, age: Int)
+ *  gets mapped to
+ *      NamedTuple[("name", "age"), (String, Int)]
+ *    */
   opaque type NamedTuple[N <: Tuple, +V <: Tuple] >: V <: AnyNamedTuple = V
 
   /** A type which is a supertype of all named tuples. */
@@ -21,7 +21,7 @@ object NamedTuple:
   def unapply[N <: Tuple, V <: Tuple](x: NamedTuple[N, V]): Some[V] = Some(x)
 
   /** A named tuple expression will desugar to a call to `build`. For instance,
-   * `(name = "Lyra", age = 23)` will desugar to `build[("name", "age")]()(("Lyra", 23))`.
+   *  `(name = "Lyra", age = 23)` will desugar to `build[("name", "age")]()(("Lyra", 23))`.
    */
   inline def build[N <: Tuple]()[V <: Tuple](x: V): NamedTuple[N, V] = x
 
@@ -69,14 +69,14 @@ object NamedTuple:
     NamedTuple[Tuple.Init[Names[X]], Tuple.Init[DropNames[X]]]
 
   /** The type of the named tuple consisting of the first `N` elements of `X`,
-   *  or all elements if `N` exceeds `Size[X]`.
-   */
+ *  or all elements if `N` exceeds `Size[X]`.
+ *    */
   type Take[X <: AnyNamedTuple, N <: Int] =
     NamedTuple[Tuple.Take[Names[X], N], Tuple.Take[DropNames[X], N]]
 
   /** The type of the named tuple consisting of all elements of `X` except the first `N` ones,
-   *  or no elements if `N` exceeds `Size[X]`.
-   */
+ *  or no elements if `N` exceeds `Size[X]`.
+ *    */
   type Drop[X <: AnyNamedTuple, N <: Int] =
     NamedTuple[Tuple.Drop[Names[X], N], Tuple.Drop[DropNames[X], N]]
 
@@ -88,8 +88,8 @@ object NamedTuple:
     NamedTuple[Tuple.Concat[Names[X], Names[Y]], Tuple.Concat[DropNames[X], DropNames[Y]]]
 
   /** The type of the named tuple `X` mapped with the type-level function `F`.
-   *  If `X = (n1 : T1, ..., ni : Ti)` then `Map[X, F] = `(n1 : F[T1], ..., ni : F[Ti])`.
-   */
+ *  If `X = (n1 : T1, ..., ni : Ti)` then `Map[X, F] = `(n1 : F[T1], ..., ni : F[Ti])`.
+ *    */
   type Map[X <: AnyNamedTuple, F[_ <: Tuple.Union[DropNames[X]]]] =
     NamedTuple[Names[X], Tuple.Map[DropNames[X], F]]
 
@@ -120,9 +120,9 @@ object NamedTuple:
         NamedTuple[Names[X], Tuple.Zip[DropNames[X], DropNames[Y]]]
 
   /** A type specially treated by the compiler to represent all fields of a
-   *  class argument `T` as a named tuple. Or, if `T` is already a named tuple,
-   *  `From[T]` is the same as `T`.
-   */
+ *  class argument `T` as a named tuple. Or, if `T` is already a named tuple,
+ *  `From[T]` is the same as `T`.
+ *    */
   type From[T] <: AnyNamedTuple
 
   /** The type of the empty named tuple. */
@@ -211,8 +211,8 @@ object NamedTupleDecomposition:
     inline def toIArray: IArray[Object] = x.toTuple.toIArray
 
     /** An immutable map consisting of all element values preserving the order of fields.
-     *  Keys are the names of the elements.
-     */
+ *  Keys are the names of the elements.
+ *      */
     inline def toSeqMap: SeqMap[String, Tuple.Union[V]] =
       inline compiletime.constValueTuple[N].toList match
         case names: List[String] =>

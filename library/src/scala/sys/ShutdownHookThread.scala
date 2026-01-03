@@ -17,7 +17,7 @@ import scala.language.`2.13`
 
 /** A minimal Thread wrapper to enhance shutdown hooks.  It knows
  *  how to unregister itself.
- */
+ *  */
 class ShutdownHookThread private (runnable: Runnable, name: String) extends Thread(runnable, name) {
   def remove() = Runtime.getRuntime.removeShutdownHook(this)
 }

@@ -9,6 +9,6 @@ import annotation.experimental
  *    def f(): T throws Ex1 | Ex2
  *
  *  Used in desugar.throws.
- */
+ *  */
 @experimental
 infix type $throws[R, +E <: Exception] = CanThrow[E] ?=> R

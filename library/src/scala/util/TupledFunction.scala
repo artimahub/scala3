@@ -9,7 +9,7 @@ import scala.annotation.experimental
  *
  *  @tparam F a function type
  *  @tparam G a tupled function type (function of arity 1 receiving a tuple as argument)
- */
+ *  */
 @implicitNotFound("${F} cannot be tupled as ${G}")
 @experimental
 sealed trait TupledFunction[F, G]:

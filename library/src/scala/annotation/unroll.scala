@@ -10,5 +10,5 @@ import language.experimental.captureChecking
  *
  * Read more about parameter unrolling, and the usage of `@unroll` in the reference documentation:
  * https://dotty.epfl.ch/docs/reference/experimental/unrolled-defs.html
- */
+ *  */
 final class unroll extends scala.annotation.StaticAnnotation

@@ -31,7 +31,6 @@ import scala.language.implicitConversions
 // -Dfile.encoding: see https://bugs.java.com/view_bug.do?bug_id=4375816
 
 /** A class for character encoding/decoding preferences.
- *
  */
 class Codec(val charSet: Charset) {
   type Configure[T] = (T => T, Boolean)
@@ -87,10 +86,10 @@ object Codec extends LowPriorityCodecImplicits {
   final val UTF8: Codec    = Codec(UTF_8)
 
   /** Optimistically these two possible defaults will be the same thing.
-   *  In practice this is not necessarily true, and in fact Sun classifies
-   *  the fact that you can influence anything at all via -Dfile.encoding
-   *  as an accident, with any anomalies considered "not a bug".
-   */
+ *  In practice this is not necessarily true, and in fact Sun classifies
+ *  the fact that you can influence anything at all via -Dfile.encoding
+ *  as an accident, with any anomalies considered "not a bug".
+ *    */
   def defaultCharsetCodec: Codec = apply(Charset.defaultCharset)
   def fileEncodingCodec: Codec = apply(scala.util.Properties.encodingString)
   def default: Codec = defaultCharsetCodec

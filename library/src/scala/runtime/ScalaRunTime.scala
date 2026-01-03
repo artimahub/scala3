@@ -26,7 +26,7 @@ import java.lang.reflect.{Method => JMethod}
 /** The object ScalaRunTime provides support methods required by
  *  the scala runtime.  All these methods should be considered
  *  outside the API and subject to change or removal without notice.
- */
+ *  */
 object ScalaRunTime {
   def isArray(x: Any, atLevel: Int = 1): Boolean =
     x != null && isArrayClass(x.getClass, atLevel)
@@ -179,17 +179,17 @@ object ScalaRunTime {
   }
 
   /** Given any Scala value, convert it to a String.
-   *
-   * The primary motivation for this method is to provide a means for
-   * correctly obtaining a String representation of a value, while
-   * avoiding the pitfalls of naively calling toString on said value.
-   * In particular, it addresses the fact that (a) toString cannot be
-   * called on null and (b) depending on the apparent type of an
-   * array, toString may or may not print it in a human-readable form.
-   *
-   * @param   arg   the value to stringify
-   * @return        a string representation of arg.
-   */
+ *
+ * The primary motivation for this method is to provide a means for
+ * correctly obtaining a String representation of a value, while
+ * avoiding the pitfalls of naively calling toString on said value.
+ * In particular, it addresses the fact that (a) toString cannot be
+ * called on null and (b) depending on the apparent type of an
+ * array, toString may or may not print it in a human-readable form.
+ *
+ * @param   arg   the value to stringify
+ * @return        a string representation of arg.
+ *    */
   def stringOf(arg: Any): String = stringOf(arg, scala.Int.MaxValue)
   def stringOf(arg: Any, maxElements: Int): String = {
     def packageOf(x: AnyRef) = x.getClass.getPackage match {

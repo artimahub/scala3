@@ -3,10 +3,10 @@ package scala.deriving
 // import language.experimental.captureChecking
 
 /** Mirrors allows typelevel access to enums, case classes and objects, and their sealed parents.
- */
+ *  */
 sealed trait Mirror {
 
-  /** The mirrored *-type. */
+  /**-type. */
   type MirroredMonoType
 
   /** The name of the type. */

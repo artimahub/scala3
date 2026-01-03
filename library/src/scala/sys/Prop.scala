@@ -23,27 +23,27 @@ import scala.language.`2.13`
  */
 trait Prop[+T] {
   /** The full name of the property, e.g., "java.awt.headless".
-   */
+ *    */
   def key: String
 
   /** If the key exists in the properties map, converts the value
-   *  to type `T` using valueFn.  As yet no validation is performed:
-   *  it will throw an exception on a failed conversion.
-   *  @return   the converted value, or `zero` if not in the map
-   */
+ *  to type `T` using valueFn.  As yet no validation is performed:
+ *  it will throw an exception on a failed conversion.
+ *  @return   the converted value, or `zero` if not in the map
+ *    */
   def value: T
 
   /** True if the key exists in the properties map.  Note that this
-   *  is not sufficient for a Boolean property to be considered true.
-   *  @return   whether the map contains the key
-   */
+ *  is not sufficient for a Boolean property to be considered true.
+ *  @return   whether the map contains the key
+ *    */
   def isSet: Boolean
 
   /** Sets the property.
-   *
-   *  @param    newValue  the new string value
-   *  @return   the old value, or null if it was unset.
-   */
+ *
+ *  @param    newValue  the new string value
+ *  @return   the old value, or null if it was unset.
+ *    */
   def set(newValue: String): String | Null
 
   /** Sets the property with a value of the represented type.
@@ -51,13 +51,13 @@ trait Prop[+T] {
   def setValue[T1 >: T](value: T1): T
 
   /** Gets the current string value if any.  Will not return null: use
-   *  `isSet` to test for existence.
-   *  @return   the current string value if any, else the empty string
-   */
+ *  `isSet` to test for existence.
+ *  @return   the current string value if any, else the empty string
+ *    */
   def get: String
 
   /** Some(value) if the property is set, None otherwise.
-   */
+ *    */
   def option: Option[T]
 
   // Do not open until 2.12.
@@ -65,21 +65,21 @@ trait Prop[+T] {
   //def or[T1 >: T](alt: => T1): T1
 
   /** Removes the property from the underlying map.
-   */
+ *    */
   def clear(): Unit
 
   /** A value of type `T` for use when the property is unset.
-   *  The default implementation delivers null for reference types
-   *  and 0/0.0/false for non-reference types.
-   */
+ *  The default implementation delivers null for reference types
+ *  and 0/0.0/false for non-reference types.
+ *    */
   protected def zero: T
 }
 
 object Prop {
   /** A creator of property instances.  For any type `T`, if an implicit
-   *  parameter of type Creator[T] is in scope, a Prop[T] can be created
-   *  via this object's apply method.
-   */
+ *  parameter of type Creator[T] is in scope, a Prop[T] can be created
+ *  via this object's apply method.
+ *    */
   @annotation.implicitNotFound("No implicit property creator available for type ${T}.")
   trait Creator[+T] {
     /** Creates a Prop[T] of this type based on the given key. */

@@ -15,6 +15,7 @@ package scala.annotation
 import scala.language.`2.13`
 
 /**
+ *
  * Annotation classes extending this trait only accept constant values as arguments.
  *
  * Note that this trait extends [[StaticAnnotation]], so constant annotations are persisted in the
@@ -32,8 +33,8 @@ import scala.language.`2.13`
  * constructor is required to have a single parameter list.
  *
  * Example:
- *
- * {{{
+
+ *  ```
  *   class Ann(value: Int, x: Int = 0) extends scala.annotation.ConstantAnnotation
  *   class Test {
  *     def someInt = 0
@@ -41,6 +42,6 @@ import scala.language.`2.13`
  *     @Ann(0) def f = 0                 // Internal representation contains `@Ann(value = 0)`
  *     @Ann(someInt)                     // error: argument needs to be a compile-time constant
  *   }
- * }}}
- */
+ *  ```
+ *  */
 trait ConstantAnnotation extends StaticAnnotation

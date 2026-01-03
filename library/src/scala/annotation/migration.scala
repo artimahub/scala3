@@ -15,6 +15,7 @@ package scala.annotation
 import scala.language.`2.13`
 
 /**
+ *
  * An annotation that marks a member as having changed semantics
  * between versions.  This is intended for methods which for one
  * reason or another retain the same name and type signature,
@@ -28,5 +29,5 @@ import scala.language.`2.13`
  *
  * @param changedIn The version, in which the behaviour change was
  * introduced.
- */
+ *  */
 private[scala] final class migration(message: String, changedIn: String) extends scala.annotation.ConstantAnnotation

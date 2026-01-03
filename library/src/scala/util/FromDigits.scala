@@ -14,9 +14,9 @@ trait FromDigits[T] {
    *  - sign `+` or `-`
    *  - sequence of digits between 0 and 9
    *
-   * @throws FromDigits.MalformedNumber if digit string is not legal for the given type
-   * @throws FromDigits.NumberTooLarge  if value of result does not fit into `T`'s range
-   * @throws FromDigits.NumberTooSmall  in case of numeric underflow (e.g. a non-zero
+   *  @throws FromDigits.MalformedNumber if digit string is not legal for the given type
+   *  @throws FromDigits.NumberTooLarge  if value of result does not fit into `T`'s range
+   *  @throws FromDigits.NumberTooSmall  in case of numeric underflow (e.g. a non-zero
    *                         floating point literal that produces a zero value)
    */
   def fromDigits(digits: String): T
@@ -99,36 +99,36 @@ object FromDigits {
   }
 
   /** Converts digit string to Int number.
-   *  @param digits            The string to convert
-   *  @param radix             The radix
-   *  @throws NumberTooLarge   if number does not fit within Int range
-   *  @throws MalformedNumber  if digits is not a legal digit string.
-   *                           Legal strings consist only of digits conforming to radix,
-   *                           possibly preceded by a "-" sign.
-   */
+ *  @param digits            The string to convert
+ *  @param radix             The radix
+ *  @throws NumberTooLarge   if number does not fit within Int range
+ *  @throws MalformedNumber  if digits is not a legal digit string.
+ *                           Legal strings consist only of digits conforming to radix,
+ *                           possibly preceded by a "-" sign.
+ *    */
   def intFromDigits(digits: String, radix: Int = 10): Int =
     integerFromDigits(digits, radix, Int.MaxValue).toInt
 
   /** Converts digit string to Long number.
-   *  @param digits            The string to convert
-   *  @param radix             The radix
-   *  @throws NumberTooLarge   if the resulting number does not fit within Long range
-   *  @throws MalformedNumber  if digits is not a legal digit string.
-   *                           Legal strings consist only of digits conforming to radix,
-   *                           possibly preceded by a "-" sign.
-   */
+ *  @param digits            The string to convert
+ *  @param radix             The radix
+ *  @throws NumberTooLarge   if the resulting number does not fit within Long range
+ *  @throws MalformedNumber  if digits is not a legal digit string.
+ *                           Legal strings consist only of digits conforming to radix,
+ *                           possibly preceded by a "-" sign.
+ *    */
   def longFromDigits(digits: String, radix: Int = 10): Long =
     integerFromDigits(digits, radix, Long.MaxValue)
 
   @sharable private val zeroFloat = raw"-?[0.]+(?:[eE][+-]?[0-9]+)?[fFdD]?".r
 
   /** Converts digit string to Float number.
-   *  @param digits            The string to convert
-   *  @throws NumberTooLarge   if the resulting number is infinite
-   *  @throws NumberTooSmall   if the resulting number is 0.0f, yet the digits
-   *                           string contains non-zero digits before the exponent.
-   *  @throws MalformedNumber  if digits is not a legal digit string for floating point numbers.
-   */
+ *  @param digits            The string to convert
+ *  @throws NumberTooLarge   if the resulting number is infinite
+ *  @throws NumberTooSmall   if the resulting number is 0.0f, yet the digits
+ *                           string contains non-zero digits before the exponent.
+ *  @throws MalformedNumber  if digits is not a legal digit string for floating point numbers.
+ *    */
   def floatFromDigits(digits: String): Float = {
     val x: Float =
       try java.lang.Float.parseFloat(digits)
@@ -141,12 +141,12 @@ object FromDigits {
   }
 
   /** Converts digit string to Double number.
-   *  @param digits            The string to convert
-   *  @throws NumberTooLarge   if the resulting number is infinite
-   *  @throws NumberTooSmall   if the resulting number is 0.0d, yet the digits
-   *                           string contains non-zero digits before the exponent.
-   *  @throws MalformedNumber  if digits is not a legal digit string for floating point numbers.
-   */
+ *  @param digits            The string to convert
+ *  @throws NumberTooLarge   if the resulting number is infinite
+ *  @throws NumberTooSmall   if the resulting number is 0.0d, yet the digits
+ *                           string contains non-zero digits before the exponent.
+ *  @throws MalformedNumber  if digits is not a legal digit string for floating point numbers.
+ *    */
   def doubleFromDigits(digits: String): Double = {
     val x: Double =
       try java.lang.Double.parseDouble(digits)

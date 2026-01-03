@@ -12,7 +12,7 @@ sealed trait CanEqual[-L, -R]
 /** Companion object containing a few universally known `CanEqual` instances.
  *  CanEqual instances involving primitive types or the Null type are handled directly in
  *  the compiler (see Implicits.synthesizedCanEqual), so they are not included here.
- */
+ *  */
 object CanEqual {
   /** A universal `CanEqual` instance. */
   object derived extends CanEqual[Any, Any]

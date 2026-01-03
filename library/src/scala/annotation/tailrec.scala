@@ -19,5 +19,5 @@ import scala.language.`2.13`
  *
  *  If it is present, the compiler will issue an error if the method cannot
  *  be optimized into a loop.
- */
+ *  */
 final class tailrec extends StaticAnnotation

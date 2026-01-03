@@ -33,7 +33,7 @@ import scala.util.hashing.MurmurHash3
  *  @define willNotTerminateInf
  *  @define orderDependent
  *  @define orderDependentFold
- */
+ *  */
 @deprecatedInheritance("LinkedHashMap will be made final; use .withDefault for the common use case of computing a default value", "2.13.11")
 class LinkedHashMap[K, V]
   extends AbstractMap[K, V]
@@ -157,11 +157,11 @@ class LinkedHashMap[K, V]
   private def removeEntry0(elem: K): Entry | Null = removeEntry0(elem, computeHash(elem))
 
   /** Removes a key from this map if it exists
-   *
-   * @param elem the element to remove
-   * @param hash the **improved** hashcode of `element` (see computeHash)
-   * @return the node that contained element if it was present, otherwise null
-   */
+ *
+ * @param elem the element to remove
+ * @param hash the **improved** hashcode of `element` (see computeHash)
+ * @return the node that contained element if it was present, otherwise null
+ *    */
   private def removeEntry0(elem: K, hash: Int): Entry | Null = {
     val idx = index(hash)
     table(idx) match {
@@ -476,7 +476,7 @@ class LinkedHashMap[K, V]
 /** $factoryInfo
  *  @define Coll `LinkedHashMap`
  *  @define coll linked hash map
- */
+ *  */
 @SerialVersionUID(3L)
 object LinkedHashMap extends MapFactory[LinkedHashMap] {
 
@@ -492,7 +492,7 @@ object LinkedHashMap extends MapFactory[LinkedHashMap] {
   def newBuilder[K, V]: GrowableBuilder[(K, V), LinkedHashMap[K, V]] = new GrowableBuilder(empty[K, V])
 
   /** Class for the linked hash map entry, used internally.
-    */
+   */
   private[mutable] final class LinkedEntry[K, V](val key: K, val hash: Int, var value: V) {
     var earlier: LinkedEntry[K, V] | Null = null
     var later: LinkedEntry[K, V] | Null = null

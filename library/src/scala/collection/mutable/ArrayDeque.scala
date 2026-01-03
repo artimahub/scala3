@@ -22,22 +22,22 @@ import scala.collection.generic.{CommonErrors, DefaultSerializable}
 import scala.reflect.ClassTag
 
 /** An implementation of a double-ended queue that internally uses a resizable circular buffer.
-  *
-  *  Append, prepend, removeHead, removeLast and random-access (indexed-lookup and indexed-replacement)
-  *  take amortized constant time. In general, removals and insertions at i-th index are O(min(i, n-i))
-  *  and thus insertions and removals from end/beginning are fast.
-  *
-  *  @note Subclasses ''must'' override the `ofArray` protected method to return a more specific type.
-  *
-  *  @tparam A  the type of this ArrayDeque's elements.
-  *
-  *  @define Coll `mutable.ArrayDeque`
-  *  @define coll array deque
-  *  @define orderDependent
-  *  @define orderDependentFold
-  *  @define mayNotTerminateInf
-  *  @define willNotTerminateInf
-  */
+ *
+ *  Append, prepend, removeHead, removeLast and random-access (indexed-lookup and indexed-replacement)
+ *  take amortized constant time. In general, removals and insertions at i-th index are O(min(i, n-i))
+ *  and thus insertions and removals from end/beginning are fast.
+ *
+ *  @note Subclasses *must* override the `ofArray` protected method to return a more specific type.
+ *
+ *  @tparam A  the type of this ArrayDeque's elements.
+ *
+ *  @define Coll `mutable.ArrayDeque`
+ *  @define coll array deque
+ *  @define orderDependent
+ *  @define orderDependentFold
+ *  @define mayNotTerminateInf
+ *  @define willNotTerminateInf
+ *   */
 class ArrayDeque[A] protected (
     protected var array: Array[AnyRef | Null],
     private[ArrayDeque] var start: Int,
@@ -288,21 +288,23 @@ class ArrayDeque[A] protected (
   }
 
   /**
-    *
-    * @param resizeInternalRepr If this is set, resize the internal representation to reclaim space once in a while
-    * @return
-    */
+ *
+
+ * @param resizeInternalRepr If this is set, resize the internal representation to reclaim space once in a while
+ * @return
+ *     */
   def removeHeadOption(resizeInternalRepr: Boolean = false): Option[A] =
     if (isEmpty) None else Some(removeHeadAssumingNonEmpty(resizeInternalRepr))
 
   /**
-    * Unsafely remove the first element (throws exception when empty)
-    * See also removeHeadOption()
-    *
-    * @param resizeInternalRepr If this is set, resize the internal representation to reclaim space once in a while
-    * @throws NoSuchElementException when empty
-    * @return
-    */
+ *
+ * Unsafely remove the first element (throws exception when empty)
+ * See also removeHeadOption()
+ *
+ * @param resizeInternalRepr If this is set, resize the internal representation to reclaim space once in a while
+ * @throws NoSuchElementException when empty
+ * @return
+ *     */
   def removeHead(resizeInternalRepr: Boolean = false): A =
     if (isEmpty) throw new NoSuchElementException(s"empty collection") else removeHeadAssumingNonEmpty(resizeInternalRepr)
 
@@ -315,21 +317,23 @@ class ArrayDeque[A] protected (
   }
 
   /**
-    *
-    * @param resizeInternalRepr If this is set, resize the internal representation to reclaim space once in a while
-    * @return
-    */
+ *
+
+ * @param resizeInternalRepr If this is set, resize the internal representation to reclaim space once in a while
+ * @return
+ *     */
   def removeLastOption(resizeInternalRepr: Boolean = false): Option[A] =
     if (isEmpty) None else Some(removeLastAssumingNonEmpty(resizeInternalRepr))
 
   /**
-    * Unsafely remove the last element (throws exception when empty)
-    * See also removeLastOption()
-    *
-    * @param resizeInternalRepr If this is set, resize the internal representation to reclaim space once in a while
-    * @throws NoSuchElementException when empty
-    * @return
-    */
+ *
+ * Unsafely remove the last element (throws exception when empty)
+ * See also removeLastOption()
+ *
+ * @param resizeInternalRepr If this is set, resize the internal representation to reclaim space once in a while
+ * @throws NoSuchElementException when empty
+ * @return
+ *     */
   def removeLast(resizeInternalRepr: Boolean = false): A =
     if (isEmpty) throw new NoSuchElementException(s"empty collection") else removeLastAssumingNonEmpty(resizeInternalRepr)
 
@@ -342,9 +346,10 @@ class ArrayDeque[A] protected (
   }
 
   /**
-    * Removes all elements from this collection and returns the elements while emptying this data structure.
-    * @return
-    */
+ *
+ * Removes all elements from this collection and returns the elements while emptying this data structure.
+ * @return
+ *     */
   def removeAll(): scala.collection.immutable.Seq[A] = {
     val elems = scala.collection.immutable.Seq.newBuilder[A]
     elems.sizeHint(length)
@@ -355,9 +360,10 @@ class ArrayDeque[A] protected (
   }
 
   /**
-    * Removes all elements from this collection and returns the elements in reverse while emptying this data structure.
-    * @return
-    */
+ *
+ * Removes all elements from this collection and returns the elements in reverse while emptying this data structure.
+ * @return
+ *     */
   def removeAllReverse(): scala.collection.immutable.Seq[A] = {
     val elems = scala.collection.immutable.Seq.newBuilder[A]
     elems.sizeHint(length)
@@ -368,11 +374,12 @@ class ArrayDeque[A] protected (
   }
 
   /**
-    * Returns and removes all elements from the left of this queue which satisfy the given predicate
-    *
-    *  @param f   the predicate used for choosing elements
-    *  @return
-    */
+ *
+ * Returns and removes all elements from the left of this queue which satisfy the given predicate
+ *
+ *  @param f   the predicate used for choosing elements
+ *  @return
+ *     */
   def removeHeadWhile(f: A => Boolean): scala.collection.immutable.Seq[A] = {
     val elems = scala.collection.immutable.Seq.newBuilder[A]
     while(headOption.exists(f)) {
@@ -382,11 +389,12 @@ class ArrayDeque[A] protected (
   }
 
   /**
-    * Returns and removes all elements from the right of this queue which satisfy the given predicate
-    *
-    *  @param f   the predicate used for choosing elements
-    *  @return
-    */
+ *
+ * Returns and removes all elements from the right of this queue which satisfy the given predicate
+ *
+ *  @param f   the predicate used for choosing elements
+ *  @return
+ *     */
   def removeLastWhile(f: A => Boolean): scala.collection.immutable.Seq[A] = {
     val elems = scala.collection.immutable.Seq.newBuilder[A]
     while(lastOption.exists(f)) {
@@ -396,24 +404,24 @@ class ArrayDeque[A] protected (
   }
 
   /** Returns the first element which satisfies the given predicate after or at some start index
-    * and removes this element from the collections
-    *
-    *  @param p   the predicate used for choosing the first element
-    *  @param from the start index
-    *  @return the first element of the queue for which p yields true
-    */
+ * and removes this element from the collections
+ *
+ *  @param p   the predicate used for choosing the first element
+ *  @param from the start index
+ *  @return the first element of the queue for which p yields true
+ *     */
   def removeFirst(p: A => Boolean, from: Int = 0): Option[A] = {
     val i = indexWhere(p, from)
     if (i < 0) None else Some(remove(i))
   }
 
   /** Returns all elements in this collection which satisfy the given predicate
-    * and removes those elements from this collections.
-    *
-    *  @param p   the predicate used for choosing elements
-    *  @return    a sequence of all elements in the queue for which
-    *             p yields true.
-    */
+ * and removes those elements from this collections.
+ *
+ *  @param p   the predicate used for choosing elements
+ *  @return    a sequence of all elements in the queue for which
+ *             p yields true.
+ *     */
   def removeAll(p: A => Boolean): scala.collection.immutable.Seq[A] = {
     val res = scala.collection.immutable.Seq.newBuilder[A]
     var i, j = 0
@@ -443,9 +451,10 @@ class ArrayDeque[A] protected (
   override def iterableFactory: SeqFactory[ArrayDeque] = ArrayDeque
 
   /**
-    * Note: This does not actually resize the internal representation.
-    * See clearAndShrink if you want to also resize internally
-    */
+ *
+ * Note: This does not actually resize the internal representation.
+ * See clearAndShrink if you want to also resize internally
+ *     */
   def clear(): Unit = {
     while(nonEmpty) {
       removeHeadAssumingNonEmpty()
@@ -453,11 +462,12 @@ class ArrayDeque[A] protected (
   }
 
   /**
-    * Clears this buffer and shrinks to @param size
-    *
-    * @param size
-    * @return
-    */
+ *
+ * Clears this buffer and shrinks to @param size
+ *
+ * @param size
+ * @return
+ *     */
   def clearAndShrink(size: Int = ArrayDeque.DefaultInitialSize): this.type = {
     reset(array = ArrayDeque.alloc(size), start = 0, end = 0)
     this
@@ -478,8 +488,9 @@ class ArrayDeque[A] protected (
     copySliceToArray(srcStart = 0, dest = new Array[B](length), destStart = 0, maxItems = length)
 
   /**
-    * Trims the capacity of this ArrayDeque's instance to be the current size
-    */
+ *
+ * Trims the capacity of this ArrayDeque's instance to be the current size
+ *     */
   def trimToSize(): Unit = resize(length)
 
   // Utils for common modular arithmetic:
@@ -522,10 +533,11 @@ class ArrayDeque[A] protected (
 }
 
 /**
-  * $factoryInfo
-  * @define coll array deque
-  * @define Coll `ArrayDeque`
-  */
+ *
+ * $factoryInfo
+ * @define coll array deque
+ * @define Coll `ArrayDeque`
+ *   */
 @SerialVersionUID(3L)
 object ArrayDeque extends StrictOptimizedSeqFactory[ArrayDeque] {
 
@@ -551,17 +563,19 @@ object ArrayDeque extends StrictOptimizedSeqFactory[ArrayDeque] {
   final val DefaultInitialSize = 16
 
   /**
-    * We try to not repeatedly resize arrays smaller than this
-    */
+ *
+ * We try to not repeatedly resize arrays smaller than this
+ *     */
   private[ArrayDeque] final val StableSize = 128
 
   /**
-    * Allocates an array whose size is next power of 2 > `len`
-    * Largest possible len is 1<<30 - 1
-    *
-    * @param len
-    * @return
-    */
+ *
+ * Allocates an array whose size is next power of 2 > `len`
+ * Largest possible len is 1<<30 - 1
+ *
+ * @param len
+ * @return
+ *     */
   private[mutable] def alloc(len: Int) = {
     require(len >= 0, s"Non-negative array size required")
     val size = (1 << 31) >>> java.lang.Integer.numberOfLeadingZeros(len) << 1
@@ -586,15 +600,16 @@ transparent trait ArrayDequeOps[A, +CC[_] <: caps.Pure, +C <: AnyRef] extends St
       throw CommonErrors.indexOutOfBounds(index = idx, max = until - 1)
 
   /**
-    * This is a more general version of copyToArray - this also accepts a srcStart unlike copyToArray
-    * This copies maxItems elements from this collections srcStart to dest's destStart
-    * If we reach the end of either collections before we could copy maxItems, we simply stop copying
-    *
-    * @param dest
-    * @param srcStart
-    * @param destStart
-    * @param maxItems
-    */
+ *
+ * This is a more general version of copyToArray - this also accepts a srcStart unlike copyToArray
+ * This copies maxItems elements from this collections srcStart to dest's destStart
+ * If we reach the end of either collections before we could copy maxItems, we simply stop copying
+ *
+ * @param dest
+ * @param srcStart
+ * @param destStart
+ * @param maxItems
+ *     */
   def copySliceToArray(srcStart: Int, dest: Array[?], destStart: Int, maxItems: Int): dest.type = {
     requireBounds(destStart, dest.length+1)
     val toCopy = Math.min(maxItems, Math.min(length - srcStart, dest.length - destStart))

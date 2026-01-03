@@ -22,8 +22,9 @@ class SoftReference[+T <: AnyRef](value : T, queue : ReferenceQueue[T] | Null) e
 }
 
 /**
+ *
  *  A companion object that implements an extractor for `SoftReference` values
- */
+ *  */
 object SoftReference {
 
   /** Creates a `SoftReference` pointing to `value`. */

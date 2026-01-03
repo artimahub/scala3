@@ -20,16 +20,16 @@ import language.experimental.captureChecking
 import scala.annotation.{nowarn, tailrec}
 
 /** This class implements immutable maps using a vector/map-based data structure, which preserves insertion order.
-  *
-  *  Unlike `ListMap`, `VectorMap` has amortized effectively constant lookup at the expense
-  *  of using extra memory and generally lower performance for other operations
-  *
-  *  @tparam K      the type of the keys contained in this vector map.
-  *  @tparam V      the type of the values associated with the keys in this vector map.
-  *
-  * @define coll immutable vector map
-  * @define Coll `immutable.VectorMap`
-  */
+ *
+ *  Unlike `ListMap`, `VectorMap` has amortized effectively constant lookup at the expense
+ *  of using extra memory and generally lower performance for other operations
+ *
+ *  @tparam K      the type of the keys contained in this vector map.
+ *  @tparam V      the type of the values associated with the keys in this vector map.
+ *
+ * @define coll immutable vector map
+ * @define Coll `immutable.VectorMap`
+ *   */
 final class VectorMap[K, +V] private (
     private[immutable] val fields: Vector[Any], // K | Tombstone | Null
     private[immutable] val underlying: Map[K, (Int, V)],
@@ -210,9 +210,9 @@ final class VectorMap[K, +V] private (
   }
 
   /** A [[Vector]] of the keys contained by this map.
-   *
-   *  @return  a [[Vector]] of the keys contained by this map.
-   */
+ *
+ *  @return  a [[Vector]] of the keys contained by this map.
+ *    */
   @nowarn("msg=overriding method keys")
   override def keys: Vector[K] = keysIterator.toVector
 

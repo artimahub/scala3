@@ -58,16 +58,16 @@ final class RichFloat(val self: Float) extends AnyVal with FractionalProxy[Float
   def floor: Float = math.floor(self.toDouble).toFloat
 
   /** Converts an angle measured in degrees to an approximately equivalent
-   *  angle measured in radians.
-   *
-   *  @return the measurement of the angle `x` in radians.
-   */
+ *  angle measured in radians.
+ *
+ *  @return the measurement of the angle `x` in radians.
+ *    */
   def toRadians: Float = math.toRadians(self.toDouble).toFloat
 
   /** Converts an angle measured in radians to an approximately equivalent
-   *  angle measured in degrees.
-   *
-   *  @return the measurement of the angle `x` in degrees.
-   */
+ *  angle measured in degrees.
+ *
+ *  @return the measurement of the angle `x` in degrees.
+ *    */
   def toDegrees: Float = math.toDegrees(self.toDouble).toFloat
 }

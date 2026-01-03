@@ -15,6 +15,7 @@ package scala.annotation.meta
 import scala.language.`2.13`
 
 /**
+ *
  * Consult the documentation in package [[scala.annotation.meta]].
- */
+ *  */
 final class beanGetter extends scala.annotation.StaticAnnotation

@@ -13,9 +13,9 @@ object Scala3RunTime:
     throw new java.lang.AssertionError("assertion failed")
 
   /** Called by the inline extension def `nn`.
-   *
-   *  Extracted to minimize the bytecode size at call site.
-   */
+ *
+ *  Extracted to minimize the bytecode size at call site.
+ *    */
   @deprecated("use Predef.nn instead", "3.2")
   def nn[T](x: T | Null): x.type & T =
     val isNull = x == null

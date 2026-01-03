@@ -19,6 +19,7 @@ import scala.language.`2.13`
 /** A tuple of 2 elements; the canonical representation of a [[scala.Product2]].
  *
  *  @constructor  Create a new tuple with 2 elements. Note that it is more idiomatic to create a Tuple2 via `(t1, t2)`
+ *
  *  @param  _1   Element 1 of this Tuple2
  *  @param  _2   Element 2 of this Tuple2
  */
@@ -28,9 +29,9 @@ final case class Tuple2[@specialized(Int, Long, Double, Char, Boolean/*, AnyRef*
   override def toString(): String = "(" + _1 + "," + _2 + ")"
   
   /** Swaps the elements of this `Tuple`.
-   * @return a new Tuple where the first element is the second element of this Tuple and the
-   * second element is the first element of this Tuple.
-   */
+ * @return a new Tuple where the first element is the second element of this Tuple and the
+ * second element is the first element of this Tuple.
+ *    */
   def swap: Tuple2[T2,T1] = Tuple2(_2, _1)
 
 }

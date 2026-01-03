@@ -17,11 +17,11 @@ import scala.language.`2.13`
 /** This class implements errors which are thrown whenever an
  *  object doesn't match any pattern of a pattern matching
  *  expression.
- */
+ *  */
 final class MatchError(@transient obj: Any) extends RuntimeException {
   /** There's no reason we need to call toString eagerly,
-   *  so defer it until getMessage is called or object is serialized
-   */
+ *  so defer it until getMessage is called or object is serialized
+ *    */
   private lazy val objString: String = {
     def ofClass = "of class " + obj.getClass.getName
     if (obj == null) "null"

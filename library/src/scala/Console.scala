@@ -22,20 +22,20 @@ import scala.util.DynamicVariable
  *  use [[scala.io.StdIn$ StdIn]].
  *  Also defines constants for marking up text on ANSI terminals.
  *
- *  == Console Output ==
+ *  ## Console Output
  *
  *  Use the print methods to output text.
- *  {{{
+ *   ```
  *   scala> Console.printf(
  *     "Today the outside temperature is a balmy %.1f°C. %<.1f°C beats the previous record of %.1f°C.\n",
  *     -137.0,
  *     -135.05)
  *   Today the outside temperature is a balmy -137.0°C. -137.0°C beats the previous record of -135.1°C.
- *  }}}
+ *   ```
  *
- *  == ANSI escape codes ==
+ *  ## ANSI escape codes
  *  Use the ANSI escape codes for colorizing console output either to STDOUT or STDERR.
- *  {{{
+ *   ```
  *    import Console.{GREEN, RED, RESET, YELLOW_B, UNDERLINED}
  *
  *    object PrimeTest {
@@ -55,7 +55,7 @@ import scala.util.DynamicVariable
  *      def main(args: Array[String]): Unit = isPrime()
  *
  *    }
- *  }}}
+ *   ```
  *
  *  <table style="border: 10px solid #000;width:100%">
  *    <tr><td style="background-color:#000;color:#fff">\$ scala PrimeTest</td></tr>
@@ -66,12 +66,12 @@ import scala.util.DynamicVariable
  *    <tr><td style="background-color:#000;color:#fff"><span style="background-color:#ff0;color:#f00;text-decoration:underline">NO!</span></td></tr>
  *  </table>
  *
- *  == IO redefinition ==
+ *  ## IO redefinition
  *
  *  Use IO redefinition to temporarily swap in a different set of input and/or output streams. In this example the stream based
  *  method above is wrapped into a function.
- *
- *  {{{
+
+ *   ```
  *    import java.io.{ByteArrayOutputStream, StringReader}
  *
  *    object FunctionalPrimeTest {
@@ -103,9 +103,9 @@ import scala.util.DynamicVariable
  *      }
  *
  *    }
- *  }}}
+ *   ```
  *
- *
+
  *  <table style="border: 10px solid #000;width:100%">
  *    <tr><td style="background-color:#000;color:#fff">\$ scala FunctionalPrimeTest</td></tr>
  *    <tr><td style="background-color:#000;color:#fff">First primes: Vector(2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47)</td></tr>
@@ -124,7 +124,7 @@ import scala.util.DynamicVariable
  *  @groupdesc io-redefinition These methods allow substituting alternative streams for the duration of
  *             a body of code. Threadsafe by virtue of [[scala.util.DynamicVariable]].
  *
- */
+ *  */
 object Console extends AnsiColor {
   private val outVar = new DynamicVariable[PrintStream](java.lang.System.out)
   private val errVar = new DynamicVariable[PrintStream](java.lang.System.err)
@@ -136,148 +136,148 @@ object Console extends AnsiColor {
   protected def setInDirect(in: BufferedReader): Unit = inVar.value = in
 
   /** The default output, can be overridden by `withOut`.
-   *  @group io-default
-   */
+ *  @group io-default
+ *    */
   def out: PrintStream = outVar.value
   /** The default error, can be overridden by `withErr`.
-   *  @group io-default
-   */
+ *  @group io-default
+ *    */
   def err: PrintStream = errVar.value
   /** The default input, can be overridden by `withIn`.
-   *  @group io-default
-   */
+ *  @group io-default
+ *    */
   def in: BufferedReader = inVar.value
 
   /** Sets the default output stream for the duration
-   *  of execution of one thunk.
-   *
-   *  @example {{{
-   *  withOut(Console.err) { println("This goes to default _error_") }
-   *  }}}
-   *
-   *  @param out the new output stream.
-   *  @param thunk the code to execute with
-   *               the new output stream active
-   *  @return the results of `thunk`
-   *  @see `withOut[T](out:OutputStream)(thunk: => T)`
-   *  @group io-redefinition
-   */
+ *  of execution of one thunk.
+ *
+ *  @example {{{
+ *  withOut(Console.err) { println("This goes to default _error_") }
+ *   ```
+ *
+ *  @param out the new output stream.
+ *  @param thunk the code to execute with
+ *               the new output stream active
+ *  @return the results of `thunk`
+ *  @see `withOut[T](out:OutputStream)(thunk: => T)`
+ *  @group io-redefinition
+ *    */
   def withOut[T](out: PrintStream)(thunk: => T): T =
     outVar.withValue(out)(thunk)
 
   /** Sets the default output stream for the duration
    *  of execution of one thunk.
+   *  @see `withOut[T](out:PrintStream)(thunk: => T)`
+   *  @group io-redefinition
    *
    *  @param out the new output stream.
    *  @param thunk the code to execute with
    *               the new output stream active
    *  @return the results of `thunk`
-   *  @see `withOut[T](out:PrintStream)(thunk: => T)`
-   *  @group io-redefinition
    */
   def withOut[T](out: OutputStream)(thunk: => T): T =
     withOut(new PrintStream(out))(thunk)
 
   /** Sets the default error stream for the duration
-   *  of execution of one thunk.
-   *  @example {{{
-   *  withErr(Console.out) { err.println("This goes to default _out_") }
-   *  }}}
-   *
-   *  @param err the new error stream.
-   *  @param thunk the code to execute with
-   *               the new error stream active
-   *  @return the results of `thunk`
-   *  @see `withErr[T](err:OutputStream)(thunk: => T)`
-   *  @group io-redefinition
-   */
+ *  of execution of one thunk.
+ *  @example {{{
+ *  withErr(Console.out) { err.println("This goes to default _out_") }
+ *   ```
+ *
+ *  @param err the new error stream.
+ *  @param thunk the code to execute with
+ *               the new error stream active
+ *  @return the results of `thunk`
+ *  @see `withErr[T](err:OutputStream)(thunk: => T)`
+ *  @group io-redefinition
+ *    */
   def withErr[T](err: PrintStream)(thunk: => T): T =
     errVar.withValue(err)(thunk)
 
   /** Sets the default error stream for the duration
    *  of execution of one thunk.
+   *  @see `withErr[T](err:PrintStream)(thunk: => T)`
+   *  @group io-redefinition
    *
    *  @param err the new error stream.
    *  @param thunk the code to execute with
    *               the new error stream active
    *  @return the results of `thunk`
-   *  @see `withErr[T](err:PrintStream)(thunk: => T)`
-   *  @group io-redefinition
    */
   def withErr[T](err: OutputStream)(thunk: => T): T =
     withErr(new PrintStream(err))(thunk)
 
   /** Sets the default input stream for the duration
-   *  of execution of one thunk.
-   *
-   *  @example {{{
-   *  val someFile:Reader = openFile("file.txt")
-   *  withIn(someFile) {
-   *    // Reads a line from file.txt instead of default input
-   *    println(readLine)
-   *  }
-   *  }}}
-   *
-   *  @param thunk the code to execute with
-   *               the new input stream active
-   *
-   *  @return the results of `thunk`
-   *  @see `withIn[T](in:InputStream)(thunk: => T)`
-   *  @group io-redefinition
-   */
+ *  of execution of one thunk.
+ *
+ *  @example {{{
+ *  val someFile:Reader = openFile("file.txt")
+ *  withIn(someFile) {
+ *    // Reads a line from file.txt instead of default input
+ *    println(readLine)
+ *  }
+ *   ```
+ *
+ *  @param thunk the code to execute with
+ *               the new input stream active
+ *
+ *  @return the results of `thunk`
+ *  @see `withIn[T](in:InputStream)(thunk: => T)`
+ *  @group io-redefinition
+ *    */
   def withIn[T](reader: Reader)(thunk: => T): T =
     inVar.withValue(new BufferedReader(reader))(thunk)
 
   /** Sets the default input stream for the duration
    *  of execution of one thunk.
+   *  @see `withIn[T](reader:Reader)(thunk: => T)`
+   *  @group io-redefinition
    *
    *  @param in the new input stream.
    *  @param thunk the code to execute with
    *               the new input stream active
    *  @return the results of `thunk`
-   *  @see `withIn[T](reader:Reader)(thunk: => T)`
-   *  @group io-redefinition
    */
   def withIn[T](in: InputStream)(thunk: => T): T =
     withIn(new InputStreamReader(in))(thunk)
 
   /** Prints an object to `out` using its `toString` method.
-   *
-   *  @param obj the object to print; may be null.
-   *  @group console-output
-   */
+ *
+ *  @param obj the object to print; may be null.
+ *  @group console-output
+ *    */
   def print(obj: Any): Unit = {
     out.print(if (null == obj) "null" else obj.toString())
   }
 
   /** Flushes the output stream. This function is required when partial
-   *  output (i.e. output not terminated by a newline character) has
-   *  to be made visible on the terminal.
-    * @group console-output
-   */
+ *  output (i.e. output not terminated by a newline character) has
+ *  to be made visible on the terminal.
+ * @group console-output
+ *    */
   def flush(): Unit = { out.flush() }
 
   /** Prints a newline character on the default output.
-    * @group console-output
-   */
+ * @group console-output
+ *    */
   def println(): Unit = { out.println() }
 
   /** Prints out an object to the default output, followed by a newline character.
-   *
-   *  @param x the object to print.
-   *  @group console-output
-   */
+ *
+ *  @param x the object to print.
+ *  @group console-output
+ *    */
   def println(x: Any): Unit = { out.println(x) }
 
   /** Prints its arguments as a formatted string to the default output,
-   *  based on a string pattern (in a fashion similar to printf in C).
-   *
-   *  The interpretation of the formatting patterns is described in [[java.util.Formatter]].
-   *
-   *  @param text the pattern for formatting the arguments.
-   *  @param args the arguments used to instantiating the pattern.
-   *  @throws java.lang.IllegalArgumentException if there was a problem with the format string or arguments
-   *  @group console-output
-   */
+ *  based on a string pattern (in a fashion similar to printf in C).
+ *
+ *  The interpretation of the formatting patterns is described in [[java.util.Formatter]].
+ *
+ *  @param text the pattern for formatting the arguments.
+ *  @param args the arguments used to instantiating the pattern.
+ *  @throws java.lang.IllegalArgumentException if there was a problem with the format string or arguments
+ *  @group console-output
+ *    */
   def printf(text: String, args: Any*): Unit = { out.print(text.format(args*)) }
 }

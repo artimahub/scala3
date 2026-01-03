@@ -25,16 +25,16 @@ import scala.runtime.ScalaRunTime.mapNull
 /** The `Predef` object provides definitions that are accessible in all Scala
  *  compilation units without explicit qualification.
  *
- *  === Commonly Used Types ===
+ *  ### Commonly Used Types
  *  Predef provides type aliases for types which are commonly used, such as
  *  the immutable collection types [[scala.collection.immutable.Map]] and
  *  [[scala.collection.immutable.Set]].
  *
- *  === Console Output ===
+ *  ### Console Output
  *  For basic console output, `Predef` provides convenience methods [[print(x:Any* print]] and [[println(x:Any* println]],
  *  which are aliases of the methods in the object [[scala.Console]].
  *
- *  === Assertions ===
+ *  ### Assertions
  *  A set of `assert` functions are provided for use as a way to document
  *  and dynamically check invariants in code.
  *
@@ -43,13 +43,13 @@ import scala.runtime.ScalaRunTime.mapNull
  *  intended for use as a means of design-by-contract style specification
  *  of pre- and post-conditions on functions, with the intention that these
  *  specifications could be consumed by a static analysis tool. For instance,
- *
- *  {{{
+
+ *   ```
  *  def addNaturals(nats: List[Int]): Int = {
  *    require(nats forall (_ >= 0), "List contains negative numbers")
  *    nats.foldLeft(0)(_ + _)
  *  } ensuring(_ >= 0)
- *  }}}
+ *   ```
  *
  *  The declaration of `addNaturals` states that the list of integers passed should
  *  only contain natural numbers (i.e. non-negative), and that the result returned
@@ -59,7 +59,7 @@ import scala.runtime.ScalaRunTime.mapNull
  *  form of `assert` that declares the guarantee the function is providing with
  *  regards to its return value.
  *
- *  === Implicit Conversions ===
+ *  ### Implicit Conversions
  *  A number of commonly applied implicit conversions are also defined here, and
  *  in the parent type [[scala.LowPriorityImplicits]]. Implicit conversions
  *  are provided for the "widening" of numeric values, for instance, converting a
@@ -104,64 +104,67 @@ import scala.runtime.ScalaRunTime.mapNull
  * @groupname conversions-array-to-wrapped-array Array to ArraySeq
  * @groupprio conversions-array-to-wrapped-array 110
  * @groupdesc conversions-array-to-wrapped-array Conversions from Arrays to ArraySeqs.
- */
+ *  */
 object Predef extends LowPriorityImplicits {
   /**
-   * Retrieves the runtime representation of a class type. `classOf[T]` is equivalent to
-   * the class literal `T.class` in Java.
-   *
-   * @example {{{
-   * val listClass = classOf[List[?]]
-   * // listClass is java.lang.Class[List[?]] = class scala.collection.immutable.List
-   *
-   * val mapIntString = classOf[Map[Int,String]]
-   * // mapIntString is java.lang.Class[Map[Int,String]] = interface scala.collection.immutable.Map
-   * }}}
-   *
-   * @return The runtime [[Class]] representation of type `T`.
-   * @group utilities
-   */
+ *
+ * Retrieves the runtime representation of a class type. `classOf[T]` is equivalent to
+ * the class literal `T.class` in Java.
+ *
+ * @example {{{
+ * val listClass = classOf[List[?]]
+ * // listClass is java.lang.Class[List[?]] = class scala.collection.immutable.List
+ *
+ * val mapIntString = classOf[Map[Int,String]]
+ * // mapIntString is java.lang.Class[Map[Int,String]] = interface scala.collection.immutable.Map
+ *  ```
+ *
+ * @return The runtime [[Class]] representation of type `T`.
+ * @group utilities
+ *    */
   def classOf[T]: Class[T] = null.asInstanceOf[Class[T]] // This is a stub method. The actual implementation is filled in by the compiler.
 
   /**
-   * Retrieves the single value of a type with a unique inhabitant.
-   *
-   * @example {{{
-   * object Foo
-   * val foo = valueOf[Foo.type]
-   * // foo is Foo.type = Foo
-   *
-   * val bar = valueOf[23]
-   * // bar is 23.type = 23
-   * }}}
-   * @group utilities
-   */
+ *
+ * Retrieves the single value of a type with a unique inhabitant.
+ *
+ * @example {{{
+ * object Foo
+ * val foo = valueOf[Foo.type]
+ * // foo is Foo.type = Foo
+ *
+ * val bar = valueOf[23]
+ * // bar is 23.type = 23
+ *  ```
+ * @group utilities
+ *    */
   @inline def valueOf[T](implicit vt: ValueOf[T]): T = vt.value
 
   /**
-   * Retrieves the single value of a type with a unique inhabitant.
-   *
-   * @example {{{
-   * object Foo
-   * val foo = valueOf[Foo.type]
-   * // foo is Foo.type = Foo
-   *
-   * val bar = valueOf[23]
-   * // bar is 23.type = 23
-   * }}}
-   * @group utilities
-   */
+ *
+ * Retrieves the single value of a type with a unique inhabitant.
+ *
+ * @example {{{
+ * object Foo
+ * val foo = valueOf[Foo.type]
+ * // foo is Foo.type = Foo
+ *
+ * val bar = valueOf[23]
+ * // bar is 23.type = 23
+ *  ```
+ * @group utilities
+ *    */
   inline def valueOf[T]: T = summonFrom {
     case ev: ValueOf[T] => ev.value
   }
 
   /** The `String` type in Scala has all the methods of the underlying
-   *  [[java.lang.String]], of which it is just an alias.
-   *
-   *  In addition, extension methods in [[scala.collection.StringOps]]
-   *  are added implicitly through the conversion [[augmentString]].
-   *  @group aliases
-   */
+ *  [[java.lang.String]], of which it is just an alias.
+ *
+ *  In addition, extension methods in [[scala.collection.StringOps]]
+ *  are added implicitly through the conversion [[augmentString]].
+ *  @group aliases
+ *    */
   type String        = java.lang.String
   /**  @group aliases */
   type Class[T]      = java.lang.Class[T]
@@ -183,17 +186,18 @@ object Predef extends LowPriorityImplicits {
   val Set         = immutable.Set
 
   /**
-   * Allows destructuring tuples with the same syntax as constructing them.
-   *
-   * @example {{{
-   * val tup = "foobar" -> 3
-   *
-   * val c = tup match {
-   *   case str -> i => str.charAt(i)
-   * }
-   * }}}
-   * @group aliases
-   */
+ *
+ * Allows destructuring tuples with the same syntax as constructing them.
+ *
+ * @example {{{
+ * val tup = "foobar" -> 3
+ *
+ * val c = tup match {
+ *   case str -> i => str.charAt(i)
+ * }
+ *  ```
+ * @group aliases
+ *    */
   val ->        = Tuple2
 
   // Manifest types, companions, and incantations for summoning
@@ -221,18 +225,19 @@ object Predef extends LowPriorityImplicits {
   // Minor variations on identity functions
 
   /**
-   * A method that returns its input value.
-   * @tparam A type of the input value x.
-   * @param x the value of type `A` to be returned.
-   * @return the value `x`.
-   * @group utilities */
+ *
+ * A method that returns its input value.
+ * @tparam A type of the input value x.
+ * @param x the value of type `A` to be returned.
+ * @return the value `x`.
+ * @group utilities */
   @inline def identity[A](x: A): A = x // see `$conforms` for the implicit version
 
   /** Summon an implicit value of type `T`. Usually, the argument is not passed explicitly.
+   *  @group utilities
    *
    *  @tparam T the type of the value to be summoned
    *  @return the implicit value of type `T`
-   *  @group utilities
    */
   @inline def implicitly[T](implicit e: T): T = e // TODO: when dependent method types are on by default, give this result type `e.type`, so that inliner has better chance of knowing which method to inline in calls like `implicitly[MatchingStrategy[Option]].zero`
 
@@ -244,34 +249,34 @@ object Predef extends LowPriorityImplicits {
   transparent inline def summon[T](using x: T): x.type = x
 
   /** Used to mark code blocks as being expressions, instead of being taken as part of anonymous classes and the like.
-   *  This is just a different name for [[identity]].
-   *
-   *  @example Separating code blocks from `new`:
-   *           {{{
-   *             val x = new AnyRef
-   *             {
-   *               val y = ...
-   *               println(y)
-   *             }
-   *             // the { ... } block is seen as the body of an anonymous class
-   *
-   *             val x = new AnyRef
-   *
-   *             {
-   *               val y = ...
-   *               println(y)
-   *             }
-   *             // an empty line is a brittle "fix"
-   *
-   *             val x = new AnyRef
-   *             locally {
-   *               val y = ...
-   *               println(y)
-   *             }
-   *             // locally guards the block and helps communicate intent
-   *           }}}
-   *  @group utilities
-   */
+ *  This is just a different name for [[identity]].
+ *
+ *  @example Separating code blocks from `new`:
+ *            ```
+ *             val x = new AnyRef
+ *             {
+ *               val y = ...
+ *               println(y)
+ *             }
+ *             // the { ... } block is seen as the body of an anonymous class
+ *
+ *             val x = new AnyRef
+ *
+ *             {
+ *               val y = ...
+ *               println(y)
+ *             }
+ *             // an empty line is a brittle "fix"
+ *
+ *             val x = new AnyRef
+ *             locally {
+ *               val y = ...
+ *               println(y)
+ *             }
+ *             // locally guards the block and helps communicate intent
+ *            ```
+ *  @group utilities
+ *    */
   @inline def locally[T](@deprecatedName("x") x: T): T = x
 
   // ==============================================================================================
@@ -296,10 +301,10 @@ object Predef extends LowPriorityImplicits {
     */
 
   /** Tests an expression, throwing an `AssertionError` if false.
-   *
-   *  @param assertion   the expression to test
-   *  @group assertions
-   */
+ *
+ *  @param assertion   the expression to test
+ *  @group assertions
+ *    */
   @publicInBinary
   @targetName("assert") private[scala] def scala2Assert(assertion: Boolean): Unit = {
     if (!assertion)
@@ -307,11 +312,11 @@ object Predef extends LowPriorityImplicits {
   }
 
   /** Tests an expression, throwing an `AssertionError` if false.
-   *
-   *  @param assertion   the expression to test
-   *  @param message     a String to include in the failure message
-   *  @group assertions
-   */
+ *
+ *  @param assertion   the expression to test
+ *  @param message     a String to include in the failure message
+ *  @group assertions
+ *    */
   @inline @publicInBinary
   @targetName("assert") private[scala] final def scala2Assert(assertion: Boolean, message: => Any): Unit = {
     if (!assertion)
@@ -329,61 +334,61 @@ object Predef extends LowPriorityImplicits {
   // ==============================================================================================
 
   /** Tests an expression, throwing an `AssertionError` if false.
-   *  This method differs from assert only in the intent expressed:
-   *  assert contains a predicate which needs to be proven, while
-   *  assume contains an axiom for a static checker.
-   *
-   *  @param assumption   the expression to test
-   *  @group assertions
-   */
+ *  This method differs from assert only in the intent expressed:
+ *  assert contains a predicate which needs to be proven, while
+ *  assume contains an axiom for a static checker.
+ *
+ *  @param assumption   the expression to test
+ *  @group assertions
+ *    */
   def assume(assumption: Boolean): Unit = {
     if (!assumption)
       throw new java.lang.AssertionError("assumption failed")
   }
 
   /** Tests an expression, throwing an `AssertionError` if false.
-   *  This method differs from assert only in the intent expressed:
-   *  assert contains a predicate which needs to be proven, while
-   *  assume contains an axiom for a static checker.
-   *
-   *  @param assumption   the expression to test
-   *  @param message      a String to include in the failure message
-   *  @group assertions
-   */
+ *  This method differs from assert only in the intent expressed:
+ *  assert contains a predicate which needs to be proven, while
+ *  assume contains an axiom for a static checker.
+ *
+ *  @param assumption   the expression to test
+ *  @param message      a String to include in the failure message
+ *  @group assertions
+ *    */
   @inline final def assume(assumption: Boolean, message: => Any): Unit = {
     if (!assumption)
       throw new java.lang.AssertionError("assumption failed: "+ message)
   }
 
   /** Tests an expression, throwing an `IllegalArgumentException` if false.
-   *  This method is similar to `assert`, but blames the caller of the method
-   *  for violating the condition.
-   *
-   *  @param requirement   the expression to test
-   *  @group assertions
-   */
+ *  This method is similar to `assert`, but blames the caller of the method
+ *  for violating the condition.
+ *
+ *  @param requirement   the expression to test
+ *  @group assertions
+ *    */
   def require(requirement: Boolean): Unit = {
     if (!requirement)
       throw new IllegalArgumentException("requirement failed")
   }
 
   /** Tests an expression, throwing an `IllegalArgumentException` if false.
-   *  This method is similar to `assert`, but blames the caller of the method
-   *  for violating the condition.
-   *
-   *  @param requirement   the expression to test
-   *  @param message       a String to include in the failure message
-   *  @group assertions
-   */
+ *  This method is similar to `assert`, but blames the caller of the method
+ *  for violating the condition.
+ *
+ *  @param requirement   the expression to test
+ *  @param message       a String to include in the failure message
+ *  @group assertions
+ *    */
   @inline final def require(requirement: Boolean, message: => Any): Unit = {
     if (!requirement)
       throw new IllegalArgumentException("requirement failed: "+ message)
   }
 
   /** `???` can be used for marking methods that remain to be implemented.
-   *  @throws NotImplementedError when `???` is invoked.
-   *  @group utilities
-   */
+ *  @throws NotImplementedError when `???` is invoked.
+ *  @group utilities
+ *    */
   def ??? : Nothing = throw new NotImplementedError
 
   // implicit classes -----------------------------------------------------
@@ -406,16 +411,16 @@ object Predef extends LowPriorityImplicits {
   /** @group implicit-classes-any */
   implicit final class StringFormat[A](private val self: A) extends AnyVal {
     /** Returns string formatted according to given `format` string.
-     *  Format strings are as for `String.format`
-     *  (@see java.lang.String.format).
-     */
+ *  Format strings are as for `String.format`
+ *  (@see java.lang.String.format).
+ *      */
     @deprecated("Use `formatString.format(value)` instead of `value.formatted(formatString)`,\nor use the `f\"\"` string interpolator. In Java 15 and later, `formatted` resolves to the new method in String which has reversed parameters.", "2.12.16")
     @inline def formatted(fmtstr: String): String = fmtstr format self
   }
 
   /** Injects String concatenation operator `+` to any classes.
-   * @group implicit-classes-any
-   */
+ * @group implicit-classes-any
+ *    */
   @(deprecated @companionMethod)("Implicit injection of + is deprecated. Convert to String to call +", "2.13.0")
   @(deprecated @companionClass)("Implicit injection of + is deprecated. Convert to String to call +", "2.13.0") // for Scaladoc
   // scala/bug#8229 retaining the pre 2.11 name for source compatibility in shadowing this implicit
@@ -451,39 +456,39 @@ object Predef extends LowPriorityImplicits {
   // printing -----------------------------------------------------------
 
   /** Prints an object to `out` using its `toString` method.
-   *
-   *  @param x the object to print; may be null.
-   *  @group console-output
-   */
+ *
+ *  @param x the object to print; may be null.
+ *  @group console-output
+ *    */
   def print(x: Any): Unit = Console.print(x)
 
   /** Prints a newline character on the default output.
-   *  @group console-output
-   */
+ *  @group console-output
+ *    */
   def println(): Unit = Console.println()
 
   /** Prints out an object to the default output, followed by a newline character.
-   *
-   *  @param x the object to print.
-   *  @group console-output
-   */
+ *
+ *  @param x the object to print.
+ *  @group console-output
+ *    */
   def println(x: Any): Unit = Console.println(x)
 
   /** Prints its arguments as a formatted string to the default output,
-   *  based on a string pattern (in a fashion similar to printf in C).
-   *
-   *  The interpretation of the formatting patterns is described in
-   *  [[java.util.Formatter]].
-   *
-   *  Consider using the [[scala.StringContext.f f interpolator]] as more type safe and idiomatic.
-   *
-   *  @param text the pattern for formatting the arguments.
-   *  @param xs   the arguments used to instantiate the pattern.
-   *  @throws java.lang.IllegalArgumentException if there was a problem with the format string or arguments
-   *
-   *  @see [[scala.StringContext.f StringContext.f]]
-   *  @group console-output
-   */
+ *  based on a string pattern (in a fashion similar to printf in C).
+ *
+ *  The interpretation of the formatting patterns is described in
+ *  [[java.util.Formatter]].
+ *
+ *  Consider using the [[scala.StringContext.f f interpolator]] as more type safe and idiomatic.
+ *
+ *  @param text the pattern for formatting the arguments.
+ *  @param xs   the arguments used to instantiate the pattern.
+ *  @throws java.lang.IllegalArgumentException if there was a problem with the format string or arguments
+ *
+ *  @see [[scala.StringContext.f StringContext.f]]
+ *  @group console-output
+ *    */
   def printf(text: String, xs: Any*): Unit = Console.print(text.format(xs*))
 
   // views --------------------------------------------------------------
@@ -547,25 +552,25 @@ object Predef extends LowPriorityImplicits {
   implicit def Boolean2boolean(x: java.lang.Boolean): Boolean = x.asInstanceOf[Boolean]
 
   /** An implicit of type `A => A` is available for all `A` because it can always
-   *  be implemented using the identity function. This also means that an
-   *  implicit of type `A => B` is always available when `A <: B`, because
-   *  `(A => A) <: (A => B)`.
-   */
+ *  be implemented using the identity function. This also means that an
+ *  implicit of type `A => B` is always available when `A <: B`, because
+ *  `(A => A) <: (A => B)`.
+ *    */
   // $ to avoid accidental shadowing (e.g. scala/bug#7788)
   implicit def $conforms[A]: A -> A = <:<.refl
 
   // Extension methods for working with explicit nulls
 
   /** Strips away the nullability from a value. Note that `.nn` performs a checked cast,
-   *  so if invoked on a `null` value it will throw an `NullPointerException`.
-   *  @example {{{
-   *  val s1: String | Null = "hello"
-   *  val s2: String = s1.nn
-   *
-   *  val s3: String | Null = null
-   *  val s4: String = s3.nn // throw NullPointerException
-   *  }}}
-   */
+ *  so if invoked on a `null` value it will throw an `NullPointerException`.
+ *  @example {{{
+ *  val s1: String | Null = "hello"
+ *  val s2: String = s1.nn
+ *
+ *  val s3: String | Null = null
+ *  val s4: String = s3.nn // throw NullPointerException
+ *   ```
+ *    */
   extension [T](x: T | Null) inline def nn: x.type & T =
     if x.asInstanceOf[Any] == null then scala.runtime.Scala3RunTime.nnFail()
     x.asInstanceOf[x.type & T]
@@ -573,56 +578,57 @@ object Predef extends LowPriorityImplicits {
   extension (inline x: AnyRef | Null)
     /** Enables an expression of type `T|Null`, where `T` is a subtype of `AnyRef`, to be checked for `null`
      *  using `eq` rather than only `==`. This is needed because `Null` no longer has
-     *  `eq` or `ne` methods, only `==` and `!=` inherited from `Any`. */
+     *  `eq` or `ne` methods, only `==` and `!=` inherited from `Any`. 
+     */
     inline infix def eq(inline y: AnyRef | Null): Boolean =
       x.asInstanceOf[AnyRef] eq y.asInstanceOf[AnyRef]
     /** Enables an expression of type `T|Null`, where `T` is a subtype of `AnyRef`, to be checked for `null`
      *  using `ne` rather than only `!=`. This is needed because `Null` no longer has
-     *  `eq` or `ne` methods, only `==` and `!=` inherited from `Any`. */
+     *  `eq` or `ne` methods, only `==` and `!=` inherited from `Any`. 
+     */
     inline infix def ne(inline y: AnyRef | Null): Boolean =
       !(x eq y)
 
   /** A type supporting Self-based type classes.
-   *
-   *    A is TC
-   *
-   *  expands to
-   *
-   *    TC { type Self = A }
-   *
-   *  which is what is needed for a context bound `[A: TC]`.
-   */
+ *
+ *    A is TC
+ *
+ *  expands to
+ *
+ *    TC { type Self = A }
+ *
+ *  which is what is needed for a context bound `[A: TC]`.
+ *    */
   @experimental
   infix type is[A <: AnyKind, B <: Any{type Self <: AnyKind}] = B { type Self = A }
 
   extension [T](x: T)
     /**Asserts that a term should be exempt from static checks that can be reliably checked at runtime.
-     * @example {{{
-     * val xs: Option[Int] = Option(1)
-     * xs.runtimeChecked match
-     *    case Some(x) => x // `Some(_)` can be checked at runtime, so no warning
-     * }}}
-     * @example {{{
-     * val xs: List[Int] = List(1,2,3)
-     * val y :: ys = xs.runtimeChecked // `_ :: _` can be checked at runtime, so no warning
-     * }}}
-     */
+ * @example {{{
+ * val xs: Option[Int] = Option(1)
+ * xs.runtimeChecked match
+ *    case Some(x) => x // `Some(_)` can be checked at runtime, so no warning
+ *  ```
+ * @example {{{
+ * val xs: List[Int] = List(1,2,3)
+ * val y :: ys = xs.runtimeChecked // `_ :: _` can be checked at runtime, so no warning
+ *  ```
+ *      */
     inline def runtimeChecked: x.type @RuntimeChecked = x: @RuntimeChecked
 
 }
 
 /** The `LowPriorityImplicits` class provides implicit values that
-*  are valid in all Scala compilation units without explicit qualification,
-*  but that are partially overridden by higher-priority conversions in object
-*  `Predef`.
-*/
+ *  are valid in all Scala compilation units without explicit qualification,
+ *  but that are partially overridden by higher-priority conversions in object
+ *  `Predef`.*/
 // scala/bug#7335 Parents of Predef are defined in the same compilation unit to avoid
 // cyclic reference errors compiling the standard library *without* a previously
 // compiled copy on the classpath.
 private[scala] abstract class LowPriorityImplicits extends LowPriorityImplicits2 {
   import mutable.ArraySeq
 
-  /** We prefer the java.lang.* boxed types to these wrappers in
+  /** boxed types to these wrappers in
    *  any potential conflicts.  Conflicts do exist because the wrappers
    *  need to implement ScalaNumber in order to have a symmetric equals
    *  method, but that implies implementing java.lang.Number as well.

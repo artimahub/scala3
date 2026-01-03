@@ -22,18 +22,19 @@ import scala.collection.convert.impl.CharStringStepper
 import scala.collection.mutable.{Builder, StringBuilder}
 
 /**
-  *  This class serves as a wrapper augmenting `String`s with all the operations
-  *  found in indexed sequences.
-  *
-  *  The difference between this class and `StringOps` is that calling transformer
-  *  methods such as `filter` and `map` will yield an object of type `WrappedString`
-  *  rather than a `String`.
-  *
-  *  @param self    a string contained within this wrapped string
-  *
-  *  @define Coll `WrappedString`
-  *  @define coll wrapped string
-  */
+ *
+ *  This class serves as a wrapper augmenting `String`s with all the operations
+ *  found in indexed sequences.
+ *
+ *  The difference between this class and `StringOps` is that calling transformer
+ *  methods such as `filter` and `map` will yield an object of type `WrappedString`
+ *  rather than a `String`.
+ *
+ *  @param self    a string contained within this wrapped string
+ *
+ *  @define Coll `WrappedString`
+ *  @define coll wrapped string
+ *   */
 @SerialVersionUID(3L)
 final class WrappedString(private val self: String) extends AbstractSeq[Char] with IndexedSeq[Char]
   with IndexedSeqOps[Char, IndexedSeq, WrappedString]
@@ -123,7 +124,7 @@ final class WrappedString(private val self: String) extends AbstractSeq[Char] wi
 }
 
 /** A companion object for wrapped strings.
-  */
+ *   */
 @SerialVersionUID(3L)
 object WrappedString extends SpecificIterableFactory[Char, WrappedString] {
   def fromSpecific(it: IterableOnce[Char]^): WrappedString = {

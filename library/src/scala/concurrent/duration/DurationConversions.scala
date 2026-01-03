@@ -76,8 +76,9 @@ trait DurationConversions extends Any {
 }
 
 /**
+ *
  * This object just holds some cogs which make the DSL machine work, not for direct consumption.
- */
+ *  */
 object DurationConversions {
   trait Classifier[C] {
     type R

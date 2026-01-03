@@ -17,5 +17,5 @@ import language.experimental.captureChecking
  *  Removing this annotation from a non-public definition is a binary incompatible change.
  *  Adding this annotation to a non-public definition can also cause binary incompatibilities
  *  if the definition is accessed in an inline definition (these can be checked using `-WunstableInlineAccessors`).
- */
+ *  */
 final class publicInBinary extends scala.annotation.StaticAnnotation

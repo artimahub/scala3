@@ -26,14 +26,14 @@ import scala.collection.convert.JavaCollectionWrappers.{JMapWrapper, JMapWrapper
  *  @tparam K      type of keys contained in this map
  *  @tparam V      type of values associated with the keys
  *
- *  @see [[https://docs.scala-lang.org/overviews/collections-2.13/concrete-mutable-collection-classes.html#weak-hash-maps "Scala's Collection Library overview"]]
+ *  @see ["Scala's Collection Library overview"](https://docs.scala-lang.org/overviews/collections-2.13/concrete-mutable-collection-classes.html#weak-hash-maps)
  *  section on `Weak Hash Maps` for more information.
  *
  *  @define Coll `WeakHashMap`
  *  @define coll weak hash map
  *  @define mayNotTerminateInf
  *  @define willNotTerminateInf
- */
+ *  */
 @SerialVersionUID(3L)
 class WeakHashMap[K, V] extends JMapWrapper[K, V](new java.util.WeakHashMap)
     with JMapWrapperLike[K, V, WeakHashMap, WeakHashMap[K, V]]
@@ -47,7 +47,7 @@ class WeakHashMap[K, V] extends JMapWrapper[K, V](new java.util.WeakHashMap)
 /** $factoryInfo
  *  @define Coll `WeakHashMap`
  *  @define coll weak hash map
- */
+ *  */
 @SerialVersionUID(3L)
 object WeakHashMap extends MapFactory[WeakHashMap] {
   def empty[K, V]: WeakHashMap[K,V] = new WeakHashMap[K, V]

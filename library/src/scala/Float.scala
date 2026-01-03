@@ -24,7 +24,7 @@ import scala.language.`2.13`
  *
  *  There is an implicit conversion from [[scala.Float]] => [[scala.runtime.RichFloat]]
  *  which provides useful non-primitive operations.
- */
+ *  */
 final abstract class Float private extends AnyVal {
   def toByte: Byte
   def toShort: Short
@@ -213,42 +213,42 @@ final abstract class Float private extends AnyVal {
 
 object Float extends AnyValCompanion {
   /** The smallest positive value greater than 0.0f which is
-   *  representable as a Float.
-   */
+ *  representable as a Float.
+ *    */
   final val MinPositiveValue = java.lang.Float.MIN_VALUE
   final val NaN              = java.lang.Float.NaN
   final val PositiveInfinity = java.lang.Float.POSITIVE_INFINITY
   final val NegativeInfinity = java.lang.Float.NEGATIVE_INFINITY
 
   /** The negative number with the greatest (finite) absolute value which is representable
-   *  by a Float.  Note that it differs from [[java.lang.Float.MIN_VALUE]], which
-   *  is the smallest positive value representable by a Float.  In Scala that number
-   *  is called Float.MinPositiveValue.
-   */
+ *  by a Float.  Note that it differs from [[java.lang.Float.MIN_VALUE]], which
+ *  is the smallest positive value representable by a Float.  In Scala that number
+ *  is called Float.MinPositiveValue.
+ *    */
   final val MinValue = -java.lang.Float.MAX_VALUE
 
   /** The largest finite positive number representable as a Float. */
   final val MaxValue = java.lang.Float.MAX_VALUE
 
   /** Transforms a value type into a boxed reference type.
-   *
-   *  Runtime implementation determined by `scala.runtime.BoxesRunTime.boxToFloat`. See [[https://github.com/scala/scala src/library/scala/runtime/BoxesRunTime.java]].
-   *
-   *  @param  x   the Float to be boxed
-   *  @return     a java.lang.Float offering `x` as its underlying value.
-   */
+ *
+ *  Runtime implementation determined by `scala.runtime.BoxesRunTime.boxToFloat`. See [src/library/scala/runtime/BoxesRunTime.java](https://github.com/scala/scala).
+ *
+ *  @param  x   the Float to be boxed
+ *  @return     a java.lang.Float offering `x` as its underlying value.
+ *    */
   def box(x: Float): java.lang.Float = ???
 
   /** Transforms a boxed type into a value type.  Note that this
-   *  method is not typesafe: it accepts any Object, but will throw
-   *  an exception if the argument is not a java.lang.Float.
-   *
-   *  Runtime implementation determined by `scala.runtime.BoxesRunTime.unboxToFloat`. See [[https://github.com/scala/scala src/library/scala/runtime/BoxesRunTime.java]].
-   *
-   *  @param  x   the java.lang.Float to be unboxed.
-   *  @throws     ClassCastException  if the argument is not a java.lang.Float
-   *  @return     the Float resulting from calling floatValue() on `x`
-   */
+ *  method is not typesafe: it accepts any Object, but will throw
+ *  an exception if the argument is not a java.lang.Float.
+ *
+ *  Runtime implementation determined by `scala.runtime.BoxesRunTime.unboxToFloat`. See [src/library/scala/runtime/BoxesRunTime.java](https://github.com/scala/scala).
+ *
+ *  @param  x   the java.lang.Float to be unboxed.
+ *  @throws     ClassCastException  if the argument is not a java.lang.Float
+ *  @return     the Float resulting from calling floatValue() on `x`
+ *    */
   def unbox(x: java.lang.Object): Float = ???
 
   /** The `String` representation of the `scala.Float` companion object. */

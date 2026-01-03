@@ -55,17 +55,18 @@ package object collection {
   val GenMap = Map
 
   /** Needed to circumvent a difficulty between dotty and scalac concerning
-   *  the right top type for a type parameter of kind * -> *.
-   *  In Scalac, we can provide `Any`, as `Any` is kind-polymorphic. In dotty this is not allowed.
-   *  In dotty, we can provide `[X] => Any`. But Scalac does not know lambda syntax.
-   */
+ *  the right top type for a type parameter of kind * -> *.
+ *  In Scalac, we can provide `Any`, as `Any` is kind-polymorphic. In dotty this is not allowed.
+ *  In dotty, we can provide `[X] => Any`. But Scalac does not know lambda syntax.
+ *    */
   private[scala] type AnyConstr[X] = Any
 
   /** An extractor used to head/tail deconstruct sequences. */
   object +: {
     /** Splits a sequence into head +: tail.
-      * @return Some((head, tail)) if sequence is non-empty. None otherwise.
-      */
+     *
+     *  @return Some((head, tail)) if sequence is non-empty. None otherwise.
+     */
     def unapply[A, CC[_] <: Seq[?], C <: SeqOps[A, CC, C]](t: (C & SeqOps[A, CC, C])^): Option[(A, C^{t})] =
       if(t.isEmpty) None
       else Some(t.head -> t.tail)
@@ -74,8 +75,9 @@ package object collection {
   /** An extractor used to init/last deconstruct sequences. */
   object :+ {
     /** Splits a sequence into init :+ last.
-      * @return Some((init, last)) if sequence is non-empty. None otherwise.
-      */
+     *
+     *  @return Some((init, last)) if sequence is non-empty. None otherwise.
+     */
     def unapply[A, CC[_] <: Seq[?], C <: SeqOps[A, CC, C]](t: (C & SeqOps[A, CC, C])^): Option[(C^{t}, A)] =
       if(t.isEmpty) None
       else Some(t.init -> t.last)

@@ -27,8 +27,8 @@ sealed trait Tuple extends Product {
     runtime.Tuples.append(x, this).asInstanceOf[This :* L]
 
   /** Returns a new tuple by prepending the element to `this` tuple.
-   *  This operation is O(this.size)
-   */
+ *  This operation is O(this.size)
+ *    */
   inline def *: [H, This >: this.type <: Tuple] (x: H): H *: This =
     runtime.Tuples.cons(x, this).asInstanceOf[H *: This]
 
@@ -205,10 +205,10 @@ object Tuple {
     }
   }
 
-  /** Given two tuples, `A1 *: ... *: An * At` and `B1 *: ... *: Bn *: Bt`
-   *  where at least one of `At` or `Bt` is `EmptyTuple`,
-   *  returns the tuple type `(A1, B1) *: ... *: (An, Bn) *: EmptyTuple`.
-   */
+  /**: ... *: An * At` and `B1 *: ... *: Bn *: Bt`
+ *  where at least one of `At` or `Bt` is `EmptyTuple`,
+ *  returns the tuple type `(A1, B1) *: ... *: (An, Bn) *: EmptyTuple`.
+ *    */
   type Zip[T1 <: Tuple, T2 <: Tuple] <: Tuple = (T1, T2) match {
     case (h1 *: t1, h2 *: t2) => (h1, h2) *: Zip[t1, t2]
     case _ => EmptyTuple
@@ -221,10 +221,10 @@ object Tuple {
   }
 
   /** Implicit evidence. IsMappedBy[F][X] is present in the implicit scope iff
-   *  X is a tuple for which each element's type is constructed via `F`. E.g.
-   *  (F[A1], ..., F[An]), but not `(F[A1], B2, ..., F[An])` where B2 does not
-   *  have the shape of `F[A]`.
-   */
+ *  X is a tuple for which each element's type is constructed via `F`. E.g.
+ *  (F[A1], ..., F[An]), but not `(F[A1], B2, ..., F[An])` where B2 does not
+ *  have the shape of `F[A]`.
+ *    */
   type IsMappedBy[F[_]] = [X <: Tuple] =>> X =:= Map[InverseMap[X, F], F]
 
   /** Type of the reversed tuple. */
@@ -254,28 +254,28 @@ object Tuple {
   }
 
   /** Splits a tuple (T1, ..., Tn) into a pair of two tuples `(T1, ..., Ti)` and
-   * `(Ti+1, ..., Tn)`.
-   */
+ * `(Ti+1, ..., Tn)`.
+ *    */
   type Split[T <: Tuple, N <: Int] = (Take[T, N], Drop[T, N])
 
   /** Given a tuple `(T1, ..., Tn)`, returns a union of its
-   *  member types: `T1 | ... | Tn`. Returns `Nothing` if the tuple is empty.
-   */
+ *  member types: `T1 | ... | Tn`. Returns `Nothing` if the tuple is empty.
+ *    */
   type Union[T <: Tuple] = Fold[T, Nothing, [x, y] =>> x | y]
 
   /** A type level Boolean indicating whether the tuple `X` has an element
-   *  that matches `Y`.
-   *  @pre  The elements of `X` are assumed to be singleton types
-   */
+ *  that matches `Y`.
+ *  @pre  The elements of `X` are assumed to be singleton types
+ *    */
   type Contains[X <: Tuple, Y] <: Boolean = X match
     case Y *: _ => true
     case _ *: xs => Contains[xs, Y]
     case EmptyTuple => false
 
   /** A type level Boolean indicating whether the type `Y` contains
-   *  none of the elements of `X`.
-   *  @pre  The elements of `X` and `Y` are assumed to be singleton types
-   */
+ *  none of the elements of `X`.
+ *  @pre  The elements of `X` and `Y` are assumed to be singleton types
+ *    */
   type Disjoint[X <: Tuple, Y <: Tuple] <: Boolean = X match
     case x *: xs => Contains[Y, x] match
       case true => false

@@ -6,7 +6,7 @@ import language.experimental.captureChecking
  *
  *  `Varargs` can be used to create the an expression `args` that will be used as varargs `'{ f($args: _*) }`
  *  or it can be used to extract all the arguments of the a varargs.
- */
+ *  */
 object Varargs {
 
   /**

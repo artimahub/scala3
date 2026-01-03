@@ -18,7 +18,7 @@ import scala.annotation.meta.{beanGetter, beanSetter, field}
 /** This annotation has the same functionality as
  *  `scala.beans.BeanProperty`, but the generated Bean getter will be
  *  named `isFieldName` instead of `getFieldName`.
- */
+ *  */
 @field @beanGetter @beanSetter
 @deprecatedInheritance("Scheduled for being final in the future", "2.13.0")
 class BooleanBeanProperty extends scala.annotation.StaticAnnotation

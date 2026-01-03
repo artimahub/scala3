@@ -17,7 +17,7 @@ import scala.language.`2.13`
 
 /** Provides functions to encode and decode Scala symbolic names.
  *  Also provides some constants.
- */
+ *  */
 object NameTransformer {
   // TODO: reduce duplication with and in StdNames
   // I made these constants because we cannot change them without bumping our major version anyway.
@@ -64,10 +64,10 @@ object NameTransformer {
   enterOp('@', "$at")
 
   /** Replaces operator symbols by corresponding `\$opname`.
-   *
-   *  @param name the string to encode
-   *  @return     the string with all recognized opchars replaced with their encoding
-   */
+ *
+ *  @param name the string to encode
+ *  @return     the string with all recognized opchars replaced with their encoding
+ *    */
   def encode(name: String): String = {
     var buf: StringBuilder | Null = null
     val len = name.length()
@@ -98,10 +98,10 @@ object NameTransformer {
   }
 
   /** Replaces `\$opname` by corresponding operator symbol.
-   *
-   *  @param name0 the string to decode
-   *  @return      the string with all recognized operator symbol encodings replaced with their name
-   */
+ *
+ *  @param name0 the string to decode
+ *  @return      the string with all recognized operator symbol encodings replaced with their name
+ *    */
   def decode(name0: String): String = {
     //System.out.println("decode: " + name);//DEBUG
     val name = if (name0.endsWith("<init>")) name0.stripSuffix("<init>") + "this"

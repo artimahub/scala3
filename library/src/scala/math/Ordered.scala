@@ -34,7 +34,7 @@ import scala.language.implicitConversions
  *  [[scala.math.PartiallyOrdered]] is an alternative to this trait for partially ordered data.
  *
  *  For example, create a simple class that implements `Ordered` and then sort it with [[scala.util.Sorting]]:
- *  {{{
+ *   ```
  *  case class OrderedClass(n:Int) extends Ordered[OrderedClass] {
  *  	def compare(that: OrderedClass) =  this.n - that.n
  *  }
@@ -42,7 +42,7 @@ import scala.language.implicitConversions
  *  val x = Array(OrderedClass(1), OrderedClass(5), OrderedClass(3))
  *  scala.util.Sorting.quickSort(x)
  *  x
- *  }}}
+ *   ```
  *
  *  It is important that the `equals` method for an instance of `Ordered[A]` be consistent with the
  *  compare method. However, due to limitations inherent in the type erasure semantics, there is no
@@ -56,42 +56,41 @@ import scala.language.implicitConversions
  *  provide it yourself either when inheriting or instantiating.
  *
  *  @see [[scala.math.Ordering]], [[scala.math.PartiallyOrdered]]
- */
+ *  */
 trait Ordered[A] extends Any with java.lang.Comparable[A] {
 
   /** Result of comparing `this` with operand `that`.
    *
-   * Implement this method to determine how instances of A will be sorted.
+   *  Implement this method to determine how instances of A will be sorted.
    *
-   * Returns `x` where:
+   *  Returns `x` where:
    *
    *   - `x < 0` when `this < that`
    *
    *   - `x == 0` when `this == that`
    *
    *   - `x > 0` when  `this > that`
-   *
    */
   def compare(that: A): Int
 
   /** Returns true if `this` is less than `that`
-    */
+   */
   def <  (that: A): Boolean = (this compare that) <  0
 
   /** Returns true if `this` is greater than `that`.
-    */
+   */
   def >  (that: A): Boolean = (this compare that) >  0
 
   /** Returns true if `this` is less than or equal to `that`.
-    */
+ *     */
   def <= (that: A): Boolean = (this compare that) <= 0
 
   /** Returns true if `this` is greater than or equal to `that`.
-    */
+ *     */
   def >= (that: A): Boolean = (this compare that) >= 0
 
   /** Result of comparing `this` with operand `that`.
-    */
+   */
   def compareTo(that: A): Int = compare(that)
 }
 

@@ -21,25 +21,25 @@ import scala.language.`2.13`
  *  Calls to methods marked elidable (as well as the method body) will
  *  be omitted from generated code if the priority given the annotation
  *  is lower than that given on the command line.
- *
- *  {{{
+
+ *   ```
  *     @elidable(123)           // annotation priority
  *     scalac -Xelide-below 456 // command line priority
- *  }}}
+ *   ```
  *
  *  The method call will be replaced with an expression which depends on
  *  the type of the elided expression.  In decreasing order of precedence:
- *
- *  {{{
+
+ *   ```
  *    Unit            ()
  *    Boolean         false
  *    T <: AnyVal     0
  *    T >: Null       null
  *    T >: Nothing    Predef.???
- *  }}}
+ *   ```
  *
  *  Complete example:
- *  {{{
+ *   ```
  *    import scala.annotation._, elidable._
  *    object Test extends App {
  *      def expensiveComputation(): Int = { Thread.sleep(1000) ; 172 }
@@ -61,14 +61,14 @@ import scala.language.`2.13`
  *    % scalac -Xelide-below INFO example.scala && scala Test
  *    Warning! Danger! Warning!
  *    I computed a value: 0
- *  }}}
+ *   ```
  *
  * Note that only concrete methods can be marked `@elidable`. A non-annotated method
  * is not elided, even if it overrides / implements a method that has the annotation.
  *
  * Also note that the static type determines which annotations are considered:
- *
- * {{{
+
+ *  ```
  *   import scala.annotation._, elidable._
  *   class C { @elidable(0) def f(): Unit = ??? }
  *   object O extends C { override def f(): Unit = println("O.f") }
@@ -76,14 +76,14 @@ import scala.language.`2.13`
  *     O.f()      // not elided
  *     (O: C).f() // elided if compiled with `-Xelide-below 1`
  *   }
- * }}}
+ *  ```
  *
  * Note for Scala 3 users:
  * If you're using Scala 3, the annotation exists since Scala 3 uses the Scala 2
  * standard library, but it's unsupported by the Scala 3 compiler. Instead, to
  * achieve the same result you'd want to utilize the `inline if` feature to
  * introduce behavior that makes a method de facto elided at compile-time.
- * {{{
+ *  ```
  *    type LogLevel = Int
  *    
  *    object LogLevel:
@@ -99,8 +99,8 @@ import scala.language.`2.13`
  *    log("Warn log", LogLevel.Warn)
  *    
  *    log("Debug log", LogLevel. Debug)
- * }}}
- */
+ *  ```
+ *  */
 @deprecated(message = "@elidable is not supported by Scala 3", since = "3.8.0")
 final class elidable(final val level: Int) extends scala.annotation.ConstantAnnotation
 
@@ -108,22 +108,22 @@ final class elidable(final val level: Int) extends scala.annotation.ConstantAnno
  *  named constants for the elidable annotation.  This is what it takes
  *  to convince the compiler to fold the constants: otherwise when it's
  *  time to check an elision level it's staring at a tree like
- *  {{{
+ *   ```
  *  (Select(Level, Select(FINEST, Apply(intValue, Nil))))
- *  }}}
+ *   ```
  *  instead of the number `300`.
- */
+ *  */
 object elidable {
   /** The levels `ALL` and `OFF` are confusing in this context because
-   *  the sentiment being expressed when using the annotation is at cross
-   *  purposes with the one being expressed via `-Xelide-below`.  This
-   *  confusion reaches its zenith at level `OFF`, where the annotation means
-   *  ''never elide this method'' but `-Xelide-below OFF` is how you would
-   *  say ''elide everything possible''.
-   *
-   *  With no simple remedy at hand, the issue is now at least documented,
-   *  and aliases `MAXIMUM` and `MINIMUM` are offered.
-   */
+ *  the sentiment being expressed when using the annotation is at cross
+ *  purposes with the one being expressed via `-Xelide-below`.  This
+ *  confusion reaches its zenith at level `OFF`, where the annotation means
+ *  *never elide this method* but `-Xelide-below OFF` is how you would
+ *  say *elide everything possible*.
+ *
+ *  With no simple remedy at hand, the issue is now at least documented,
+ *  and aliases `MAXIMUM` and `MINIMUM` are offered.
+ *    */
   final val ALL     = Int.MinValue  // Level.ALL.intValue()
   final val FINEST  = 300           // Level.FINEST.intValue()
   final val FINER   = 400           // Level.FINER.intValue()

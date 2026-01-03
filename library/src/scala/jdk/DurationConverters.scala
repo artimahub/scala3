@@ -18,10 +18,10 @@ import java.time.{Duration => JDuration}
 import scala.concurrent.duration.FiniteDuration
 
 /** This object provides extension methods that convert between Scala and Java duration types.
-  *
-  * When writing Java code, use the explicit conversion methods defined in
-  * [[javaapi.DurationConverters]] instead.
-  */
+ *
+ * When writing Java code, use the explicit conversion methods defined in
+ * [[javaapi.DurationConverters]] instead.
+ *   */
 object DurationConverters {
   implicit class JavaDurationOps(private val duration: JDuration) extends AnyVal {
     /** Converts a Java duration to a Scala duration, see [[javaapi.DurationConverters.toScala]]. */

@@ -15,6 +15,7 @@ package scala
 import scala.language.`2.13`
 
 /**
+ *
  * An annotation for methods that the optimizer should not inline.
  *
  * Note that by default, the Scala optimizer is disabled and no callsites are inlined. See
@@ -24,8 +25,8 @@ import scala.language.`2.13`
  * `@noinline`.
  *
  * Examples:
- *
- * {{{
+
+ *  ```
  * @inline   final def f1(x: Int) = x
  * @noinline final def f2(x: Int) = x
  *           final def f3(x: Int) = x
@@ -38,13 +39,13 @@ import scala.language.`2.13`
  *  def t6 = f3(1): @inline     // inlined if possible
  *  def t7 = f3(1): @noinline   // not inlined
  * }
- * }}}
+ *  ```
  *
  * Note: parentheses are required when annotating a callsite within a larger expression.
- *
- * {{{
+
+ *  ```
  * def t1 = f1(1) + f1(1): @noinline   // equivalent to (f1(1) + f1(1)): @noinline
  * def t2 = f1(1) + (f1(1): @noinline) // the second call to f1 is not inlined
- * }}}
- */
+ *  ```
+ *  */
 final class noinline extends scala.annotation.StaticAnnotation

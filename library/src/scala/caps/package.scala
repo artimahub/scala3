@@ -7,6 +7,7 @@ import annotation.{experimental, compileTimeOnly, retainsCap}
 import annotation.meta.*
 
 /**
+ *
  * Base trait for classes that represent capabilities in the
  * [object-capability model](https://en.wikipedia.org/wiki/Object-capability_model).
  *
@@ -26,7 +27,7 @@ import annotation.meta.*
  * of a class.
  *
  * Capability has exactly two subtraits: [[SharedCapability Shared]] and [[ExclusiveCapability Exclusive]].
- */
+ *  */
 sealed trait Capability extends Any
 
 /** A marker trait for classifier capabilities that can appear in `.only`
@@ -36,7 +37,7 @@ sealed trait Capability extends Any
  * [[Classifier]] has a formal meaning when
  * [[scala.language.experimental.captureChecking Capture Checking]]
  * is turned on. It should not be used outside of capture checking.
- */
+ *  */
 trait Classifier
 
 /** The universal capture reference. */
@@ -49,7 +50,7 @@ object cap extends Capability
  * [[scala.language.experimental.captureChecking Capture Checking]]
  * is turned on.
  * During separation checking, shared capabilities are not taken into account.
- */
+ *  */
 trait SharedCapability extends Capability, Classifier
 
 @experimental
@@ -62,7 +63,7 @@ type Shared = SharedCapability
  * [[scala.language.experimental.captureChecking Capture Checking]]
  * is turned on.
  * During separation checking, exclusive usage of marked capabilities will be enforced.
- */
+ *  */
 @experimental
 trait ExclusiveCapability extends Capability
 
@@ -76,23 +77,23 @@ type Exclusive = ExclusiveCapability
  * [[Control]] has a formal meaning when
  * [[scala.language.experimental.captureChecking Capture Checking]]
  * is turned on.
- */
+ *  */
 trait Control extends SharedCapability, Classifier
 
 /** Marker trait for classes that can consult and change the global program state.
  *  These  classes typically contain mutable variables and/or update methods.
- */
+ *  */
 @experimental
 trait Stateful extends ExclusiveCapability
 
 /** Marker trait for classes that produce fresh capabilities with their values. If a value of a type
  *  extending Separate is created, a fresh `cap` is automatically added to the value's capture set.
- */
+ *  */
 @experimental
 trait Separate extends Stateful
 
 /** Marker trait for classes that are not subject to scoping restrictions of captured capabilities.
- */
+ *  */
 @experimental
 trait Unscoped extends Stateful, Classifier
 
@@ -118,8 +119,8 @@ sealed trait Contains[+C >: CapSet <: CapSet @retainsCap, R <: Singleton]
 @experimental
 object Contains:
   /** The only implementation of `Contains`. The constraint that `{R} <: C` is
-   *  added separately by the capture checker.
-   */
+ *  added separately by the capture checker.
+ *    */
   @experimental
   given containsImpl[C >: CapSet <: CapSet @retainsCap, R <: Singleton]: Contains[C, R]()
 
@@ -131,7 +132,7 @@ object Contains:
  *
  *  Note: This should go into annotations. For now it is here, so that we
  *  can experiment with it quickly between minor releases
- */
+ *  */
 @experimental
 final class reserve extends annotation.StaticAnnotation
 
@@ -140,14 +141,13 @@ final class reserve extends annotation.StaticAnnotation
  *  use of the reach capability `x*`. Consequently, when calling the method
  *  we need to charge the deep capture set of the actual argiment to the
  *  environment.
- */
+ *  */
 @experimental
 @deprecated(since = "3.8.0")
 final class use extends annotation.StaticAnnotation
 
 /** A trait that used to allow expressing existential types. Replaced by
-*  root.Result instances.
-*/
+ *  root.Result instances.*/
 @experimental
 @deprecated
 sealed trait Exists extends Capability
@@ -156,32 +156,32 @@ sealed trait Exists extends Capability
 object internal:
 
   /** An annotation to reflect that a parameter or method carries the `consume`
-   *  soft modifier.
-   */
+ *  soft modifier.
+ *    */
   @getter @param
   final class consume extends annotation.StaticAnnotation
 
   /** An internal annotation placed on a refinement created by capture checking.
-   *  Refinements with this annotation unconditionally override any
-   *  info from the parent type, so no intersection needs to be formed.
-   *  This could be useful for tracked parameters as well.
-   */
+ *  Refinements with this annotation unconditionally override any
+ *  info from the parent type, so no intersection needs to be formed.
+ *  This could be useful for tracked parameters as well.
+ *    */
   @deprecated
   final class refineOverride extends annotation.StaticAnnotation
 
   /** An annotation used internally for root capability wrappers of `cap` that
-   *  represent either Fresh or Result capabilities.
-   *  A capability is encoded as `caps.cap @rootCapability(...)` where
-   *  `rootCapability(...)` is a special kind of annotation of type `root.Annot`
-   *  that contains either a hidden set for Fresh instances or a method type binder
-   *  for Result instances.
-   */
+ *  represent either Fresh or Result capabilities.
+ *  A capability is encoded as `caps.cap @rootCapability(...)` where
+ *  `rootCapability(...)` is a special kind of annotation of type `root.Annot`
+ *  that contains either a hidden set for Fresh instances or a method type binder
+ *  for Result instances.
+ *    */
   final class rootCapability extends annotation.StaticAnnotation
 
   /** An annotation used internally to mark a function type that was
-   *  converted to a dependent function type during setup of inferred types.
-   *  Such function types should not map roots to result variables.
-   */
+ *  converted to a dependent function type during setup of inferred types.
+ *  Such function types should not map roots to result variables.
+ *    */
   final class inferredDepFun extends annotation.StaticAnnotation
 
   /** An erasedValue issued internally by the compiler. Unlike the
@@ -203,44 +203,44 @@ end internal
  *  result of pure operation `op`, turning them into immutable types.
  *  Array[?] is also included since it counts as a Mutable type for
  *  separation checking.
- */
+ *  */
 @experimental
 def freeze(@internal.consume x: Mutable | Array[?]): x.type = x
 
 @experimental
 object unsafe:
   /** Three usages:
-   *
-   *   1. Marks the constructor parameter as untracked.
-   *      The capture set of this parameter will not be included in
-   *      the capture set of the constructed object.
-   *
-   *   2. Marks a class field that has a root capability in its capture set, so
-   *      that the root capability is not contributed to the class instance.
-   *      Example:
-   *
-   *          class A { val b B^ = ... }; new A()
-   *
-   *      has type A^ since b contributes a cap. But
-   *
-   *          class A { @untrackedCaptures val b: B^ = ... }; new A()
-   *
-   *      has type A. The `b` field does not contribute its cap.
-   *
-   *   3. Allows a field to be declarewd in a class that does not extend Stateful,
-   *      and suppresses checks for updates to the field.
-   *
-   * @note This should go into annotations. For now it is here, so that we
-   *  can experiment with it quickly between minor releases
-   */
+ *
+ *   1. Marks the constructor parameter as untracked.
+ *      The capture set of this parameter will not be included in
+ *      the capture set of the constructed object.
+ *
+ *   2. Marks a class field that has a root capability in its capture set, so
+ *      that the root capability is not contributed to the class instance.
+ *      Example:
+ *
+ *          class A { val b B^ = ... }; new A()
+ *
+ *      has type A^ since b contributes a cap. But
+ *
+ *          class A { @untrackedCaptures val b: B^ = ... }; new A()
+ *
+ *      has type A. The `b` field does not contribute its cap.
+ *
+ *   3. Allows a field to be declarewd in a class that does not extend Stateful,
+ *      and suppresses checks for updates to the field.
+ *
+ * @note This should go into annotations. For now it is here, so that we
+ *  can experiment with it quickly between minor releases
+ *    */
   @getter @param
   final class untrackedCaptures extends annotation.StaticAnnotation
 
   extension [T](x: T)
     /** A specific cast operation to remove a capture set.
-     *  If argument is of type `T^C`, assume it is of type `T` instead.
-     *  Calls to this method are treated specially by the capture checker.
-     */
+ *  If argument is of type `T^C`, assume it is of type `T` instead.
+ *  Calls to this method are treated specially by the capture checker.
+ *      */
     def unsafeAssumePure: T = x
 
   /** A wrapper around code for which separation checks are suppressed.

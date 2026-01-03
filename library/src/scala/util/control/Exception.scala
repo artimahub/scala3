@@ -28,10 +28,10 @@ import scala.language.implicitConversions
  *  `opt`, `either` or `withTry` methods. Taken together the classes provide a DSL for composing catch and finally
  *  behaviors.
  *
- *  === Examples ===
+ *  ### Examples
  *
  *  Creates a `Catch` which handles specified exceptions.
- *  {{{
+ *   ```
  *  import scala.util.control.Exception._
  *  import java.net._
  *
@@ -50,10 +50,10 @@ import scala.language.implicitConversions
  *  val defaultUrl = new URL("http://example.com")
  *  //  URL(http://example.com) because htt/xx throws MalformedURLException
  *  val x4: URL = failAsValue(classOf[MalformedURLException])(defaultUrl)(new URL("htt/xx"))
- *  }}}
+ *   ```
  *
  *  Creates a `Catch` which logs exceptions using `handling` and `by`.
- *  {{{
+ *   ```
  *  def log(t: Throwable): Unit = t.printStackTrace
  *
  *  val withThrowableLogging: Catch[Unit] = handling(classOf[MalformedURLException]) by (log)
@@ -75,10 +75,10 @@ import scala.language.implicitConversions
  *  //   &lt;!DOCTYPE html&gt;
  *  //   &lt;html&gt;
  *  withThrowableLogging { printUrl(goodUrl) }
- *  }}}
+ *   ```
  *
  *  Use `unwrapping` to create a `Catch` that unwraps exceptions before rethrowing.
- *  {{{
+ *   ```
  *  class AppException(cause: Throwable) extends RuntimeException(cause)
  *
  *  val unwrappingCatch: Catch[Nothing] = unwrapping(classOf[AppException])
@@ -89,20 +89,20 @@ import scala.language.implicitConversions
  *  //   java.lang.NullPointerException
  *  //     at .calcResult(&lt;console&gt;:17)
  *  val result = unwrappingCatch(calcResult)
- *  }}}
+ *   ```
  *
  *  Use `failAsValue` to provide a default when a specified exception is caught.
- *
- *  {{{
+
+ *   ```
  *  val inputDefaulting: Catch[Int] = failAsValue(classOf[NumberFormatException])(0)
  *  val candidatePick = "seven" // scala.io.StdIn.readLine()
  *
  *  // Int = 0
  *  val pick = inputDefaulting(candidatePick.toInt)
- *  }}}
+ *   ```
  *
  *  Compose multiple `Catch`s with `or` to build a `Catch` that provides default values varied by exception.
- *  {{{
+ *   ```
  *  val formatDefaulting: Catch[Int] = failAsValue(classOf[NumberFormatException])(0)
  *  val nullDefaulting: Catch[Int] = failAsValue(classOf[NullPointerException])(-1)
  *  val otherDefaulting: Catch[Int] = nonFatalCatch withApply(_ => -100)
@@ -122,7 +122,7 @@ import scala.language.implicitConversions
  *
  *  // Int = 22
  *  combinedDefaulting(p("11"))
- *  }}}
+ *   ```
  *
  *  @groupname composition-catch Catch behavior composition
  *  @groupprio composition-catch 10
@@ -149,7 +149,7 @@ import scala.language.implicitConversions
  *  @groupdesc logic-container Containers for catch and finally behavior.
  *
  *  @define protectedExceptions `ControlThrowable` or `InterruptedException`
- */
+ *  */
 
 object Exception {
   type Catcher[+T] = PartialFunction[Throwable, T]
@@ -170,6 +170,7 @@ object Exception {
 
   /** !!! Not at all sure of every factor which goes into this,
    *  and/or whether we need multiple standard variations.
+   *
    *  @return true if `x` is $protectedExceptions otherwise false.
    */
   def shouldRethrow(x: Throwable): Boolean = x match {
@@ -191,8 +192,8 @@ object Exception {
   }
 
   /** A container class for finally code.
-   *  @group logic-container
-   */
+ *  @group logic-container
+ *    */
   class Finally private[Exception](body: => Unit) extends Described {
     protected val name = "Finally"
 
@@ -205,11 +206,12 @@ object Exception {
    *  Pass a different value for rethrow if you want to probably
    *  unwisely allow catching control exceptions and other throwables
    *  which the rest of the world may expect to get through.
+   *  @group logic-container
+   *
    *  @tparam T result type of bodies used in try and catch blocks
    *  @param pf Partial function used when applying catch logic to determine result value
    *  @param fin Finally logic which if defined will be invoked after catch logic
    *  @param rethrow Predicate on throwables determining when to rethrow a caught [[Throwable]]
-   *  @group logic-container
    */
   class Catch[+T](
     val pf: Catcher[T],
@@ -233,8 +235,8 @@ object Exception {
       finally fin foreach (_.invoke())
 
     /** Creates a new Catch container from this object and the supplied finally body.
-     *  @param body The additional logic to apply after all existing finally bodies
-     */
+ *  @param body The additional logic to apply after all existing finally bodies
+ *      */
     def andFinally(body: => Unit): Catch[T] = {
       val appendedFin = fin map(_ and body) getOrElse new Finally(body)
       new Catch(pf, Some(appendedFin), rethrow)
@@ -252,12 +254,13 @@ object Exception {
     def either[U >: T](body: => U): Either[Throwable, U] = toEither(Right(body))
 
     /** Applies this catch logic to the supplied body, mapping the result
-     * into `Try[T]` - `Failure` if an exception was caught, `Success(T)` otherwise.
+     *  into `Try[T]` - `Failure` if an exception was caught, `Success(T)` otherwise.
      */
     def withTry[U >: T](body: => U): scala.util.Try[U] = toTry(Success(body))
 
     /** Creates a `Catch` object with the same `isDefinedAt` logic as this one,
-      * but with the supplied `apply` method replacing the current one. */
+     *  but with the supplied `apply` method replacing the current one. 
+     */
     def withApply[U](f: Throwable => U): Catch[U] = {
       val pf2 = new Catcher[U] {
         def isDefinedAt(x: Throwable): Boolean = pf isDefinedAt x
@@ -277,18 +280,17 @@ object Exception {
   final def allCatcher[T]: Catcher[T]         = mkThrowableCatcher(_ => true, throw _)
 
   /** The empty `Catch` object.
-   *  @group canned-behavior
-   **/
+ *  @group canned-behavior*/
   final val noCatch: Catch[Nothing] = new Catch(nothingCatcher) withDesc "<nothing>"
 
   /** A `Catch` object which catches everything.
    *  @group canned-behavior
-   **/
+   */
   final def allCatch[T]: Catch[T] = new Catch(allCatcher[T]) withDesc "<everything>"
 
   /** A `Catch` object which catches non-fatal exceptions.
    *  @group canned-behavior
-   **/
+   */
   final def nonFatalCatch[T]: Catch[T] = new Catch(nonFatalCatcher[T]) withDesc "<non-fatal>"
 
   /** Creates a `Catch` object which will catch any of the supplied exceptions.
@@ -337,13 +339,13 @@ object Exception {
   }
 
   /** Returns a partially constructed `Catch` object, which you must give
-    * an exception handler function as an argument to `by`.
-    * @example
-    * {{{
-    *   handling(classOf[MalformedURLException], classOf[NullPointerException]) by (_.printStackTrace)
-    * }}}
-    *  @group dsl
-    */
+ * an exception handler function as an argument to `by`.
+ * @example
+ *  ```
+ *   handling(classOf[MalformedURLException], classOf[NullPointerException]) by (_.printStackTrace)
+ *  ```
+ *  @group dsl
+ *     */
   def handling[T](exceptions: Class[?]*): By[Throwable => T, Catch[T]] = {
     def fun(f: Throwable => T): Catch[T] = catching(exceptions*) withApply f
     new By[Throwable => T, Catch[T]](fun)

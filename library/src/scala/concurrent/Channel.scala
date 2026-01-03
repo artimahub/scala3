@@ -18,7 +18,7 @@ import scala.language.`2.13`
  *  which are read by one or more reader threads.
  *
  *  @tparam A type of data exchanged
- */
+ *  */
 @deprecated("Use `java.util.concurrent.LinkedTransferQueue` instead.", since = "2.13.0")
 class Channel[A] {
   private class LinkedList {
@@ -30,10 +30,10 @@ class Channel[A] {
   private var nreaders = 0
 
   /** Appends a value to the FIFO queue to be read by `read`.
-   *  This operation is nonblocking and can be executed by any thread.
-   *
-   * @param x object to enqueue to this channel
-   */
+ *  This operation is nonblocking and can be executed by any thread.
+ *
+ * @param x object to enqueue to this channel
+ *    */
   def write(x: A): Unit = synchronized {
     lastWritten.elem = x
     lastWritten.next = new LinkedList
@@ -42,10 +42,10 @@ class Channel[A] {
   }
 
   /** Retrieves the next waiting object from the FIFO queue,
-   *  blocking if necessary until an object is available.
-   *
-   * @return next object dequeued from this channel
-   */
+ *  blocking if necessary until an object is available.
+ *
+ * @return next object dequeued from this channel
+ *    */
   def read: A = synchronized {
     while (written.next == null) {
       try {

@@ -43,20 +43,20 @@ object BigInt {
   private val minusOne = BigInteger.valueOf(-1)
 
   /** Constructs a `BigInt` whose value is equal to that of the
-   *  specified integer value.
-   *
-   *  @param i the specified integer value
-   *  @return  the constructed `BigInt`
-   */
+ *  specified integer value.
+ *
+ *  @param i the specified integer value
+ *  @return  the constructed `BigInt`
+ *    */
   def apply(i: Int): BigInt =
     if (minCached <= i && i <= maxCached) getCached(i) else apply(i: Long)
 
   /** Constructs a `BigInt` whose value is equal to that of the
-   *  specified long value.
-   *
-   *  @param l the specified long value
-   *  @return  the constructed `BigInt`
-   */
+ *  specified long value.
+ *
+ *  @param l the specified long value
+ *  @return  the constructed `BigInt`
+ *    */
   def apply(l: Long): BigInt =
     if (minCached <= l && l <= maxCached) getCached(l.toInt)
     else if (l == Long.MinValue) longMinValue
@@ -70,9 +70,9 @@ object BigInt {
 
   /** Translates the sign-magnitude representation of a BigInt into a BigInt.
    *
-   * @param  signum    signum of the number (-1 for negative, 0 for zero, 1
+   *  @param  signum    signum of the number (-1 for negative, 0 for zero, 1
    *                   for positive).
-   * @param  magnitude big-endian binary representation of the magnitude of
+   *  @param  magnitude big-endian binary representation of the magnitude of
    *                   the number.
    */
   def apply(signum: Int, magnitude: Array[Byte]): BigInt =
@@ -139,7 +139,7 @@ object BigInt {
   //   *
   //   * Licensed under the Apache License, Version 2.0 (the "License")
   /**
-   * Returns the greatest common divisor of a and b. Returns 0 if a == 0 && b == 0.
+   *  Returns the greatest common divisor of a and b. Returns 0 if a == 0 && b == 0.
    */
   private def longGcd(a: Long, b: Long): Long = {
     // both a and b must be >= 0
@@ -182,7 +182,7 @@ object BigInt {
 /** A type with efficient encoding of arbitrary integers.
  *
  * It wraps `java.math.BigInteger`, with optimization for small values that can be encoded in a `Long`.
- */
+ *  */
 final class BigInt private (
   @annotation.stableNull private var _bigInteger: BigInteger | Null,
   private val _long: Long
@@ -218,7 +218,7 @@ final class BigInt private (
   )
 
   /** Returns whether the integer is encoded in the Long. Returns true for all values fitting in a Long except
-   *  Long.MinValue. */
+ *  Long.MinValue. */
   private def longEncoding: Boolean = _long != Long.MinValue
 
   def bigInteger: BigInteger = {
@@ -252,7 +252,7 @@ final class BigInt private (
            def isValidLong: Boolean = longEncoding || _bigInteger == BigInt.longMinValueBigInteger // rhs of || tests == Long.MinValue
 
   /** Returns `true` iff this can be represented exactly by [[scala.Float]]; otherwise returns `false`.
-    */
+ *     */
   def isValidFloat: Boolean = {
     val bitLen = bitLength
     (bitLen <= 24 ||
@@ -265,7 +265,7 @@ final class BigInt private (
     ) && !bitLengthOverflow
   }
   /** Returns `true` iff this can be represented exactly by [[scala.Double]]; otherwise returns `false`.
-    */
+ *     */
   def isValidDouble: Boolean = {
     val bitLen = bitLength
     (bitLen <= 53 ||
@@ -278,10 +278,10 @@ final class BigInt private (
     ) && !bitLengthOverflow
   }
   /** Some implementations of java.math.BigInteger allow huge values with bit length greater than Int.MaxValue.
-   * The BigInteger.bitLength method returns truncated bit length in this case.
-   * This method tests if result of bitLength is valid.
-   * This method will become unnecessary if BigInt constructors reject huge BigIntegers.
-   */
+ * The BigInteger.bitLength method returns truncated bit length in this case.
+ * This method tests if result of bitLength is valid.
+ * This method will become unnecessary if BigInt constructors reject huge BigIntegers.
+ *    */
   private def bitLengthOverflow = {
     val shifted = bigInteger.shiftRight(Int.MaxValue)
     (shifted.signum != 0) && !(shifted.equals(BigInt.minusOne))
@@ -442,9 +442,9 @@ final class BigInt private (
 
 
   /** Returns a BigInt whose value is (this mod that).
-   *  This method differs from `%` in that it always returns a non-negative BigInt.
-   *  @param that A positive number
-   */
+ *  This method differs from `%` in that it always returns a non-negative BigInt.
+ *  @param that A positive number
+ *    */
   def mod(that: BigInt): BigInt =
     if (this.longEncoding && that.longEncoding && that._long > 0) {
       val res = this._long % that._long
@@ -475,29 +475,29 @@ final class BigInt private (
   def modInverse(m: BigInt): BigInt = BigInt(this.bigInteger.modInverse(m.bigInteger))
 
   /** Returns a BigInt whose value is the negation of this BigInt
-   */
+ *    */
   def unary_- : BigInt = if (longEncoding) BigInt(-_long) else BigInt(this.bigInteger.negate())
 
   /** Returns the absolute value of this BigInt
-   */
+ *    */
   def abs: BigInt = if (signum < 0) -this else this
 
   /** Returns the sign of this BigInt;
-   *   -1 if it is less than 0,
-   *   +1 if it is greater than 0,
-   *   0  if it is equal to 0.
-   */
+ *   -1 if it is less than 0,
+ *   +1 if it is greater than 0,
+ *   0  if it is equal to 0.
+ *    */
   def signum: Int = if (longEncoding) java.lang.Long.signum(_long) else _bigInteger.nn.signum()
 
   /** Returns the sign of this BigInt;
-   *   -1 if it is less than 0,
-   *   +1 if it is greater than 0,
-   *   0  if it is equal to 0.
-   */
+ *   -1 if it is less than 0,
+ *   +1 if it is greater than 0,
+ *   0  if it is equal to 0.
+ *    */
   def sign: BigInt = BigInt(signum)
 
   /** Returns the bitwise complement of this BigInt
-   */
+ *    */
   def unary_~ : BigInt =
     // it is equal to -(this + 1)
     if (longEncoding && _long != Long.MaxValue) BigInt(-(_long + 1)) else BigInt(this.bigInteger.not())
@@ -528,16 +528,16 @@ final class BigInt private (
     if (longEncoding && n <= 62 && n >= 0) BigInt(_long ^ (1L << n)) else BigInt(this.bigInteger.flipBit(n))
 
   /** Returns the index of the rightmost (lowest-order) one bit in this BigInt
-   * (the number of zero bits to the right of the rightmost one bit).
-   */
+ * (the number of zero bits to the right of the rightmost one bit).
+ *    */
   def lowestSetBit: Int =
     if (longEncoding) {
       if (_long == 0) -1 else java.lang.Long.numberOfTrailingZeros(_long)
     } else this.bigInteger.getLowestSetBit()
 
   /** Returns the number of bits in the minimal two's-complement representation of this BigInt,
-   *  excluding a sign bit.
-   */
+ *  excluding a sign bit.
+ *    */
   def bitLength: Int =
   // bitLength is defined as ceil(log2(this < 0 ? -this : this + 1)))
   // where ceil(log2(x)) = 64 - numberOfLeadingZeros(x - 1)
@@ -547,82 +547,82 @@ final class BigInt private (
     } else _bigInteger.nn.bitLength()
 
   /** Returns the number of bits in the two's complement representation of this BigInt
-   *  that differ from its sign bit.
-   */
+ *  that differ from its sign bit.
+ *    */
   def bitCount: Int =
     if (longEncoding) {
       if (_long < 0) java.lang.Long.bitCount(-(_long + 1)) else java.lang.Long.bitCount(_long)
     } else this.bigInteger.bitCount()
 
   /** Returns true if this BigInt is probably prime, false if it's definitely composite.
-   *  @param certainty  a measure of the uncertainty that the caller is willing to tolerate:
-   *                    if the call returns true the probability that this BigInt is prime
-   *                    exceeds (1 - 1/2 ^ certainty).
-   *                    The execution time of this method is proportional to the value of
-   *                    this parameter.
-   */
+ *  @param certainty  a measure of the uncertainty that the caller is willing to tolerate:
+ *                    if the call returns true the probability that this BigInt is prime
+ *                    exceeds (1 - 1/2 ^ certainty).
+ *                    The execution time of this method is proportional to the value of
+ *                    this parameter.
+ *    */
   def isProbablePrime(certainty: Int): Boolean = this.bigInteger.isProbablePrime(certainty)
 
   /** Converts this BigInt to a <tt>byte</tt>.
-   *  If the BigInt is too big to fit in a byte, only the low-order 8 bits are returned.
-   *  Note that this conversion can lose information about the overall magnitude of the
-   *  BigInt value as well as return a result with the opposite sign.
-   */
+ *  If the BigInt is too big to fit in a byte, only the low-order 8 bits are returned.
+ *  Note that this conversion can lose information about the overall magnitude of the
+ *  BigInt value as well as return a result with the opposite sign.
+ *    */
   override def byteValue: Byte = intValue.toByte
 
   /** Converts this BigInt to a <tt>short</tt>.
-   *  If the BigInt is too big to fit in a short, only the low-order 16 bits are returned.
-   *  Note that this conversion can lose information about the overall magnitude of the
-   *  BigInt value as well as return a result with the opposite sign.
-   */
+ *  If the BigInt is too big to fit in a short, only the low-order 16 bits are returned.
+ *  Note that this conversion can lose information about the overall magnitude of the
+ *  BigInt value as well as return a result with the opposite sign.
+ *    */
   override def shortValue: Short = intValue.toShort
 
   /** Converts this BigInt to a <tt>char</tt>.
-   *  If the BigInt is too big to fit in a char, only the low-order 16 bits are returned.
-   *  Note that this conversion can lose information about the overall magnitude of the
-   *  BigInt value and that it always returns a positive result.
-   */
+ *  If the BigInt is too big to fit in a char, only the low-order 16 bits are returned.
+ *  Note that this conversion can lose information about the overall magnitude of the
+ *  BigInt value and that it always returns a positive result.
+ *    */
   def charValue: Char = intValue.toChar
 
   /** Converts this BigInt to an <tt>int</tt>.
-   *  If the BigInt is too big to fit in an int, only the low-order 32 bits
-   *  are returned. Note that this conversion can lose information about the
-   *  overall magnitude of the BigInt value as well as return a result with
-   *  the opposite sign.
-   */
+ *  If the BigInt is too big to fit in an int, only the low-order 32 bits
+ *  are returned. Note that this conversion can lose information about the
+ *  overall magnitude of the BigInt value as well as return a result with
+ *  the opposite sign.
+ *    */
   def intValue: Int = if (longEncoding) _long.toInt else this.bigInteger.intValue
 
   /** Converts this BigInt to a <tt>long</tt>.
-   *  If the BigInt is too big to fit in a long, only the low-order 64 bits
-   *  are returned. Note that this conversion can lose information about the
-   *  overall magnitude of the BigInt value as well as return a result with
-   *  the opposite sign.
-   */
+ *  If the BigInt is too big to fit in a long, only the low-order 64 bits
+ *  are returned. Note that this conversion can lose information about the
+ *  overall magnitude of the BigInt value as well as return a result with
+ *  the opposite sign.
+ *    */
   def longValue: Long = if (longEncoding) _long else _bigInteger.nn.longValue
 
   /** Converts this `BigInt` to a `float`.
-   *  If this `BigInt` has too great a magnitude to represent as a float,
-   *  it will be converted to `Float.NEGATIVE_INFINITY` or
-   *  `Float.POSITIVE_INFINITY` as appropriate.
-   */
+ *  If this `BigInt` has too great a magnitude to represent as a float,
+ *  it will be converted to `Float.NEGATIVE_INFINITY` or
+ *  `Float.POSITIVE_INFINITY` as appropriate.
+ *    */
   def floatValue: Float = this.bigInteger.floatValue
 
   /** Converts this `BigInt` to a `double`.
-   *  if this `BigInt` has too great a magnitude to represent as a double,
-   *  it will be converted to `Double.NEGATIVE_INFINITY` or
-   *  `Double.POSITIVE_INFINITY` as appropriate.
-   */
+ *  if this `BigInt` has too great a magnitude to represent as a double,
+ *  it will be converted to `Double.NEGATIVE_INFINITY` or
+ *  `Double.POSITIVE_INFINITY` as appropriate.
+ *    */
   def doubleValue: Double =
     if (isValidLong && (-(1L << 53) <= _long && _long <= (1L << 53))) _long.toDouble
     else this.bigInteger.doubleValue
 
   /** Creates a `NumericRange[BigInt]` in range `[start;end)`
-   *  with the specified step, where start is the target BigInt.
-   *
-   *  @param end    the end value of the range (exclusive)
-   *  @param step   the distance between elements (defaults to 1)
-   *  @return       the range
-   */
+ *  with the specified step, where start is the target BigInt.
+ *
+ *  @param end    the end value of the range (exclusive)
+ *  @param step   the distance between elements (defaults to 1)
+ *  @return       the range
+ *    */
   def until(end: BigInt, step: BigInt = BigInt(1)): NumericRange.Exclusive[BigInt] = Range.BigInt(this, end, step)
 
   /** Like until, but inclusive of the end value.
@@ -630,7 +630,7 @@ final class BigInt private (
   def to(end: BigInt, step: BigInt = BigInt(1)): NumericRange.Inclusive[BigInt] = Range.BigInt.inclusive(this, end, step)
 
   /** Returns the decimal String representation of this BigInt.
-   */
+ *    */
   override def toString(): String = if (longEncoding) _long.toString() else _bigInteger.toString()
 
   /** Returns the String representation in the specified radix of this BigInt.
@@ -638,10 +638,10 @@ final class BigInt private (
   def toString(radix: Int): String = this.bigInteger.toString(radix)
 
   /** Returns a byte array containing the two's-complement representation of
-   *  this BigInt. The byte array will be in big-endian byte-order: the most
-   *  significant byte is in the zeroth element. The array will contain the
-   *  minimum number of bytes required to represent this BigInt, including at
-   *  least one sign bit.
-   */
+ *  this BigInt. The byte array will be in big-endian byte-order: the most
+ *  significant byte is in the zeroth element. The array will contain the
+ *  minimum number of bytes required to represent this BigInt, including at
+ *  least one sign bit.
+ *    */
   def toByteArray: Array[Byte] = this.bigInteger.toByteArray()
 }

@@ -15,10 +15,11 @@ package scala.annotation.meta
 import scala.language.`2.13`
 
 /**
+ *
  * When defining an implicit class, the Scala compiler creates an implicit
  * conversion method for it. Annotations `@companionClass` and `@companionMethod`
  * control where an annotation on the implicit class will go. By default, annotations
  * on an implicit class end up only on the class.
  *
- */
+ *  */
 final class companionClass extends scala.annotation.StaticAnnotation

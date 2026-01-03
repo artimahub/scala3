@@ -6,5 +6,5 @@ package scala.annotation
  *  This annotation will force the compiler to track the field for nullability, as long as the
  *  prefix is a stable path.
  *  See `tests/explicit-nulls/pos/force-track-var-fields.scala` for an example.
- */
+ *  */
 private[scala] final class stableNull extends StaticAnnotation

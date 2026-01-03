@@ -36,22 +36,21 @@ import scala.util.{ Try, Success, Failure }
  */
 trait Promise[T] {
   /** Future containing the value of this promise.
-   */
+ *    */
   def future: Future[T]
 
   /** Returns whether the promise has already been completed with
-   *  a value or an exception.
-   *
-   *  $nonDeterministic
-   *
-   *  @return    `true` if the promise is already completed, `false` otherwise
-   */
+ *  a value or an exception.
+ *
+ *  $nonDeterministic
+ *
+ *  @return    `true` if the promise is already completed, `false` otherwise
+ *    */
   def isCompleted: Boolean
 
   /** Completes the promise with either an exception or a value.
    *
    *  @param result     Either the value or the exception to complete the promise with.
-   *
    *  $promiseCompletion
    */
   def complete(result: Try[T]): this.type =
@@ -77,16 +76,15 @@ trait Promise[T] {
   }
 
   /** Attempts to complete this promise with the specified future, once that future is completed.
-   *
-   *  @return   This promise
-   */
+ *
+ *  @return   This promise
+ *    */
   @deprecated("Since this method is semantically equivalent to `completeWith`, use that instead.", "2.13.0")
   final def tryCompleteWith(other: Future[T]): this.type = completeWith(other)
 
   /** Completes the promise with a value.
    *
    *  @param value The value to complete the promise with.
-   *
    *  $promiseCompletion
    */
   def success(value: T): this.type = complete(Success(value))
@@ -102,9 +100,7 @@ trait Promise[T] {
   /** Completes the promise with an exception.
    *
    *  @param cause    The throwable to complete the promise with.
-   *
    *  $allowedThrowables
-   *
    *  $promiseCompletion
    */
   def failure(cause: Throwable): this.type = complete(Failure(cause))
@@ -120,10 +116,10 @@ trait Promise[T] {
 
 object Promise {
   /** Creates a promise object which can be completed with a value.
-   *
-   *  @tparam T       the type of the value in the promise
-   *  @return         the newly created `Promise` instance
-   */
+ *
+ *  @tparam T       the type of the value in the promise
+ *  @return         the newly created `Promise` instance
+ *    */
   final def apply[T](): Promise[T] = new impl.Promise.DefaultPromise[T]()
 
   /** Creates an already completed Promise with the specified exception.

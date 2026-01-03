@@ -25,10 +25,11 @@ trait Iterable[A]
 }
 
 /**
-  * $factoryInfo
-  * @define coll mutable collection
-  * @define Coll `mutable.Iterable`
-  */
+ *
+ * $factoryInfo
+ * @define coll mutable collection
+ * @define Coll `mutable.Iterable`
+ *   */
 @SerialVersionUID(3L)
 object Iterable extends IterableFactory.Delegate[Iterable](ArrayBuffer)
 

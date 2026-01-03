@@ -22,15 +22,15 @@ import scala.collection.generic.DefaultSerializationProxy
 import scala.util.hashing.MurmurHash3
 
 /** This class implements mutable sets using a hashtable.
-  *
-  * @see [[https://docs.scala-lang.org/overviews/collections-2.13/concrete-mutable-collection-classes.html#hash-tables "Scala's Collection Library overview"]]
-  * section on `Hash Tables` for more information.
-  *
-  * @define Coll `mutable.HashSet`
-  * @define coll mutable hash set
-  * @define mayNotTerminateInf
-  * @define willNotTerminateInf
-  */
+ *
+ *  @see ["Scala's Collection Library overview"](https://docs.scala-lang.org/overviews/collections-2.13/concrete-mutable-collection-classes.html#hash-tables)
+ *  section on `Hash Tables` for more information.
+ *
+ *  @define Coll `mutable.HashSet`
+ *  @define coll mutable hash set
+ *  @define mayNotTerminateInf
+ *  @define willNotTerminateInf
+ */
 final class HashSet[A](initialCapacity: Int, loadFactor: Double)
   extends AbstractSet[A]
     with SetOps[A, HashSet, HashSet[A]]
@@ -50,7 +50,7 @@ final class HashSet[A](initialCapacity: Int, loadFactor: Double)
   /** The actual hash table. */
   private var table = new Array[Node[A] | Null](tableSizeFor(initialCapacity))
 
-  /** The next size value at which to resize (capacity * load factor). */
+  /**load factor). */
   private var threshold: Int = newThreshold(table.length)
 
   private var contentSize = 0
@@ -150,9 +150,9 @@ final class HashSet[A](initialCapacity: Int, loadFactor: Double)
   }
 
   /** Adds an element to this set.
-    * @param elem element to add
-    * @param hash the **improved** hash of `elem` (see computeHash)
-    */
+ * @param elem element to add
+ * @param hash the **improved** hash of `elem` (see computeHash)
+ *     */
   private def addElem(elem: A, hash: Int) : Boolean = {
     val idx = index(hash)
     table(idx) match {
@@ -402,10 +402,11 @@ final class HashSet[A](initialCapacity: Int, loadFactor: Double)
 }
 
 /**
-  * $factoryInfo
-  * @define Coll `mutable.HashSet`
-  * @define coll mutable hash set
-  */
+ *
+ * $factoryInfo
+ * @define Coll `mutable.HashSet`
+ * @define coll mutable hash set
+ *   */
 @SerialVersionUID(3L)
 object HashSet extends IterableFactory[HashSet] {
 

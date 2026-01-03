@@ -31,17 +31,18 @@ protected[collection] object Hashing {
     improve(elemHashCode(key))
 
   /**
-    * Utility method to keep a subset of all bits in a given bitmap
-    *
-    * Example
-    *    bitmap (binary): 00000001000000010000000100000001
-    *    keep (binary):                               1010
-    *    result (binary): 00000001000000000000000100000000
-    *
-    * @param bitmap the bitmap
-    * @param keep a bitmask containing which bits to keep
-    * @return the original bitmap with all bits where keep is not 1 set to 0
-    */
+ *
+ * Utility method to keep a subset of all bits in a given bitmap
+ *
+ * Example
+ *    bitmap (binary): 00000001000000010000000100000001
+ *    keep (binary):                               1010
+ *    result (binary): 00000001000000000000000100000000
+ *
+ * @param bitmap the bitmap
+ * @param keep a bitmask containing which bits to keep
+ * @return the original bitmap with all bits where keep is not 1 set to 0
+ *     */
   def keepBits(bitmap: Int, keep: Int): Int = {
     var result = 0
     var current = bitmap

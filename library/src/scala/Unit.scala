@@ -22,7 +22,7 @@ import scala.language.`2.13`
  *  `Unit`, `()`, and it is not represented by any object in the underlying
  *  runtime system. A method with return type `Unit` is analogous to a Java
  *  method which is declared `void`.
- */
+ *  */
 final abstract class Unit private extends AnyVal {
   // Provide a more specific return type for Scaladoc
   override def getClass(): Class[Unit] = ???
@@ -32,13 +32,13 @@ final abstract class Unit private extends AnyVal {
 object Unit extends AnyValCompanion {
 
   /** Transforms a value type into a boxed reference type.
-   *
-   *  This method is not intended for use in source code.
-   *  The runtime representation of this value is platform specific.
-   *
-   *  @param  x   the Unit to be boxed
-   *  @return     a scala.runtime.BoxedUnit offering `x` as its underlying value.
-   */
+ *
+ *  This method is not intended for use in source code.
+ *  The runtime representation of this value is platform specific.
+ *
+ *  @param  x   the Unit to be boxed
+ *  @return     a scala.runtime.BoxedUnit offering `x` as its underlying value.
+ *    */
   def box(x: Unit): scala.runtime.BoxedUnit = scala.runtime.BoxedUnit.UNIT
 
   /** Transforms a boxed type into a value type.  Note that this
@@ -47,9 +47,9 @@ object Unit extends AnyValCompanion {
    *
    *  This method is not intended for use in source code.
    *  The result of successfully unboxing a value is `()`.
+   *  @throws     ClassCastException  if the argument is not a scala.runtime.BoxedUnit
    *
    *  @param  x   the scala.runtime.BoxedUnit to be unboxed.
-   *  @throws     ClassCastException  if the argument is not a scala.runtime.BoxedUnit
    *  @return     the Unit value ()
    */
   def unbox(x: java.lang.Object): Unit = x.asInstanceOf[scala.runtime.BoxedUnit]

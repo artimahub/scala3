@@ -21,7 +21,7 @@ import scala.reflect.ClassTag
 /** A builder class for arrays.
  *
  *  @tparam T    the type of the elements for the builder.
- */
+ *  */
 @SerialVersionUID(3L)
 sealed abstract class ArrayBuilder[T]
   extends ReusableBuilder[T, Array[T]]
@@ -80,14 +80,14 @@ sealed abstract class ArrayBuilder[T]
 }
 
 /** A companion object for array builders.
- */
+ *  */
 object ArrayBuilder {
 
   /** Creates a new arraybuilder of type `T`.
-   *
-   *  @tparam T     type of the elements for the array builder, with a `ClassTag` context bound.
-   *  @return       a new empty array builder.
-   */
+ *
+ *  @tparam T     type of the elements for the array builder, with a `ClassTag` context bound.
+ *  @return       a new empty array builder.
+ *    */
   @inline def make[T: ClassTag]: ArrayBuilder[T] = {
     val tag = implicitly[ClassTag[T]]
     tag.runtimeClass match {
@@ -105,11 +105,11 @@ object ArrayBuilder {
   }
 
   /** A class for array builders for arrays of reference types.
-   *
-   *  This builder can be reused.
-   *
-   *  @tparam T     type of elements for the array builder, subtype of `AnyRef` with a `ClassTag` context bound.
-   */
+ *
+ *  This builder can be reused.
+ *
+ *  @tparam T     type of elements for the array builder, subtype of `AnyRef` with a `ClassTag` context bound.
+ *    */
   @SerialVersionUID(3L)
   final class ofRef[T <: AnyRef | Null](implicit ct: ClassTag[T]) extends ArrayBuilder[T] {
 

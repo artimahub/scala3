@@ -15,7 +15,7 @@ package scala
 import scala.language.`2.13`
 
 /** A module defining utility methods for higher-order functional programming.
- */
+ *  */
 object Function {
   /** Given a sequence of functions `f,,1,,`, ..., `f,,n,,`, return the
    *  function `f,,1,, andThen ... andThen f,,n,,`.
@@ -29,16 +29,16 @@ object Function {
 
   /** Turns a function `A => Option[B]` into a `PartialFunction[A, B]`.
    *
-   *  '''Important note''': this transformation implies the original function
+   *  **Important note**: this transformation implies the original function
    *  may be called 2 or more times on each logical invocation, because the
    *  only way to supply an implementation of `isDefinedAt` is to call the
    *  function and examine the return value.
    *  See also [[scala.PartialFunction]], method `applyOrElse`.
+   *  @see [[scala.PartialFunction]], method `lift`.
    *
    *  @param   f    a function `T => Option[R]`
    *  @return       a partial function defined for those inputs where
    *                f returns `Some(_)` and undefined where `f` returns `None`.
-   *  @see [[scala.PartialFunction]], method `lift`.
    */
   def unlift[T, R](f: T => Option[R]): PartialFunction[T, R] = PartialFunction.unlifted(f)
 
@@ -68,35 +68,35 @@ object Function {
   }
 
   /** Tupling for functions of arity 2. This transforms a function
-   *  of arity 2 into a unary function that takes a pair of arguments.
-   *
-   *  @note  These functions are slotted for deprecation, but it is on
-   *  hold pending superior type inference for tupling anonymous functions.
-   */
+ *  of arity 2 into a unary function that takes a pair of arguments.
+ *
+ *  @note  These functions are slotted for deprecation, but it is on
+ *  hold pending superior type inference for tupling anonymous functions.
+ *    */
   // @deprecated("use `f.tupled` instead")
   def tupled[T1, T2, R](f: (T1, T2) => R): ((T1, T2)) => R = {
     case ((x1, x2)) => f(x1, x2)
   }
 
   /** Tupling for functions of arity 3. This transforms a function
-   *  of arity 3 into a unary function that takes a triple of arguments.
-   */
+ *  of arity 3 into a unary function that takes a triple of arguments.
+ *    */
   // @deprecated("use `f.tupled` instead")
   def tupled[T1, T2, T3, R](f: (T1, T2, T3) => R): ((T1, T2, T3)) => R = {
     case ((x1, x2, x3)) => f(x1, x2, x3)
   }
 
   /** Tupling for functions of arity 4. This transforms a function
-   *  of arity 4 into a unary function that takes a 4-tuple of arguments.
-   */
+ *  of arity 4 into a unary function that takes a 4-tuple of arguments.
+ *    */
   // @deprecated("use `f.tupled` instead")
   def tupled[T1, T2, T3, T4, R](f: (T1, T2, T3, T4) => R): ((T1, T2, T3, T4)) => R = {
     case ((x1, x2, x3, x4)) => f(x1, x2, x3, x4)
   }
 
   /** Tupling for functions of arity 5. This transforms a function
-   *  of arity 5 into a unary function that takes a 5-tuple of arguments.
-   */
+ *  of arity 5 into a unary function that takes a 5-tuple of arguments.
+ *    */
   // @deprecated("use `f.tupled` instead")
   def tupled[T1, T2, T3, T4, T5, R](f: (T1, T2, T3, T4, T5) => R): ((T1, T2, T3, T4, T5)) => R = {
     case ((x1, x2, x3, x4, x5)) => f(x1, x2, x3, x4, x5)

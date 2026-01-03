@@ -27,7 +27,7 @@ import scala.language.implicitConversions
  *  will be caught and discarded.
  *  @define Coll `collection.mutable.Map`
  *  @define coll mutable map
- */
+ *  */
 class SystemProperties
 extends mutable.AbstractMap[String, String | Null] {
 
@@ -62,8 +62,8 @@ extends mutable.AbstractMap[String, String | Null] {
  *  designated system properties.  See `scala.sys.Prop` for particulars.
  *  @example {{{
  *    if (!headless.isSet) headless.enable()
- *  }}}
- */
+ *   ```
+ *  */
 object SystemProperties {
   /** An unenforceable, advisory only place to do some synchronization when
    *  mutating system properties.

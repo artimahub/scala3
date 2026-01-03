@@ -439,12 +439,12 @@ private[collection] object JavaCollectionWrappers extends Serializable {
   }
 
   /** Wraps a Java map as a Scala one.  If the map is to support concurrent access,
-    * use [[JConcurrentMapWrapper]] instead.  If the wrapped map is synchronized
-    * (e.g. from `java.util.Collections.synchronizedMap`), it is your responsibility
-    * to wrap all non-atomic operations with `underlying.synchronized`.
-    * This includes `get`, as `java.util.Map`'s API does not allow for an
-    * atomic `get` when `null` values may be present.
-    */
+ * use [[JConcurrentMapWrapper]] instead.  If the wrapped map is synchronized
+ * (e.g. from `java.util.Collections.synchronizedMap`), it is your responsibility
+ * to wrap all non-atomic operations with `underlying.synchronized`.
+ * This includes `get`, as `java.util.Map`'s API does not allow for an
+ * atomic `get` when `null` values may be present.
+ *     */
   @SerialVersionUID(3L)
   class JMapWrapper[K, V](val underlying : ju.Map[K, V])
     extends AbstractJMapWrapper[K, V] with Serializable {
@@ -471,9 +471,9 @@ private[collection] object JavaCollectionWrappers extends Serializable {
   }
 
   /** Wraps a concurrent Java map as a Scala one.  Single-element concurrent
-   *  access is supported; multi-element operations such as maps and filters
-   *  are not guaranteed to be atomic.
-   */
+ *  access is supported; multi-element operations such as maps and filters
+ *  are not guaranteed to be atomic.
+ *    */
   @SerialVersionUID(3L)
   class JConcurrentMapWrapper[K, V](val underlying: juc.ConcurrentMap[K, V])
     extends AbstractJMapWrapper[K, V]

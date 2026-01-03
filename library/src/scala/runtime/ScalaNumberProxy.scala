@@ -19,9 +19,9 @@ import scala.math.ScalaNumericAnyConversions
 import immutable.NumericRange
 import scala.annotation.nowarn
 
-/** Base classes for the Rich* wrappers of the primitive types.
+/**wrappers of the primitive types.
  *  As with all classes in scala.runtime.*, this is not a supported API.
- */
+ *  */
 @nowarn("cat=deprecation")
 trait ScalaNumberProxy[T] extends Any with ScalaNumericAnyConversions with Proxy.Typed[T] with OrderedProxy[T] {
   protected implicit def num: Numeric[T]
@@ -33,20 +33,21 @@ trait ScalaNumberProxy[T] extends Any with ScalaNumericAnyConversions with Proxy
   def byteValue   = intValue.toByte
   def shortValue  = intValue.toShort
 
-  /** Returns `'''this'''` if `'''this''' < that` or `that` otherwise. */
+  /** Returns `**this**` if `**this** < that` or `that` otherwise. */
   def min(that: T): T = num.min(self, that)
-  /** Returns `'''this'''` if `'''this''' > that` or `that` otherwise. */
+  /** Returns `**this**` if `**this** > that` or `that` otherwise. */
   def max(that: T): T = num.max(self, that)
-  /** Returns the absolute value of `'''this'''`. */
+  /** Returns the absolute value of `**this**`. */
   def abs             = num.abs(self)
   /**
-   * Returns the sign of `'''this'''`.
-   * zero if the argument is zero, -zero if the argument is -zero,
-   * one if the argument is greater than zero, -one if the argument is less than zero,
-   * and NaN if the argument is NaN where applicable.
-   */
+ *
+ * Returns the sign of `**this**`.
+ * zero if the argument is zero, -zero if the argument is -zero,
+ * one if the argument is greater than zero, -one if the argument is less than zero,
+ * and NaN if the argument is NaN where applicable.
+ *    */
   def sign: T         = num.sign(self)
-  /** Returns the signum of `'''this'''`. */
+  /** Returns the signum of `**this**`. */
   @deprecated("use `sign` method instead", since = "2.13.0") def signum: Int = num.signum(self)
 }
 trait ScalaWholeNumberProxy[T] extends Any with ScalaNumberProxy[T] {

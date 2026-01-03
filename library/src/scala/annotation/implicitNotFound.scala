@@ -15,6 +15,7 @@ package scala.annotation
 import scala.language.`2.13`
 
 /**
+ *
  * To customize the error message that's emitted when an implicit of type
  * `C[T1,..., TN]` cannot be found, annotate the class `C` with `@implicitNotFound`.
  * Assuming `C` has type parameters `X1, ..., XN`, the error message will be the
@@ -25,8 +26,8 @@ import scala.language.`2.13`
  * The annotation can also be attached to implicit parameters. In this case, `\${Xi}`
  * can refer to type parameters in the current scope. The `@implicitNotFound` message
  * on the parameter takes precedence over the one on the parameter's type.
- *
- * {{{
+
+ *  ```
  *   import scala.annotation.implicitNotFound
  *
  *   @implicitNotFound("Could not find an implicit C[\${T}, \${U}]")
@@ -42,7 +43,7 @@ import scala.language.`2.13`
  *     k.m[String]
  *     k.n[String]
  *   }
- * }}}
+ *  ```
  *
  * The compiler issues the following error messages:
  *
@@ -54,5 +55,5 @@ import scala.language.`2.13`
  *   k.n[String]
  *      ^
  * </pre>
- */
+ *  */
 final class implicitNotFound(msg: String) extends scala.annotation.ConstantAnnotation

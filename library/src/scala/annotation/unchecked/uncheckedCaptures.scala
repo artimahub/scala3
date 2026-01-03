@@ -8,7 +8,7 @@ import language.experimental.captureChecking
  *  it can cause leakage of capabilities from local scopes by assigning
  *  values retaining such capabilties to the annotated variable in
  *  an outer scope.
- */
+ *  */
 class uncheckedCaptures extends StaticAnnotation
 
 

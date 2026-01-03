@@ -10,5 +10,5 @@ import language.experimental.captureChecking
  *    - `t: T`
  *    - `t @ X()` where the `X.unapply` has takes an argument of type `T`
  *  then a given instance of `Typeable[T]` (`TypeTest[Any, T]`) is summoned and used to perform the test.
- */
+ *  */
 type Typeable[T] = TypeTest[Any, T]

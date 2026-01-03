@@ -16,7 +16,7 @@ import scala.language.`2.13`
 import scala.annotation.tailrec
 
 /** A simple enough command line parser using shell quote conventions.
- */
+ *  */
 private[scala] object Parser {
   private final val DQ = '"'
   private final val SQ = '\''

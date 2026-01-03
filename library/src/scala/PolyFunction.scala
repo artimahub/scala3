@@ -24,5 +24,5 @@ import language.experimental.captureChecking
  *  The term argument list may be contextual.
  *
  *  This type will be erased to FunctionN or FunctionXXL.
- */
+ *  */
 trait PolyFunction

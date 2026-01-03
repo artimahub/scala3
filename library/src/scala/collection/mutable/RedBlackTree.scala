@@ -20,10 +20,11 @@ import collection.{AbstractIterator, Iterator}
 import java.lang.String
 
 /**
+ *
  * An object containing the red-black tree implementation used by mutable `TreeMaps`.
  *
  * The trees implemented in this object are *not* thread safe.
- */
+ *  */
 private[collection] object RedBlackTree {
 
   // ---- class structure ----
@@ -128,8 +129,8 @@ private[collection] object RedBlackTree {
     if (node.right eq null) node else maxNodeNonNull(node.right)
 
   /**
-   * Returns the first (lowest) map entry with a key equal or greater than `key`. Returns `None` if there is no such
-   * node.
+   *  Returns the first (lowest) map entry with a key equal or greater than `key`. Returns `None` if there is no such
+   *  node.
    */
   def minAfter[A, B](tree: Tree[A, B], key: A)(implicit ord: Ordering[A]): Option[(A, B)] =
     minNodeAfter(tree.root, key) match {
@@ -160,7 +161,7 @@ private[collection] object RedBlackTree {
   }
 
   /**
-   * Returns the last (highest) map entry with a key smaller than `key`. Returns `None` if there is no such node.
+   *  Returns the last (highest) map entry with a key smaller than `key`. Returns `None` if there is no such node.
    */
   def maxBefore[A, B](tree: Tree[A, B], key: A)(implicit ord: Ordering[A]): Option[(A, B)] =
     maxNodeBefore(tree.root, key) match {
@@ -363,8 +364,8 @@ private[collection] object RedBlackTree {
   // ---- helpers ----
 
   /**
-   * Returns the node that follows `node` in an in-order tree traversal. If `node` has the maximum key (and is,
-   * therefore, the last node), this method returns `null`.
+   *  Returns the node that follows `node` in an in-order tree traversal. If `node` has the maximum key (and is,
+   *  therefore, the last node), this method returns `null`.
    */
   private def successor[A, B](node: Node[A, B]): Node[A, B] | Null = {
     if (node.right ne null) minNodeNonNull(node.right)
@@ -380,8 +381,8 @@ private[collection] object RedBlackTree {
   }
 
   /**
-   * Returns the node that precedes `node` in an in-order tree traversal. If `node` has the minimum key (and is,
-   * therefore, the first node), this method returns `null`.
+   *  Returns the node that precedes `node` in an in-order tree traversal. If `node` has the minimum key (and is,
+   *  therefore, the first node), this method returns `null`.
    */
   private def predecessor[A, B](node: Node[A, B]): Node[A, B] | Null = {
     if (node.left ne null) maxNodeNonNull(node.left)
@@ -429,8 +430,8 @@ private[collection] object RedBlackTree {
   }
 
   /**
-   * Transplant the node `from` to the place of node `to`. This is done by setting `from` as a child of `to`'s previous
-   * parent and setting `from`'s parent to the `to`'s previous parent. The children of `from` are left unchanged.
+   *  Transplant the node `from` to the place of node `to`. This is done by setting `from` as a child of `to`'s previous
+   *  parent and setting `from`'s parent to the `to`'s previous parent. The children of `from` are left unchanged.
    */
   private def transplant[A, B](tree: Tree[A, B], to: Node[A, B], from: Node[A, B] | Null): Unit = {
     if (to.parent eq null) tree.root = from
@@ -545,17 +546,17 @@ private[collection] object RedBlackTree {
   // ---- debugging ----
 
   /**
-   * Checks if the tree is in a valid state. That happens if:
-   * - It is a valid binary search tree;
-   * - All red-black properties are satisfied;
-   * - All non-null nodes have their `parent` reference correct;
-   * - The size variable in `tree` corresponds to the actual size of the tree.
+   *  Checks if the tree is in a valid state. That happens if:
+   *  - It is a valid binary search tree;
+   *  - All red-black properties are satisfied;
+   *  - All non-null nodes have their `parent` reference correct;
+   *  - The size variable in `tree` corresponds to the actual size of the tree.
    */
   def isValid[A: Ordering, B](tree: Tree[A, B]): Boolean =
     isValidBST(tree.root) && hasProperParentRefs(tree) && isValidRedBlackTree(tree) && size(tree.root) == tree.size
 
   /**
-   * Returns true if all non-null nodes have their `parent` reference correct.
+   *  Returns true if all non-null nodes have their `parent` reference correct.
    */
   private def hasProperParentRefs[A, B](tree: Tree[A, B]): Boolean = {
 
@@ -573,7 +574,7 @@ private[collection] object RedBlackTree {
   }
 
   /**
-   * Returns true if this node follows the properties of a binary search tree.
+   *  Returns true if this node follows the properties of a binary search tree.
    */
   private def isValidBST[A, B](node: Node[A, B] | Null)(implicit ord: Ordering[A]): Boolean = {
     if (node eq null) true
@@ -585,8 +586,8 @@ private[collection] object RedBlackTree {
   }
 
   /**
-   * Returns true if the tree has all the red-black tree properties: if the root node is black, if all children of red
-   * nodes are black and if the path from any node to any of its null children has the same number of black nodes.
+   *  Returns true if the tree has all the red-black tree properties: if the root node is black, if all children of red
+   *  nodes are black and if the path from any node to any of its null children has the same number of black nodes.
    */
   private def isValidRedBlackTree[A, B](tree: Tree[A, B]): Boolean = {
 

@@ -30,23 +30,23 @@ package object reflect {
   // because its Byte, Short and so on factory fields are incompatible with ClassTag's
 
   /** A `ClassManifest[T]` is an opaque descriptor for type `T`.
-   *  It is used by the compiler to preserve information necessary
-   *  for instantiating `Arrays` in those cases where the element type
-   *  is unknown at compile time.
-   *
-   *  The type-relation operators make an effort to present a more accurate
-   *  picture than can be realized with erased types, but they should not be
-   *  relied upon to give correct answers. In particular they are likely to
-   *  be wrong when variance is involved or when a subtype has a different
-   *  number of type arguments than a supertype.
-   */
+ *  It is used by the compiler to preserve information necessary
+ *  for instantiating `Arrays` in those cases where the element type
+ *  is unknown at compile time.
+ *
+ *  The type-relation operators make an effort to present a more accurate
+ *  picture than can be realized with erased types, but they should not be
+ *  relied upon to give correct answers. In particular they are likely to
+ *  be wrong when variance is involved or when a subtype has a different
+ *  number of type arguments than a supertype.
+ *    */
   @deprecated("use scala.reflect.ClassTag instead", "2.10.0")
   @annotation.implicitNotFound(msg = "No ClassManifest available for ${T}.")
   type ClassManifest[T]  = scala.reflect.ClassTag[T]
 
   /** The object `ClassManifest` defines factory methods for manifests.
-   *  It is intended for use by the compiler and should not be used in client code.
-   */
+ *  It is intended for use by the compiler and should not be used in client code.
+ *    */
   @deprecated("use scala.reflect.ClassTag instead", "2.10.0")
   val ClassManifest = ClassManifestFactory
 

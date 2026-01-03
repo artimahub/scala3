@@ -16,7 +16,7 @@ import scala.language.`2.13`
 
 /** A common supertype for companions of specializable types.
  *  Should not be extended in user code.
- */
+ *  */
 trait Specializable
 
 object Specializable {

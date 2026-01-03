@@ -17,10 +17,10 @@ import scala.language.`2.13`
 import language.experimental.captureChecking
 
 /** Some bit operations.
-  *
-  *  See [[https://www.drmaciver.com/2008/08/unsigned-comparison-in-javascala/]] for
-  *  an explanation of unsignedCompare.
-  */
+ *
+ *  See [[https://www.drmaciver.com/2008/08/unsigned-comparison-in-javascala/]] for
+ *  an explanation of unsignedCompare.
+ *   */
 private[collection] object BitOperations {
   trait Int {
     type Int = scala.Int

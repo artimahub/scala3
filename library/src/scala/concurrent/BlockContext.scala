@@ -15,6 +15,7 @@ package scala.concurrent
 import scala.language.`2.13`
 
 /**
+ *
  * A context to be notified by [[scala.concurrent.blocking]] when
  * a thread is about to block. In effect this trait provides
  * the implementation for [[scala.concurrent.Await]].
@@ -28,7 +29,7 @@ import scala.language.`2.13`
  *
  * Typically, you'll want to chain to the previous `BlockContext`,
  * like this:
- * {{{
+ *  ```
  *  val oldContext = BlockContext.current
  *  val myContext = new BlockContext {
  *    override def blockOn[T](thunk: => T)(implicit permission: CanAwait): T = {
@@ -42,20 +43,20 @@ import scala.language.`2.13`
  *    // then this block runs with myContext as the handler
  *    // for scala.concurrent.blocking
  *  }
- *  }}}
- */
+ *   ```
+ *  */
 trait BlockContext {
 
   /** Used internally by the framework;
-    * Designates (and eventually executes) a thunk which potentially blocks the calling `java.lang.Thread`.
-    *
-    * Clients must use `scala.concurrent.blocking` or `scala.concurrent.Await` instead.
-    *
-    * In implementations of this method it is RECOMMENDED to first check if `permission` is `null` and
-    * if it is, throw an `IllegalArgumentException`.
-    *
-    * @throws IllegalArgumentException if the `permission` is `null`
-    */
+   *  Designates (and eventually executes) a thunk which potentially blocks the calling `java.lang.Thread`.
+   *
+   *  Clients must use `scala.concurrent.blocking` or `scala.concurrent.Await` instead.
+   *
+   *  In implementations of this method it is RECOMMENDED to first check if `permission` is `null` and
+   *  if it is, throw an `IllegalArgumentException`.
+   *
+   *  @throws IllegalArgumentException if the `permission` is `null`
+   */
   def blockOn[T](thunk: => T)(implicit permission: CanAwait): T
 }
 
@@ -65,9 +66,9 @@ object BlockContext {
   }
 
   /**
-    * The default block context will execute the supplied thunk immediately.
-    * @return the `BlockContext` that will be used if no other is found.
-    **/
+ *
+ * The default block context will execute the supplied thunk immediately.
+ * @return the `BlockContext` that will be used if no other is found.*/
   final def defaultBlockContext: BlockContext = DefaultBlockContext
 
   private final val contextLocal = new ThreadLocal[BlockContext]()
@@ -81,13 +82,13 @@ object BlockContext {
     }
 
   /**
-   * @return the `BlockContext` that would be used for the current `java.lang.Thread` at this point
-   **/
+ *
+ * @return the `BlockContext` that would be used for the current `java.lang.Thread` at this point*/
   final def current: BlockContext = prefer(contextLocal.get)
 
   /**
-   * Installs a current `BlockContext` around executing `body`.
-   **/
+   *  Installs a current `BlockContext` around executing `body`.
+   */
   final def withBlockContext[T](blockContext: BlockContext)(body: => T): T = {
     val old = contextLocal.get // can be null
     if (old eq blockContext) body
@@ -98,9 +99,10 @@ object BlockContext {
   }
 
   /**
-   * Installs the BlockContext `blockContext` around the invocation to `f` and passes in the previously installed BlockContext to `f`.
-   * @return the value produced by applying `f`
-   **/
+   *  Installs the BlockContext `blockContext` around the invocation to `f` and passes in the previously installed BlockContext to `f`.
+   *
+   *  @return the value produced by applying `f`
+   */
   final def usingBlockContext[I, T](blockContext: BlockContext)(f: BlockContext => T): T = {
     val old = contextLocal.get // can be null
     if (old eq blockContext) f(prefer(old))

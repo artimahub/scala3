@@ -17,14 +17,14 @@ import scala.language.`2.13`
 import scala.annotation.implicitNotFound
 
 /** `Hashing` is a trait whose instances each represent a strategy for hashing
-  * instances of a type.
-  *
-  * `Hashing`'s companion object defines a default hashing strategy for all
-  * objects - it calls their `##` method.
-  *
-  * Note: when using a custom `Hashing`, make sure to use it with the `Equiv`
-  * such that if any two objects are equal, then their hash codes must be equal.
-  */
+ * instances of a type.
+ *
+ * `Hashing`'s companion object defines a default hashing strategy for all
+ * objects - it calls their `##` method.
+ *
+ * Note: when using a custom `Hashing`, make sure to use it with the `Equiv`
+ * such that if any two objects are equal, then their hash codes must be equal.
+ *   */
 @implicitNotFound(msg = "No implicit Hashing defined for ${T}.")
 trait Hashing[T] extends Serializable {
   def hash(x: T): Int

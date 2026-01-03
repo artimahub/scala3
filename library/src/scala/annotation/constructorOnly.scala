@@ -21,5 +21,5 @@ import scala.annotation.meta.*
  *  Note: the annotation is copied from constructor parameters to corresponding
  *  class fields. But it is checked that the field is eliminated before code
  *  is generated.
- */
+ *  */
 @param @field class constructorOnly extends scala.annotation.StaticAnnotation

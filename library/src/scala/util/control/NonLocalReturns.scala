@@ -20,7 +20,7 @@ import scala.compiletime.uninitialized
  *  The new abstractions work with plain `RuntimeExceptions` and are more
  *  performant, since returns within the scope of the same method can be
  *  rewritten by the compiler to jumps.
- */
+ *  */
 @deprecated("Use scala.util.boundary instead", "3.3")
 object NonLocalReturns {
   @deprecated("Use scala.util.boundary.Break instead", "3.3")

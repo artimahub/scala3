@@ -31,8 +31,8 @@ class Random(val self: java.util.Random) extends AnyRef with Serializable {
   def this() = this(new java.util.Random())
 
   /** Returns the next pseudorandom, uniformly distributed boolean value
-   *  from this random number generator's sequence.
-   */
+ *  from this random number generator's sequence.
+ *    */
   def nextBoolean(): Boolean = self.nextBoolean()
 
   /** Generates random bytes and places them into a user-supplied byte
@@ -48,8 +48,8 @@ class Random(val self: java.util.Random) extends AnyRef with Serializable {
   }
   
   /** Returns the next pseudorandom, uniformly distributed double value
-   *  between 0.0 and 1.0 from this random number generator's sequence.
-   */
+ *  between 0.0 and 1.0 from this random number generator's sequence.
+ *    */
   def nextDouble(): Double = self.nextDouble()
 
   /** Returns the next pseudorandom, uniformly distributed double value
@@ -64,8 +64,8 @@ class Random(val self: java.util.Random) extends AnyRef with Serializable {
   }
 
   /** Returns the next pseudorandom, uniformly distributed float value
-   *  between 0.0 and 1.0 from this random number generator's sequence.
-   */
+ *  between 0.0 and 1.0 from this random number generator's sequence.
+ *    */
   def nextFloat(): Float = self.nextFloat()
 
   /** Returns the next pseudorandom, uniformly distributed float value
@@ -80,14 +80,14 @@ class Random(val self: java.util.Random) extends AnyRef with Serializable {
   }
 
   /** Returns the next pseudorandom, Gaussian ("normally") distributed
-   *  double value with mean 0.0 and standard deviation 1.0 from this
-   *  random number generator's sequence.
-   */
+ *  double value with mean 0.0 and standard deviation 1.0 from this
+ *  random number generator's sequence.
+ *    */
   def nextGaussian(): Double = self.nextGaussian()
 
   /** Returns the next pseudorandom, uniformly distributed int value
-   *  from this random number generator's sequence.
-   */
+ *  from this random number generator's sequence.
+ *    */
   def nextInt(): Int = self.nextInt()
 
   /** Returns a pseudorandom, uniformly distributed int value between 0
@@ -121,8 +121,8 @@ class Random(val self: java.util.Random) extends AnyRef with Serializable {
   }
 
   /** Returns the next pseudorandom, uniformly distributed long value
-   *  from this random number generator's sequence.
-   */
+ *  from this random number generator's sequence.
+ *    */
   def nextLong(): Long = self.nextLong()
 
   /** Returns a pseudorandom, uniformly distributed long value between 0
@@ -181,14 +181,14 @@ class Random(val self: java.util.Random) extends AnyRef with Serializable {
   }
 
   /** Returns a pseudorandomly generated String.  This routine does
-   *  not take any measures to preserve the randomness of the distribution
-   *  in the face of factors like unicode's variable-length encoding,
-   *  so please don't use this for anything important.  It's primarily
-   *  intended for generating test data.
-   *
-   *  @param  length    the desired length of the String
-   *  @return           the String
-   */
+ *  not take any measures to preserve the randomness of the distribution
+ *  in the face of factors like unicode's variable-length encoding,
+ *  so please don't use this for anything important.  It's primarily
+ *  intended for generating test data.
+ *
+ *  @param  length    the desired length of the String
+ *  @return           the String
+ *    */
   def nextString(length: Int): String = {
     def safeChar(): Char = {
       val surrogateStart: Int = 0xD800
@@ -209,8 +209,8 @@ class Random(val self: java.util.Random) extends AnyRef with Serializable {
   }
 
   /** Returns the next pseudorandom, uniformly distributed value
-   *  from the ASCII range 33-126.
-   */
+ *  from the ASCII range 33-126.
+ *    */
   def nextPrintableChar(): Char = {
     val low  = 33
     val high = 127
@@ -241,8 +241,8 @@ class Random(val self: java.util.Random) extends AnyRef with Serializable {
   }
 
   /** Returns a LazyList of pseudorandomly chosen alphanumeric characters,
-   *  equally chosen from A-Z, a-z, and 0-9.
-   */
+ *  equally chosen from A-Z, a-z, and 0-9.
+ *    */
   @migration("`alphanumeric` returns a LazyList instead of a Stream", "2.13.0")
   def alphanumeric: LazyList[Char] = {
     def nextAlphaNum: Char = {
@@ -257,7 +257,7 @@ class Random(val self: java.util.Random) extends AnyRef with Serializable {
 
 /** The object `Random` offers a default implementation
  *  of scala.util.Random and random-related convenience methods.
- */
+ *  */
 object Random extends Random {
 
   implicit def javaRandomToRandom(r: java.util.Random): Random = new Random(r)

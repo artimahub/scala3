@@ -19,7 +19,7 @@ import language.experimental.captureChecking
 import scala.annotation.tailrec
 
 /** A module containing the implementations of parsers from strings to numeric types, and boolean
- */
+ *  */
 private[scala] object StringParsers {
 
   //compile-time constant helpers

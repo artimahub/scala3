@@ -22,19 +22,19 @@ import scala.annotation.nowarn
 
 /** This object provides convenience methods to create an iterable
  *  representation of a source file.
- */
+ *  */
 object Source {
   val DefaultBufSize = 2048
 
   /** Creates a `Source` from System.in.
-   */
+ *    */
   def stdin = fromInputStream(System.in)
 
   /** Creates a Source from an Iterable.
-   *
-   *  @param    iterable  the Iterable
-   *  @return   the Source
-   */
+ *
+ *  @param    iterable  the Iterable
+ *  @return   the Source
+ *    */
   def fromIterable(iterable: Iterable[Char]): Source = new Source {
     val iter = iterable.iterator
   } withReset(() => fromIterable(iterable))
@@ -114,8 +114,8 @@ object Source {
     fromBytes(bytes)(using Codec(enc))
 
   /** Creates a `Source` from array of bytes, assuming
-   *  one byte per character (ISO-8859-1 encoding.)
-   */
+ *  one byte per character (ISO-8859-1 encoding.)
+ *    */
   @deprecated("Use `fromBytes` and specify an encoding", since="2.13.9")
   def fromRawBytes(bytes: Array[Byte]): Source =
     fromString(new String(bytes, Codec.ISO8859.charSet))
@@ -174,11 +174,11 @@ object Source {
     createBufferedSource(is, reset = () => fromInputStream(is)(using codec), close = () => is.close())(using codec)
 
   /** Reads data from a classpath resource, using either a context classloader (default) or a passed one.
-   *
-   *  @param  resource     name of the resource to load from the classpath
-   *  @param  classLoader  classloader to be used, or context classloader if not specified
-   *  @return              the buffered source
-   */
+ *
+ *  @param  resource     name of the resource to load from the classpath
+ *  @param  classLoader  classloader to be used, or context classloader if not specified
+ *  @return              the buffered source
+ *    */
   def fromResource(resource: String, classLoader: ClassLoader = Thread.currentThread().getContextClassLoader())(implicit codec: Codec): BufferedSource =
     Option(classLoader.getResourceAsStream(resource)) match {
       case Some(in) => fromInputStream(in)
@@ -202,7 +202,7 @@ object Source {
  *  This behavior can be changed by supplying a
  *  [[scala.io.Source.withPositioning(pos:* custom positioner]].
  *
- */
+ *  */
 abstract class Source extends Iterator[Char] with Closeable {
   /** The actual iterator. */
   protected val iter: Iterator[Char]
@@ -244,17 +244,17 @@ abstract class Source extends Iterator[Char] with Closeable {
   }
 
   /** Returns an iterator who returns lines (NOT including newline character(s)).
-   *  It will treat any of \r\n, \r, or \n as a line separator (longest match) - if
-   *  you need more refined behavior you can subclass Source#LineIterator directly.
-   */
+ *  It will treat any of \r\n, \r, or \n as a line separator (longest match) - if
+ *  you need more refined behavior you can subclass Source#LineIterator directly.
+ *    */
   def getLines(): Iterator[String] = new LineIterator()
 
-  /** Returns `'''true'''` if this source has more characters.
-   */
+  /** Returns `**true**` if this source has more characters.
+ *    */
   def hasNext: Boolean = iter.hasNext
 
   /** Returns next character.
-   */
+ *    */
   def next(): Char = positioner.next()
 
   @nowarn("cat=deprecation")
@@ -289,8 +289,8 @@ abstract class Source extends Iterator[Char] with Closeable {
     }
   }
   /** A Position implementation which ignores errors in
-   *  the positions.
-   */
+ *  the positions.
+ *    */
   @nowarn("cat=deprecation")
   object RelaxedPosition extends Position {
     def checkInput(line: Int, column: Int): Unit = ()
@@ -303,11 +303,11 @@ abstract class Source extends Iterator[Char] with Closeable {
   def pos: Int = positioner.pos
 
   /** Reports an error message to the output stream `out`.
-   *
-   *  @param pos the source position (line/column)
-   *  @param msg the error message to report
-   *  @param out PrintStream to use (optional: defaults to `Console.err`)
-   */
+ *
+ *  @param pos the source position (line/column)
+ *  @param msg the error message to report
+ *  @param out PrintStream to use (optional: defaults to `Console.err`)
+ *    */
   def reportError(
     pos: Int,
     msg: String,
@@ -319,10 +319,11 @@ abstract class Source extends Iterator[Char] with Closeable {
 
   private def spaces(n: Int) = " ".repeat(n)
   /**
-   *  @param pos the source position (line/column)
-   *  @param msg the error message to report
-   *  @param out PrintStream to use
-   */
+ *
+ *  @param pos the source position (line/column)
+ *  @param msg the error message to report
+ *  @param out PrintStream to use
+ *    */
   def report(pos: Int, msg: String, out: PrintStream): Unit = {
     val line  = Position line pos
     val col   = Position column pos
@@ -331,10 +332,11 @@ abstract class Source extends Iterator[Char] with Closeable {
   }
 
   /**
-   *  @param pos the source position (line/column)
-   *  @param msg the warning message to report
-   *  @param out PrintStream to use (optional: defaults to `Console.out`)
-   */
+ *
+ *  @param pos the source position (line/column)
+ *  @param msg the warning message to report
+ *  @param out PrintStream to use (optional: defaults to `Console.out`)
+ *    */
   def reportWarning(
     pos: Int,
     msg: String,

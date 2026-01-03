@@ -23,8 +23,8 @@ import scala.language.`2.13`
  *  shorthand, conceptually, for the anonymous class definition
  *  `anonfun0`, although the implementation details of how the
  *  function value is constructed may differ:
- *
- *  {{{
+
+ *   ```
  *  val name = "world"
  *  val greeting = () => s"hello, $name"
  *
@@ -32,12 +32,12 @@ import scala.language.`2.13`
  *    def apply(): String = s"hello, $name"
  *  }
  *  assert(greeting() == anonfun0())
- *  }}}
- */
+ *   ```
+ *  */
 trait Function0[@specialized(Specializable.Primitives) +R] extends AnyRef {
   /** Applies the body of this function to the arguments.
-   *  @return   the result of function application.
-   */
+ *  @return   the result of function application.
+ *    */
   def apply(): R
 
   override def toString(): String = "<function0>"

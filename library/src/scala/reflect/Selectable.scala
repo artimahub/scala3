@@ -9,13 +9,13 @@ import language.experimental.captureChecking
  *
  *  In Scala.js, it is implemented using a separate Scala.js-specific
  *  mechanism, since Java reflection is not available.
- */
+ *  */
 trait Selectable extends scala.Selectable:
 
   /** The value from which structural members are selected.
-   *  By default this is the Selectable instance itself, but it can
-   *  be overridden.
-   */
+ *  By default this is the Selectable instance itself, but it can
+ *  be overridden.
+ *    */
   protected def selectedValue: Any = this
 
   // The Scala.js codegen relies on this method being final for correctness
@@ -31,10 +31,10 @@ trait Selectable extends scala.Selectable:
 
   // The Scala.js codegen relies on this method being final for correctness
   /** Selects method and applies to arguments.
-   *  @param name       The name of the selected method
-   *  @param paramTypes The class tags of the selected method's formal parameter types
-   *  @param args       The arguments to pass to the selected method
-   */
+ *  @param name       The name of the selected method
+ *  @param paramTypes The class tags of the selected method's formal parameter types
+ *  @param args       The arguments to pass to the selected method
+ *    */
   final def applyDynamic(name: String, paramTypes: Class[?]*)(args: Any*): Any =
     val rcls = selectedValue.getClass
     val mth = rcls.getMethod(NameTransformer.encode(name), paramTypes*).nn

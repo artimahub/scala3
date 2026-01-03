@@ -31,7 +31,7 @@ import scala.util.hashing.MurmurHash3
  *  @define willNotTerminateInf
  *  @define orderDependent
  *  @define orderDependentFold
- */
+ *  */
 @deprecatedInheritance("LinkedHashSet will be made final", "2.13.11")
 class LinkedHashSet[A]
   extends AbstractSet[A]
@@ -314,7 +314,7 @@ class LinkedHashSet[A]
 /** $factoryInfo
  *  @define Coll `LinkedHashSet`
  *  @define coll linked hash set
- */
+ *  */
 @SerialVersionUID(3L)
 object LinkedHashSet extends IterableFactory[LinkedHashSet] {
 

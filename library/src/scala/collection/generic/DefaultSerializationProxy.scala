@@ -21,12 +21,12 @@ import scala.collection.{Factory, Iterable}
 import scala.collection.mutable.Builder
 
 /** The default serialization proxy for collection implementations.
-  *
-  * This class is `final` and requires an extra `Factory` object rather than leaving the details of creating a `Builder`
-  * to an abstract method that could be implemented by a subclass. This is necessary because the factory is needed
-  * for deserializing this class's private state, which happens before any subclass fields would be deserialized. Any
-  * additional state required to create the proper `Builder` needs to be captured by the `factory`.
-  */
+ *
+ * This class is `final` and requires an extra `Factory` object rather than leaving the details of creating a `Builder`
+ * to an abstract method that could be implemented by a subclass. This is necessary because the factory is needed
+ * for deserializing this class's private state, which happens before any subclass fields would be deserialized. Any
+ * additional state required to create the proper `Builder` needs to be captured by the `factory`.
+ *   */
 @SerialVersionUID(3L)
 final class DefaultSerializationProxy[A](factory: Factory[A, Any], @transient private val coll: Iterable[A]^) extends Serializable {
 
@@ -72,11 +72,11 @@ final class DefaultSerializationProxy[A](factory: Factory[A, Any], @transient pr
 private[collection] case object SerializeEnd
 
 /** Mix-in trait to enable DefaultSerializationProxy for the standard collection types. Depending on the type
-  * it is mixed into, it will dynamically choose `iterableFactory`, `mapFactory`, `sortedIterableFactory` or
-  * `sortedMapFactory` for deserialization into the respective `CC` type. Override `writeReplace` or implement
-  * it directly without using this trait if you need a non-standard factory or if you want to use a different
-  * serialization scheme.
-  */
+ * it is mixed into, it will dynamically choose `iterableFactory`, `mapFactory`, `sortedIterableFactory` or
+ * `sortedMapFactory` for deserialization into the respective `CC` type. Override `writeReplace` or implement
+ * it directly without using this trait if you need a non-standard factory or if you want to use a different
+ * serialization scheme.
+ *   */
 transparent trait DefaultSerializable extends Serializable { this: scala.collection.Iterable[?]^ =>
   protected def writeReplace(): AnyRef^{this} = {
     val f: Factory[Any, Any] = this match {
