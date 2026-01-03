@@ -35,7 +35,7 @@ class ScaladocInsertionBugSpec extends AnyFunSuite with Matchers:
           |""".stripMargin
       Files.writeString(file, content)
 
-      Main.insertMissingScaladocTodos(dir, false)
+      MissingScaladocChecker.insertMissingScaladocTodos(dir, false)
 
       val after = Files.readString(file)
 
