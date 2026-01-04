@@ -27,6 +27,56 @@ object MissingScaladocChecker:
       val text = Files.readString(path)
       // Preserve trailing empty line by using split with -1
       val origLines = text.split("\n", -1).toBuffer
+
+      // Precompute scaladoc block ranges (start,end) in the original file so
+      // detection of attached scaladoc is robust even in large files.
+      import scala.collection.mutable.ListBuffer
+      val scaladocRanges = {
+        val rb = ListBuffer.empty[(Int, Int)]
+        var s = 0
+        while s < origLines.length do
+          // Detect scaladoc start/end anywhere on the line (handles mid-line "/**" like "}/** ...")
+          if origLines(s).indexOf("/**") >= 0 then
+            var e = s
+            // walk to the end of the comment (inclusive). If not found, treat to EOF.
+            while e < origLines.length && origLines(e).indexOf("*/") < 0 do e += 1
+            rb += ((s, e))
+            s = e + 1
+          else s += 1
+        rb.toList
+      }
+
+      // Helper: check range (e) is the most recent scaladoc before decl index i
+      def nearestScaladocBefore(declIdx: Int): Option[(Int, Int)] =
+        // scaladocRanges sorted by end ascending by construction; find the one with max end < declIdx
+        val before = scaladocRanges.filter { case (_, e) => e < declIdx }
+        if before.isEmpty then None else Some(before.maxBy(_._2))
+      
+      // Helper: determine whether this declaration is nested inside a 'private' type (class/trait/object)
+      def enclosingTypeIsPrivate(declIdx: Int): Boolean =
+        var j = declIdx - 1
+        while j >= 0 do
+          DeclLinePattern.findFirstMatchIn(origLines(j)) match
+            case Some(mm) =>
+              val knd = mm.group(1)
+              if List("class", "trait", "object").contains(knd) then
+                if mm.matched.contains("private") then return true
+                else return false
+            case None => ()
+          j -= 1
+        false
+
+      // Helper: lines between (from..to) are blank or modifier-only/annotations
+      def onlyModifiersOrBlank(from: Int, to: Int): Boolean =
+        var j = from
+        while j <= to do
+          val s = origLines(j).trim
+          if s.nonEmpty then
+            val firstTok = s.split("\\s+").headOption.getOrElse("")
+            if !(firstTok.startsWith("@") || modifierKeywords.contains(firstTok)) then return false
+          j += 1
+        true
+
       val out = collection.mutable.ArrayBuffer[String]()
       var fileInserted = 0
 
@@ -43,34 +93,53 @@ object MissingScaladocChecker:
             if !List("class", "trait", "object", "def").contains(kind) || matched.contains("private") then
               out += line
             else
-              // Scan backwards in 'out' to find the previous meaningful line
-              var j = out.length - 1
-              // Skip blank lines
-              while j >= 0 && out(j).trim.isEmpty do j -= 1
-              // Skip annotation or modifier-only lines (they may appear between scaladoc and decl)
-              def isModifierOnly(s: String): Boolean =
-                val t = s.trim
-                if t.isEmpty then false
-                else
-                  val tok = t.split("\\s+")(0)
-                  modifierKeywords.contains(tok) || t.startsWith("@")
-              var scan = j
-              while scan >= 0 && isModifierOnly(out(scan)) do scan -= 1
+              // If the declaration line itself is inside an existing scaladoc block,
+              // skip to avoid inserting inside comments (protects against malformed files).
+              val declInsideScaladoc =
+                scaladocRanges.exists { case (s, e) => s <= i && i <= e }
 
-              val hasAttachedScaladoc =
-                if scan >= 0 then
-                  // If the nearest non-modifier/annotation previous line ends with */ we assume a scaladoc is attached
-                  out(scan).trim.endsWith("*/")
-                else false
-
-              if hasAttachedScaladoc then
+              if declInsideScaladoc then
                 out += line
               else
-                // Insert TODO marker with same leading indentation as declaration
-                val leadingWs = line.takeWhile(_.isWhitespace)
-                out += s"${leadingWs}/** TODO FILL IN */"
-                out += line
-                fileInserted += 1
+                // Walk back from declaration, skipping blank lines and modifier-only lines,
+                // to locate the nearest "real" previous line.
+                var k = i - 1
+                while k >= 0 && origLines(k).trim.isEmpty do k -= 1
+                var continue = true
+                while k >= 0 && continue do
+                  val t = origLines(k).trim
+                  val firstTok = if t.isEmpty then "" else t.split("\\s+")(0)
+                  if firstTok.startsWith("@") || modifierKeywords.contains(firstTok) then k -= 1
+                  else continue = false
+                // Now k is the index of nearest non-modifier/annotation/non-blank line (or -1)
+
+                val attached = nearestScaladocBefore(i) match
+                  case None => false
+                  case Some((s, e)) =>
+                    // require that that scaladoc is the most recent non-comment content
+                    // before the declaration: all lines between e+1 and i-1 must be blank
+                    // or modifier/annotation-only. This is stricter and avoids attaching a
+                    // scaladoc that belongs to a different nearby declaration.
+                    val betweenFrom = e + 1
+                    val betweenTo = i - 1
+                    if betweenFrom <= betweenTo then onlyModifiersOrBlank(betweenFrom, betweenTo)
+                    else true
+
+                if attached then
+                  out += line
+                else
+                  // Skip insertion if the declaration is inside a private enclosing type
+                  if enclosingTypeIsPrivate(i) then
+                    out += line
+                  // Avoid inserting when a scaladoc starts mid-line (e.g. "}/** ...")
+                  else if origLines(i).indexOf("/**") >= 0 && !origLines(i).trim.startsWith("/**") then
+                    out += line
+                  else
+                    // Insert TODO marker with same leading indentation as declaration
+                    val leadingWs = line.takeWhile(_.isWhitespace)
+                    out += s"${leadingWs}/** TODO FILL IN */"
+                    out += line
+                    fileInserted += 1
         i += 1
 
       if fileInserted > 0 then
