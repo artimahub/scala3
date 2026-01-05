@@ -173,3 +173,50 @@ class WikidocToMarkdownSpec extends AnyFlatSpec with Matchers:
     val second = WikidocToMarkdown.migrateScaladocInner(first)
     first should be (second)
   }
+
+  it should "not insert additional star-only blank lines when migrating scaladoc" in {
+    val tmp = java.nio.file.Files.createTempDirectory("migrate-test")
+    try
+      val file = tmp.resolve("Boolean.scala")
+      val original =
+        """package example
+          |
+          |/**
+          | *
+          | * Compares two Boolean expressions ''italic'' and returns `true` if they evaluate to a different value.
+          | *
+          | */
+          |object X
+          |""".stripMargin
+      java.nio.file.Files.writeString(file, original)
+
+      // Simulate performMigration for the single file by applying WikidocToMarkdown.migrateScaladocInner
+      val text = java.nio.file.Files.readString(file)
+      val pattern = java.util.regex.Pattern.compile("(?s)/\\*\\*(.*?)\\*/")
+      val m = pattern.matcher(text)
+      val sb = new StringBuffer
+      var any = false
+      while m.find() do
+        val inner = m.group(1)
+        val migrated = WikidocToMarkdown.migrateScaladocInner(inner)
+        if migrated != inner then
+          any = true
+          val replacement = "/**" + migrated + "*/"
+          m.appendReplacement(sb, java.util.regex.Matcher.quoteReplacement(replacement))
+      m.appendTail(sb)
+      if any then java.nio.file.Files.writeString(file, sb.toString)
+
+      val content = java.nio.file.Files.readString(file)
+      // There must NOT be an extra blank line between two star-only lines introduced by migration.
+      val doubleBlank = java.util.regex.Pattern.compile("(?m)^\\s*\\*\\s*$\\r?\\n\\s*\\r?\\n\\s*\\*\\s*")
+      doubleBlank.matcher(content).find() should be (false)
+    finally
+      // cleanup
+      def deleteRec(p: java.nio.file.Path): Unit =
+        if java.nio.file.Files.isDirectory(p) then
+          val it = java.nio.file.Files.list(p).iterator()
+          while it.hasNext do deleteRec(it.next())
+          java.nio.file.Files.delete(p)
+        else java.nio.file.Files.delete(p)
+      deleteRec(tmp)
+  }
