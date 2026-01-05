@@ -181,12 +181,12 @@ object WikidocToMarkdown:
       val out = new StringBuilder
 
       if startsWithNewline then
-        out.append("\n")
+        // Build lines into a buffer and join; this avoids emitting extra blank lines
+        val outLines = collection.mutable.ListBuffer[String]()
+        outLines += "" // preserve leading newline when joined
         var prevWasStarOnly = false
         for idx <- migLines.indices do
           val line = migLines(idx)
-          // Avoid inserting a star-only blank line immediately before a triple-brace marker,
-          // and avoid emitting consecutive star-only blank lines; both cause oscillation.
           val nextIsMarker =
             if idx + 1 < migLines.length then
               val n = migLines(idx + 1).trim
@@ -194,19 +194,19 @@ object WikidocToMarkdown:
             else false
           if line.isEmpty then
             if !nextIsMarker && !prevWasStarOnly then
-              out.append(" *")
+              outLines += " *"
               prevWasStarOnly = true
             else
               () // skip unstable/duplicate blank star line
           else
-            out.append(" * ").append(line)
+            outLines += " * " + line
             prevWasStarOnly = false
-          if idx < migLines.length - 1 then out.append("\n")
+        out.append(outLines.mkString("\n"))
       else
         if migLines.nonEmpty then out.append(migLines.head)
         if migLines.length > 1 then
-          out.append("\n")
           val tail = migLines.tail
+          val outLines = collection.mutable.ListBuffer[String]()
           var prevWasStarOnly = false
           for idx <- tail.indices do
             val line = tail(idx)
@@ -217,13 +217,13 @@ object WikidocToMarkdown:
               else false
             if line.isEmpty then
               if !nextIsMarker && !prevWasStarOnly then
-                out.append(" *")
+                outLines += " *"
                 prevWasStarOnly = true
               else ()
             else
-              out.append(" * ").append(line)
+              outLines += " * " + line
               prevWasStarOnly = false
-            if idx < tail.length - 1 then out.append("\n")
+          out.append("\n").append(outLines.mkString("\n"))
 
       out.toString
     }
