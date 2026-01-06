@@ -193,14 +193,19 @@ val origEndsWithEmpty = origLines.lastOption.exists(_.trim.isEmpty)
               n == "{{{" || n == "}}}" || n == "```"
             else false
           val prefix = tailPrefixes.lift(idx).getOrElse(" ")
-          if line.isEmpty then
-            if !nextIsMarker && !prevWasStarOnly && (idx != migLines.length - 1 || origEndsWithEmpty) then
+          val origWasEmpty = cleanedLines.lift(idx).exists(_.trim.isEmpty)
+          val lineIsBlank = line.trim.isEmpty
+          if lineIsBlank then
+            // Only emit a star-only line if the original corresponding cleaned line was empty
+            // and it's not a duplicate or marker-adjacent blank.
+            if origWasEmpty && !nextIsMarker && !prevWasStarOnly && (idx != migLines.length - 1 || origEndsWithEmpty) then
               outLines += prefix + "*"
               prevWasStarOnly = true
             else
               () // skip unstable/duplicate blank star line
           else
             // line already may start with whitespace (it is the cleaned content after the '*')
+            // Preserve the content after '*' exactly (do not reintroduce trailing-only spaces).
             outLines += prefix + "*" + line
             prevWasStarOnly = false
         out.append(outLines.mkString("\n"))
@@ -226,8 +231,11 @@ val origEndsWithEmpty = origLines.lastOption.exists(_.trim.isEmpty)
                 n == "{{{" || n == "}}}" || n == "```"
               else false
             val prefix = tailPrefixes.lift(idx).getOrElse(origFirstLeading)
-            if line.isEmpty then
-              if !nextIsMarker && !prevWasStarOnly && (idx != tail.length - 1 || origEndsWithEmpty) then
+            val origWasEmpty = cleanedLines.lift(idx + 1).exists(_.trim.isEmpty)
+            val lineIsBlank = line.trim.isEmpty
+            if lineIsBlank then
+              // Only emit star-only when the original corresponding cleaned line was empty.
+              if origWasEmpty && !nextIsMarker && !prevWasStarOnly && (idx != tail.length - 1 || origEndsWithEmpty) then
                 outLines += prefix + "*"
                 prevWasStarOnly = true
               else ()
