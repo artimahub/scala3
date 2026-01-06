@@ -174,6 +174,31 @@ class WikidocToMarkdownSpec extends AnyFlatSpec with Matchers:
     first should be (second)
   }
 
+  it should "preserve exact spacing before triple-brace markers in scaladoc migration" in {
+    val inner =
+      """
+       *  Applies fallback function where this partial function is not defined.
+       *
+       *  Note that expression `pf.applyOrElse(x, default)` is equivalent to
+       *   {{{ if(pf isDefinedAt x) pf(x) else default(x) }}}
+       *
+       """.stripMargin
+
+    val migrated = WikidocToMarkdown.migrateScaladocInner(inner)
+
+    def leadingSpacesAfterStar(s: String): Int =
+      val idx = s.indexOf('*')
+      if idx < 0 then -1
+      else
+        val after = s.substring(idx + 1)
+        after.takeWhile(_.isWhitespace).length
+
+    val origMarkerLine = inner.linesIterator.find(_.contains("{{{")).getOrElse(fail("orig marker missing"))
+    val migMarkerLine  = migrated.linesIterator.find(l => l.contains("{{{") || l.contains("```")).getOrElse(fail("migrated marker missing"))
+
+    leadingSpacesAfterStar(origMarkerLine) should be (leadingSpacesAfterStar(migMarkerLine))
+  }
+
   it should "not insert additional star-only blank lines when migrating scaladoc" in {
     val tmp = java.nio.file.Files.createTempDirectory("migrate-test")
     try
@@ -219,4 +244,29 @@ class WikidocToMarkdownSpec extends AnyFlatSpec with Matchers:
           java.nio.file.Files.delete(p)
         else java.nio.file.Files.delete(p)
       deleteRec(tmp)
+  }
+
+  it should "not add extra space before inline triple-brace markers in scaladoc migration" in {
+    val inner =
+      """
+       *  Applies fallback function where this partial function is not defined.
+       *
+       *  Note that expression `pf.applyOrElse(x, default)` is equivalent to
+       *   {{{ if(pf isDefinedAt x) pf(x) else default(x) }}}
+       *
+       """.stripMargin
+
+    val migrated = WikidocToMarkdown.migrateScaladocInner(inner)
+
+    def leadingSpacesAfterStar(s: String): Int =
+      val idx = s.indexOf('*')
+      if idx < 0 then -1
+      else
+        val after = s.substring(idx + 1)
+        after.takeWhile(_.isWhitespace).length
+
+    val origMarkerLine = inner.linesIterator.find(_.contains("{{{")).getOrElse(fail("orig marker missing"))
+    val migMarkerLine  = migrated.linesIterator.find(l => l.contains("{{{") || l.contains("```")).getOrElse(fail("migrated marker missing"))
+
+    leadingSpacesAfterStar(origMarkerLine) should be (leadingSpacesAfterStar(migMarkerLine))
   }

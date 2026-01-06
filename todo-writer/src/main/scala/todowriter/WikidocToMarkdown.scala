@@ -144,20 +144,15 @@ object WikidocToMarkdown:
       val startsWithNewline = inner.startsWith("\n")
       val origLines = inner.split("\n", -1).toList
 
-      // Strip leading '*' and a single optional space, but normalize marker lines.
-      val cleanedLines = origLines.map { line =>
-        val starIdx = line.indexOf('*')
-        if starIdx >= 0 then
-          val after = line.substring(starIdx + 1)
-          val afterNoLeading = after.dropWhile(_.isWhitespace)
-          // For triple-brace or fenced-code markers preserve the original spacing after the asterisk
-          // (do not add or remove spaces) so we can round-trip without changes.
-          if afterNoLeading.startsWith("{{{") || afterNoLeading.startsWith("}}}") || afterNoLeading.startsWith("```") then
-            after
-          else
-            if after.startsWith(" ") then after.drop(1) else after
-        else line
-      }
+val cleanedLines = origLines.map { line =>
+  // Only strip a leading '*' when the first non-whitespace character is '*'.
+  // This avoids removing content from lines like "/** ..." where '*' appears as part of the comment start.
+  if line.trim.startsWith("*") then
+    val starIdx = line.indexOf('*')
+    line.substring(starIdx + 1)
+  else
+    line
+}
 
       val cleaned = cleanedLines.mkString("\n")
    
@@ -199,7 +194,10 @@ object WikidocToMarkdown:
             else
               () // skip unstable/duplicate blank star line
           else
-            outLines += " * " + line
+            if line.nonEmpty && line.head.isWhitespace then
+              outLines += " *" + line
+            else
+              outLines += " * " + line
             prevWasStarOnly = false
         out.append(outLines.mkString("\n"))
       else
@@ -221,7 +219,10 @@ object WikidocToMarkdown:
                 prevWasStarOnly = true
               else ()
             else
-              outLines += " * " + line
+              if line.nonEmpty && line.head.isWhitespace then
+                outLines += " *" + line
+              else
+                outLines += " * " + line
               prevWasStarOnly = false
           out.append("\n").append(outLines.mkString("\n"))
 
