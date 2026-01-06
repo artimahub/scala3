@@ -161,8 +161,17 @@ object Main:
         val migrated = WikidocToMarkdown.migrateScaladocInner(inner)
         if migrated != inner then
           any = true
-          // Preserve surrounding comment markers, replace inner content
-          val replacement = "/**" + migrated + "*/"
+          // Preserve surrounding comment markers and indentation before the closing "*/".
+          val origMatch = matcher.group(0)
+          val lastNl = origMatch.lastIndexOf('\n')
+          val wsBeforeClose =
+            if lastNl >= 0 then origMatch.substring(lastNl + 1).takeWhile(_.isWhitespace)
+            else ""
+          // Ensure the migrated content is followed by a newline before the closing marker,
+          // and preserve the original whitespace indentation before "*/".
+          val replacement =
+            if migrated.endsWith("\n") then s"/**${migrated}${wsBeforeClose}*/"
+            else s"/**${migrated}\n${wsBeforeClose}*/"
           matcher.appendReplacement(sb, java.util.regex.Matcher.quoteReplacement(replacement))
       matcher.appendTail(sb)
       if any then

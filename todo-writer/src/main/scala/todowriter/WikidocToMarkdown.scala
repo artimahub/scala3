@@ -154,9 +154,13 @@ val cleanedLines = origLines.map { line =>
     line
 }
 
-      val cleaned = cleanedLines.mkString("\n")
-   
-      // Normalize triple-brace markers to fenced backticks for migrate(), preserving leading whitespace.
+// prefixes (leading whitespace) for original tail/star lines (used to reinsert exact indentation)
+val tailPrefixes: List[String] = origLines.drop(1).map(_.takeWhile(_.isWhitespace))
+val origFirstLeading = origLines.headOption.map(_.takeWhile(_.isWhitespace)).getOrElse("")
+val cleaned = cleanedLines.mkString("\n")
+val origEndsWithEmpty = origLines.lastOption.exists(_.trim.isEmpty)
+
+// Normalize triple-brace markers to fenced backticks for migrate(), preserving leading whitespace.
       val cleanedArr = cleaned.split("\n", -1).toArray
       val normalizedForMigrate = cleanedArr.map { ln =>
         val t = ln.trim
@@ -176,7 +180,8 @@ val cleanedLines = origLines.map { line =>
       val out = new StringBuilder
 
       if startsWithNewline then
-        // Build lines into a buffer and join; this avoids emitting extra blank lines
+        // Build lines into a buffer and join; this avoids emitting extra blank lines.
+        // Use original per-line prefixes (when available) to preserve indentation before '*'.
         val outLines = collection.mutable.ListBuffer[String]()
         outLines += "" // preserve leading newline when joined
         var prevWasStarOnly = false
@@ -187,21 +192,28 @@ val cleanedLines = origLines.map { line =>
               val n = migLines(idx + 1).trim
               n == "{{{" || n == "}}}" || n == "```"
             else false
+          val prefix = tailPrefixes.lift(idx).getOrElse(" ")
           if line.isEmpty then
-            if !nextIsMarker && !prevWasStarOnly then
-              outLines += " *"
+            if !nextIsMarker && !prevWasStarOnly && (idx != migLines.length - 1 || origEndsWithEmpty) then
+              outLines += prefix + "*"
               prevWasStarOnly = true
             else
               () // skip unstable/duplicate blank star line
           else
-            if line.nonEmpty && line.head.isWhitespace then
-              outLines += " *" + line
-            else
-              outLines += " * " + line
+            // line already may start with whitespace (it is the cleaned content after the '*')
+            outLines += prefix + "*" + line
             prevWasStarOnly = false
         out.append(outLines.mkString("\n"))
       else
-        if migLines.nonEmpty then out.append(migLines.head)
+        if migLines.nonEmpty then
+          // Preserve any leading whitespace present in the original first line
+          val origFirstLeading = origLines.headOption.map(_.takeWhile(_.isWhitespace)).getOrElse("")
+          val firstLine =
+            if migLines.head.startsWith(" ") || migLines.head.startsWith("\t") then
+              migLines.head
+            else
+              origFirstLeading + migLines.head
+          out.append(firstLine)
         if migLines.length > 1 then
           val tail = migLines.tail
           val outLines = collection.mutable.ListBuffer[String]()
@@ -213,16 +225,14 @@ val cleanedLines = origLines.map { line =>
                 val n = tail(idx + 1).trim
                 n == "{{{" || n == "}}}" || n == "```"
               else false
+            val prefix = tailPrefixes.lift(idx).getOrElse(origFirstLeading)
             if line.isEmpty then
-              if !nextIsMarker && !prevWasStarOnly then
-                outLines += " *"
+              if !nextIsMarker && !prevWasStarOnly && (idx != tail.length - 1 || origEndsWithEmpty) then
+                outLines += prefix + "*"
                 prevWasStarOnly = true
               else ()
             else
-              if line.nonEmpty && line.head.isWhitespace then
-                outLines += " *" + line
-              else
-                outLines += " * " + line
+              outLines += prefix + "*" + line
               prevWasStarOnly = false
           out.append("\n").append(outLines.mkString("\n"))
 
