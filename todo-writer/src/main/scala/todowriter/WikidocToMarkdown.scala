@@ -193,7 +193,9 @@ val origEndsWithEmpty = origLines.lastOption.exists(_.trim.isEmpty)
               n == "{{{" || n == "}}}" || n == "```"
             else false
           val prefix = tailPrefixes.lift(idx).getOrElse(" ")
-          val origWasEmpty = cleanedLines.lift(idx).exists(_.trim.isEmpty)
+          // When the scaladoc inner starts with a newline we treat migLines[0] as the
+          // line following that newline; the original corresponding cleaned line is at idx+1.
+          val origWasEmpty = cleanedLines.lift(idx + 1).exists(_.trim.isEmpty)
           val lineIsBlank = line.trim.isEmpty
           if lineIsBlank then
             // Only emit a star-only line if the original corresponding cleaned line was empty
