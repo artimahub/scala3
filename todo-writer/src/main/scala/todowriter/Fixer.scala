@@ -39,13 +39,23 @@ object Fixer:
   def applyFixes(text: String, results: List[CheckResult], insertTodo: Boolean): (String, Int) =
     // Choose which results to process:
     // - when inserting TODOs, only process results that actually need fixes
-    // - when only aligning, process any result that reported issues (to adjust alignment)
+    // - when only aligning (skip-todo), process any result that reported issues OR
+    //   any multi-line scaladoc that would be changed by formatting (alignment-only).
     val sortedResults =
       if insertTodo then
         results.filter(needsFix).sortBy(_.scaladoc.startIndex)(Ordering[Int].reverse)
       else
-        results.filter(_.issues.nonEmpty).sortBy(_.scaladoc.startIndex)(Ordering[Int].reverse)
- 
+        results
+          .filter { r =>
+            val block = r.scaladoc
+            val originalBlockText =
+              if block.startIndex >= 0 && block.endIndex <= text.length then text.substring(block.startIndex, block.endIndex)
+              else ""
+            // Skip single-line blocks and blocks that contain code fences when not inserting todos.
+            val skipBecauseCodeOrSingle = !originalBlockText.contains('\n') || originalBlockText.contains("{{{") || originalBlockText.contains("```")
+            r.issues.nonEmpty || (!skipBecauseCodeOrSingle && buildFixedBlock(text, block, Nil, Nil, false) != originalBlockText)
+          }
+          .sortBy(_.scaladoc.startIndex)(Ordering[Int].reverse)
     var currentText = text
     var fixCount = 0
  
@@ -72,17 +82,33 @@ object Fixer:
       // blocks that contain code fences (triple-brace or ```), which can have
       // formatting-sensitive spacing that should not be altered in skip-todo mode.
       val shouldSkip = !insertTodo && (isSingleLine || block.content.contains("{{{") || block.content.contains("```"))
-
-      // Only proceed if there is something to change (either tags to insert or alignment to adjust)
-      if !shouldSkip && ((tparamsToInsert.nonEmpty || paramsToInsert.nonEmpty || returnToInsert) || (!insertTodo && issues.nonEmpty)) then
-        val newBlock = buildFixedBlock(
-          currentText,
-          block,
-          tparamsToInsert,
-          paramsToInsert,
-          returnToInsert,
-          forceMultiLine = false  // Never force single-line to multi-line when not inserting tags
+  
+      // Compute the formatted block up-front so we can decide whether an alignment-only
+      // change would alter the content (and thus should be applied in skip-todo mode).
+      val newBlockPreview =
+        if !shouldSkip then
+          buildFixedBlock(
+            currentText,
+            block,
+            tparamsToInsert,
+            paramsToInsert,
+            returnToInsert,
+            forceMultiLine = false
+          )
+        else originalBlockText
+  
+      // Only proceed if there is something to change:
+      // - insertion of missing tags (when insertTodo = true), or
+      // - explicit issues present, or
+      // - in skip-todo mode, the formatted block differs from the original (alignment-only).
+      val shouldApply =
+        !shouldSkip && (
+          (tparamsToInsert.nonEmpty || paramsToInsert.nonEmpty || returnToInsert) ||
+            (!insertTodo && (issues.nonEmpty || newBlockPreview != originalBlockText))
         )
+  
+      if shouldApply then
+        val newBlock = newBlockPreview
         // If buildFixedBlock included the following declaration line in its returned
         // text, avoid duplicating that declaration when splicing the replacement
         // into the original document by advancing the end index accordingly.
@@ -93,18 +119,18 @@ object Fixer:
               if rest.startsWith("\n") then rest.drop(1).takeWhile(_ != '\n')
               else rest.takeWhile(_ != '\n')
             val nextLineWithLeading = if rest.startsWith("\n") then "\n" + nextLine else nextLine
-
+  
             val newBlockLastNonEmptyTrim = newBlock.split("\n").reverse.find(_.trim.nonEmpty).map(_.trim)
             if nextLine.nonEmpty && (newBlock.endsWith(nextLineWithLeading) || newBlockLastNonEmptyTrim.contains(nextLine.trim)) then
               block.endIndex + nextLineWithLeading.length
             else block.endIndex
           else block.endIndex
-
+  
         // Replace starting at the physical start of the line (include leading
         // indentation) so the formatted block's indentation is used exactly once.
         val lineStartIdx = currentText.lastIndexOf('\n', block.startIndex - 1)
         val replacementStart = if lineStartIdx < 0 then 0 else lineStartIdx + 1
-
+  
         // Splice the formatted block into the document, but avoid making a no-op edit.
         val candidate = currentText.substring(0, replacementStart) +
           newBlock +
