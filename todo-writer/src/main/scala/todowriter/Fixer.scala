@@ -285,7 +285,7 @@ object Fixer:
         inTripleBrace = false
 
       val isBlank = content.trim.isEmpty
-      val isTag = content.trim.startsWith("@") && !inCodeFence && !inTripleBrace
+      val isTag = (isExpositionTag(content.trim) || isSignatureTag(content.trim)) && !inCodeFence && !inTripleBrace
 
       if isTag then
         flushCurrentTag()
