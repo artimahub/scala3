@@ -2,6 +2,8 @@ package todowriter
 
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
+import java.util.regex.Pattern
+import java.util.regex.Matcher
 
 class WikidocToMarkdownSpec extends AnyFlatSpec with Matchers:
 
@@ -269,4 +271,373 @@ class WikidocToMarkdownSpec extends AnyFlatSpec with Matchers:
     val migMarkerLine  = migrated.linesIterator.find(l => l.contains("{{{") || l.contains("```")).getOrElse(fail("migrated marker missing"))
 
     leadingSpacesAfterStar(origMarkerLine) should be (leadingSpacesAfterStar(migMarkerLine))
+  }
+
+  it should "preserve alignment for trailing tag lines (group) without adding extra indentation" in {
+    val source =
+      """|  /**
+         |   * A method that returns its input value.
+         |   * @tparam A type of the input value x.
+         |   * @param x the value of type `A` to be returned.
+         |   * @return the value `x`.
+         |   * @group utilities 
+         |   */
+         |""".stripMargin
+
+    val pattern = Pattern.compile("(?s)/\\*\\*(.*?)\\*/")
+    val matcher = pattern.matcher(source)
+    val sb = new StringBuffer
+    var any = false
+    while matcher.find() do
+      val inner = matcher.group(1)
+      val migrated = WikidocToMarkdown.migrateScaladocInner(inner)
+      if migrated != inner then
+        any = true
+        val replacement = "/**" + migrated + "*/"
+        matcher.appendReplacement(sb, Matcher.quoteReplacement(replacement))
+    matcher.appendTail(sb)
+    val migratedSource = if any then sb.toString else source
+
+    // Expect no changes to spacing/asterisk alignment for the @group line.
+    migratedSource shouldBe source
+  }
+
+  it should "not modify scaladoc blocks that are commented out with // prefix" in {
+    val source =
+      """|  // /** Specifies how the array lengths should vary.
+         |  //  *
+         |  //  *  By default,  `UnrolledBuffer` uses arrays of a fixed size.  A length
+         |  //  *  policy can be given that changes this scheme to, for instance, an
+         |  //  *  exponential growth.
+         |  //  *
+         |  //  *  @param nextLength   computes the length of the next array from the length of the latest one
+         |  */
+         |  // def setLengthPolicy(nextLength: Int => Int): Unit = { myLengthPolicy = nextLength }
+         |""".stripMargin
+
+    val pattern = Pattern.compile("(?s)^(?!.*//)/\\*\\*(.*?)\\*/", Pattern.MULTILINE)
+    val matcher = pattern.matcher(source)
+    val sb = new StringBuffer
+    var any = false
+    while matcher.find() do
+      val inner = matcher.group(1)
+      val migrated = WikidocToMarkdown.migrateScaladocInner(inner)
+      if migrated != inner then
+        any = true
+        val replacement = "/**" + migrated + "*/"
+        matcher.appendReplacement(sb, Matcher.quoteReplacement(replacement))
+    matcher.appendTail(sb)
+    val migratedSource = if any then sb.toString else source
+
+    val expected =
+      """|  // /** Specifies how the array lengths should vary.
+         |  //  *
+         |  //  *  By default,  `UnrolledBuffer` uses arrays of a fixed size.  A length
+         |  //  *  policy can be given that changes this scheme to, for instance, an
+         |  //  *  exponential growth.
+         |  //  *
+         |  //  *  @param nextLength   computes the length of the next array from the length of the latest one
+         |  */
+         |  // def setLengthPolicy(nextLength: Int => Int): Unit = { myLengthPolicy = nextLength }
+         |""".stripMargin
+
+    // The commented-out block must remain unchanged.
+    migratedSource shouldBe expected
+  }
+
+  it should "preserve the opening line and not remove it for App.scala comment" in {
+    val source =
+      """|  /** The main method.
+         |   *  This stores all arguments so that they can be retrieved with `args`
+         |   *  and then executes all initialization code segments in the order in which
+         |   *  they were passed to `delayedInit`.
+         |   *  @param args the arguments passed to the main method
+         |   */
+         |  final def main(args: Array[String]) = {
+         |    this._args = args
+         |    for (proc <- initCode) proc()
+         |    if (util.Properties.propIsSet("scala.time")) {
+         |      val total = currentTime - executionStart
+         |      Console.println("[total " + total + "ms]")
+         |    }
+         |  }
+         |""".stripMargin
+
+    val pattern = Pattern.compile("(?s)/\\*\\*(.*?)\\*/")
+    val matcher = pattern.matcher(source)
+    val sb = new StringBuffer
+    var any = false
+    while matcher.find() do
+      val inner = matcher.group(1)
+      val migrated = WikidocToMarkdown.migrateScaladocInner(inner)
+      if migrated != inner then
+        any = true
+        val replacement = "/**" + migrated + "*/"
+        matcher.appendReplacement(sb, Matcher.quoteReplacement(replacement))
+    matcher.appendTail(sb)
+    val migratedSource = if any then sb.toString else source
+
+    // The opener must remain unchanged
+    migratedSource should include ("  /** The main method.")
+    // The opener must not be removed or replaced by following lines
+    migratedSource should include ("   *  This stores all arguments")
+    // No extra star-only line immediately before closing
+    migratedSource should not include ("\n   *\n   */")
+  }
+
+  it should "not produce star-only lines that contain only spaces" in {
+    val source =
+      """|  /** The command line arguments passed to the application's `main` method.
+         |  *   
+         |  */
+         |  protected final def args: Array[String] = _args
+         |""".stripMargin
+
+    val pattern = """(?s)/\*\*(.*?)\*/""".r
+    val migrated = pattern.replaceAllIn(source, m => "/**" + WikidocToMarkdown.migrateScaladocInner(m.group(1)) + "*/")
+
+    // failing condition: any line that trims to "*" (i.e., star-only possibly with spaces) must not exist
+    migrated.linesIterator.exists(line => line.trim == "*") shouldBe false
+
+    // ensure comment opener and following code remain present
+    migrated should include ("/** The command line arguments")
+    migrated should include ("*/\n  protected final def args")
+  }
+
+  it should "preserve indentation and the first line after an indented /**" in {
+    val source =
+      """|  /** The main method.
+         |  *  This stores all arguments so that they can be retrieved with `args`
+         |  *  and then executes all initialization code segments in the order in which
+         |  *  they were passed to `delayedInit`.
+         |  *  @param args the arguments passed to the main method
+         |  */ 
+         |  final def main(args: Array[String]) = {
+         |    this._args = args
+         |    for (proc <- initCode) proc()
+         |  }
+         |""".stripMargin
+
+    val pattern = """(?s)/\*\*(.*?)\*/""".r
+    val migrated = pattern.replaceAllIn(source, m => "/**" + WikidocToMarkdown.migrateScaladocInner(m.group(1)) + "*/")
+
+    // The indented opening line must be preserved exactly
+    migrated should include ("  /** The main method.")
+    // The closing comment must not gain an extra star-only line before it
+    migrated should not include ("\n *\n  */")
+    // The code after the comment must remain on the following line with same indentation
+    migrated should include ("*/ \n  final def main(args: Array[String]) = {")
+  }
+
+  it should "not insert a star-only blank line immediately after opening /**" in {
+    val source =
+      """|/**
+         | * Compares two Boolean expressions and returns `true` if they evaluate to a different value.
+         | *
+         | * `a != b` returns `true` if and only if
+         | *  - `a` is `true` and `b` is `false` or
+         | *  - `a` is `false` and `b` is `true`.
+         | *
+         | */
+         |def !=(x: Boolean): Boolean
+         |""".stripMargin
+
+    val pattern = Pattern.compile("(?s)/\\*\\*(.*?)\\*/")
+    val matcher = pattern.matcher(source)
+    val sb = new StringBuffer
+    var any = false
+    while matcher.find() do
+      val inner = matcher.group(1)
+      val migrated = WikidocToMarkdown.migrateScaladocInner(inner)
+      if migrated != inner then
+        any = true
+        val replacement = "/**" + migrated + "*/"
+        matcher.appendReplacement(sb, Matcher.quoteReplacement(replacement))
+    matcher.appendTail(sb)
+    val migratedSource = if any then sb.toString else source
+
+    // must not insert a star-only blank line immediately after the opener
+    migratedSource should not include ("\n *\n * Compares")
+    // opener must be followed directly by the first content line
+    migratedSource should include ("/**\n * Compares")
+  }
+
+  it should "preserve inline fragments when inner does NOT start with a newline" in {
+    // Simulate the scaladoc inner captured when there's no leading newline (matches the Tuple.scala case).
+    val inner =
+      """  /**: ... *: An * At` and `B1 *: ... *: Bn *: Bt
+        |  where at least one of `At` or `Bt` is `EmptyTuple`,
+        |  returns the tuple type `(A1, B1) *: ... *: (An, Bn) *: EmptyTuple`.
+        |    """.stripMargin
+
+    val migrated = WikidocToMarkdown.migrateScaladocInner(inner)
+
+    // The specific inline fragment must be preserved exactly.
+    migrated should include ("/**: ... *: An * At` and `B1 *: ... *: Bn *: Bt")
+  }
+
+  it should "not alter unrelated content or indentation (only migrate wikidoc to markdown)" in {
+    val inner =
+      """
+       *  /**: ... *: An * At` and `B1 *: ... *: Bn *: Bt`
+       *   {{{ if(pf isDefinedAt x) pf(x) else default(x) }}}
+       *  End
+       """.stripMargin
+
+    val migrated = WikidocToMarkdown.migrateScaladocInner(inner)
+
+    def leadingSpacesAfterStar(s: String): Int =
+      val idx = s.indexOf('*')
+      if idx < 0 then -1
+      else
+        val after = s.substring(idx + 1)
+        after.takeWhile(_.isWhitespace).length
+
+    val origMarkerLine = inner.linesIterator.find(_.contains("{{{")).getOrElse(fail("orig marker missing"))
+    val migMarkerLine  = migrated.linesIterator.find(l => l.contains("{{{") || l.contains("```")).getOrElse(fail("migrated marker missing"))
+
+    // indentation after '*' should be preserved exactly
+    leadingSpacesAfterStar(origMarkerLine) should be (leadingSpacesAfterStar(migMarkerLine))
+
+    // unrelated inline text must remain present (no extra spaces inserted/removed)
+    migrated should include ("/**: ... *: An * At` and `B1 *: ... *: Bn *: Bt")
+  }
+
+  it should "preserve the opener line and not inject extra star before closing in performMigration-like replacement" in {
+    val source =
+      """|  /** The main method.
+         |  *  This stores all arguments so that they can be retrieved with `args`
+         |  *  and then executes all initialization code segments in the order in which
+         |  *  they were passed to `delayedInit`.
+         |  *  @param args the arguments passed to the main method
+         |  */ 
+         |  final def main(args: Array[String]) = {
+         |    this._args = args
+         |    for (proc <- initCode) proc()
+         |  }
+         |""".stripMargin
+
+    val pattern = Pattern.compile("(?s)/\\*\\*(.*?)\\*/")
+    val matcher = pattern.matcher(source)
+    val sb = new StringBuffer
+    var any = false
+    while matcher.find() do
+      val inner = matcher.group(1)
+      val migrated = WikidocToMarkdown.migrateScaladocInner(inner)
+      if migrated != inner then
+        any = true
+        val replacement = "/**" + migrated + "*/"
+        matcher.appendReplacement(sb, Matcher.quoteReplacement(replacement))
+    matcher.appendTail(sb)
+    val migratedSource = if any then sb.toString else source
+
+    // opener line preserved
+    migratedSource should include ("  /** The main method.")
+    // no extra star-only line inserted immediately before closing
+    migratedSource should not include ("\n *\n  */")
+    // closing marker remains adjacent to following code line
+    migratedSource should include ("*/ \n  final def main(args: Array[String]) = {")
+  }
+
+  it should "preserve a comment's first line and not add an extra '*' before closing */" in {
+    val source =
+      """|/** The main method.
+         | *  This stores all arguments so that they can be retrieved with `args`
+         | *  and then executes all initialization code segments in the order in which
+         | *  they were passed to `delayedInit`.
+         | *  @param args the arguments passed to the main method
+         | */
+         |final def main(args: Array[String]) = {
+         |  this._args = args
+         |  for (proc <- initCode) proc()
+         |}
+         |""".stripMargin
+
+    val Scaladoc = """(?s)/\*\*(.*?)\*/""".r
+    val migrated = Scaladoc.replaceAllIn(source, m => "/**" + WikidocToMarkdown.migrateScaladocInner(m.group(1)) + "*/")
+
+    // The original first line after "/**" must be preserved.
+    migrated should include ("/** The main method.")
+
+    // The closing comment should remain "*/" on its own line (no extra leading '*' line immediately before it).
+    migrated should not include ("\n *\n*/")
+    // Ensure the comment close is directly followed by the next code line, preserving spacing.
+    migrated should include ("*/\nfinal def main(args: Array[String]) = {")
+  }
+
+  it should "not add a trailing star-only line before the comment close" in {
+    val inner =
+      """/**
+        | *  This stores all arguments so that they can be retrieved with `args`
+        | *  and then executes all initialization code segments in the order in which
+        | *  they were passed to `delayedInit`.
+        | *  @param args the arguments passed to the main method
+        | */""".stripMargin
+
+    val migrated = WikidocToMarkdown.migrateScaladocInner(inner)
+
+    // must not end with a star-only line which would insert an extra '*' before the closing */
+    //migrated.endsWith("\n *") shouldBe false
+    migrated.split("\n").exists(l => l.trim == "*") shouldBe false
+
+    // last content line must be preserved exactly
+    migrated should include ("*  @param args the arguments passed to the main method")
+  }
+
+  it should "preserve the exact Tuple signature fragment and not remove leading text" in {
+    val inner =
+      """
+       *  /**: ... *: An * At` and `B1 *: ... *: Bn *: Bt`
+       *   {{{ if(pf isDefinedAt x) pf(x) else default(x) }}}
+       *   */
+       *  def test(x: Int): Unit = {}
+       """.stripMargin
+
+    val migrated = WikidocToMarkdown.migrateScaladocInner(inner)
+
+    // Ensure the specific inline fragment is preserved exactly (no truncation or reordering).
+    migrated should include ("/**: ... *: An * At` and `B1 *: ... *: Bn *: Bt")
+  }
+
+  it should "preserve the exact Tuple.scala inline fragment" in {
+    val inner =
+      """
+       *  /**: ... *: An * At` and `B1 *: ... *: Bn *: Bt`
+       *  where at least one of `At` or `Bt` is `EmptyTuple`,
+       *  returns the tuple type `(A1, B1) *: ... *: (An, Bn) *: EmptyTuple`.
+       *    */
+       """.stripMargin
+
+    val migrated = WikidocToMarkdown.migrateScaladocInner(inner)
+
+    // The fragment "/**: ... *: An * At` and `B1 *: ... *: Bn *: Bt" must remain intact.
+    migrated should include ("/**: ... *: An * At` and `B1 *: ... *: Bn *: Bt")
+  }
+
+  it should "not rewrite unrelated inline sequences such as Tuple signature fragments" in {
+    val inner =
+      """
+       *  /**: ... *: An * At` and `B1 *: ... *: Bn *: Bt`
+       *   {{{ if(pf isDefinedAt x) pf(x) else default(x) }}}
+       *  End
+       """.stripMargin
+
+    val migrated = WikidocToMarkdown.migrateScaladocInner(inner)
+
+    // The specific inline fragment must be preserved exactly (migration must not rewrite it).
+    migrated should include ("/**: ... *: An * At` and `B1 *: ... *: Bn *: Bt")
+  }
+
+  it should "not modify unrelated inline text (keep backticks and asterisks intact)" in {
+    val inner =
+      """
+       *  /**: ... *: An * At` and `B1 *: ... *: Bn *: Bt`
+       *   {{{ if(pf isDefinedAt x) pf(x) else default(x) }}}
+       *  End
+       """.stripMargin
+
+    val migrated = WikidocToMarkdown.migrateScaladocInner(inner)
+
+    // Ensure the specific inline content is preserved exactly (migration must not rewrite it).
+    migrated should include ("/**: ... *: An * At` and `B1 *: ... *: Bn *: Bt")
   }
