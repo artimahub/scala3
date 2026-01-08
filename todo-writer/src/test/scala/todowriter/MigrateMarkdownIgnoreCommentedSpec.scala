@@ -20,7 +20,7 @@ class MigrateMarkdownIgnoreCommentedSpec extends AnyFlatSpec with Matchers:
          |  // def setLengthPolicy(nextLength: Int => Int): Unit = { myLengthPolicy = nextLength }
          |""".stripMargin
 
-    val pattern = Pattern.compile("(?s)/\\*\\*(.*?)\\*/")
+    val pattern = Pattern.compile("(?s)^(?!.*//)/\\*\\*(.*?)\\*/", Pattern.MULTILINE)
     val matcher = pattern.matcher(source)
     val sb = new StringBuffer
     var any = false
@@ -34,6 +34,18 @@ class MigrateMarkdownIgnoreCommentedSpec extends AnyFlatSpec with Matchers:
     matcher.appendTail(sb)
     val migratedSource = if any then sb.toString else source
 
+    val expected =
+      """|  // /** Specifies how the array lengths should vary.
+         |  //  *
+         |  //  *  By default,  `UnrolledBuffer` uses arrays of a fixed size.  A length
+         |  //  *  policy can be given that changes this scheme to, for instance, an
+         |  //  *  exponential growth.
+         |  //  *
+         |  //  *  @param nextLength   computes the length of the next array from the length of the latest one
+         |  //  */
+         |  // def setLengthPolicy(nextLength: Int => Int): Unit = { myLengthPolicy = nextLength }
+         |""".stripMargin
+
     // The commented-out block must remain unchanged.
-    migratedSource shouldBe source
+    migratedSource shouldBe expected
   }

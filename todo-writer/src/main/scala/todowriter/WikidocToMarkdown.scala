@@ -65,7 +65,7 @@ object WikidocToMarkdown:
     )
 
     // Second pass: line-by-line processing
-    val lines = preprocessed.linesIterator.toList
+    val lines = preprocessed.split("\n", -1).toList
     val out = collection.mutable.ListBuffer[String]()
     var inCode = false
 
@@ -185,6 +185,7 @@ val origEndsWithEmpty = origLines.lastOption.exists(_.trim.isEmpty)
         val outLines = collection.mutable.ListBuffer[String]()
         outLines += "" // preserve leading newline when joined
         var prevWasStarOnly = false
+
         for idx <- migLines.indices do
           val line = migLines(idx)
           val nextIsMarker =
@@ -192,17 +193,24 @@ val origEndsWithEmpty = origLines.lastOption.exists(_.trim.isEmpty)
               val n = migLines(idx + 1).trim
               n == "{{{" || n == "}}}" || n == "```"
             else false
-          val prefix = tailPrefixes.lift(idx).getOrElse(" ")
-          // When the scaladoc inner starts with a newline we treat migLines[0] as the
-          // line following that newline; the original corresponding cleaned line is at idx+1.
-          val origWasEmpty = cleanedLines.lift(idx + 1).exists(_.trim.isEmpty)
+          val prefix = tailPrefixes.lift(idx).orElse(origLines.lift(idx).map(_.takeWhile(_.isWhitespace))).getOrElse(" ")
+          // When the scaladoc inner starts with a newline, migLines[idx] corresponds to cleanedLines[idx].
+          // The leading newline is preserved as an empty string at index 0 in both lists.
+          val origWasEmpty = cleanedLines.lift(idx).exists(_.trim.isEmpty)
+          val origHadStar = origLines.lift(idx).exists(_.contains('*'))
           val lineIsBlank = line.trim.isEmpty
+
           if lineIsBlank then
             // Only emit a star-only line if the original corresponding cleaned line was empty
             // and it's not a duplicate or marker-adjacent blank.
-            if origWasEmpty && !nextIsMarker && !prevWasStarOnly && (idx != migLines.length - 1 || origEndsWithEmpty) then
+            // Skip the leading newline (idx=0) when startsWithNewline is true.
+            if origWasEmpty && origHadStar && !nextIsMarker && !prevWasStarOnly && (idx != migLines.length - 1 || origEndsWithEmpty) && !(startsWithNewline && idx == 0) then
               outLines += prefix + "*"
               prevWasStarOnly = true
+            else if idx == migLines.length - 1 && !origHadStar then
+              // Include trailing whitespace (without a '*') at the end
+              outLines += line
+              prevWasStarOnly = false
             else
               () // skip unstable/duplicate blank star line
           else
