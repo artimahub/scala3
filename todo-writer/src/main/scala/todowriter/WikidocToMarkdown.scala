@@ -175,49 +175,38 @@ val origEndsWithEmpty = origLines.lastOption.exists(_.trim.isEmpty)
       // Keep migrated output as-is (do not restore {{{ }}}) so the migration is stable/idempotent.
       val migratedRestored = migratedNorm
 
-      // Re-apply scaladoc '*' markers.
+      // Re-apply scaladoc '*' markers without adding new star-only blank lines.
       val migLines = migratedRestored.split("\n", -1).toList
       val out = new StringBuilder
 
       if startsWithNewline then
-        // Build lines into a buffer and join; this avoids emitting extra blank lines.
+        // Build lines into a buffer and join.
         // Use original per-line prefixes (when available) to preserve indentation before '*'.
         val outLines = collection.mutable.ListBuffer[String]()
         outLines += "" // preserve leading newline when joined
-        var prevWasStarOnly = false
 
         for idx <- migLines.indices do
           val line = migLines(idx)
-          val nextIsMarker =
-            if idx + 1 < migLines.length then
-              val n = migLines(idx + 1).trim
-              n == "{{{" || n == "}}}" || n == "```"
-            else false
           val prefix = tailPrefixes.lift(idx).orElse(origLines.lift(idx).map(_.takeWhile(_.isWhitespace))).getOrElse(" ")
           // When the scaladoc inner starts with a newline, migLines[idx] corresponds to cleanedLines[idx].
           // The leading newline is preserved as an empty string at index 0 in both lists.
-          val origWasEmpty = cleanedLines.lift(idx).exists(_.trim.isEmpty)
           val origHadStar = origLines.lift(idx).exists(_.contains('*'))
+          val origWasEmpty = cleanedLines.lift(idx).exists(_.trim.isEmpty)
           val lineIsBlank = line.trim.isEmpty
 
           if lineIsBlank then
-            // Only emit a star-only line if the original corresponding cleaned line was empty
-            // and it's not a duplicate or marker-adjacent blank.
-            // Skip the leading newline (idx=0) when startsWithNewline is true.
-            if origWasEmpty && origHadStar && !nextIsMarker && !prevWasStarOnly && (idx != migLines.length - 1 || origEndsWithEmpty) && !(startsWithNewline && idx == 0) then
+            // Preserve blank lines that were in the original, but don't add new ones
+            if origWasEmpty && origHadStar then
               outLines += prefix + "*"
-              prevWasStarOnly = true
             else if idx == migLines.length - 1 && !origHadStar then
               // Include trailing whitespace (without a '*') at the end
               outLines += line
-              prevWasStarOnly = false
             else
-              () // skip unstable/duplicate blank star line
+              () // skip this blank line
           else
             // line already may start with whitespace (it is the cleaned content after the '*')
             // Preserve the content after '*' exactly (do not reintroduce trailing-only spaces).
             outLines += prefix + "*" + line
-            prevWasStarOnly = false
         out.append(outLines.mkString("\n"))
       else
         if migLines.nonEmpty then
@@ -232,26 +221,20 @@ val origEndsWithEmpty = origLines.lastOption.exists(_.trim.isEmpty)
         if migLines.length > 1 then
           val tail = migLines.tail
           val outLines = collection.mutable.ListBuffer[String]()
-          var prevWasStarOnly = false
           for idx <- tail.indices do
             val line = tail(idx)
-            val nextIsMarker =
-              if idx + 1 < tail.length then
-                val n = tail(idx + 1).trim
-                n == "{{{" || n == "}}}" || n == "```"
-              else false
             val prefix = tailPrefixes.lift(idx).getOrElse(origFirstLeading)
             val origWasEmpty = cleanedLines.lift(idx + 1).exists(_.trim.isEmpty)
+            val origHadStar = origLines.lift(idx + 1).exists(_.contains('*'))
             val lineIsBlank = line.trim.isEmpty
             if lineIsBlank then
-              // Only emit star-only when the original corresponding cleaned line was empty.
-              if origWasEmpty && !nextIsMarker && !prevWasStarOnly && (idx != tail.length - 1 || origEndsWithEmpty) then
+              // Preserve blank lines that were in the original, but don't add new ones
+              if origWasEmpty && origHadStar then
                 outLines += prefix + "*"
-                prevWasStarOnly = true
-              else ()
+              else
+                () // skip this blank line
             else
               outLines += prefix + "*" + line
-              prevWasStarOnly = false
           out.append("\n").append(outLines.mkString("\n"))
 
       out.toString
