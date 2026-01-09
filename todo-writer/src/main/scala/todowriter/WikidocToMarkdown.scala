@@ -87,6 +87,11 @@ object WikidocToMarkdown:
       else
         // apply inline conversions only outside code fences
         var l = raw
+        // Convert {{{ to ``` when it appears inline (e.g., @example {{{)
+        if l.contains("{{{") then
+          l = l.replace("{{{", "```")
+        if l.contains("}}}") then
+          l = l.replace("}}}", "```")
         // heading conversions (check more specific patterns first)
         l = l match
           case Heading3(indent, text) => s"$indent### $text"
@@ -167,6 +172,16 @@ val origEndsWithEmpty = origLines.lastOption.exists(_.trim.isEmpty)
         if t == "{{{" || t == "}}}" then
           val lead = ln.takeWhile(_.isWhitespace)
           s"$lead```"
+        else if t.endsWith("{{{") then
+          // Handle cases like "@example {{{"
+          val lead = ln.takeWhile(_.isWhitespace)
+          val content = ln.trim.dropRight(3).trim
+          s"$lead$content ```"
+        else if t.endsWith("}}}") then
+          // Handle cases like "}}}"
+          val lead = ln.takeWhile(_.isWhitespace)
+          val content = ln.trim.dropRight(3).trim
+          s"$lead$content ```"
         else ln
       }.mkString("\n")
 

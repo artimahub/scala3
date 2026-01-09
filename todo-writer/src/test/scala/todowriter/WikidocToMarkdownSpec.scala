@@ -19,6 +19,67 @@ class WikidocToMarkdownSpec extends AnyFlatSpec with Matchers:
     out should include("More text.")
   }
 
+  it should "convert triple-brace code blocks within @example tag to fenced code blocks" in {
+    val in = """Returns the bitwise negation of this value.
+              |@example {{{
+              |~5 == -6
+              |// in binary: ~00000101 ==
+              |//             11111010
+              |}}}
+              |""".stripMargin
+    val out = WikidocToMarkdown.migrate(in)
+    // Should convert {{{ to ```
+    out should include("```")
+    out should include("~5 == -6")
+    // Should NOT contain {{{ after migration
+    out should not include "{{{"
+    out should not include "}}}"
+  }
+
+  it should "convert triple-brace code blocks in multiple @example tags to fenced code blocks" in {
+    val in = """Defines a finite set of values specific to the enumeration.
+              |@example {{{
+              |// First example
+              |val x = 1
+              |}}}
+              |@example {{{
+              |// Second example
+              |val y = 2
+              |}}}
+              |""".stripMargin
+    val out = WikidocToMarkdown.migrate(in)
+    // Should convert all {{{ to ```
+    out should include("```")
+    out should include("// First example")
+    out should include("// Second example")
+    // Should NOT contain any {{{ or }}} after migration
+    out should not include "{{{"
+    out should not include "}}}"
+  }
+
+  it should "convert triple-brace code blocks in multiple @example tags using migrateScaladocInner" in {
+    val inner =
+      """
+       *  Defines a finite set of values specific to the enumeration.
+       *  @example {{{
+       *  // First example
+       *  val x = 1
+       *  }}}
+       *  @example {{{
+       *  // Second example
+       *  val y = 2
+       *  }}}
+       *  """.stripMargin
+    val out = WikidocToMarkdown.migrateScaladocInner(inner)
+    // Should convert all {{{ to ```
+    out should include("```")
+    out should include("// First example")
+    out should include("// Second example")
+    // Should NOT contain any {{{ or }}} after migration
+    out should not include "{{{"
+    out should not include "}}}"
+  }
+
   it should "leave simple wikilinks unchanged" in {
     val in = "Refer to [[OtherClass]] for details."
     WikidocToMarkdown.migrate(in) should include("[[OtherClass]]")
