@@ -51,9 +51,9 @@ object Fixer:
             val originalBlockText =
               if block.startIndex >= 0 && block.endIndex <= text.length then text.substring(block.startIndex, block.endIndex)
               else ""
-            // Skip single-line blocks and blocks that contain code fences when not inserting todos.
-            val skipBecauseCodeOrSingle = !originalBlockText.contains('\n') || originalBlockText.contains("{{{") || originalBlockText.contains("```")
-            r.issues.nonEmpty || (!skipBecauseCodeOrSingle && buildFixedBlock(text, block, Nil, Nil, false) != originalBlockText)
+            // Skip single-line blocks when not inserting todos.
+            val isSingleLine = !originalBlockText.contains('\n')
+            r.issues.nonEmpty || (!isSingleLine && buildFixedBlock(text, block, Nil, Nil, false) != originalBlockText)
           }
           .sortBy(_.scaladoc.startIndex)(Ordering[Int].reverse)
     var currentText = text
@@ -78,10 +78,8 @@ object Fixer:
       val isSingleLine = !originalBlockText.contains('\n')
   
       // When insertTodo = false (skip-todo mode), skip single-line scaladocs entirely
-      // since there's nothing to fix without inserting TODO tags. Also avoid touching
-      // blocks that contain code fences (triple-brace or ```), which can have
-      // formatting-sensitive spacing that should not be altered in skip-todo mode.
-      val shouldSkip = !insertTodo && (isSingleLine || block.content.contains("{{{") || block.content.contains("```"))
+      // since there's nothing to fix without inserting TODO tags.
+      val shouldSkip = !insertTodo && isSingleLine
   
       // Compute the formatted block up-front so we can decide whether an alignment-only
       // change would alter the content (and thus should be applied in skip-todo mode).
@@ -257,8 +255,8 @@ object Fixer:
         else rawLine
 
       // Normalized form (drop a single leading space if present) for marker detection
-      val afterStarNorm =
-        if afterStarRaw.startsWith(" ") then afterStarRaw.drop(1) else afterStarRaw
+      val afterStarNorm = afterStarRaw
+        //if afterStarRaw.startsWith(" ") then afterStarRaw.drop(1) else afterStarRaw
 
       // Detect markers using the normalized form. Compute booleans first so we can
       // preserve raw spacing for the marker lines themselves, then update state.
@@ -325,19 +323,20 @@ object Fixer:
           // If this line had a leading '*' it is exposition content; otherwise it may be
           // the initial text that belonged on the opening line.
           if hadStar then
-            if !foundFirstContent then foundFirstContent = true
-            else addPendingBlankLines()
-            // Preserve raw spacing when inside triple-brace, otherwise use normalized
-            if inTripleBrace then expositionContent += afterStarRaw
-            else expositionContent += content
+            if !foundFirstContent then 
+              foundFirstContent = true
+            else 
+              addPendingBlankLines()
+            // Preserve raw spacing when inside triple-brace, otherwise use afterStarRaw to preserve relative indentation
+            expositionContent += afterStarRaw
           else
             if !foundFirstContent then
               initialText = Some(content.trim)
               foundFirstContent = true
-            else
+            else if (content.trim.nonEmpty) then
               // Regular text content - add pending blank lines first
               addPendingBlankLines()
-              expositionContent += content.trim
+              expositionContent += afterStarRaw
 
     flushCurrentTag()
     ParsedScaladoc(initialText, expositionContent.toList, signatureTags.toList, hasBlankBeforeSignature)
@@ -494,20 +493,18 @@ object Fixer:
     else
       buildMultiLineOutput(leadingWs, parsed, signatureTags, hasFollowingDecl, wasSingleLine)
 
-  /** Ensure a line has at least 1 space prefix (which will become 2 spaces after ` * ` in output).
+  /** Ensure at least 2 leading spaces while preserving relative indentation.
    *
-   *  The output format is `$leadingWs * $spacedLine`, which adds 1 space after the asterisk.
-   *  So we need at least 1 leading space in the line to reach the minimum of 2 spaces after *.
-   *
-   *  If the line already has 1+ leading spaces, it's preserved as-is (maintaining relative indentation).
-   *  Otherwise, 1 space is added.
+   *  This function ensures there's at least 2 leading spaces, but preserves
+   *  the number of leading spaces (for relative indentation).
    */
   private def ensureMinimumSpacing(line: String): String =
     if line.isEmpty then line
     else
-      val leadingSpaces = line.takeWhile(_ == ' ').length
-      if leadingSpaces >= 1 then line  // Already has 1+ spaces (will be 2+ after * prefix)
-      else " " + line  // Add 1 space to reach minimum of 2 total
+      val leadingSpaces = line.takeWhile(_.isWhitespace).length
+      //if leadingSpaces == 2 then line
+      if leadingSpaces >= 2 then (" " * leadingSpaces) + line.dropWhile(_.isWhitespace)  // Already has 2+ spaces, preserve as-is
+      else "  " + line.dropWhile(_.isWhitespace)  // Add 2 spaces to ensure minimum
 
   private def buildMultiLineOutput(
       leadingWs: String,
@@ -539,21 +536,10 @@ object Fixer:
         parts += s"$openPrefix/**"
 
     // Exposition content (description lines + exposition tags like @note, @see, @example)
-    var inTriple = false
+    var inTripleBrace = false  // Track if we're inside a triple-brace block
     for line <- parsed.expositionContent do
       if line.isEmpty then
         parts += s"$starPrefix*"
-      else if line.trim == "{{{" then
-        // start of triple-brace block: preserve marker line exactly (keep relative spacing)
-        parts += s"$starPrefix*$line"
-        inTriple = true
-      else if line.trim == "}}}" then
-        // end of triple-brace block: preserve marker line exactly
-        parts += s"$starPrefix*$line"
-        inTriple = false
-      else if inTriple then
-        // Inside triple-brace block: preserve content exactly (no extra space after '*')
-        parts += s"$starPrefix*$line"
       else if line.startsWith("@") then
         // Exposition tag - may be multi-line, strip trailing empty lines
         val tagLines = line.split("\n", -1).reverse.dropWhile(_.isEmpty).reverse
@@ -562,14 +548,23 @@ object Fixer:
             parts += s"$starPrefix*"
           else
             val spacedLine = ensureMinimumSpacing(tagLine)
-            parts += s"$starPrefix* $spacedLine"
+            parts += s"$starPrefix*$spacedLine"
       else
-        val spacedLine = ensureMinimumSpacing(line)
-        parts += s"$starPrefix* $spacedLine"
+        // Check for triple-brace markers
+        val isTripleBraceStart = line.trim.startsWith("{{{") && !inTripleBrace
+        val isTripleBraceEnd = line.trim.startsWith("}}}") && inTripleBrace
+
+        // Update triple-brace state
+        if isTripleBraceStart then inTripleBrace = true
+        else if isTripleBraceEnd then inTripleBrace = false
+
+        // Don't apply ensureMinimumSpacing to lines inside triple-brace blocks
+        val spacedLine = if inTripleBrace then line else ensureMinimumSpacing(line)
+        parts += s"$starPrefix*$spacedLine"
 
     // Blank line before signature section (if there are signature tags)
     if signatureTags.nonEmpty then
-      val lastLineIsBlank = parsed.expositionContent.lastOption.exists(_.isEmpty) ||
+      val lastLineIsBlank = parsed.expositionContent.lastOption.exists(_.trim.isEmpty) ||
         (parsed.expositionContent.isEmpty && parsed.initialText.isEmpty)
       if !lastLineIsBlank then
         parts += s"$starPrefix*"
@@ -580,9 +575,9 @@ object Fixer:
       for (line, idx) <- tagLines.zipWithIndex do
         if line.isEmpty then
           parts += s"$starPrefix*"
-        else
+        else if line.nonEmpty then
           val spacedLine = ensureMinimumSpacing(line)
-          parts += s"$starPrefix* $spacedLine"
+          parts += s"$starPrefix*$spacedLine"
 
     // Closing
     parts += s"$starPrefix*/"
