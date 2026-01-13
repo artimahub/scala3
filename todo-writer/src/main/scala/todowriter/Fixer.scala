@@ -542,7 +542,7 @@ object Fixer:
         parts += s"$starPrefix*"
       else if line.startsWith("@") then
         // Exposition tag - may be multi-line, strip trailing empty lines
-        val tagLines = line.split("\n", -1).reverse.dropWhile(_.isEmpty).reverse
+        val tagLines = line.split("\n", -1).reverse.dropWhile(_.trim.isEmpty).reverse
         for tagLine <- tagLines do
           if tagLine.isEmpty then
             parts += s"$starPrefix*"
@@ -551,8 +551,8 @@ object Fixer:
             parts += s"$starPrefix*$spacedLine"
       else
         // Check for triple-brace markers
-        val isTripleBraceStart = line.trim.startsWith("{{{") && !inTripleBrace
-        val isTripleBraceEnd = line.trim.startsWith("}}}") && inTripleBrace
+        val isTripleBraceStart = line.trim.startsWith("{{{") || line.trim.startsWith("```") && !inTripleBrace
+        val isTripleBraceEnd = line.trim.startsWith("}}}") || line.trim.startsWith("```") && inTripleBrace
 
         // Update triple-brace state
         if isTripleBraceStart then inTripleBrace = true
