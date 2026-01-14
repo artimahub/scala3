@@ -404,7 +404,7 @@ class FixerSpec extends AnyFlatSpec with Matchers:
     val expected = """/** Method with code example.
                  | *
                  | *  {{{
-                 | *@param x the value inside triple braces
+                 | *  @param x the value inside triple braces
                  | *  }}}
                  | *
                  | *  @param y TODO FILL IN
@@ -794,4 +794,30 @@ class FixerSpec extends AnyFlatSpec with Matchers:
         |  implicit def toFactory[A : ClassTag](dummy: Array.type): Factory[A, Array[A]] = new ArrayFactory(dummy)""".stripMargin
 
     newText should be(expected)
+  }
+
+  // Test for the alignment issue with {{{...}}} code blocks
+  // User requirement: lines inside {{{...}}} that ARE prefixed with * should be aligned
+  it should "align lines prefixed with * inside {{{...}}} blocks" in {
+    val text = """/** Returns the bitwise negation of this value.
+                 | *
+                 | * @example {{{
+                 | * ~5 == -6
+                 | * // in binary: ~00000101 ==
+                 | * //             11111010
+                 | * }}}
+                 | */""".stripMargin
+    val block = ScaladocBlock.findAll(text).head
+    val result = Fixer.buildFixedBlock(text, block, Nil, Nil, false)
+
+    // Lines inside {{{...}}} that are prefixed with * should be aligned
+    // They should have the standard " *  " prefix (2 spaces after *)
+    val lines = result.split("\n")
+    val codeBlockLines = lines.filter(l => l.contains("~5 == -6") || l.contains("// in binary"))
+
+    // Each line should have two spaces after the * (standard alignment)
+    codeBlockLines.foreach { line =>
+      assert(line.startsWith(" *  ~5 == -6") || line.startsWith(" *  // in binary"),
+             s"Line '$line' should start with ' *  ~5 == -6' or ' *  // in binary'")
+    }
   }
