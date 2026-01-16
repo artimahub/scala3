@@ -149,23 +149,23 @@ object WikidocToMarkdown:
       val startsWithNewline = inner.startsWith("\n")
       val origLines = inner.split("\n", -1).toList
 
-val cleanedLines = origLines.map { line =>
-  // Only strip a leading '*' when the first non-whitespace character is '*'.
-  // This avoids removing content from lines like "/** ..." where '*' appears as part of the comment start.
-  if line.trim.startsWith("*") then
-    val starIdx = line.indexOf('*')
-    line.substring(starIdx + 1)
-  else
-    line
-}
+      val cleanedLines = origLines.map { line =>
+        // Only strip a leading '*' when the first non-whitespace character is '*'.
+        // This avoids removing content from lines like "/** ..." where '*' appears as part of the comment start.
+        if line.trim.startsWith("*") then
+          val starIdx = line.indexOf('*')
+          line.substring(starIdx + 1)
+        else
+          line
+      }
 
-// prefixes (leading whitespace) for original tail/star lines (used to reinsert exact indentation)
-val tailPrefixes: List[String] = origLines.drop(1).map(_.takeWhile(_.isWhitespace))
-val origFirstLeading = origLines.headOption.map(_.takeWhile(_.isWhitespace)).getOrElse("")
-val cleaned = cleanedLines.mkString("\n")
-val origEndsWithEmpty = origLines.lastOption.exists(_.trim.isEmpty)
+      // prefixes (leading whitespace) for original tail/star lines (used to reinsert exact indentation)
+      val tailPrefixes: List[String] = origLines.drop(1).map(_.takeWhile(_.isWhitespace))
+      val origFirstLeading = origLines.headOption.map(_.takeWhile(_.isWhitespace)).getOrElse("")
+      val cleaned = cleanedLines.mkString("\n")
+      val origEndsWithEmpty = origLines.lastOption.exists(_.trim.isEmpty)
 
-// Normalize triple-brace markers to fenced backticks for migrate(), preserving leading whitespace.
+      // Normalize triple-brace markers to fenced backticks for migrate(), preserving leading whitespace.
       val cleanedArr = cleaned.split("\n", -1).toArray
       val normalizedForMigrate = cleanedArr.map { ln =>
         val t = ln.trim
