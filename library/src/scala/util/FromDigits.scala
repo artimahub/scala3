@@ -14,9 +14,9 @@ trait FromDigits[T] {
    *  - sign `+` or `-`
    *  - sequence of digits between 0 and 9
    *
-   * @throws FromDigits.MalformedNumber if digit string is not legal for the given type
-   * @throws FromDigits.NumberTooLarge  if value of result does not fit into `T`'s range
-   * @throws FromDigits.NumberTooSmall  in case of numeric underflow (e.g. a non-zero
+   *  @throws FromDigits.MalformedNumber if digit string is not legal for the given type
+   *  @throws FromDigits.NumberTooLarge  if value of result does not fit into `T`'s range
+   *  @throws FromDigits.NumberTooSmall  in case of numeric underflow (e.g. a non-zero
    *                         floating point literal that produces a zero value)
    */
   def fromDigits(digits: String): T
@@ -99,6 +99,7 @@ object FromDigits {
   }
 
   /** Converts digit string to Int number.
+   *
    *  @param digits            The string to convert
    *  @param radix             The radix
    *  @throws NumberTooLarge   if number does not fit within Int range
@@ -110,6 +111,7 @@ object FromDigits {
     integerFromDigits(digits, radix, Int.MaxValue).toInt
 
   /** Converts digit string to Long number.
+   *
    *  @param digits            The string to convert
    *  @param radix             The radix
    *  @throws NumberTooLarge   if the resulting number does not fit within Long range
@@ -123,6 +125,7 @@ object FromDigits {
   @sharable private val zeroFloat = raw"-?[0.]+(?:[eE][+-]?[0-9]+)?[fFdD]?".r
 
   /** Converts digit string to Float number.
+   *
    *  @param digits            The string to convert
    *  @throws NumberTooLarge   if the resulting number is infinite
    *  @throws NumberTooSmall   if the resulting number is 0.0f, yet the digits
@@ -141,6 +144,7 @@ object FromDigits {
   }
 
   /** Converts digit string to Double number.
+   *
    *  @param digits            The string to convert
    *  @throws NumberTooLarge   if the resulting number is infinite
    *  @throws NumberTooSmall   if the resulting number is 0.0d, yet the digits

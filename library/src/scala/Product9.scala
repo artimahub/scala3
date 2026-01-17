@@ -25,6 +25,7 @@ object Product9 {
  */
 trait Product9[+T1, +T2, +T3, +T4, +T5, +T6, +T7, +T8, +T9] extends Any with Product {
   /** The arity of this product.
+   *
    *  @return 9
    */
   override def productArity: Int = 9
@@ -53,38 +54,47 @@ trait Product9[+T1, +T2, +T3, +T4, +T5, +T6, +T7, +T8, +T9] extends Any with Pro
  }
 
   /** A projection of element 1 of this Product.
+   *
    *  @return   A projection of element 1.
    */
   def _1: T1
   /** A projection of element 2 of this Product.
+   *
    *  @return   A projection of element 2.
    */
   def _2: T2
   /** A projection of element 3 of this Product.
+   *
    *  @return   A projection of element 3.
    */
   def _3: T3
   /** A projection of element 4 of this Product.
+   *
    *  @return   A projection of element 4.
    */
   def _4: T4
   /** A projection of element 5 of this Product.
+   *
    *  @return   A projection of element 5.
    */
   def _5: T5
   /** A projection of element 6 of this Product.
+   *
    *  @return   A projection of element 6.
    */
   def _6: T6
   /** A projection of element 7 of this Product.
+   *
    *  @return   A projection of element 7.
    */
   def _7: T7
   /** A projection of element 8 of this Product.
+   *
    *  @return   A projection of element 8.
    */
   def _8: T8
   /** A projection of element 9 of this Product.
+   *
    *  @return   A projection of element 9.
    */
   def _9: T9

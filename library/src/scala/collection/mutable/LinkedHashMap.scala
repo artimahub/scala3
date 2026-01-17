@@ -26,7 +26,6 @@ import scala.util.hashing.MurmurHash3
  *
  *  @tparam K    the type of the keys contained in this hash map.
  *  @tparam V    the type of the values assigned to keys in this hash map.
- *
  *  @define Coll `LinkedHashMap`
  *  @define coll linked hash map
  *  @define mayNotTerminateInf
@@ -158,9 +157,9 @@ class LinkedHashMap[K, V]
 
   /** Removes a key from this map if it exists
    *
-   * @param elem the element to remove
-   * @param hash the **improved** hashcode of `element` (see computeHash)
-   * @return the node that contained element if it was present, otherwise null
+   *  @param elem the element to remove
+   *  @param hash the **improved** hashcode of `element` (see computeHash)
+   *  @return the node that contained element if it was present, otherwise null
    */
   private def removeEntry0(elem: K, hash: Int): Entry | Null = {
     val idx = index(hash)
@@ -496,7 +495,7 @@ object LinkedHashMap extends MapFactory[LinkedHashMap] {
   def newBuilder[K, V]: GrowableBuilder[(K, V), LinkedHashMap[K, V]] = new GrowableBuilder(empty[K, V])
 
   /** Class for the linked hash map entry, used internally.
-    */
+   */
   private[mutable] final class LinkedEntry[K, V](val key: K, val hash: Int, var value: V) {
     var earlier: LinkedEntry[K, V] | Null = null
     var later: LinkedEntry[K, V] | Null = null

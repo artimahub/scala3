@@ -70,9 +70,9 @@ object BigInt {
 
   /** Translates the sign-magnitude representation of a BigInt into a BigInt.
    *
-   * @param  signum    signum of the number (-1 for negative, 0 for zero, 1
+   *  @param  signum    signum of the number (-1 for negative, 0 for zero, 1
    *                   for positive).
-   * @param  magnitude big-endian binary representation of the magnitude of
+   *  @param  magnitude big-endian binary representation of the magnitude of
    *                   the number.
    */
   def apply(signum: Int, magnitude: Array[Byte]): BigInt =
@@ -139,7 +139,7 @@ object BigInt {
   //   *
   //   * Licensed under the Apache License, Version 2.0 (the "License")
   /**
-   * Returns the greatest common divisor of a and b. Returns 0 if a == 0 && b == 0.
+   *  Returns the greatest common divisor of a and b. Returns 0 if a == 0 && b == 0.
    */
   private def longGcd(a: Long, b: Long): Long = {
     // both a and b must be >= 0
@@ -181,7 +181,7 @@ object BigInt {
 
 /** A type with efficient encoding of arbitrary integers.
  *
- * It wraps `java.math.BigInteger`, with optimization for small values that can be encoded in a `Long`.
+ *  It wraps `java.math.BigInteger`, with optimization for small values that can be encoded in a `Long`.
  */
 final class BigInt private (
   @annotation.stableNull private var _bigInteger: BigInteger | Null,
@@ -218,7 +218,8 @@ final class BigInt private (
   )
 
   /** Returns whether the integer is encoded in the Long. Returns true for all values fitting in a Long except
-   *  Long.MinValue. */
+   *  Long.MinValue. 
+   */
   private def longEncoding: Boolean = _long != Long.MinValue
 
   def bigInteger: BigInteger = {
@@ -252,7 +253,7 @@ final class BigInt private (
            def isValidLong: Boolean = longEncoding || _bigInteger == BigInt.longMinValueBigInteger // rhs of || tests == Long.MinValue
 
   /** Returns `true` iff this can be represented exactly by [[scala.Float]]; otherwise returns `false`.
-    */
+   */
   def isValidFloat: Boolean = {
     val bitLen = bitLength
     (bitLen <= 24 ||
@@ -265,7 +266,7 @@ final class BigInt private (
     ) && !bitLengthOverflow
   }
   /** Returns `true` iff this can be represented exactly by [[scala.Double]]; otherwise returns `false`.
-    */
+   */
   def isValidDouble: Boolean = {
     val bitLen = bitLength
     (bitLen <= 53 ||
@@ -278,9 +279,9 @@ final class BigInt private (
     ) && !bitLengthOverflow
   }
   /** Some implementations of java.math.BigInteger allow huge values with bit length greater than Int.MaxValue.
-   * The BigInteger.bitLength method returns truncated bit length in this case.
-   * This method tests if result of bitLength is valid.
-   * This method will become unnecessary if BigInt constructors reject huge BigIntegers.
+   *  The BigInteger.bitLength method returns truncated bit length in this case.
+   *  This method tests if result of bitLength is valid.
+   *  This method will become unnecessary if BigInt constructors reject huge BigIntegers.
    */
   private def bitLengthOverflow = {
     val shifted = bigInteger.shiftRight(Int.MaxValue)
@@ -443,6 +444,7 @@ final class BigInt private (
 
   /** Returns a BigInt whose value is (this mod that).
    *  This method differs from `%` in that it always returns a non-negative BigInt.
+   *
    *  @param that A positive number
    */
   def mod(that: BigInt): BigInt =
@@ -528,7 +530,7 @@ final class BigInt private (
     if (longEncoding && n <= 62 && n >= 0) BigInt(_long ^ (1L << n)) else BigInt(this.bigInteger.flipBit(n))
 
   /** Returns the index of the rightmost (lowest-order) one bit in this BigInt
-   * (the number of zero bits to the right of the rightmost one bit).
+   *  (the number of zero bits to the right of the rightmost one bit).
    */
   def lowestSetBit: Int =
     if (longEncoding) {
@@ -555,6 +557,7 @@ final class BigInt private (
     } else this.bigInteger.bitCount()
 
   /** Returns true if this BigInt is probably prime, false if it's definitely composite.
+   *
    *  @param certainty  a measure of the uncertainty that the caller is willing to tolerate:
    *                    if the call returns true the probability that this BigInt is prime
    *                    exceeds (1 - 1/2 ^ certainty).

@@ -29,12 +29,14 @@ trait Prop[+T] {
   /** If the key exists in the properties map, converts the value
    *  to type `T` using valueFn.  As yet no validation is performed:
    *  it will throw an exception on a failed conversion.
+   *
    *  @return   the converted value, or `zero` if not in the map
    */
   def value: T
 
   /** True if the key exists in the properties map.  Note that this
    *  is not sufficient for a Boolean property to be considered true.
+   *
    *  @return   whether the map contains the key
    */
   def isSet: Boolean
@@ -52,6 +54,7 @@ trait Prop[+T] {
 
   /** Gets the current string value if any.  Will not return null: use
    *  `isSet` to test for existence.
+   *
    *  @return   the current string value if any, else the empty string
    */
   def get: String

@@ -38,26 +38,26 @@ import scala.util.matching.Regex
  *  enumeration from multiple threads (in a non-synchronized fashion) after
  *  construction, the behavior of the enumeration is undefined.
  *
- * @example {{{
- * // Define a new enumeration with a type alias and work with the full set of enumerated values
- * object WeekDay extends Enumeration {
+ *  @example ```
+ *  // Define a new enumeration with a type alias and work with the full set of enumerated values
+ *  object WeekDay extends Enumeration {
  *   type WeekDay = Value
  *   val Mon, Tue, Wed, Thu, Fri, Sat, Sun = Value
- * }
- * import WeekDay._
+ *  }
+ *  import WeekDay._
  *
- * def isWorkingDay(d: WeekDay) = ! (d == Sat || d == Sun)
+ *  def isWorkingDay(d: WeekDay) = ! (d == Sat || d == Sun)
  *
- * WeekDay.values filter isWorkingDay foreach println
- * // output:
- * // Mon
- * // Tue
- * // Wed
- * // Thu
- * // Fri
- * }}}
+ *  WeekDay.values filter isWorkingDay foreach println
+ *  // output:
+ *  // Mon
+ *  // Tue
+ *  // Wed
+ *  // Thu
+ *  // Fri
+ * ```
  *
- * @example {{{
+ * @example ```
  * // Example of adding attributes to an enumeration by extending the Enumeration.Val class
  * object Planet extends Enumeration {
  *   protected case class PlanetVal(mass: Double, radius: Double) extends super.Val {
@@ -81,7 +81,7 @@ import scala.util.matching.Regex
  * println(Planet.values.filter(_.radius > 7.0e6))
  * // output:
  * // Planet.ValueSet(Jupiter, Saturn, Uranus, Neptune)
- * }}}
+ *  ```
  *
  *  @param initial The initial value from which to count the integers that
  *                 identifies values at run-time.
@@ -107,7 +107,8 @@ abstract class Enumeration (initial: Int) extends Serializable {
       .last
 
   /** The mapping from the integer used to identify values to the actual
-    * values. */
+   *  values. 
+   */
   private val vmap: mutable.Map[Int, Value] = new mutable.HashMap
 
   /** The cache listing all values of this enumeration. */
@@ -115,7 +116,8 @@ abstract class Enumeration (initial: Int) extends Serializable {
   @transient @volatile private var vsetDefined = false
 
   /** The mapping from the integer used to identify values to their
-    * names. */
+   *  names. 
+   */
   private val nmap: mutable.Map[Int, String] = new mutable.HashMap
 
   /** The values of this enumeration as a set.
@@ -138,15 +140,18 @@ abstract class Enumeration (initial: Int) extends Serializable {
     if (nextName != null && nextName.hasNext) nextName.next() else null
 
   /** The highest integer amongst those used to identify values in this
-    * enumeration. */
+   *  enumeration. 
+   */
   private var topId = initial
 
   /** The lowest integer amongst those used to identify values in this
-    * enumeration, but no higher than 0. */
+   *  enumeration, but no higher than 0. 
+   */
   private var bottomId = if(initial < 0) initial else 0
 
   /** The one higher than the highest integer amongst those used to identify
-    *  values in this enumeration. */
+   *  values in this enumeration. 
+   */
   final def maxId = topId
 
   /** The value of this enumeration with given id `x`.
@@ -156,9 +161,9 @@ abstract class Enumeration (initial: Int) extends Serializable {
   /** Returns a `Value` from this `Enumeration` whose name matches
    *  the argument `s`.  The names are determined automatically via reflection.
    *
-   * @param  s an `Enumeration` name
-   * @return   the `Value` of this `Enumeration` if its name matches `s`
-   * @throws   NoSuchElementException if no `Value` with a matching
+   *  @param  s an `Enumeration` name
+   *  @return   the `Value` of this `Enumeration` if its name matches `s`
+   *  @throws   NoSuchElementException if no `Value` with a matching
    *           name is in this `Enumeration`
    */
   final def withName(s: String): Value = values.byName.getOrElse(s,
@@ -186,10 +191,10 @@ abstract class Enumeration (initial: Int) extends Serializable {
   /** Creates a fresh value, part of this enumeration, called `name`
    *  and identified by the integer `i`.
    *
-   * @param i    An integer that identifies this value at run-time. It must be
+   *  @param i    An integer that identifies this value at run-time. It must be
    *             unique amongst all values of the enumeration.
-   * @param name A human-readable name for that value.
-   * @return     Fresh value with the provided identifier `i` and name `name`.
+   *  @param name A human-readable name for that value.
+   *  @return     Fresh value with the provided identifier `i` and name `name`.
    */
   protected final def Value(i: Int, name: String | Null): Value = new Val(i, name)
 
@@ -310,7 +315,8 @@ abstract class Enumeration (initial: Int) extends Serializable {
     override def iteratorFrom(start: Value): Iterator[Value] = nnIds iteratorFrom start.id  map (id => thisenum.apply(bottomId + id))
     override def className: String = s"$thisenum.ValueSet"
     /** Creates a bit mask for the zero-adjusted ids in this set as a
-     *  new array of longs */
+     *  new array of longs 
+     */
     def toBitMask: Array[Long] = nnIds.toBitMask
 
     override protected def fromSpecific(coll: IterableOnce[Value]): ValueSet = ValueSet.fromSpecific(coll)
@@ -341,7 +347,8 @@ abstract class Enumeration (initial: Int) extends Serializable {
     /** The empty value set. */
     val empty: ValueSet = new ValueSet(immutable.BitSet.empty)
     /** A value set containing all the values for the zero-adjusted ids
-     *  corresponding to the bits in an array */
+     *  corresponding to the bits in an array 
+     */
     def fromBitMask(elems: Array[Long]): ValueSet = new ValueSet(immutable.BitSet.fromBitMask(elems))
     /** A builder object for value sets. */
     def newBuilder: mutable.Builder[Value, ValueSet] = new mutable.Builder[Value, ValueSet] {

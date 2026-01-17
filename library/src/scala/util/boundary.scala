@@ -16,8 +16,8 @@ import scala.annotation.implicitNotFound
  *    - Better performance: breaks to enclosing scopes in the same method can
  *      be rewritten to jumps.
  *
- * Example usage:
- * 
+ *  Example usage:
+ *
  * ```scala
  * import scala.util.boundary, boundary.break
  *
@@ -26,7 +26,7 @@ import scala.annotation.implicitNotFound
  *     for (x, i) <- xs.zipWithIndex do
  *       if x == elem then break(i)
  *     -1
- * ```
+ *  ```
  */
 object boundary:
 

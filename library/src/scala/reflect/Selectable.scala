@@ -31,6 +31,7 @@ trait Selectable extends scala.Selectable:
 
   // The Scala.js codegen relies on this method being final for correctness
   /** Selects method and applies to arguments.
+   *
    *  @param name       The name of the selected method
    *  @param paramTypes The class tags of the selected method's formal parameter types
    *  @param args       The arguments to pass to the selected method

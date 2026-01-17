@@ -654,42 +654,42 @@ extends ScalaNumber with ScalaNumericConversions with Serializable with Ordered[
   def doubleValue = this.bigDecimal.doubleValue
 
   /** Converts this `BigDecimal` to a [[scala.Byte]], checking for lost information.
-    * If this `BigDecimal` has a nonzero fractional part, or is out of the possible
-    * range for a [[scala.Byte]] result, then a `java.lang.ArithmeticException` is
-    * thrown.
-    */
+   *  If this `BigDecimal` has a nonzero fractional part, or is out of the possible
+   *  range for a [[scala.Byte]] result, then a `java.lang.ArithmeticException` is
+   *  thrown.
+   */
   def toByteExact = bigDecimal.byteValueExact
 
   /** Converts this `BigDecimal` to a [[scala.Short]], checking for lost information.
-    * If this `BigDecimal` has a nonzero fractional part, or is out of the possible
-    * range for a [[scala.Short]] result, then a `java.lang.ArithmeticException` is
-    * thrown.
-    */
+   *  If this `BigDecimal` has a nonzero fractional part, or is out of the possible
+   *  range for a [[scala.Short]] result, then a `java.lang.ArithmeticException` is
+   *  thrown.
+   */
   def toShortExact = bigDecimal.shortValueExact
 
   /** Converts this `BigDecimal` to a [[scala.Int]], checking for lost information.
-    * If this `BigDecimal` has a nonzero fractional part, or is out of the possible
-    * range for an [[scala.Int]] result, then a `java.lang.ArithmeticException` is
-    * thrown.
-    */
+   *  If this `BigDecimal` has a nonzero fractional part, or is out of the possible
+   *  range for an [[scala.Int]] result, then a `java.lang.ArithmeticException` is
+   *  thrown.
+   */
   def toIntExact = bigDecimal.intValueExact
 
   /** Converts this `BigDecimal` to a [[scala.Long]], checking for lost information.
-    * If this `BigDecimal` has a nonzero fractional part, or is out of the possible
-    * range for a [[scala.Long]] result, then a `java.lang.ArithmeticException` is
-    * thrown.
-    */
+   *  If this `BigDecimal` has a nonzero fractional part, or is out of the possible
+   *  range for a [[scala.Long]] result, then a `java.lang.ArithmeticException` is
+   *  thrown.
+   */
   def toLongExact = bigDecimal.longValueExact
 
   /** Creates a partially constructed NumericRange[BigDecimal] in range
    *  `[start;end)`, where start is the target BigDecimal.  The step
    *  must be supplied via the "by" method of the returned object in order
    *  to receive the fully constructed range.  For example:
-   * {{{
+   * ```
    * val partial = BigDecimal(1.0) to 2.0       // not usable yet
    * val range = partial by 0.01                // now a NumericRange
    * val range2 = BigDecimal(0) to 1.0 by 0.01  // all at once of course is fine too
-   * }}}
+   *  ```
    *
    *  @param end    the end value of the range (exclusive)
    *  @return       the partially constructed NumericRange

@@ -49,9 +49,9 @@ package object sys {
   def runtime: Runtime = Runtime.getRuntime
 
   /** A bidirectional, mutable Map representing the current system Properties.
+   *  @see      [[scala.sys.SystemProperties]]
    *
    *  @return   a SystemProperties.
-   *  @see      [[scala.sys.SystemProperties]]
    */
   def props: SystemProperties = new SystemProperties
 
@@ -77,10 +77,10 @@ package object sys {
    *  It can also be unregistered by calling ShutdownHookThread#remove().
    *
    *  Note that shutdown hooks are NOT guaranteed to be run.
+   *  @see      [[scala.sys.ShutdownHookThread]]
    *
    *  @param    body  the body of code to run at shutdown
    *  @return   the   Thread which will run the shutdown hook.
-   *  @see      [[scala.sys.ShutdownHookThread]]
    */
   def addShutdownHook(body: => Unit): ShutdownHookThread = ShutdownHookThread(body)
 

@@ -24,7 +24,6 @@ import scala.util.hashing.MurmurHash3
  *  The iterator and all traversal methods of this class visit elements in the order they were inserted.
  *
  *  @tparam A     the type of the elements contained in this set.
- *
  *  @define Coll `LinkedHashSet`
  *  @define coll linked hash set
  *  @define mayNotTerminateInf
