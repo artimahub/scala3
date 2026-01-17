@@ -3713,10 +3713,13 @@ class Typer(@constructorOnly nestingLevel: Int = 0) extends Namer
 
  /** Checks if `tree` is a named tuple with one element that could be
   *  interpreted as an assignment, such as `(x = 1)`. If so, issues a warning.
+  *  However, only checks the Tuple case if we're not within a type,
+  *  not only because that's not useful, but because it can lead to cyclic references while checking,
+  *  e.g., `val foo: (f: String) = ... ; val f = foo.f`
   */
   def checkDeprecatedAssignmentSyntax(tree: untpd.Tuple | untpd.Parens)(using Context): Unit =
     val assignmentArgs = tree match {
-      case untpd.Tuple(List(NamedArg(name, value))) =>
+      case untpd.Tuple(List(NamedArg(name, value))) if !ctx.mode.is(Mode.Type) =>
         val tmpCtx = ctx.fresh.setNewTyperState()
         typedAssign(untpd.Assign(untpd.Ident(name), value), WildcardType)(using tmpCtx)
         Option.unless(tmpCtx.reporter.hasErrors)(name -> value)
@@ -5052,7 +5055,12 @@ class Typer(@constructorOnly nestingLevel: Int = 0) extends Namer
           if qual.symbol.isAllOf(SyntheticMethod | Exported) then
             qual.symbol.owner.info.memberBasedOnFlags(qual.symbol.name.toTypeName, required = Exported)
           else NoDenotation
-        if exported.exists then exported.symbol.typeRef
+        if exported.exists then
+          qual.tpe match
+          case tp: NamedType =>
+            exported.symbol.typeRef.asSeenFrom(tp.prefix, exported.symbol.owner)
+          case _ =>
+            exported.symbol.typeRef
         else ctorResultType.underlyingClassRef(refinementOK = Feature.enabled(modularity))
       typed(
         untpd.Select(
