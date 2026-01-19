@@ -180,11 +180,27 @@ trait MemberLookup {
         val sel = MemberLookup.Selector.fromString(q)
         val res = sel.kind match {
           case MemberLookup.SelectorKind.NoForce =>
-            val lookedUp = localLookup(sel, owner).toSeq
+            // Extract just the method name from the signature (removing type params and param list)
+            val methodName = extractMethodName(sel.ident)
+            val nameSel = MemberLookup.Selector(methodName, sel.kind)
+            val lookedUp = localLookup(nameSel, owner).toSeq
             // note: those flag lookups are necessary b/c for objects we return their classes
-            lookedUp.find(s => s.isType && !s.flags.is(Flags.Module)).orElse(
-              lookedUp.find(s => s.isTerm || s.flags.is(Flags.Module))
-            )
+            val typeMatch = lookedUp.find(s => s.isType && !s.flags.is(Flags.Module))
+            if typeMatch.isDefined then typeMatch
+            else {
+              val termMatches =
+              lookedUp.filter(s => s.isTerm || s.flags.is(Flags.Module))
+              if termMatches.size <= 1 then termMatches.headOption
+              else {
+                // No owner context, try to match based on signature in query
+                val paramName = extractParamTypeFromSignature(sel.ident)
+                paramName.flatMap { pn =>
+                  termMatches.find { sym =>
+                    matchesParameterType(sym, pn)
+                  }
+                }.orElse(termMatches.headOption)
+              }
+            }
           case _ =>
             localLookup(sel, owner).nextOption
         }
@@ -219,6 +235,77 @@ trait MemberLookup {
           .orElse(tp.flatMap(downwardLookup(qs, _)))
           .orElse(tm.flatMap(downwardLookup(qs, _)))
         }
+    }
+  }
+
+  /** Extract the parameter type from a method signature.
+   *  For example, from "asJava[A](b:scala.collection.mutable.Buffer[A])*" extracts "Buffer".
+   *  This is used to match against method overloads.
+   */
+  private def extractParamTypeFromSignature(signature: String): Option[String] = {
+    // Normalize the signature by removing backslashes (they're used in scaladoc to escape dots)
+    val normalizedSignature = signature.replace("\\.", ".")
+    // Look for common collection types in the signature
+    val collectionTypes = List("Buffer", "Map", "Set", "Seq", "Iterator", "Iterable", "List", "Dictionary", "ConcurrentMap", "Properties")
+    collectionTypes.find { typeName =>
+      // Look for patterns like "mutable.Buffer", "collection.Map", etc.
+      normalizedSignature.contains(s".${typeName}") || normalizedSignature.contains(s"${typeName}[")
+    }
+  }
+
+  /** Extract just the method name from a signature, removing type parameters and parameter lists.
+   *  For example, from "asJava[A](b:scala.collection.mutable.Buffer[A])*" extracts "asJava".
+   */
+  private def extractMethodName(signature: String): String = {
+    // Find the first occurrence of [ or (, and return everything before it
+    val bracketIndex = signature.indexOf('[')
+    val parenIndex = signature.indexOf('(')
+    if bracketIndex == -1 && parenIndex == -1 then signature
+    else {
+      val firstSpecial = if bracketIndex == -1 then parenIndex else if parenIndex == -1 then bracketIndex else math.min(bracketIndex, parenIndex)
+      signature.substring(0, firstSpecial)
+    }
+  }
+
+  /** Check if a method's parameter types match the expected type name.
+   *  This looks at the actual parameter types from the method's type signature.
+   */
+  private def matchesParameterType(using Quotes)(sym: reflect.Symbol, typeName: String): Boolean = {
+    import reflect._
+
+    // Try to match using paramSigs first
+    val paramSigMatch = sym.signature.paramSigs.exists {
+      case s: String =>
+        // Check if the paramSig contains the type name
+        s.contains(typeName)
+      case _ => false
+    }
+    if paramSigMatch then return true
+
+    // Try to get parameter types from the method's type signature
+    try {
+      sym.info match {
+        case MethodType(_, paramTypes, _) =>
+          paramTypes.exists { paramType =>
+            val paramTypeStr = paramType.show
+            // Check if the parameter type contains the type name
+            // Also check for simple type name match (e.g., "Buffer" matches "scala.collection.mutable.Buffer")
+            paramTypeStr.contains(typeName) || paramTypeStr.endsWith(s".$typeName") || paramTypeStr.endsWith(s"[$typeName")
+          }
+        case PolyType(_, _, resType) =>
+          // Handle polymorphic methods by looking at the result type
+          resType match {
+            case MethodType(_, paramTypes, _) =>
+              paramTypes.exists { paramType =>
+                val paramTypeStr = paramType.show
+                paramTypeStr.contains(typeName) || paramTypeStr.endsWith(s".$typeName") || paramTypeStr.endsWith(s"[$typeName")
+              }
+            case _ => false
+          }
+        case _ => false
+      }
+    } catch {
+      case _: Exception => false
     }
   }
 }

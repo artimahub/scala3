@@ -48,6 +48,29 @@ class QueryParserTests {
     testSuccess("#foo\\(ignoredOverloadDefinition*", StrictMemberId("foo(ignoredOverloadDefinition*"))
     testSuccess("#bar\\[ignoredOverloadDefinition*", StrictMemberId("bar[ignoredOverloadDefinition*"))
 
+    // Test overloaded method signature parsing
+    testSuccess("processBuffer[A](b:scala.collection.mutable.Buffer[A])*", Id("processBuffer[A](b:scala.collection.mutable.Buffer[A])*"))
+    testSuccess("processMap[K,V](m:scala.collection.mutable.Map[K,V])*", Id("processMap[K,V](m:scala.collection.mutable.Map[K,V])*"))
+    testSuccess("processSet[A](s:scala.collection.mutable.Set[A])*", Id("processSet[A](s:scala.collection.mutable.Set[A])*"))
+    testSuccess("processSeq[A](s:scala.collection.mutable.Seq[A])*", Id("processSeq[A](s:scala.collection.mutable.Seq[A])*"))
+    testSuccess("processIterator[A](it:scala.collection.Iterator[A])*", Id("processIterator[A](it:scala.collection.Iterator[A])*"))
+    testSuccess("processIterable[A](it:scala.collection.mutable.Iterable[A])*", Id("processIterable[A](it:scala.collection.mutable.Iterable[A])*"))
+    testSuccess("processList[A](l:scala.collection.immutable.List[A])*", Id("processList[A](l:scala.collection.immutable.List[A])*"))
+    testSuccess("processProperties(p:java.util.Properties)*", Id("processProperties(p:java.util.Properties)*"))
+
+    // Test qualified identifiers with overloaded method signatures
+    testSuccess("tests.overloadedMethods.OverloadedMethods.processBuffer[A](b:scala.collection.mutable.Buffer[A])*",
+      l2q("tests".dot, "overloadedMethods".dot, "OverloadedMethods".dot)("processBuffer[A](b:scala.collection.mutable.Buffer[A])*"))
+    testSuccess("tests.overloadedMethods.OverloadedMethods.processMap[K,V](m:scala.collection.mutable.Map[K,V])*",
+      l2q("tests".dot, "overloadedMethods".dot, "OverloadedMethods".dot)("processMap[K,V](m:scala.collection.mutable.Map[K,V])*"))
+    testSuccess("tests.overloadedMethods.OverloadedMethods.processSet[A](s:scala.collection.mutable.Set[A])*",
+      l2q("tests".dot, "overloadedMethods".dot, "OverloadedMethods".dot)("processSet[A](s:scala.collection.mutable.Set[A])*"))
+
+    // Test method with multiple parameter types in signature
+    testSuccess("transform[K,V](m:scala.collection.mutable.Map[K,V])*", Id("transform[K,V](m:scala.collection.mutable.Map[K,V])*"))
+    testSuccess("transform[A](b:scala.collection.mutable.Buffer[A])*", Id("transform[A](b:scala.collection.mutable.Buffer[A])*"))
+    testSuccess("transform(x:Int)*", Id("transform(x:Int)*"))
+
     testFailAt("#", 1)
     testFailAt("#`", 2)
     testFailAt("``", 2)
