@@ -598,7 +598,6 @@ class CheckCaptures extends Recheck, SymTransformer:
               then avoidLocalCapability(c, env, lastEnv)
               else avoidLocalReachCapability(c, env)
             isVisible
-          //println(i"Include call or box capture $included from $cs in ${env.owner}/${env.captured}/${env.captured.owner}/${env.kind}")
           checkSubset(included, env.captured, tree.srcPos, provenance(env))
           capt.println(i"Include call or box capture $included from $cs in ${env.owner} --> ${env.captured}")
           if !isOfNestedMethod(env) then
@@ -663,6 +662,8 @@ class CheckCaptures extends Recheck, SymTransformer:
           if param.isUseParam then markFree(arg.nuType.deepCaptureSet, errTree)
     end markFreeTypeArgs
 
+// ---- Check for leakages of reach capabilities ------------------------------
+
     /** If capability `c` refers to a parameter that is not implicitly or explicitly
      *  @use declared, report an error.
      */
@@ -695,13 +696,15 @@ class CheckCaptures extends Recheck, SymTransformer:
                     case tp: TermRef =>
                       report.warning(
                         em"""Reach capability $ref in function result refers to ${tp.symbol}.
-                            |To avoid errors of the form "Local reach capability $ref leaks into capture set ..."
+                            |To avoid errors of the form "Local reach capability $ref leaks into capture scope ..."
                             |you should replace the reach capability with a new capset variable in ${tree.symbol}.""",
                         tree.tpt.srcPos)
                     case _ =>
           case _ =>
         tpt.nuType.foreachPart(checkType, StopAt.Static)
       case _ =>
+
+// ---- Rechecking operations for different kinds of trees----------------------
 
     /** If `tp` (possibly after widening singletons) is an ExprType
      *  of a parameterless method, map Result instances in it to Fresh instances
@@ -1475,11 +1478,15 @@ class CheckCaptures extends Recheck, SymTransformer:
         val thisSet = cls.classInfo.selfType.captureSet.withDescription(i"of the self type of $cls")
         checkSubset(localSet, thisSet, tree.srcPos)
 
-        // (3) Capture set of self type includes capture sets of parameters
+        // (3) Capture set of self type includes capture sets of tracked parameters
         for param <- cls.paramGetters do
           if param.isTrackedParamAccessor then
             withCapAsRoot: // OK? We need this here since self types use `cap` instead of `fresh`
               checkSubset(param.termRef.captureSet, thisSet, param.srcPos)
+
+        // (3b) Capture set of self type includes capture sets of fields (including fresh)
+        withCapAsRoot:
+          checkSubset(captureSetImpliedByFields(cls, cls.appliedRef), thisSet, tree.srcPos)
 
         // (4) If class extends Pure, capture set of self type is empty
         for pureBase <- cls.pureBaseClass do // (4)

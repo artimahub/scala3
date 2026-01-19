@@ -297,6 +297,17 @@ trait BCodeHelpers extends BCodeIdiomatic {
           val edesc = innerClasesStore.typeDescriptor(t.tpe) // the class descriptor of the enumeration class.
           val evalue = t.symbol.javaSimpleName // value the actual enumeration value.
           av.visitEnum(name, edesc, evalue)
+        // Handle final val aliases to Java enum values.
+        // Check if the symbol's pre-erasure type was a singleton of a Java enum value.
+        case t: tpd.RefTree if atPhase(erasurePhase) {
+          t.symbol.info.finalResultType match
+            case tr: TermRef => tr.termSymbol.owner.linkedClass.isAllOf(JavaEnum)
+            case _ => false
+        } =>
+          val enumRef = atPhase(erasurePhase)(t.symbol.info.finalResultType.asInstanceOf[TermRef])
+          val edesc = innerClasesStore.typeDescriptor(enumRef)
+          val evalue = enumRef.termSymbol.javaSimpleName
+          av.visitEnum(name, edesc, evalue)
         case t: SeqLiteral =>
           val arrAnnotV: AnnotationVisitor = av.visitArray(name)
           for (arg <- t.elems) { emitArgument(arrAnnotV, null, arg, bcodeStore)(innerClasesStore) }
@@ -317,9 +328,8 @@ trait BCodeHelpers extends BCodeIdiomatic {
               case e => List(e)
             }
           }
-          for(arg <- flatArgs) {
+          for arg <- flatArgs do
             emitArgument(arrAnnotV, null, arg, bcodeStore)(innerClasesStore)
-          }
           arrAnnotV.visitEnd()
   /*
         case sb @ ScalaSigBytes(bytes) =>
@@ -339,6 +349,9 @@ trait BCodeHelpers extends BCodeIdiomatic {
           val desc = innerClasesStore.typeDescriptor(typ) // the class descriptor of the nested annotation class
           val nestedVisitor = av.visitAnnotation(name, desc)
           emitAssocs(nestedVisitor, assocs, bcodeStore)(innerClasesStore)
+
+        case Inlined(_, _, expansion) =>
+          emitArgument(av, name, arg = expansion, bcodeStore)(innerClasesStore)
 
         case t =>
           report.error(em"Annotation argument is not a constant", t.sourcePos)
