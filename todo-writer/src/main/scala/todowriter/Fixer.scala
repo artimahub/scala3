@@ -148,32 +148,32 @@ object Fixer:
       case _                      => false
     }
 
+  /** Represents a single item in the Scaladoc content. */
+  private sealed trait DocItem
+  private case class TextLine(text: String) extends DocItem
+  private case class BlankLine() extends DocItem
+  private case class TagItem(text: String, isSignature: Boolean) extends DocItem
+
   /** Parsed representation of Scaladoc content.
    *
-   *  Scaladoc has two logical sections:
-   *  1. Exposition: text paragraphs + exposition tags (@note, @see, @example)
-   *  2. Signature: @tparam, @param, @return tags
+   *  Items are stored in their original order. Signature tags will be sorted
+   *  among themselves while non-signature items stay in place.
    */
   private case class ParsedScaladoc(
-      initialText: Option[String],           // First line of description (goes on /** line)
-      expositionContent: List[String],       // Additional description lines and exposition tags
-      signatureTags: List[String],           // Signature tags (@tparam, @param, @return)
-      hasBlankBeforeSignature: Boolean       // Whether there was a blank line before signature tags
+      initialText: Option[String],  // First line of description (goes on /** line)
+      items: List[DocItem]          // All other content items in order
   )
 
-  /** Tags that are part of the exposition (main content). */
-  private val ExpositionTags = Set("@note", "@see", "@example")
-
-  /** Tags that document the signature (appear at end). */
-  private val SignatureTags = Set("@tparam", "@param", "@return")
-
-  /** Check if a line starts with an exposition tag. */
-  private def isExpositionTag(line: String): Boolean =
-    ExpositionTags.exists(tag => line.startsWith(tag))
+  /** Tags that document the signature (sorted relative to each other). */
+  private val SignatureTags = Set("@tparam", "@param", "@return", "@throws")
 
   /** Check if a line starts with a signature tag. */
   private def isSignatureTag(line: String): Boolean =
     SignatureTags.exists(tag => line.startsWith(tag))
+
+  /** Check if a line starts with any @ tag. */
+  private def isAnyTag(line: String): Boolean =
+    line.startsWith("@")
 
   /** Regex to match the start of a markdown code fence (``` with optional language). */
   private val CodeFenceStart = """^```\w*\s*$""".r
@@ -205,8 +205,8 @@ object Fixer:
 
   /** Parse Scaladoc inner content into structured parts.
    *
-   *  Separates exposition content (text + @note/@see/@example) from
-   *  signature documentation (@tparam/@param/@return).
+   *  Items are stored in order. Signature tags are marked so they can be
+   *  sorted among themselves while non-signature items stay in place.
    *  Multi-line tags are preserved by joining continuation lines with newlines.
    *  Content inside code fences (``` ... ```) and {{{ ... }}} is preserved as-is.
    */
@@ -214,12 +214,9 @@ object Fixer:
     val lines = inner.linesIterator.toList
 
     var initialText: Option[String] = None
-    val expositionContent = collection.mutable.ListBuffer[String]()
-    val signatureTags = collection.mutable.ListBuffer[String]()
+    val items = collection.mutable.ListBuffer[DocItem]()
     var foundFirstContent = false
     var pendingBlankLines = 0  // Track blank lines to add before next content
-    var inSignatureSection = false
-    var hasBlankBeforeSignature = false
     var currentTag: Option[collection.mutable.StringBuilder] = None
     var currentTagIsSignature = false
     var inCodeFence = false  // Track if we're inside a ``` code fence
@@ -228,17 +225,14 @@ object Fixer:
     def flushCurrentTag(): Unit =
       currentTag.foreach { tag =>
         val tagStr = tag.toString
-        if currentTagIsSignature then
-          signatureTags += tagStr
-        else
-          expositionContent += tagStr
+        items += TagItem(tagStr, currentTagIsSignature)
       }
       currentTag = None
 
     def addPendingBlankLines(): Unit =
-      // Add accumulated blank lines to exposition content
+      // Add accumulated blank lines to items
       for _ <- 0 until pendingBlankLines do
-        expositionContent += ""
+        items += BlankLine()
       pendingBlankLines = 0
 
     for line <- lines do
@@ -256,7 +250,6 @@ object Fixer:
 
       // Normalized form (drop a single leading space if present) for marker detection
       val afterStarNorm = afterStarRaw
-        //if afterStarRaw.startsWith(" ") then afterStarRaw.drop(1) else afterStarRaw
 
       // Detect markers using the normalized form. Compute booleans first so we can
       // preserve raw spacing for the marker lines themselves, then update state.
@@ -283,65 +276,57 @@ object Fixer:
         inTripleBrace = false
 
       val isBlank = content.trim.isEmpty
-      val isTag = (isExpositionTag(content.trim) || isSignatureTag(content.trim)) && !inCodeFence && !inTripleBrace
+      val isTag = isAnyTag(content.trim) && !inCodeFence && !inTripleBrace
 
       if isTag then
         flushCurrentTag()
-        if isSignatureTag(content.trim) then
-          if !inSignatureSection then
-            inSignatureSection = true
-            hasBlankBeforeSignature = pendingBlankLines > 0
-          pendingBlankLines = 0  // Discard blank lines before signature section
-          currentTagIsSignature = true
-          currentTag = Some(new collection.mutable.StringBuilder(content.trim))
-        else
-          // Exposition tag (@note, @see, @example, or unknown) - preserve blank lines before it
-          if foundFirstContent then
-            addPendingBlankLines()
-          currentTagIsSignature = false
-          currentTag = Some(new collection.mutable.StringBuilder(content.trim))
-          foundFirstContent = true
+        // Add pending blank lines before this tag
+        if foundFirstContent then
+          addPendingBlankLines()
+        currentTagIsSignature = isSignatureTag(content.trim)
+        currentTag = Some(new collection.mutable.StringBuilder(content.trim))
+        foundFirstContent = true
       else if isBlank && !inCodeFence && !inTripleBrace then
         if currentTag.isDefined then
-          if !currentTagIsSignature then
-            // Blank line after exposition tag - flush tag and track as separator
-            flushCurrentTag()
-            pendingBlankLines += 1
-          // Blank lines in/after signature tags are ignored
-        else if !inSignatureSection then
-          // Blank line between exposition items - track it
-          if foundFirstContent then
-            pendingBlankLines += 1
-        // Blank lines in signature section are ignored
+          // Blank line after a tag - flush tag and track as separator
+          flushCurrentTag()
+          pendingBlankLines += 1
+        else if foundFirstContent then
+          // Blank line between items - track it
+          pendingBlankLines += 1
       else
         // Content line (or inside code fence/triple-brace)
         if currentTag.isDefined then
           // Continuation of current tag - preserve original spacing for code blocks
           if inTripleBrace then currentTag.foreach(_.append("\n").append(afterStarRaw))
           else currentTag.foreach(_.append("\n").append(content))
-        else if !inSignatureSection then
-          // If this line had a leading '*' it is exposition content; otherwise it may be
+        else
+          // If this line had a leading '*' it is regular content; otherwise it may be
           // the initial text that belonged on the opening line.
           if hadStar then
-            if !foundFirstContent then 
+            if !foundFirstContent then
               foundFirstContent = true
-            else 
+            else
               addPendingBlankLines()
             // Preserve raw spacing when inside triple-brace, otherwise use afterStarRaw to preserve relative indentation
-            expositionContent += afterStarRaw
+            items += TextLine(afterStarRaw)
           else
             if !foundFirstContent then
               initialText = Some(content.trim)
               foundFirstContent = true
-            else if (content.trim.nonEmpty) then
+            else if content.trim.nonEmpty then
               // Regular text content - add pending blank lines first
               addPendingBlankLines()
-              expositionContent += afterStarRaw
+              items += TextLine(afterStarRaw)
 
     flushCurrentTag()
-    ParsedScaladoc(initialText, expositionContent.toList, signatureTags.toList, hasBlankBeforeSignature)
+    ParsedScaladoc(initialText, items.toList)
 
-  /** Build a fixed Scaladoc block with missing tags inserted and proper indentation. */
+  /** Build a fixed Scaladoc block with missing tags inserted and proper indentation.
+   *
+   *  Signature tags (@tparam, @param, @return, @throws) are sorted relative to each other.
+   *  All other tags remain in their original positions.
+   */
   def buildFixedBlock(
       text: String,
       block: ScaladocBlock,
@@ -360,37 +345,45 @@ object Fixer:
     // Parse existing content
     val inner = block.content
     val parsed = parseScaladocContent(inner)
- 
+
     // Normalization: if the parser produced an initialText but the inner block
     // actually started with a blank physical line, treat that initialText as
-    // exposition content (so we keep the comment as multi-line).
+    // a text line (so we keep the comment as multi-line).
     val normalizedParsed =
       if parsed.initialText.isDefined && inner.startsWith("\n") then
         ParsedScaladoc(
           initialText = None,
-          expositionContent = parsed.initialText.get :: parsed.expositionContent,
-          signatureTags = parsed.signatureTags,
-          hasBlankBeforeSignature = parsed.hasBlankBeforeSignature
+          items = TextLine(parsed.initialText.get) :: parsed.items
         )
       else
         parsed
- 
+
     // If the descriptive text was placed on the first '*' line (misplaced initial text),
-    // move the first exposition line up to become the initialText on the opening line.
+    // move the first text line up to become the initialText on the opening line.
     // Only do this when the very first physical line inside the block contains
     // non-empty content and does NOT start with a '*' (otherwise it's a normal
     // multi-line scaladoc and should remain as-is).
     val adjustedParsed =
-      if normalizedParsed.initialText.isEmpty && normalizedParsed.expositionContent.nonEmpty &&
+      if normalizedParsed.initialText.isEmpty &&
          inner.linesIterator.toList.headOption.exists(l => l.trim.nonEmpty && !l.trim.startsWith("*")) then
-        ParsedScaladoc(
-          initialText = Some(normalizedParsed.expositionContent.head.trim),
-          expositionContent = normalizedParsed.expositionContent.tail,
-          signatureTags = normalizedParsed.signatureTags,
-          hasBlankBeforeSignature = normalizedParsed.hasBlankBeforeSignature
-        )
+        normalizedParsed.items.collectFirst { case TextLine(t) => t } match
+          case Some(firstText) =>
+            val remainingItems = normalizedParsed.items.dropWhile {
+              case TextLine(_) => false
+              case _ => true
+            }.drop(1)
+            // Prepend any items that came before the first TextLine
+            val prefixItems = normalizedParsed.items.takeWhile {
+              case TextLine(_) => false
+              case _ => true
+            }
+            ParsedScaladoc(
+              initialText = Some(firstText.trim),
+              items = prefixItems ++ remainingItems
+            )
+          case None => normalizedParsed
       else normalizedParsed
- 
+
     // Build new signature tags to insert
     val newSignatureTags = collection.mutable.ListBuffer[String]()
     for tp <- missingTparams do
@@ -399,28 +392,48 @@ object Fixer:
       newSignatureTags += s"@param $p TODO FILL IN"
     if needsReturn then
       newSignatureTags += "@return TODO FILL IN"
- 
+
     // Check if original was single-line
     val originalBlock = text.substring(block.startIndex, block.endIndex)
     val wasSingleLineOrig = !originalBlock.contains('\n')
     val wasSingleLine = if forceMultiLine then false else wasSingleLineOrig
- 
-    // Combine and sort signature tags in proper order: @tparam, @param, @return
-    val allSignatureTags = sortSignatureTags(adjustedParsed.signatureTags ++ newSignatureTags.toList)
- 
-    // When adding signature tags to a block that has exposition but no initialText,
-    // promote the first exposition line to the opening line so the description appears
+
+    // Process items: sort signature tags among themselves, keep others in place
+    val processedItems = processItemsWithSignatureTags(adjustedParsed.items, newSignatureTags.toList)
+
+    // When adding signature tags to a block that has no initialText,
+    // promote the first text line to the opening line so the description appears
     // after "/** ". This matches expectations in tests that move misplaced initial text.
-    val displayParsed =
-      if adjustedParsed.initialText.isEmpty && adjustedParsed.expositionContent.nonEmpty && newSignatureTags.nonEmpty then
-        ParsedScaladoc(
-          initialText = Some(adjustedParsed.expositionContent.head.trim),
-          expositionContent = adjustedParsed.expositionContent.tail,
-          signatureTags = adjustedParsed.signatureTags,
-          hasBlankBeforeSignature = adjustedParsed.hasBlankBeforeSignature
-        )
-      else adjustedParsed
- 
+    val (displayInitialText, displayItems) =
+      if adjustedParsed.initialText.isEmpty && newSignatureTags.nonEmpty then
+        processedItems.collectFirst { case TextLine(t) => t } match
+          case Some(firstText) =>
+            val itemsBeforeText = processedItems.takeWhile {
+              case TextLine(_) => false
+              case _ => true
+            }
+            val itemsAfterText = processedItems.dropWhile {
+              case TextLine(_) => false
+              case _ => true
+            }.drop(1)
+            (Some(firstText.trim), itemsBeforeText ++ itemsAfterText)
+          case None => (None, processedItems)
+      else
+        (adjustedParsed.initialText, processedItems)
+
+    // Ensure there's a blank line before signature tags when we have initial text
+    // but no other content before the signature tags
+    val finalItems =
+      if displayInitialText.isDefined && newSignatureTags.nonEmpty then
+        // Check if first item is a signature tag (meaning no content between initial text and tags)
+        displayItems.headOption match
+          case Some(TagItem(_, true)) =>
+            // Need to add blank line before signature tags
+            BlankLine() :: displayItems
+          case _ => displayItems
+      else
+        displayItems
+
     // Determine the indentation of the following physical line (declaration) if any.
     // Prefer the declaration indentation when it is less than the comment indentation
     // (handles cases where the comment is over-indented relative to the declaration).
@@ -435,31 +448,84 @@ object Fixer:
     val effectiveLeadingWs =
       if declLeadingWs.nonEmpty && declLeadingWs.length < leadingWs.length then declLeadingWs
       else leadingWs
-  
-    // Build formatted block using the effective indentation and the possibly adjusted parsed content
-    // Determine if there's a following declaration we'll include (so formatting can align to it)
-    val hasFollowingDecl =
-      if block.endIndex < text.length then
-        val rest = text.substring(block.endIndex)
-        val nextLine =
-          if rest.startsWith("\n") then rest.drop(1).takeWhile(_ != '\n')
-          else rest.takeWhile(_ != '\n')
-        effectiveLeadingWs.nonEmpty && nextLine.startsWith(effectiveLeadingWs)
-      else false
-    val formatted = buildFormattedBlock(effectiveLeadingWs, displayParsed, allSignatureTags, wasSingleLine, hasFollowingDecl)
-  
+
+    // Build formatted block
+    val formatted = buildFormattedBlock(effectiveLeadingWs, displayInitialText, finalItems, wasSingleLine)
+
     // Return only the formatted scaladoc block. The caller is responsible for
     // splicing it into the document; this avoids modifying or duplicating the
     // following declaration's indentation.
     formatted
 
-  /** Sort signature tags in proper order: @tparam, then @param, then @return. */
+  /** Process items: sort signature tags among themselves and insert new ones.
+   *
+   *  Algorithm:
+   *  1. Extract existing signature tags and their positions
+   *  2. Sort all signature tags (existing + new)
+   *  3. Replace signature tag positions with sorted tags
+   *  4. Insert new signature tags at appropriate positions
+   */
+  private def processItemsWithSignatureTags(items: List[DocItem], newTags: List[String]): List[DocItem] =
+    // Find positions of existing signature tags
+    val sigTagPositions = items.zipWithIndex.collect {
+      case (TagItem(text, true), idx) => (idx, text)
+    }
+
+    if sigTagPositions.isEmpty && newTags.isEmpty then
+      // No signature tags to process
+      items
+    else if sigTagPositions.isEmpty then
+      // No existing signature tags - append new ones at the end with a blank line before
+      val sortedNewTags = sortSignatureTags(newTags)
+      // Add blank line before new signature tags if there's content before them
+      val needsBlankLine = items.nonEmpty && !items.lastOption.exists {
+        case BlankLine() => true
+        case _ => false
+      }
+      val blankLinePrefix = if needsBlankLine then List(BlankLine()) else Nil
+      items ++ blankLinePrefix ++ sortedNewTags.map(t => TagItem(t, true))
+    else
+      // Extract existing signature tag texts
+      val existingSigTags = sigTagPositions.map(_._2)
+      // Sort all signature tags together
+      val allSortedSigTags = sortSignatureTags(existingSigTags ++ newTags)
+
+      // Build new items list:
+      // - Non-signature items stay in place
+      // - Signature tag positions get filled with sorted tags
+      // - Extra new tags get inserted after the last signature tag position
+      val result = collection.mutable.ListBuffer[DocItem]()
+      var sortedTagIdx = 0
+      var lastSigTagResultIdx = -1
+
+      for (item, idx) <- items.zipWithIndex do
+        item match
+          case TagItem(_, true) =>
+            // This is a signature tag position - fill with next sorted tag
+            if sortedTagIdx < allSortedSigTags.length then
+              result += TagItem(allSortedSigTags(sortedTagIdx), true)
+              lastSigTagResultIdx = result.length - 1
+              sortedTagIdx += 1
+          case other =>
+            result += other
+
+      // Insert any remaining sorted tags after the last signature tag
+      while sortedTagIdx < allSortedSigTags.length do
+        val insertIdx = if lastSigTagResultIdx >= 0 then lastSigTagResultIdx + 1 else result.length
+        result.insert(insertIdx, TagItem(allSortedSigTags(sortedTagIdx), true))
+        lastSigTagResultIdx = insertIdx
+        sortedTagIdx += 1
+
+      result.toList
+
+  /** Sort signature tags in proper order: @tparam, @param, @return, @throws. */
   private def sortSignatureTags(tags: List[String]): List[String] =
     def tagOrder(tag: String): Int =
       if tag.startsWith("@tparam") then 0
       else if tag.startsWith("@param") then 1
       else if tag.startsWith("@return") then 2
-      else 3 // Unknown tags go last
+      else if tag.startsWith("@throws") then 3
+      else 4 // Unknown signature tags go last
 
     tags.sortBy(tagOrder)
 
@@ -469,29 +535,23 @@ object Fixer:
    *  1. Initial text appears on same line as opening
    *  2. Continuation lines have * aligned under first * of opening
    *  3. Text after * starts with two spaces
-   *  4. Exposition section: text + @note/@see/@example tags
-   *  5. Blank line before signature section
-   *  6. Signature section: @tparam, @param, @return (no blank lines between)
+   *  4. Items appear in their original order (signature tags sorted among themselves)
    */
   private def buildFormattedBlock(
       leadingWs: String,
-      parsed: ParsedScaladoc,
-      signatureTags: List[String],
-      wasSingleLine: Boolean,
-      hasFollowingDecl: Boolean
+      initialText: Option[String],
+      items: List[DocItem],
+      wasSingleLine: Boolean
   ): String =
-    val hasExposition = parsed.initialText.isDefined || parsed.expositionContent.nonEmpty
-    val hasSignature = signatureTags.nonEmpty
-
     // Special case: single-line with no additional content needed
-    if wasSingleLine && parsed.expositionContent.isEmpty && signatureTags.isEmpty then
-      parsed.initialText match
+    if wasSingleLine && items.isEmpty then
+      initialText match
         case Some(text) => s"/** $text */"
         case None => "/** */"
 
     // Multi-line output needed
     else
-      buildMultiLineOutput(leadingWs, parsed, signatureTags, hasFollowingDecl, wasSingleLine)
+      buildMultiLineOutput(leadingWs, initialText, items)
 
   /** Ensure at least 2 leading spaces while preserving relative indentation.
    *
@@ -508,19 +568,12 @@ object Fixer:
 
   private def buildMultiLineOutput(
       leadingWs: String,
-      parsed: ParsedScaladoc,
-      signatureTags: List[String],
-      hasFollowingDecl: Boolean,
-      wasSingleLine: Boolean
+      initialText: Option[String],
+      items: List[DocItem]
   ): String =
     val parts = collection.mutable.ListBuffer[String]()
 
     // Compute opening and star prefixes:
-    // Opening line is one space less than the method indentation (clamped to 0).
-    // Place the '*' lines one column further right than the opening '/' so the '*'
-    // aligns under the first '*' of the "/**" line. This yields:
-    //   openPrefix = max(methodIndent - 1, 0)
-    //   starPrefix = openPrefix + 1
     // Use the original leading whitespace from the source so we do not shift
     // code indentation. Place '*' one column after the leading whitespace so
     // it aligns under the first '*' of the "/**" opening.
@@ -528,56 +581,45 @@ object Fixer:
     val starPrefix = leadingWs + " "
 
     // Opening line with initial text
-    parsed.initialText match
+    initialText match
       case Some(text) =>
         parts += s"$openPrefix/** $text"
       case None =>
         // No initial text - handle gracefully
         parts += s"$openPrefix/**"
 
-    // Exposition content (description lines + exposition tags like @note, @see, @example)
+    // Output all items in order
     var inTripleBrace = false  // Track if we're inside a triple-brace block
-    for line <- parsed.expositionContent do
-      if line.isEmpty then
-        parts += s"$starPrefix*"
-      else if line.startsWith("@") then
-        // Exposition tag - may be multi-line, strip trailing empty lines
-        val tagLines = line.split("\n", -1).reverse.dropWhile(_.trim.isEmpty).reverse
-        for tagLine <- tagLines do
-          if tagLine.isEmpty then
+    for item <- items do
+      item match
+        case BlankLine() =>
+          parts += s"$starPrefix*"
+
+        case TextLine(line) =>
+          if line.isEmpty then
             parts += s"$starPrefix*"
           else
-            val spacedLine = ensureMinimumSpacing(tagLine)
+            // Check for triple-brace markers
+            val isTripleBraceStart = (line.trim.startsWith("{{{") || line.trim.startsWith("```")) && !inTripleBrace
+            val isTripleBraceEnd = (line.trim.startsWith("}}}") || line.trim.startsWith("```")) && inTripleBrace
+
+            // Update triple-brace state
+            if isTripleBraceStart then inTripleBrace = true
+            else if isTripleBraceEnd then inTripleBrace = false
+
+            // Always apply ensureMinimumSpacing (it preserves existing spacing if >= 2 spaces)
+            val spacedLine = ensureMinimumSpacing(line)
             parts += s"$starPrefix*$spacedLine"
-      else
-        // Check for triple-brace markers
-        val isTripleBraceStart = line.trim.startsWith("{{{") || line.trim.startsWith("```") && !inTripleBrace
-        val isTripleBraceEnd = line.trim.startsWith("}}}") || line.trim.startsWith("```") && inTripleBrace
 
-        // Update triple-brace state
-        if isTripleBraceStart then inTripleBrace = true
-        else if isTripleBraceEnd then inTripleBrace = false
-
-        // Don't apply ensureMinimumSpacing to lines inside triple-brace blocks
-        val spacedLine = if inTripleBrace then line else ensureMinimumSpacing(line)
-        parts += s"$starPrefix*$spacedLine"
-
-    // Blank line before signature section (if there are signature tags)
-    if signatureTags.nonEmpty then
-      val lastLineIsBlank = parsed.expositionContent.lastOption.exists(_.trim.isEmpty) ||
-        (parsed.expositionContent.isEmpty && parsed.initialText.isEmpty)
-      if !lastLineIsBlank then
-        parts += s"$starPrefix*"
-
-    // Signature tags (@tparam, @param, @return)
-    for tag <- signatureTags do
-      val tagLines = tag.split("\n", -1) // -1 to keep trailing empty strings
-      for (line, idx) <- tagLines.zipWithIndex do
-        if line.isEmpty then
-          parts += s"$starPrefix*"
-        else if line.nonEmpty then
-          val spacedLine = ensureMinimumSpacing(line)
-          parts += s"$starPrefix*$spacedLine"
+        case TagItem(tag, _) =>
+          // Tag - may be multi-line, strip trailing empty lines
+          val tagLines = tag.split("\n", -1).reverse.dropWhile(_.trim.isEmpty).reverse
+          for tagLine <- tagLines do
+            if tagLine.isEmpty then
+              parts += s"$starPrefix*"
+            else
+              val spacedLine = ensureMinimumSpacing(tagLine)
+              parts += s"$starPrefix*$spacedLine"
 
     // Closing
     parts += s"$starPrefix*/"
