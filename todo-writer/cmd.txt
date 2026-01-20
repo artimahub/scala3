@@ -1,0 +1,14 @@
+
+From the todo-writer directory:
+
+  sbt "run ../library --skip-todo"
+  sbt "run ../library-js --skip-todo"
+  sbt "run ../library-aux --skip-todo"
+
+Or if you want a dry run first to see what would change:
+
+  sbt "run ../library --skip-todo --dry"
+
+You can also combine with --migrate-markdown if you want to convert Wikidoc syntax to Markdown at the same time:
+
+  sbt "run ../library --skip-todo --migrate-markdown"
