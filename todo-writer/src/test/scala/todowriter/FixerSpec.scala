@@ -152,7 +152,110 @@ class FixerSpec extends AnyFlatSpec with Matchers:
     paramYIdx should be < returnIdx
   }
 
-  it should "keep @see in exposition section, before signature tags" in {
+  it should "sort @throws after @return" in {
+    val text = """/** Does something.
+                 | *
+                 | *  @throws Exception when bad
+                 | *  @return the result
+                 | *  @param x the input
+                 | */""".stripMargin
+    val block = ScaladocBlock.findAll(text).head
+    val result = Fixer.buildFixedBlock(text, block, Nil, Nil, false)
+
+    val paramIdx = result.indexOf("@param")
+    val returnIdx = result.indexOf("@return")
+    val throwsIdx = result.indexOf("@throws")
+
+    // Signature tags should be sorted: @param, @return, @throws
+    paramIdx should be < returnIdx
+    returnIdx should be < throwsIdx
+  }
+
+  it should "keep non-signature tag after signature tags in place" in {
+    val text = """/** Does something.
+                 | *
+                 | *  @param x the input
+                 | *  @return the result
+                 | *  @see [[Other]]
+                 | */""".stripMargin
+    val block = ScaladocBlock.findAll(text).head
+    val result = Fixer.buildFixedBlock(text, block, Nil, Nil, false)
+
+    val paramIdx = result.indexOf("@param")
+    val returnIdx = result.indexOf("@return")
+    val seeIdx = result.indexOf("@see")
+
+    // @see should stay after @return (where it was originally)
+    paramIdx should be < returnIdx
+    returnIdx should be < seeIdx
+  }
+
+  it should "keep non-signature tag between signature tags in place" in {
+    val text = """/** Does something.
+                 | *
+                 | *  @param x the input
+                 | *  @see [[Other]]
+                 | *  @return the result
+                 | */""".stripMargin
+    val block = ScaladocBlock.findAll(text).head
+    val result = Fixer.buildFixedBlock(text, block, Nil, Nil, false)
+
+    val paramIdx = result.indexOf("@param")
+    val seeIdx = result.indexOf("@see")
+    val returnIdx = result.indexOf("@return")
+
+    // @see should stay between @param and @return (where it was originally)
+    paramIdx should be < seeIdx
+    seeIdx should be < returnIdx
+  }
+
+  it should "reorder signature tags while keeping non-signature tags in place" in {
+    val text = """/** Does something.
+                 | *
+                 | *  @return the result
+                 | *  @note important info
+                 | *  @param x the input
+                 | */""".stripMargin
+    val block = ScaladocBlock.findAll(text).head
+    val result = Fixer.buildFixedBlock(text, block, Nil, Nil, false)
+
+    val paramIdx = result.indexOf("@param")
+    val noteIdx = result.indexOf("@note")
+    val returnIdx = result.indexOf("@return")
+
+    // @param and @return should be reordered (param before return)
+    // @note should stay at its original position (between the signature tags)
+    paramIdx should be < noteIdx
+    noteIdx should be < returnIdx
+  }
+
+  it should "insert new signature tags in correct positions relative to existing ones" in {
+    val text = """/** Does something.
+                 | *
+                 | *  @note Be careful.
+                 | *  @param x the input
+                 | *  @see [[Other]]
+                 | */""".stripMargin
+    val block = ScaladocBlock.findAll(text).head
+    val result = Fixer.buildFixedBlock(text, block, List("A"), Nil, true)
+
+    val noteIdx = result.indexOf("@note")
+    val tparamIdx = result.indexOf("@tparam")
+    val paramIdx = result.indexOf("@param")
+    val returnIdx = result.indexOf("@return")
+    val seeIdx = result.indexOf("@see")
+
+    // @note stays at start (before signature tags)
+    // @tparam inserted before @param
+    // @return inserted after @param
+    // @see stays at end (after signature tags)
+    noteIdx should be < tparamIdx
+    tparamIdx should be < paramIdx
+    paramIdx should be < returnIdx
+    returnIdx should be < seeIdx
+  }
+
+  it should "keep @see in its original position when inserting new signature tags" in {
     val text = """/** Does something.
                  | *
                  | *  @see [[Other]]
@@ -165,13 +268,13 @@ class FixerSpec extends AnyFlatSpec with Matchers:
     val paramIdx = result.indexOf("@param")
     val returnIdx = result.indexOf("@return")
 
-    // @see is exposition, so it comes before all signature tags
+    // @see stays where it was (before signature tags), new tags inserted after
     seeIdx should be < tparamIdx
     seeIdx should be < paramIdx
     seeIdx should be < returnIdx
   }
 
-  it should "have blank line between exposition (@see) and signature section" in {
+  it should "have blank line between @see and inserted signature tags" in {
     val text = """/** Does something.
                  | *
                  | *  @see [[SomeClass]]
@@ -188,7 +291,7 @@ class FixerSpec extends AnyFlatSpec with Matchers:
     linesBetween.exists(_.trim == "*") should be(true)
   }
 
-  it should "preserve @example in exposition section" in {
+  it should "keep @example in its original position when inserting new signature tags" in {
     val text = """/** Does something.
                  | *
                  | *  @example {{{ code }}}
@@ -199,7 +302,7 @@ class FixerSpec extends AnyFlatSpec with Matchers:
     val exampleIdx = result.indexOf("@example")
     val paramIdx = result.indexOf("@param")
 
-    // @example is exposition, so it comes before @param
+    // @example stays where it was, @param inserted after
     exampleIdx should be < paramIdx
 
     // There should be a blank line between @example and @param
