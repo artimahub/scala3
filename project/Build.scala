@@ -1122,6 +1122,34 @@ object Build {
   // =================================== SCALA STANDARD LIBRARY ===================================
   // ==============================================================================================
 
+  /* Scala 2 standard library used to patch Scala 3 artifacts */
+  lazy val `scala2-library` = project.in(file("library"))
+    .settings(
+      name          := "scala2-library",
+      moduleName    := "scala2-library",
+      scalaVersion  := ScalaLibraryPlugin.scala2Version,
+      version       := scalaVersion.value,
+      // Remove Scala 3 specific settings
+      scalacOptions --= Seq(
+        "--java-output-version:17",
+        "-Yexplicit-nulls",
+        "-Wsafe-init"
+      ),
+      scalacOptions ++= Seq(
+        "-release:17",
+        s"-sourcepath:${(Compile / sourceDirectory).value}",
+        "-opt:local", // Important: local optimization are fine, inlining is prohibited!
+      ),
+      target := target.value / "scala2-library",
+      Compile / sourceDirectory := (Compile / Keys.target).value / "sources" / scalaVersion.value,
+      Compile / sources := (Compile / sources).dependsOn(
+        ScalaLibraryPlugin.fetchScala2LibrarySources(Compile / sourceDirectory)
+      ).value,
+      autoScalaLibrary := false, // do not add a dependency to stdlib
+      publishArtifact := false,
+      crossPaths := false,
+    )
+
   /* Configuration of the org.scala-lang:scala-library:*.**.**-nonbootstrapped project */
   lazy val `scala-library-nonbootstrapped` = project.in(file("library"))
     .enablePlugins(ScalaLibraryPlugin)
@@ -1155,8 +1183,7 @@ object Build {
       mimaForwardIssueFilters := MiMaFilters.Scala3Library.ForwardsBreakingChanges,
       mimaBackwardIssueFilters := MiMaFilters.Scala3Library.BackwardsBreakingChanges,
       customMimaReportBinaryIssues("MiMaFilters.Scala3Library"),
-      // Should we also patch .sjsir files
-      keepSJSIR := false,
+      scala2LibraryClasspath := Vector((`scala2-library` / Compile / packageBin).value),
       // Generate library.properties, used by scala.util.Properties
       Compile / resourceGenerators += generateLibraryProperties.taskValue,
       Compile / mainClass := None,
@@ -1225,8 +1252,7 @@ object Build {
       mimaForwardIssueFilters := MiMaFilters.Scala3Library.ForwardsBreakingChanges,
       mimaBackwardIssueFilters := MiMaFilters.Scala3Library.BackwardsBreakingChanges,
       customMimaReportBinaryIssues("MiMaFilters.Scala3Library"),
-      // Should we also patch .sjsir files
-      keepSJSIR := false,
+      scala2LibraryClasspath := Vector((`scala2-library` / Compile / packageBin).value),
       // Generate Scala 3 runtime properties overlay
       Compile / resourceGenerators += generateLibraryProperties.taskValue,
       bspEnabled := enableBspAllProjects,
@@ -1354,8 +1380,7 @@ object Build {
       mimaForwardIssueFilters := MiMaFilters.ScalaLibrarySJS.ForwardsBreakingChanges,
       mimaBackwardIssueFilters := MiMaFilters.ScalaLibrarySJS.BackwardsBreakingChanges,
       customMimaReportBinaryIssues("MiMaFilters.ScalaLibrarySJS"),
-      // Should we also patch .sjsir files
-      keepSJSIR := true,
+      scala2LibraryClasspath := ScalaLibraryPlugin.fetchScalaJsScalaLibrary.value,
       bspEnabled := false,
       Compile / mainClass := None,
     )
@@ -1973,29 +1998,33 @@ object Build {
           IO.write(path, newContent)
         }
 
+        val outputDir = "scaladoc/output/reference"
         val languageReferenceConfig = Def.task {
           Scala3.value
-            .add(OutputDir("scaladoc/output/reference"))
+            .add(OutputDir(outputDir))
             .add(SiteRoot(docs.getAbsolutePath))
             .add(ProjectName("Scala 3 Reference"))
             .add(ProjectVersion(baseVersion))
             .remove[VersionsDictionaryUrl]
             .add(SourceLinks(List(
-              s"${docs.getParentFile().getAbsolutePath}=github://scala/scala3/language-reference-stable"
+              s"${docs.getAbsolutePath}=github://scala/scala3/language-reference-stable#docs"
             )))
+        }
+
+        val generateDocs = generateDocumentation(languageReferenceConfig).map{ _ =>
+          sbt.io.IO.delete(file(outputDir) / "api") // Remove API docs generated along the reference docs
         }
 
         val expectedLinksRegeneration = Def.task {
           if (shouldRegenerateExpectedLinks) {
             val script = (file("project") / "scripts" / "regenerateExpectedLinks").toString
-            val outputDir = languageReferenceConfig.value.get[OutputDir].get.value
             val expectedLinksFile = (file("project") / "scripts" / "expected-links" / "reference-expected-links.txt").toString
             import _root_.scala.sys.process._
             s"$script $outputDir $expectedLinksFile".!
           }
         }
 
-        expectedLinksRegeneration.dependsOn(generateDocumentation(languageReferenceConfig))
+        expectedLinksRegeneration.dependsOn(generateDocs)
       }.evaluated,
 
     )
