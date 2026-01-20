@@ -296,3 +296,119 @@ class OverloadedLinks:
    * [[tests.overloadedMethods.OverloadedMethods.transform(x:Int)*]]
    */
   def testTransformSimpleLink: Unit = ???
+
+// Custom types for testing non-collection type overload resolution
+
+/**
+ * A custom type for testing overload resolution with non-collection types.
+ */
+class CustomTypeA(val value: Int)
+
+/**
+ * Another custom type for testing overload resolution.
+ */
+class CustomTypeB(val name: String)
+
+/**
+ * Test class with overloaded methods using custom (non-collection) types.
+ * This tests that overload resolution works with any types, not just hardcoded collections.
+ */
+class CustomTypeOverloads:
+  /**
+   * Process method overloaded with CustomTypeA.
+   */
+  def process(x: CustomTypeA): Unit = ???
+
+  /**
+   * Process method overloaded with CustomTypeB.
+   */
+  def process(x: CustomTypeB): Unit = ???
+
+  /**
+   * Process method overloaded with Int.
+   */
+  def process(x: Int): Unit = ???
+
+  /**
+   * Process method overloaded with String.
+   */
+  def process(x: String): Unit = ???
+
+/**
+ * Test class with overloaded methods that have multiple parameters.
+ * This tests that overload resolution correctly matches ALL parameter types, not just one.
+ */
+class MultiParamOverloads:
+  /**
+   * Merge method with Buffer and Set parameters.
+   */
+  def merge[A](a: Buffer[A], b: Set[A]): Unit = ???
+
+  /**
+   * Merge method with Set and Buffer parameters (reversed order).
+   */
+  def merge[A](a: Set[A], b: Buffer[A]): Unit = ???
+
+  /**
+   * Merge method with two Maps.
+   */
+  def merge[K, V](a: Map[K, V], b: Map[K, V]): Unit = ???
+
+  /**
+   * Combine method with Int and String.
+   */
+  def combine(a: Int, b: String): Unit = ???
+
+  /**
+   * Combine method with String and Int (reversed order).
+   */
+  def combine(a: String, b: Int): Unit = ???
+
+  /**
+   * Combine method with three parameters.
+   */
+  def combine(a: Int, b: String, c: Boolean): Unit = ???
+
+/**
+ * Test class with links to custom type overloads.
+ */
+class CustomTypeLinks:
+  /**
+   * Link to process with CustomTypeA.
+   * [[tests.overloadedMethods.CustomTypeOverloads.process(x:tests.overloadedMethods.CustomTypeA)*]]
+   */
+  def testCustomTypeALink: Unit = ???
+
+  /**
+   * Link to process with CustomTypeB.
+   * [[tests.overloadedMethods.CustomTypeOverloads.process(x:tests.overloadedMethods.CustomTypeB)*]]
+   */
+  def testCustomTypeBLink: Unit = ???
+
+/**
+ * Test class with links to multi-parameter overloads.
+ */
+class MultiParamLinks:
+  /**
+   * Link to merge with Buffer and Set.
+   * [[tests.overloadedMethods.MultiParamOverloads.merge[A](a:scala.collection.mutable.Buffer[A],b:scala.collection.mutable.Set[A])*]]
+   */
+  def testMergeBufferSetLink: Unit = ???
+
+  /**
+   * Link to merge with Set and Buffer (reversed).
+   * [[tests.overloadedMethods.MultiParamOverloads.merge[A](a:scala.collection.mutable.Set[A],b:scala.collection.mutable.Buffer[A])*]]
+   */
+  def testMergeSetBufferLink: Unit = ???
+
+  /**
+   * Link to combine with Int and String.
+   * [[tests.overloadedMethods.MultiParamOverloads.combine(a:Int,b:String)*]]
+   */
+  def testCombineIntStringLink: Unit = ???
+
+  /**
+   * Link to combine with String and Int (reversed).
+   * [[tests.overloadedMethods.MultiParamOverloads.combine(a:String,b:Int)*]]
+   */
+  def testCombineStringIntLink: Unit = ???
