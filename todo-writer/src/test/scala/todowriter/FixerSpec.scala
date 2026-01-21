@@ -924,3 +924,62 @@ class FixerSpec extends AnyFlatSpec with Matchers:
              s"Line '$line' should start with ' *  ~5 == -6' or ' *  // in binary'")
     }
   }
+
+  // Idempotency tests - applying fixes twice should yield the same result
+
+  it should "be idempotent when promoting text with @inheritdoc tag" in {
+    // This was a bug where first pass would leave a trailing blank line before */
+    // that the second pass would then remove.
+    val text = """/** @inheritdoc
+                 | *
+                 | *  Note: *Must* be overridden in subclasses.
+                 | */
+                 |def head: A""".stripMargin
+
+    val block = ScaladocBlock.findAll(text).head
+    val chunk = Declaration.getDeclarationAfter(text, block.endIndex)
+    val decl = Declaration.parse(chunk)
+    val result = CheckResult(block, decl, Nil)
+
+    // First pass (skip-todo mode)
+    val (afterFirstPass, _) = Fixer.applyFixes(text, List(result), insertTodo = false)
+
+    // Second pass on the result
+    val block2 = ScaladocBlock.findAll(afterFirstPass).head
+    val chunk2 = Declaration.getDeclarationAfter(afterFirstPass, block2.endIndex)
+    val decl2 = Declaration.parse(chunk2)
+    val result2 = CheckResult(block2, decl2, Nil)
+    val (afterSecondPass, _) = Fixer.applyFixes(afterFirstPass, List(result2), insertTodo = false)
+
+    // Should be idempotent - no changes on second pass
+    afterSecondPass should be(afterFirstPass)
+
+    // And there should be no trailing blank line before */
+    afterFirstPass should not include " *\n */"
+  }
+
+  it should "be idempotent when formatting scaladocs with @inheritdoc in skip-todo mode" in {
+    // Test that simulates the LazyList.scala case from the library
+    val text = """/** $preservesLaziness
+                 | *  @inheritdoc
+                 | */
+                 |override def knownSize: Int = if (knownIsEmpty) 0 else -1""".stripMargin
+
+    val block = ScaladocBlock.findAll(text).head
+    val chunk = Declaration.getDeclarationAfter(text, block.endIndex)
+    val decl = Declaration.parse(chunk)
+    val result = CheckResult(block, decl, Nil)
+
+    // First pass
+    val (afterFirstPass, _) = Fixer.applyFixes(text, List(result), insertTodo = false)
+
+    // Second pass
+    val block2 = ScaladocBlock.findAll(afterFirstPass).head
+    val chunk2 = Declaration.getDeclarationAfter(afterFirstPass, block2.endIndex)
+    val decl2 = Declaration.parse(chunk2)
+    val result2 = CheckResult(block2, decl2, Nil)
+    val (afterSecondPass, _) = Fixer.applyFixes(afterFirstPass, List(result2), insertTodo = false)
+
+    // Should be idempotent
+    afterSecondPass should be(afterFirstPass)
+  }

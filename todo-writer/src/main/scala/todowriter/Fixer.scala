@@ -372,11 +372,16 @@ object Fixer:
               case TextLine(_) => false
               case _ => true
             }.drop(1)
-            // Prepend any items that came before the first TextLine
+            // Prepend any items that came before the first TextLine, but strip
+            // trailing BlankLines since they were separators between the tag
+            // and the text we're promoting (no longer needed).
             val prefixItems = normalizedParsed.items.takeWhile {
               case TextLine(_) => false
               case _ => true
-            }
+            }.reverse.dropWhile {
+              case BlankLine() => true
+              case _ => false
+            }.reverse
             ParsedScaladoc(
               initialText = Some(firstText.trim),
               items = prefixItems ++ remainingItems
