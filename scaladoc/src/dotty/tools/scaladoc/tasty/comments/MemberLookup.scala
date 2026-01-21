@@ -193,12 +193,13 @@ trait MemberLookup {
               if termMatches.size <= 1 then termMatches.headOption
               else {
                 // No owner context, try to match based on signature in query
-                val paramName = extractParamTypeFromSignature(sel.ident)
-                paramName.flatMap { pn =>
+                val queryParamTypes = parseSignatureParams(sel.ident)
+                if queryParamTypes.nonEmpty then
                   termMatches.find { sym =>
-                    matchesParameterType(sym, pn)
-                  }
-                }.orElse(termMatches.headOption)
+                    matchesParameterTypes(sym, queryParamTypes)
+                  }.orElse(termMatches.headOption)
+                else
+                  termMatches.headOption
               }
             }
           case _ =>
@@ -238,19 +239,62 @@ trait MemberLookup {
     }
   }
 
-  /** Extract the parameter type from a method signature.
-   *  For example, from "asJava[A](b:scala.collection.mutable.Buffer[A])*" extracts "Buffer".
-   *  This is used to match against method overloads.
+  /** Parse parameter types from a method signature.
+   *  Input: "[A](b:scala.collection.mutable.Buffer[A],c:Int)"
+   *  Output: List("scala.collection.mutable.Buffer", "Int")
    */
-  private def extractParamTypeFromSignature(signature: String): Option[String] = {
+  private def parseSignatureParams(signature: String): List[String] = {
     // Normalize the signature by removing backslashes (they're used in scaladoc to escape dots)
     val normalizedSignature = signature.replace("\\.", ".")
-    // Look for common collection types in the signature
-    val collectionTypes = List("Buffer", "Map", "Set", "Seq", "Iterator", "Iterable", "List", "Dictionary", "ConcurrentMap", "Properties")
-    collectionTypes.find { typeName =>
-      // Look for patterns like "mutable.Buffer", "collection.Map", etc.
-      normalizedSignature.contains(s".${typeName}") || normalizedSignature.contains(s"${typeName}[")
+
+    // Find the parameter list (after any type params)
+    val parenStart = normalizedSignature.indexOf('(')
+    if parenStart == -1 then return Nil
+
+    val parenEnd = normalizedSignature.lastIndexOf(')')
+    if parenEnd == -1 || parenEnd <= parenStart then return Nil
+
+    val paramList = normalizedSignature.substring(parenStart + 1, parenEnd)
+    if paramList.isEmpty then return Nil
+
+    // Split by comma, respecting nested brackets
+    val params = scala.collection.mutable.ListBuffer[String]()
+    var depth = 0
+    var start = 0
+    for i <- 0 until paramList.length do
+      val c = paramList.charAt(i)
+      if c == '[' then depth += 1
+      else if c == ']' then depth -= 1
+      else if c == ',' && depth == 0 then
+        params += paramList.substring(start, i).trim
+        start = i + 1
+    params += paramList.substring(start).trim
+
+    // Extract type from each "name:Type" pair, stripping type arguments
+    params.toList.flatMap { param =>
+      val colonIdx = param.indexOf(':')
+      if colonIdx == -1 then None
+      else
+        val typePart = param.substring(colonIdx + 1).trim
+        // Remove type arguments to get the base type
+        val bracketIdx = typePart.indexOf('[')
+        val baseType = if bracketIdx == -1 then typePart else typePart.substring(0, bracketIdx)
+        Some(baseType)
     }
+  }
+
+  /** Extract simple type name from a possibly qualified type.
+   *  "scala.collection.mutable.Buffer[A]" -> "Buffer"
+   *  "Int" -> "Int"
+   */
+  private def extractSimpleTypeName(qualifiedType: String): String = {
+    // Remove type arguments first
+    val withoutTypeArgs = qualifiedType.indexOf('[') match {
+      case -1 => qualifiedType
+      case i => qualifiedType.substring(0, i)
+    }
+    // Get last segment after '.'
+    withoutTypeArgs.split('.').last
   }
 
   /** Extract just the method name from a signature, removing type parameters and parameter lists.
@@ -267,42 +311,26 @@ trait MemberLookup {
     }
   }
 
-  /** Check if a method's parameter types match the expected type name.
-   *  This looks at the actual parameter types from the method's type signature.
+  /** Check if a method's parameter types match the expected parameter types from the query.
+   *  This compares the simple type names of all parameters in order.
    */
-  private def matchesParameterType(using Quotes)(sym: reflect.Symbol, typeName: String): Boolean = {
+  private def matchesParameterTypes(using Quotes)(sym: reflect.Symbol, queryParamTypes: List[String]): Boolean = {
     import reflect._
 
-    // Try to match using paramSigs first
-    val paramSigMatch = sym.signature.paramSigs.exists {
-      case s: String =>
-        // Check if the paramSig contains the type name
-        s.contains(typeName)
-      case _ => false
+    def getMethodParamTypes(tpe: TypeRepr): Option[List[String]] = tpe match {
+      case MethodType(_, paramTypes, _) =>
+        Some(paramTypes.map(pt => extractSimpleTypeName(pt.show)))
+      case PolyType(_, _, resType) =>
+        getMethodParamTypes(resType)
+      case _ => None
     }
-    if paramSigMatch then return true
 
-    // Try to get parameter types from the method's type signature
     try {
-      sym.info match {
-        case MethodType(_, paramTypes, _) =>
-          paramTypes.exists { paramType =>
-            val paramTypeStr = paramType.show
-            // Check if the parameter type contains the type name
-            // Also check for simple type name match (e.g., "Buffer" matches "scala.collection.mutable.Buffer")
-            paramTypeStr.contains(typeName) || paramTypeStr.endsWith(s".$typeName") || paramTypeStr.endsWith(s"[$typeName")
-          }
-        case PolyType(_, _, resType) =>
-          // Handle polymorphic methods by looking at the result type
-          resType match {
-            case MethodType(_, paramTypes, _) =>
-              paramTypes.exists { paramType =>
-                val paramTypeStr = paramType.show
-                paramTypeStr.contains(typeName) || paramTypeStr.endsWith(s".$typeName") || paramTypeStr.endsWith(s"[$typeName")
-              }
-            case _ => false
-          }
-        case _ => false
+      getMethodParamTypes(sym.info) match {
+        case Some(actualTypes) =>
+          val querySimpleTypes = queryParamTypes.map(extractSimpleTypeName)
+          actualTypes == querySimpleTypes
+        case None => false
       }
     } catch {
       case _: Exception => false
