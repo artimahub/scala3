@@ -157,22 +157,27 @@ object Main:
       val sb = new StringBuffer
       var any = false
       while matcher.find() do
-        val inner = matcher.group(1)
-        val migrated = WikidocToMarkdown.migrateScaladocInner(inner)
-        if migrated != inner then
-          any = true
-          // Preserve surrounding comment markers and indentation before the closing "*/".
-          val origMatch = matcher.group(0)
-          val lastNl = origMatch.lastIndexOf('\n')
-          val wsBeforeClose =
-            if lastNl >= 0 then origMatch.substring(lastNl + 1).takeWhile(_.isWhitespace)
-            else ""
-          // Ensure the migrated content is followed by a newline before the closing marker,
-          // and preserve the original whitespace indentation before "*/".
-          val replacement =
-            if migrated.endsWith("\n") then s"/**${migrated}${wsBeforeClose}*/"
-            else s"/**${migrated}\n${wsBeforeClose}*/"
-          matcher.appendReplacement(sb, java.util.regex.Matcher.quoteReplacement(replacement))
+        val startIndex = matcher.start()
+        // Check if the /** is inside a // line comment - if so, skip this match
+        val lineStart = text.lastIndexOf('\n', startIndex - 1) + 1
+        val lineBeforeMatch = text.substring(lineStart, startIndex)
+        if !lineBeforeMatch.contains("//") then
+          val inner = matcher.group(1)
+          val migrated = WikidocToMarkdown.migrateScaladocInner(inner)
+          if migrated != inner then
+            any = true
+            // Preserve surrounding comment markers and indentation before the closing "*/".
+            val origMatch = matcher.group(0)
+            val lastNl = origMatch.lastIndexOf('\n')
+            val wsBeforeClose =
+              if lastNl >= 0 then origMatch.substring(lastNl + 1).takeWhile(_.isWhitespace)
+              else ""
+            // Ensure the migrated content is followed by a newline before the closing marker,
+            // and preserve the original whitespace indentation before "*/".
+            val replacement =
+              if migrated.endsWith("\n") then s"/**${migrated}${wsBeforeClose}*/"
+              else s"/**${migrated}\n${wsBeforeClose}*/"
+            matcher.appendReplacement(sb, java.util.regex.Matcher.quoteReplacement(replacement))
       matcher.appendTail(sb)
       if any then
         changed += 1
