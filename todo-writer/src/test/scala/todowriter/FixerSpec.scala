@@ -737,36 +737,49 @@ class FixerSpec extends AnyFlatSpec with Matchers:
 
   // Tests merged from AsteriskAlignmentSpec
 
-  it should "convert two-space asterisk alignment to one-space" in {
-    // Include a following method definition to ensure leading indentation context exists.
+  it should "promote simple text to the /** line (previously tested asterisk alignment)" in {
+    // Simple text-only scaladocs should be promoted to the /** line for consistency.
     val text = """/**
                  |  * Testing
                  |  */
                  |def foo(): Unit = ()""".stripMargin
     val block = ScaladocBlock.findAll(text).head
     val result = Fixer.buildFixedBlock(text, block, Nil, Nil, false)
-    val lines = result.split("\n")
 
-    // Expect multi-line output:
-    val expected = """/**
-                     | *  Testing
-                     | */""".stripMargin
+    // Expect single-line output since the only content is simple text:
+    val expected = "/** Testing */"
     result should be(expected)
   }
 
-  it should "convert indented one-space asterisk alignment to two-space after leading indentation" in {
-    // Indented scaladoc followed by an indented method definition.
+  it should "promote simple text to the /** line when indented" in {
+    // Indented scaladoc with simple text should also be promoted.
     val text =   """    /**
                   |     * Testing
                   |     */""".stripMargin
     val block = ScaladocBlock.findAll(text).head
     val result = Fixer.buildFixedBlock(text, block, Nil, Nil, false)
-    val lines = result.split("\n")
 
-    // The asterisk line should be aligned relative to the method indentation.
-    val expected = """    /**
-                     |     *  Testing
-                     |     */""".stripMargin
+    // Expect single-line output:
+    val expected = "    /** Testing */"
+    result should be(expected)
+  }
+
+  it should "preserve multi-line format and align asterisks when there are multiple content items" in {
+    // Multi-line scaladocs with multiple items should stay multi-line.
+    val text = """/**
+                 |  * First line.
+                 |  *
+                 |  * Second paragraph.
+                 |  */
+                 |def foo(): Unit = ()""".stripMargin
+    val block = ScaladocBlock.findAll(text).head
+    val result = Fixer.buildFixedBlock(text, block, Nil, Nil, false)
+
+    // Expect multi-line output with first line promoted:
+    val expected = """/** First line.
+                     | *
+                     | *  Second paragraph.
+                     | */""".stripMargin
     result should be(expected)
   }
 

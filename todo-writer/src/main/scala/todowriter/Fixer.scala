@@ -406,11 +406,11 @@ object Fixer:
     // Process items: sort signature tags among themselves, keep others in place
     val processedItems = processItemsWithSignatureTags(adjustedParsed.items, newSignatureTags.toList)
 
-    // When adding signature tags to a block that has no initialText,
-    // promote the first text line to the opening line so the description appears
-    // after "/** ". This matches expectations in tests that move misplaced initial text.
+    // When the block has no initialText, promote the first text line to the
+    // opening line so the description appears after "/** ". This ensures
+    // consistent formatting regardless of whether we're adding signature tags.
     val (displayInitialText, displayItems) =
-      if adjustedParsed.initialText.isEmpty && newSignatureTags.nonEmpty then
+      if adjustedParsed.initialText.isEmpty then
         processedItems.collectFirst { case TextLine(t) => t } match
           case Some(firstText) =>
             val itemsBeforeText = processedItems.takeWhile {
@@ -548,11 +548,13 @@ object Fixer:
       items: List[DocItem],
       wasSingleLine: Boolean
   ): String =
-    // Special case: single-line with no additional content needed
-    if wasSingleLine && items.isEmpty then
-      initialText match
-        case Some(text) => s"/** $text */"
-        case None => "/** */"
+    // Special case: single-line output when there's only initial text and no other items.
+    // This applies when the original was single-line, or when we've promoted all content
+    // to the initial text line (for consistent formatting).
+    if items.isEmpty && initialText.isDefined then
+      s"$leadingWs/** ${initialText.get} */"
+    else if wasSingleLine && items.isEmpty then
+      "/** */"
 
     // Multi-line output needed
     else
