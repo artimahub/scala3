@@ -738,8 +738,10 @@ class WikidocToMarkdownSpec extends AnyFlatSpec with Matchers:
       line should startWith(" *")
     }
 
+    // The code block markers should have 2 spaces after * (like other content)
+    migrated should include(" *  ```")
+
     // The code block content should be present and properly formatted
-    migrated should include("```")
     migrated should include("val Constant = 'Q'")
     migrated should include("def tokenMe")
     migrated should include("case ' ' | '\\t' | '\\n'")
@@ -749,7 +751,7 @@ class WikidocToMarkdownSpec extends AnyFlatSpec with Matchers:
     // This is the pattern from library/src/scala/annotation/showAsInfix.scala
     // The file has unusual indentation with " *" for some lines and "  *" for others.
     // The key test is that the code block lines (which originally had no *) get
-    // the standard prefix from other lines.
+    // the MOST COMMON prefix from other lines (which is "  *" - 2 spaces).
     val inner =
       """
   * This annotation configures how Scala prints two-parameter generic types.
@@ -780,12 +782,14 @@ class WikidocToMarkdownSpec extends AnyFlatSpec with Matchers:
     // All lines with asterisks that are scaladoc content (starting with *) should have consistent prefix
     val linesWithStar = migrated.linesIterator.filter(l => l.contains('*') && l.trim.startsWith("*")).toList
     linesWithStar.foreach { line =>
-      // Lines with * should start with "  *" (2 spaces before star, matching the standard in this file)
+      // Lines with * should start with "  *" (2 spaces before star, matching the most common prefix)
       line should startWith("  *")
     }
 
+    // The code block markers should have 2 spaces after * (like other content)
+    migrated should include("  *  ```")
+
     // The code block content should be present
-    migrated should include("```")
     migrated should include("scala> class Map[T, U]")
     migrated should include("defined class Map")
   }
@@ -813,4 +817,7 @@ code line 2
     // Both should start with " *" (standard scaladoc prefix)
     codeStartLine should startWith(" *")
     descriptionLine should startWith(" *")
+
+    // The ``` markers should have proper spacing (at least 2 spaces after *)
+    codeStartLine should startWith(" *  ```")
   }

@@ -196,9 +196,23 @@ object WikidocToMarkdown:
 
       // Determine the standard scaladoc prefix (whitespace before '*') from lines that have '*'.
       // This is used for lines that originally didn't have '*' (e.g., lines inside {{{ }}} blocks).
-      val standardPrefix = origLines.find(l => l.contains('*') && l.trim.startsWith("*"))
+      // Use the MOST COMMON prefix to handle files with mixed indentation.
+      val prefixCounts = origLines
+        .filter(l => l.contains('*') && l.trim.startsWith("*"))
         .map(_.takeWhile(_.isWhitespace))
-        .getOrElse(" ")
+        .groupBy(identity)
+        .view.mapValues(_.size).toMap
+      val standardPrefix = if prefixCounts.nonEmpty then
+        prefixCounts.maxBy(_._2)._1
+      else " "
+
+      // Helper to ensure content has at least 2 leading spaces after '*'
+      def ensureContentSpacing(content: String): String =
+        if content.isEmpty then content
+        else
+          val leadingSpaces = content.takeWhile(_.isWhitespace).length
+          if leadingSpaces >= 2 then content
+          else "  " + content.dropWhile(_.isWhitespace)
 
       if startsWithNewline then
         // Build lines into a buffer and join.
@@ -231,8 +245,9 @@ object WikidocToMarkdown:
               () // skip this blank line
           else
             // line already may start with whitespace (it is the cleaned content after the '*')
-            // Preserve the content after '*' exactly (do not reintroduce trailing-only spaces).
-            outLines += prefix + "*" + line
+            // For lines that originally didn't have '*', ensure proper spacing after '*'.
+            val content = if origHadStar then line else ensureContentSpacing(line)
+            outLines += prefix + "*" + content
         out.append(outLines.mkString("\n"))
       else
         if migLines.nonEmpty then
@@ -264,7 +279,9 @@ object WikidocToMarkdown:
               else
                 () // skip this blank line
             else
-              outLines += prefix + "*" + line
+              // For lines that originally didn't have '*', ensure proper spacing after '*'.
+              val content = if origHadStar then line else ensureContentSpacing(line)
+              outLines += prefix + "*" + content
           out.append("\n").append(outLines.mkString("\n"))
 
       out.toString
