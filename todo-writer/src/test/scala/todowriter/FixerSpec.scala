@@ -996,3 +996,123 @@ class FixerSpec extends AnyFlatSpec with Matchers:
     // Should be idempotent
     afterSecondPass should be(afterFirstPass)
   }
+
+  // Tests for @inheritdoc not being reordered relative to other content
+
+  it should "not move @inheritdoc below text when @inheritdoc is first" in {
+    // @inheritdoc on first line, text on second - should keep @inheritdoc on opening line
+    val text = """/** @inheritdoc
+                 | *  Note: *Must* be overridden in subclasses.
+                 | */
+                 |def head: A""".stripMargin
+
+    val block = ScaladocBlock.findAll(text).head
+    val result = Fixer.buildFixedBlock(text, block, Nil, Nil, false)
+
+    // @inheritdoc should remain on the opening line (before "Note")
+    result should startWith("/** @inheritdoc")
+    // The text should come after on a subsequent line
+    result should include("Note: *Must* be overridden")
+    // @inheritdoc should NOT appear after the text
+    val inheritdocIdx = result.indexOf("@inheritdoc")
+    val noteIdx = result.indexOf("Note:")
+    inheritdocIdx should be < noteIdx
+  }
+
+  it should "keep @inheritdoc after text when it was originally after text" in {
+    // Text first, then @inheritdoc - should keep that order
+    val text = """/** Note: *Must* be overridden in subclasses.
+                 | *  @inheritdoc
+                 | */
+                 |def head: A""".stripMargin
+
+    val block = ScaladocBlock.findAll(text).head
+    val result = Fixer.buildFixedBlock(text, block, Nil, Nil, false)
+
+    // Text should be on opening line
+    result should startWith("/** Note: *Must* be overridden")
+    // @inheritdoc should come after
+    val noteIdx = result.indexOf("Note:")
+    val inheritdocIdx = result.indexOf("@inheritdoc")
+    noteIdx should be < inheritdocIdx
+  }
+
+  it should "promote @inheritdoc to opening line when it's the only content" in {
+    val text = """/**
+                 | *  @inheritdoc
+                 | */
+                 |def head: A""".stripMargin
+
+    val block = ScaladocBlock.findAll(text).head
+    val result = Fixer.buildFixedBlock(text, block, Nil, Nil, false)
+
+    // Should be promoted to a single-line format
+    result should be("/** @inheritdoc */")
+  }
+
+  it should "preserve @inheritdoc position with signature tags after it" in {
+    // @inheritdoc followed by @param - @inheritdoc should stay where it is
+    val text = """/** @inheritdoc
+                 | *
+                 | *  @param x the input
+                 | */
+                 |def foo(x: Int): Int""".stripMargin
+
+    val block = ScaladocBlock.findAll(text).head
+    val result = Fixer.buildFixedBlock(text, block, Nil, Nil, false)
+
+    // @inheritdoc should still be on the opening line
+    result should startWith("/** @inheritdoc")
+    // @param should come after
+    val inheritdocIdx = result.indexOf("@inheritdoc")
+    val paramIdx = result.indexOf("@param")
+    inheritdocIdx should be < paramIdx
+  }
+
+  it should "preserve @inheritdoc position when inserting new signature tags" in {
+    val text = """/** @inheritdoc
+                 | *  Note: Important info.
+                 | */
+                 |def foo(x: Int): Int""".stripMargin
+
+    val block = ScaladocBlock.findAll(text).head
+    val result = Fixer.buildFixedBlock(text, block, Nil, List("x"), true)
+
+    // @inheritdoc should be on opening line
+    result should startWith("/** @inheritdoc")
+    // @inheritdoc should come before "Note"
+    val inheritdocIdx = result.indexOf("@inheritdoc")
+    val noteIdx = result.indexOf("Note:")
+    inheritdocIdx should be < noteIdx
+    // New @param should be added at the end
+    result should include("@param x TODO FILL IN")
+  }
+
+  it should "match the exact LazyList.scala pattern - @inheritdoc followed by Note about overriding" in {
+    // This is the exact pattern from library/src/scala/collection/immutable/LazyList.scala
+    // that was being incorrectly rewritten in the feature-consistent-scaladoc-format-and-markdown branch
+    val text = """/** @inheritdoc
+                 | *  Note: *Must* be overridden in subclasses. The default implementation that is inherited from [[SeqOps]]
+                 | *  uses `lengthCompare`, which is implemented here in terms of `sizeCompare`.
+                 | */
+                 |override def head: A""".stripMargin
+
+    val block = ScaladocBlock.findAll(text).head
+    val result = Fixer.buildFixedBlock(text, block, Nil, Nil, false)
+
+    // The @inheritdoc MUST stay on the opening line, NOT be moved after the Note
+    // This was the bug: the old code would produce:
+    //   /** Note: *Must* be overridden...
+    //    *  @inheritdoc     <-- WRONG! @inheritdoc was moved after text
+    //    */
+    // The correct output keeps @inheritdoc on the opening line:
+    result should startWith("/** @inheritdoc")
+
+    // The Note should come on subsequent lines
+    result should include("Note: *Must* be overridden")
+
+    // @inheritdoc must appear BEFORE the Note text
+    val inheritdocIdx = result.indexOf("@inheritdoc")
+    val noteIdx = result.indexOf("Note:")
+    inheritdocIdx should be < noteIdx
+  }

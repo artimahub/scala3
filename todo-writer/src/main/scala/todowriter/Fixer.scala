@@ -171,9 +171,15 @@ object Fixer:
   private def isSignatureTag(line: String): Boolean =
     SignatureTags.exists(tag => line.startsWith(tag))
 
-  /** Check if a line starts with any @ tag. */
+  /** Check if a line starts with any @ tag.
+   *
+   *  Note: `@inheritdoc` is treated as text content, not a tag, because it should
+   *  not be reordered relative to other documentation content. It can be moved to
+   *  the opening line like other text, but should not be moved above or below
+   *  other content in the doc comment.
+   */
   private def isAnyTag(line: String): Boolean =
-    line.startsWith("@")
+    line.startsWith("@") && !line.startsWith("@inheritdoc")
 
   /** Regex to match the start of a markdown code fence (``` with optional language). */
   private val CodeFenceStart = """^```\w*\s*$""".r
