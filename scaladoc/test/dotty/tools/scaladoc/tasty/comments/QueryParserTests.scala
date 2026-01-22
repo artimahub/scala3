@@ -71,6 +71,36 @@ class QueryParserTests {
     testSuccess("transform[A](b:scala.collection.mutable.Buffer[A])*", Id("transform[A](b:scala.collection.mutable.Buffer[A])*"))
     testSuccess("transform(x:Int)*", Id("transform(x:Int)*"))
 
+    // Test edge cases for overload signatures
+    // Nested generics
+    testSuccess("foo[A](x:Map[String,List[A]])*", Id("foo[A](x:Map[String,List[A]])*"))
+    testSuccess("f[A,B](x:Either[Option[A],List[B]])*", Id("f[A,B](x:Either[Option[A],List[B]])*"))
+
+    // Multiple parameters
+    testSuccess("bar(a:Int,b:String)*", Id("bar(a:Int,b:String)*"))
+    testSuccess("baz(a:Int,b:String,c:Boolean)*", Id("baz(a:Int,b:String,c:Boolean)*"))
+    testSuccess("merge(a:Buffer[_],b:Set[_])*", Id("merge(a:Buffer[_],b:Set[_])*"))
+
+    // Empty parameters
+    testSuccess("noArgs()*", Id("noArgs()*"))
+
+    // No type parameters
+    testSuccess("simpleMethod(x:Int)*", Id("simpleMethod(x:Int)*"))
+    testSuccess("twoParams(a:String,b:Boolean)*", Id("twoParams(a:String,b:Boolean)*"))
+
+    // Deeply nested types
+    testSuccess("complex[A](x:Map[String,Map[Int,List[A]]])*", Id("complex[A](x:Map[String,Map[Int,List[A]]])*"))
+
+    // Custom/user-defined types
+    testSuccess("process(x:tests.CustomType)*", Id("process(x:tests.CustomType)*"))
+    testSuccess("handle(x:com.example.MyClass)*", Id("handle(x:com.example.MyClass)*"))
+
+    // Qualified identifiers with complex signatures
+    testSuccess("pkg.Class.method[A](x:Map[String,List[A]])*",
+      l2q("pkg".dot, "Class".dot)("method[A](x:Map[String,List[A]])*"))
+    testSuccess("a.b.c.method(a:Int,b:String)*",
+      l2q("a".dot, "b".dot, "c".dot)("method(a:Int,b:String)*"))
+
     testFailAt("#", 1)
     testFailAt("#`", 2)
     testFailAt("``", 2)
