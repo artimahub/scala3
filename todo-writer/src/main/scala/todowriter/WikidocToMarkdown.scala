@@ -194,6 +194,12 @@ object WikidocToMarkdown:
       val migLines = migratedRestored.split("\n", -1).toList
       val out = new StringBuilder
 
+      // Determine the standard scaladoc prefix (whitespace before '*') from lines that have '*'.
+      // This is used for lines that originally didn't have '*' (e.g., lines inside {{{ }}} blocks).
+      val standardPrefix = origLines.find(l => l.contains('*') && l.trim.startsWith("*"))
+        .map(_.takeWhile(_.isWhitespace))
+        .getOrElse(" ")
+
       if startsWithNewline then
         // Build lines into a buffer and join.
         // Use original per-line prefixes (when available) to preserve indentation before '*'.
@@ -202,12 +208,17 @@ object WikidocToMarkdown:
 
         for idx <- migLines.indices do
           val line = migLines(idx)
-          val prefix = tailPrefixes.lift(idx).orElse(origLines.lift(idx).map(_.takeWhile(_.isWhitespace))).getOrElse(" ")
           // When the scaladoc inner starts with a newline, migLines[idx] corresponds to cleanedLines[idx].
           // The leading newline is preserved as an empty string at index 0 in both lists.
           val origHadStar = origLines.lift(idx).exists(_.contains('*'))
           val origWasEmpty = cleanedLines.lift(idx).exists(_.trim.isEmpty)
           val lineIsBlank = line.trim.isEmpty
+
+          // Use standard prefix for lines that originally didn't have '*', otherwise use the original prefix.
+          val prefix = if origHadStar then
+            tailPrefixes.lift(idx).orElse(origLines.lift(idx).map(_.takeWhile(_.isWhitespace))).getOrElse(" ")
+          else
+            standardPrefix
 
           if lineIsBlank then
             // Preserve blank lines that were in the original, but don't add new ones
@@ -238,10 +249,14 @@ object WikidocToMarkdown:
           val outLines = collection.mutable.ListBuffer[String]()
           for idx <- tail.indices do
             val line = tail(idx)
-            val prefix = tailPrefixes.lift(idx).getOrElse(origFirstLeading)
             val origWasEmpty = cleanedLines.lift(idx + 1).exists(_.trim.isEmpty)
             val origHadStar = origLines.lift(idx + 1).exists(_.contains('*'))
             val lineIsBlank = line.trim.isEmpty
+            // Use standard prefix for lines that originally didn't have '*', otherwise use the original prefix.
+            val prefix = if origHadStar then
+              tailPrefixes.lift(idx).getOrElse(origFirstLeading)
+            else
+              standardPrefix
             if lineIsBlank then
               // Preserve blank lines that were in the original, but don't add new ones
               if origWasEmpty && origHadStar then

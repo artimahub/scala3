@@ -702,3 +702,115 @@ class WikidocToMarkdownSpec extends AnyFlatSpec with Matchers:
     // Ensure the specific inline content is preserved exactly (migration must not rewrite it).
     migrated should include ("/**: ... *: An * At` and `B1 *: ... *: Bn *: Bt")
   }
+
+  // Tests for {{{ }}} code blocks without * prefixes
+
+  it should "align asterisks correctly when {{{ }}} block has no * prefixes (switch.scala case)" in {
+    // This is the exact pattern from library/src/scala/annotation/switch.scala
+    // where {{{ }}} lines don't have * prefixes.
+    // The format has lines starting with " *" (single space before asterisk).
+    val inner =
+      """ An annotation to be applied to a match expression.  If present,
+ *  the compiler will verify that the match has been compiled to a
+ *  [[https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-3.html#jvms-3.10 tableswitch or lookupswitch]]
+ *  and issue a warning if it instead compiles into a series of conditional expressions.
+ *  Example usage:
+{{{
+  val Constant = 'Q'
+  def tokenMe(ch: Char) = (ch: @switch) match {
+    case ' ' | '\t' | '\n'  => 1
+    case 'A' | 'Z' | '$'    => 2
+    case '5' | Constant     => 3  // a non-literal may prevent switch generation: this would not compile
+    case _                  => 4
+  }
+}}}
+ *
+ *  Note: for pattern matches with one or two cases, the compiler generates jump instructions.
+ *  Annotating such a match with `@switch` does not issue any warning.
+ """
+
+    val migrated = WikidocToMarkdown.migrateScaladocInner(inner)
+
+    // All lines with asterisks should have consistent prefix (single space before *)
+    val linesWithStar = migrated.linesIterator.filter(l => l.contains('*') && l.trim.startsWith("*")).toList
+    linesWithStar.foreach { line =>
+      // Lines with * that are scaladoc content (starting with *) should start with " *" (single space before star)
+      line should startWith(" *")
+    }
+
+    // The code block content should be present and properly formatted
+    migrated should include("```")
+    migrated should include("val Constant = 'Q'")
+    migrated should include("def tokenMe")
+    migrated should include("case ' ' | '\\t' | '\\n'")
+  }
+
+  it should "align asterisks correctly when {{{ }}} block has no * prefixes (showAsInfix.scala case)" in {
+    // This is the pattern from library/src/scala/annotation/showAsInfix.scala
+    // The file has unusual indentation with " *" for some lines and "  *" for others.
+    // The key test is that the code block lines (which originally had no *) get
+    // the standard prefix from other lines.
+    val inner =
+      """
+  * This annotation configures how Scala prints two-parameter generic types.
+  *
+  * By default, types with symbolic names are printed infix; while types without
+  * them are printed using the regular generic type syntax.
+  *
+  * Example of usage:
+  {{{
+    scala> class Map[T, U]
+    defined class Map
+
+    scala> def foo: Int Map Int = ???
+    foo: Map[Int,Int]
+
+    scala> @showAsInfix class Map[T, U]
+    defined class Map
+
+    scala> def foo: Int Map Int = ???
+    foo: Int Map Int
+  }}}
+  *
+  * @param enabled whether to show this type as an infix type operator.
+  """
+
+    val migrated = WikidocToMarkdown.migrateScaladocInner(inner)
+
+    // All lines with asterisks that are scaladoc content (starting with *) should have consistent prefix
+    val linesWithStar = migrated.linesIterator.filter(l => l.contains('*') && l.trim.startsWith("*")).toList
+    linesWithStar.foreach { line =>
+      // Lines with * should start with "  *" (2 spaces before star, matching the standard in this file)
+      line should startWith("  *")
+    }
+
+    // The code block content should be present
+    migrated should include("```")
+    migrated should include("scala> class Map[T, U]")
+    migrated should include("defined class Map")
+  }
+
+  it should "use standard scaladoc prefix for code block lines that originally had no *" in {
+    // Simplified test case: {{{ }}} without * on any line inside
+    val inner =
+      """
+ *  Some description.
+ *  Example:
+{{{
+code line 1
+code line 2
+}}}
+ *  More text.
+ """
+
+    val migrated = WikidocToMarkdown.migrateScaladocInner(inner)
+
+    // The {{{ and }}} markers (now ```) should use the same prefix as other lines
+    val lines = migrated.split("\n")
+    val codeStartLine = lines.find(l => l.contains("```")).get
+    val descriptionLine = lines.find(_.contains("Some description")).get
+
+    // Both should start with " *" (standard scaladoc prefix)
+    codeStartLine should startWith(" *")
+    descriptionLine should startWith(" *")
+  }
