@@ -189,7 +189,7 @@ trait MemberLookup {
             if typeMatch.isDefined then typeMatch
             else {
               val termMatches =
-              lookedUp.filter(s => s.isTerm || s.flags.is(Flags.Module))
+                lookedUp.filter(s => s.isTerm || s.flags.is(Flags.Module))
               if termMatches.size <= 1 then termMatches.headOption
               else {
                 // No owner context, try to match based on signature in query
@@ -312,7 +312,8 @@ trait MemberLookup {
   }
 
   /** Check if a method's parameter types match the expected parameter types from the query.
-   *  This compares the simple type names of all parameters in order.
+   *  This compares the simple type names of all parameters in order, which could, theoretically,
+   * have edge cases with same-named types in different packages
    */
   private def matchesParameterTypes(using Quotes)(sym: reflect.Symbol, queryParamTypes: List[String]): Boolean = {
     import reflect._
