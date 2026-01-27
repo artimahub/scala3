@@ -81,8 +81,10 @@ class QueryParserTests {
     testSuccess("baz(a:Int,b:String,c:Boolean)*", Id("baz(a:Int,b:String,c:Boolean)*"))
     testSuccess("merge(a:Buffer[_],b:Set[_])*", Id("merge(a:Buffer[_],b:Set[_])*"))
 
-    // Empty parameters
+    // Empty parameters (no-arg methods)
     testSuccess("noArgs()*", Id("noArgs()*"))
+    testSuccess("action()*", Id("action()*"))
+    testSuccess("pkg.Class.action()*", l2q("pkg".dot, "Class".dot)("action()*"))
 
     // No type parameters
     testSuccess("simpleMethod(x:Int)*", Id("simpleMethod(x:Int)*"))

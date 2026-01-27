@@ -192,14 +192,17 @@ trait MemberLookup {
                 lookedUp.filter(s => s.isTerm || s.flags.is(Flags.Module))
               if termMatches.size <= 1 then termMatches.headOption
               else {
-                // No owner context, try to match based on signature in query
-                val queryParamTypes = parseSignatureParams(sel.ident)
-                if queryParamTypes.nonEmpty then
-                  termMatches.find { sym =>
-                    matchesParameterTypes(sym, queryParamTypes)
-                  }.orElse(termMatches.headOption)
-                else
-                  termMatches.headOption
+                // Multiple overloads found, try to match based on signature in query
+                parseSignatureParams(sel.ident) match {
+                  case Some(queryParamTypes) =>
+                    // Signature was provided, try to find matching overload
+                    termMatches.find { sym =>
+                      matchesParameterTypes(sym, queryParamTypes)
+                    }.orElse(termMatches.headOption)
+                  case None =>
+                    // No signature provided, fall back to first match
+                    termMatches.headOption
+                }
               }
             }
           case _ =>
@@ -241,21 +244,26 @@ trait MemberLookup {
 
   /** Parse parameter types from a method signature.
    *  Input: "[A](b:scala.collection.mutable.Buffer[A],c:Int)"
-   *  Output: List("scala.collection.mutable.Buffer", "Int")
+   *  Output: Some(List("scala.collection.mutable.Buffer", "Int"))
+   *
+   *  Returns:
+   *  - None if no parameter list is present (e.g., "method" or "method[A]")
+   *  - Some(Nil) if parameter list is empty (e.g., "method()")
+   *  - Some(List(...)) if parameters are present
    */
-  private def parseSignatureParams(signature: String): List[String] = {
+  private def parseSignatureParams(signature: String): Option[List[String]] = {
     // Normalize the signature by removing backslashes (they're used in scaladoc to escape dots)
     val normalizedSignature = signature.replace("\\.", ".")
 
     // Find the parameter list (after any type params)
     val parenStart = normalizedSignature.indexOf('(')
-    if parenStart == -1 then return Nil
+    if parenStart == -1 then return None
 
     val parenEnd = normalizedSignature.lastIndexOf(')')
-    if parenEnd == -1 || parenEnd <= parenStart then return Nil
+    if parenEnd == -1 || parenEnd <= parenStart then return None
 
     val paramList = normalizedSignature.substring(parenStart + 1, parenEnd)
-    if paramList.isEmpty then return Nil
+    if paramList.isEmpty then return Some(Nil)
 
     // Split by comma, respecting nested brackets
     val params = scala.collection.mutable.ListBuffer[String]()
@@ -271,7 +279,7 @@ trait MemberLookup {
     params += paramList.substring(start).trim
 
     // Extract type from each "name:Type" pair, stripping type arguments
-    params.toList.flatMap { param =>
+    Some(params.toList.flatMap { param =>
       val colonIdx = param.indexOf(':')
       if colonIdx == -1 then None
       else
@@ -280,7 +288,7 @@ trait MemberLookup {
         val bracketIdx = typePart.indexOf('[')
         val baseType = if bracketIdx == -1 then typePart else typePart.substring(0, bracketIdx)
         Some(baseType)
-    }
+    })
   }
 
   /** Extract simple type name from a possibly qualified type.

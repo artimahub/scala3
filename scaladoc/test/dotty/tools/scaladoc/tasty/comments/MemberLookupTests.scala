@@ -278,6 +278,33 @@ class LookupTestCases[Q <: Quotes](val q: Quotes) {
       testOwnerlessLookup(query, sym)
     }
 
+    // Test no-arg vs arg overloads - this tests that empty parameter lists
+    // are correctly distinguished from missing signatures
+    val noArgOverloadCases = List[(String, Sym)](
+      // No-arg version
+      "tests.overloadedMethods.NoArgOverloads.action()*" ->
+        cls("tests.overloadedMethods.NoArgOverloads").funOverload("action"),
+      // Int arg version
+      "tests.overloadedMethods.NoArgOverloads.action(x:Int)*" ->
+        cls("tests.overloadedMethods.NoArgOverloads").funOverload("action", "Int"),
+      // String arg version
+      "tests.overloadedMethods.NoArgOverloads.action(s:String)*" ->
+        cls("tests.overloadedMethods.NoArgOverloads").funOverload("action", "String"),
+      // Two arg version
+      "tests.overloadedMethods.NoArgOverloads.action(x:Int,y:String)*" ->
+        cls("tests.overloadedMethods.NoArgOverloads").funOverload("action", "Int", "String"),
+      // No-arg getValue
+      "tests.overloadedMethods.NoArgOverloads.getValue()*" ->
+        cls("tests.overloadedMethods.NoArgOverloads").funOverload("getValue"),
+      // Int arg getValue
+      "tests.overloadedMethods.NoArgOverloads.getValue(index:Int)*" ->
+        cls("tests.overloadedMethods.NoArgOverloads").funOverload("getValue", "Int"),
+    )
+
+    noArgOverloadCases.foreach { case (query, sym) =>
+      testOwnerlessLookup(query, sym)
+    }
+
     // Test fallback behavior - queries without signature should fall back to first match
     val fallbackCases = List[String](
       "tests.overloadedMethods.OverloadedMethods.transform",

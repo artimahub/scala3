@@ -412,3 +412,79 @@ class MultiParamLinks:
    * [[tests.overloadedMethods.MultiParamOverloads.combine(a:String,b:Int)*]]
    */
   def testCombineStringIntLink: Unit = ???
+
+/**
+ * Test class with overloaded methods where one takes no parameters.
+ * This tests that empty parameter lists are correctly distinguished from
+ * missing signatures.
+ */
+class NoArgOverloads:
+  /**
+   * No-argument version of the method.
+   */
+  def action(): String = "no-arg"
+
+  /**
+   * Single Int argument version.
+   */
+  def action(x: Int): String = "int-arg"
+
+  /**
+   * Single String argument version.
+   */
+  def action(s: String): String = "string-arg"
+
+  /**
+   * Two argument version.
+   */
+  def action(x: Int, y: String): String = "two-args"
+
+  /**
+   * No-argument getter.
+   */
+  def getValue(): Int = 42
+
+  /**
+   * Getter with index.
+   */
+  def getValue(index: Int): Int = index
+
+/**
+ * Test class with links to no-arg overloads.
+ */
+class NoArgLinks:
+  /**
+   * Link to no-arg action.
+   * [[tests.overloadedMethods.NoArgOverloads.action()*]]
+   */
+  def testNoArgAction: Unit = ???
+
+  /**
+   * Link to Int arg action.
+   * [[tests.overloadedMethods.NoArgOverloads.action(x:Int)*]]
+   */
+  def testIntArgAction: Unit = ???
+
+  /**
+   * Link to String arg action.
+   * [[tests.overloadedMethods.NoArgOverloads.action(s:String)*]]
+   */
+  def testStringArgAction: Unit = ???
+
+  /**
+   * Link to two-arg action.
+   * [[tests.overloadedMethods.NoArgOverloads.action(x:Int,y:String)*]]
+   */
+  def testTwoArgAction: Unit = ???
+
+  /**
+   * Link to no-arg getValue.
+   * [[tests.overloadedMethods.NoArgOverloads.getValue()*]]
+   */
+  def testNoArgGetValue: Unit = ???
+
+  /**
+   * Link to getValue with index.
+   * [[tests.overloadedMethods.NoArgOverloads.getValue(index:Int)*]]
+   */
+  def testIntArgGetValue: Unit = ???
