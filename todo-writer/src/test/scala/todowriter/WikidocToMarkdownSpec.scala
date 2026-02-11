@@ -821,3 +821,68 @@ code line 2
     // The ``` markers should have proper spacing (at least 2 spaces after *)
     codeStartLine should startWith(" *  ```")
   }
+
+  it should "convert inline {{{ }}} to fenced code block with content on separate lines" in {
+    // The issue: {{{It was the best of times, it was the worst of times}}}
+    // should become:
+    // ```
+    // It was the best of times, it was the worst of times
+    // ```
+
+    val in = "{{{It was the best of times, it was the worst of times}}}"
+    val out = WikidocToMarkdown.migrate(in)
+
+    // Should start with ``` on its own line
+    out should startWith("```")
+    // Should end with ``` on its own line
+    out should endWith("```")
+    // The content should be on a separate line between the markers
+    out should include("\nIt was the best of times, it was the worst of times\n")
+    // Should NOT have content on the same line as the markers
+    out should not include ("{{{It was")
+    out should not include ("times}}}")
+  }
+
+  it should "convert inline {{{ }}} to fenced code block in scaladoc inner content" in {
+    val inner =
+      """
+       *  An example of inline code.
+       *  {{{It was the best of times, it was the worst of times}}}
+       *  End of example.
+       """.stripMargin
+
+    val migrated = WikidocToMarkdown.migrateScaladocInner(inner)
+
+    // The inline {{{ }}} should be converted to fenced code block with content on separate lines
+    migrated should include(" *  ```")
+    migrated should include("It was the best of times, it was the worst of times")
+    // The closing ``` should be on its own line after the content
+    val lines = migrated.split("\n")
+    val codeBlockStartIdx = lines.indexWhere(_.contains("```"))
+    val codeBlockEndIdx = lines.lastIndexWhere(_.contains("```"))
+
+    codeBlockStartIdx should be >= 0
+    codeBlockEndIdx should be >= 0
+    codeBlockEndIdx should be > codeBlockStartIdx + 1  // Content should be on at least one line between markers
+  }
+
+  it should "convert existing backtick-fenced inline code to proper fenced code block" in {
+    // The issue: ```It was the best of times, it was the worst of times```
+    // should become:
+    // ```
+    // It was the best of times, it was the worst of times
+    // ```
+
+    val in = "```It was the best of times, it was the worst of times```"
+    val out = WikidocToMarkdown.migrate(in)
+
+    // Should start with ``` on its own line
+    out should startWith("```")
+    // Should end with ``` on its own line
+    out should endWith("```")
+    // The content should be on a separate line between the markers
+    out should include("\nIt was the best of times, it was the worst of times\n")
+    // Should NOT have content on the same line as the markers
+    out should not include ("```It was")
+    out should not include ("times```")
+  }
