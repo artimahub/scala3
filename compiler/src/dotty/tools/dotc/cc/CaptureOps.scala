@@ -357,7 +357,9 @@ extension (tp: Type)
 
   /** Is this a reference to caps.any? Note this is _not_ the GlobalAny capability. */
   def isCapsAnyRef(using Context): Boolean = tp match
-    case tp: TermRef => tp.name == nme.any && tp.symbol == defn.Caps_any
+    case tp: TermRef =>
+         tp.name == nme.any && tp.symbol == defn.Caps_any
+      || tp.name == nme.cap && tp.symbol == defn.Caps_cap
     case _ => false
 
   /** Is this a reference to caps.any? Note this is _not_ the GlobalFresh capability. */
@@ -711,10 +713,6 @@ extension (sym: Symbol)
         flags = Flags.EmptyFlags,
         info = defn.Caps_Var.typeRef.appliedTo(sym.info)
             .capturing(LocalCap(sym, Origin.InDecl(sym)))))
-
-  def skipAnonymousOwners(using Context): Symbol =
-    if sym.isAnonymousFunction then sym.owner.skipAnonymousOwners
-    else sym
 
 extension (tp: AnnotatedType)
   /** Is this a boxed capturing type? */

@@ -718,6 +718,10 @@ class Definitions {
   @tu lazy val JavaFormattableClass: ClassSymbol = requiredClass("java.util.Formattable")
   @tu lazy val JavaRecordClass: Symbol = getClassIfDefined("java.lang.Record")
 
+  @tu lazy val JavaUtilObjectsClass: ClassSymbol = requiredModule("java.util.Objects").moduleClass.asClass
+  def Objects_hashCode(using Context): Symbol =
+    JavaUtilObjectsClass.info.member(nme.hashCode_).suchThat(_.info.firstParamTypes.length == 1).symbol
+
   @tu lazy val JavaEnumClass: ClassSymbol = {
     val cls = requiredClass("java.lang.Enum")
     // jl.Enum has a single constructor protected(name: String, ordinal: Int).
@@ -1008,6 +1012,7 @@ class Definitions {
 
   @tu lazy val CapsModule: Symbol = requiredPackage("scala.caps")
     @tu lazy val Caps_any: TermSymbol = CapsModule.requiredValue("any")
+    @tu lazy val Caps_cap: TermSymbol = CapsModule.requiredValue("cap") // TODO drop once we bootstrap with caps.any
     @tu lazy val Caps_fresh: TermSymbol = CapsModule.requiredValue("fresh")
     @tu lazy val Caps_Capability: ClassSymbol = requiredClass("scala.caps.Capability")
     @tu lazy val Caps_Classifier: ClassSymbol = requiredClass("scala.caps.Classifier")
@@ -1997,7 +2002,7 @@ class Definitions {
     /* Caps_Classifier, Caps_SharedCapability, Caps_Control, -- already stable */
     Caps_ExclusiveCapability, Caps_Mutable, Caps_Read, Caps_Unscoped, Caps_Stateful, Caps_Separate,
     Caps_Shared, RequiresCapabilityAnnot,
-    Caps_any, Caps_fresh, Caps_CapSet, Caps_ContainsTrait, Caps_ContainsModule, Caps_ContainsModule.moduleClass,
+    Caps_any, Caps_cap, Caps_fresh, Caps_CapSet, Caps_ContainsTrait, Caps_ContainsModule, Caps_ContainsModule.moduleClass,
     ConsumeAnnot, UseAnnot, ReserveAnnot,
     CapsUnsafeModule, CapsUnsafeModule.moduleClass, Caps_freeze, Caps_Var,
     CapsInternalModule, CapsInternalModule.moduleClass,
