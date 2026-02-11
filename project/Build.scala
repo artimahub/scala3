@@ -3,6 +3,7 @@ import java.nio.file._
 import Process._
 import Modes._
 import ScaladocGeneration._
+import com.jsuereth.sbtpgp.PgpKeys
 import sbt.Keys.*
 import sbt.*
 import sbt.nio.FileStamper
@@ -59,7 +60,7 @@ object Build {
    *
    *  Warning: Change of this variable needs to be consulted with `expectedTastyVersion`
    */
-  val referenceVersion = "3.8.2-RC1"
+  val referenceVersion = "3.8.2-RC2"
 
   /** Version of the Scala compiler targeted in the current release cycle
    *  Contains a version without RC/SNAPSHOT/NIGHTLY specific suffixes
@@ -108,11 +109,14 @@ object Build {
       val currentDate =
         formatter.format(java.time.ZonedDateTime.now(java.time.ZoneId.of("UTC")))
       s"${baseVersion}-bin-${currentDate}-${VersionUtil.gitHash}-NIGHTLY"
+    } else if (isBenchmark) {
+      s"${baseVersion}-bin-${VersionUtil.gitHashFull}-BENCH"
     }
     else s"${baseVersion}-bin-SNAPSHOT"
   }
   def isRelease = sys.env.get("RELEASEBUILD").contains("yes")
   def isNightly = sys.env.get("NIGHTLYBUILD").contains("yes")
+  def isBenchmark = sys.env.get("BENCHMARKBUILD").contains("yes")
 
   /** Version calculate for `nonbootstrapped` projects */
   val dottyNonBootstrappedVersion = {
@@ -134,9 +138,9 @@ object Build {
   val mimaPreviousDottyVersion = "3.8.0"
 
   /** Version of Scala CLI to download */
-  val scalaCliLauncherVersion = "1.11.0"
+  val scalaCliLauncherVersion = "1.12.2"
   /** Version of Coursier to download for initializing the local maven repo of Scala command */
-  val coursierJarVersion = "2.1.25-M21"
+  val coursierJarVersion = "2.1.25-M23"
 
   object CompatMode {
     final val BinaryCompatible = 0
@@ -287,6 +291,8 @@ object Build {
         password <- sys.env.get("SONATYPE_PW")
       } yield Credentials("Sonatype Nexus Repository Manager", "central.sonatype.com", username, password)
     ).toList,
+    PgpKeys.pgpPassphrase := sys.env.get("PGP_PW").map(_.toCharArray()),
+    PgpKeys.useGpgPinentry := true,
 
     // Do not cut off the bottom of large stack traces (default is 1024)
     javaOptions ++= "-XX:MaxJavaStackTraceDepth=1000000" :: Nil,
@@ -1971,6 +1977,7 @@ object Build {
           .add(Revision(version))
           .add(OutputDir(s"scaladoc/output/${version}"))
           .add(SiteRoot(docs.getAbsolutePath))
+          .add(defaultSourceLinks(version = version, allowGitSHA = false))
           .remove[ApiSubdirectory]
         }
         generateDocumentation(config)
@@ -2011,11 +2018,10 @@ object Build {
             .add(SourceLinks(List(
               s"${docs.getAbsolutePath}=github://scala/scala3/language-reference-stable#docs"
             )))
+            .add(GenerateAPI(false))
         }
 
-        val generateDocs = generateDocumentation(languageReferenceConfig).map{ _ =>
-          sbt.io.IO.delete(file(outputDir) / "api") // Remove API docs generated along the reference docs
-        }
+        val generateDocs = generateDocumentation(languageReferenceConfig)
 
         val expectedLinksRegeneration = Def.task {
           if (shouldRegenerateExpectedLinks) {
@@ -2848,10 +2854,10 @@ object ScaladocConfigs {
   private lazy val currentYear: String = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR).toString
 
   def dottyExternalMapping = ".*scala/.*::scaladoc3::https://dotty.epfl.ch/api/"
-  def javaExternalMapping = ".*java/.*::javadoc::https://docs.oracle.com/javase/8/docs/api/"
-  def defaultSourceLinks(version: String) = {
+  def javaExternalMapping = ".*java/.*::javadoc::https://docs.oracle.com/en/java/javase/17/docs/api/"
+  def defaultSourceLinks(version: String, allowGitSHA: Boolean = true) = {
     def dottySrcLink(v: String) = sys.env.get("GITHUB_SHA") match {
-      case Some(sha) => s"github://scala/scala3/$sha"
+      case Some(sha) if allowGitSHA => s"github://scala/scala3/$sha"
       case None => s"github://scala/scala3/$v"
     }
     SourceLinks(List(dottySrcLink(version), "docs=github://scala/scala3/main#docs"))

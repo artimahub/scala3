@@ -59,7 +59,7 @@ object desugar {
    */
   val ContextBoundParam: Property.Key[Unit] = Property.StickyKey()
 
-  /** Marks a poly fcuntion apply method, so that we can handle adding evidence parameters to them in a special way
+  /** Marks a poly function apply method, so that we can handle adding evidence parameters to them in a special way
    */
   val PolyFunctionApply: Property.Key[Unit] = Property.StickyKey()
 
@@ -1446,7 +1446,7 @@ object desugar {
     }
   }
 
-  /** The selector of a match, which depends of the given `checkMode`.
+  /** The selector of a match, which depends on the given `checkMode`.
    *  @param  sel  the original selector
    *  @return if `checkMode` is
    *           - None              :  sel @unchecked
@@ -2384,7 +2384,11 @@ object desugar {
         flatTree(pats1 map (makePatDef(tree, mods, _, rhs)))
       case ext: ExtMethods =>
         Block(List(ext), syntheticUnitLiteral.withSpan(ext.span))
-      case f: FunctionWithMods if f.hasErasedParams => makeFunctionWithValDefs(f, pt)
+      case f: FunctionWithMods if f.hasErasedParams =>
+        makeFunctionWithValDefs(f, pt)
+      case CapturesAndResult(_, parent) =>
+        assert(ctx.reporter.errorsReported)
+        parent
     }
     desugared.withSpan(tree.span)
   }
