@@ -27,8 +27,7 @@ transparent inline def quotes(using q: Quotes): q.type = q
  *  ```scala sc:nocompile
  *  import scala.quoted.*
  *  inline def myMacro: Expr[T] =
- *    ${ /* (quotes: Quotes) ?=> 
- */ myExpr }
+ *    ${ /* (quotes: Quotes) ?=> */ myExpr }
  *  def myExpr(using Quotes): Expr[T] =
  *    '{ f(${ /* (quotes: Quotes) ?=> */ myOtherExpr }) }
  *  }

@@ -52,12 +52,18 @@ final abstract class Byte private extends AnyVal {
 
   /** Returns this value bit-shifted left by the specified number of bits,
    *         filling in the new right bits with zeroes.
-   *  @example ``` 6 << 3 == 48 // in binary: 0110 << 3 == 0110000 ```
+   *  @example
+   *  ```
+   *  6 << 3 == 48 // in binary: 0110 << 3 == 0110000
+   *  ```
    */
   def <<(x: Int): Int
   /** Returns this value bit-shifted left by the specified number of bits,
    *         filling in the new right bits with zeroes.
-   *  @example ``` 6 << 3 == 48 // in binary: 0110 << 3 == 0110000 ```
+   *  @example
+   *  ```
+   *  6 << 3 == 48 // in binary: 0110 << 3 == 0110000
+   *  ```
    */
   @deprecated("shifting a value by a `Long` argument is deprecated (except when the value is a `Long`).\nCall `toInt` on the argument to maintain the current behavior and avoid the deprecation warning.", "2.12.7")
   def <<(x: Long): Int

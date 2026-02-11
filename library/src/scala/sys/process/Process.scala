@@ -53,28 +53,40 @@ trait ProcessCreation {
   /** Creates a [[scala.sys.process.ProcessBuilder]] from a `String`, including the
    *  parameters.
    *
-   *  @example ``` apply("cat file.txt") ```
+   *  @example
+   *  ```
+   *  apply("cat file.txt")
+   *  ```
    */
   def apply(command: String): ProcessBuilder                         = apply(command, None)
 
   /** Creates a [[scala.sys.process.ProcessBuilder]] from a sequence of `String`,
    *  where the head is the command and each element of the tail is a parameter.
    *
-   *  @example ``` apply("cat" :: files) ```
+   *  @example
+   *  ```
+   *  apply("cat" :: files)
+   *  ```
    */
   def apply(command: scala.collection.Seq[String]): ProcessBuilder   = apply(command, None)
 
   /** Creates a [[scala.sys.process.ProcessBuilder]] from a command represented by a `String`,
    *  and a sequence of `String` representing the arguments.
    *
-   *  @example ``` apply("cat", files) ```
+   *  @example
+   *  ```
+   *  apply("cat", files)
+   *  ```
    */
   def apply(command: String, arguments: scala.collection.Seq[String]): ProcessBuilder = apply(command +: arguments, None)
 
   /** Creates a [[scala.sys.process.ProcessBuilder]] with working dir set to `File` and extra
    *  environment variables.
    *
-   *  @example ``` apply("java", new java.io.File("/opt/app"), "CLASSPATH" -> "library.jar") ```
+   *  @example
+   *  ```
+   *  apply("java", new java.io.File("/opt/app"), "CLASSPATH" -> "library.jar")
+   *  ```
    */
   def apply(command: String, cwd: File, extraEnv: (String, String)*): ProcessBuilder =
     apply(command, Some(cwd), extraEnv*)
@@ -82,7 +94,10 @@ trait ProcessCreation {
   /** Creates a [[scala.sys.process.ProcessBuilder]] with working dir set to `File` and extra
    *  environment variables.
    *
-   *  @example ``` apply("java" :: javaArgs, new java.io.File("/opt/app"), "CLASSPATH" -> "library.jar") ```
+   *  @example
+   *  ```
+   *  apply("java" :: javaArgs, new java.io.File("/opt/app"), "CLASSPATH" -> "library.jar")
+   *  ```
    */
   def apply(command: scala.collection.Seq[String], cwd: File, extraEnv: (String, String)*): ProcessBuilder =
     apply(command, Some(cwd), extraEnv*)
@@ -90,7 +105,10 @@ trait ProcessCreation {
   /** Creates a [[scala.sys.process.ProcessBuilder]] with working dir optionally set to
    *  `File` and extra environment variables.
    *
-   *  @example ``` apply("java", params.get("cwd"), "CLASSPATH" -> "library.jar") ```
+   *  @example
+   *  ```
+   *  apply("java", params.get("cwd"), "CLASSPATH" -> "library.jar")
+   *  ```
    */
   def apply(command: String, cwd: Option[File], extraEnv: (String, String)*): ProcessBuilder =
     apply(Parser.tokenize(command), cwd, extraEnv*)
@@ -98,7 +116,10 @@ trait ProcessCreation {
   /** Creates a [[scala.sys.process.ProcessBuilder]] with working dir optionally set to
    *  `File` and extra environment variables.
    *
-   *  @example ``` apply("java" :: javaArgs, params.get("cwd"), "CLASSPATH" -> "library.jar") ```
+   *  @example
+   *  ```
+   *  apply("java" :: javaArgs, params.get("cwd"), "CLASSPATH" -> "library.jar")
+   *  ```
    */
   def apply(command: scala.collection.Seq[String], cwd: Option[File], extraEnv: (String, String)*): ProcessBuilder = {
     val jpb = new JProcessBuilder(command.toArray*)

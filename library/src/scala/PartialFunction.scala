@@ -317,12 +317,14 @@ object PartialFunction {
     }
   }
 
-  /** To implement patterns like ``` if(pf isDefinedAt x) f1(pf(x)) else f2(x) ``` efficiently
+  /** To implement patterns like
+   *  ```
+   *  if(pf isDefinedAt x) f1(pf(x)) else f2(x)
+   *  ```
+   *  efficiently
    *  the following trick is used:
-   *
    *  To avoid double evaluation of pattern matchers & guards `applyOrElse` method is used here
    *  instead of `isDefinedAt`/`apply` pair.
-   *
    *  After call to `applyOrElse` we need both the function result it returned and
    *  the fact if the function's argument was contained in its domain. The only degree of freedom we have here
    *  to achieve this goal is tweaking with the continuation argument (`default`) of `applyOrElse` method.
@@ -332,10 +334,8 @@ object PartialFunction {
    *  I know only one way how you can do this task efficiently: `default` function should return unique marker object
    *  which never may be returned by any other (regular/partial) function. This way after calling `applyOrElse` you need
    *  just one reference comparison to distinguish if `pf isDefined x` or not.
-   *
    *  This correctly interacts with specialization as return type of `applyOrElse`
    *  (which is parameterized upper bound) can never be specialized.
-   *
    *  Here `fallback_fn` is used as both unique marker object and special fallback function that returns it.
    */
   private val fallback_fn: Any -> Any = _ => fallback_fn

@@ -390,7 +390,10 @@ class Regex private[matching](val pattern: Pattern, groupNames: String*) extends
    *
    *  @param source The text to match against.
    *  @return       A [[scala.collection.Iterator]] of [[scala.util.matching.Regex.Match]] for all matches.
-   *  @example      ```for (words <- """\w+""".r findAllMatchIn "A simple example.") yield words.start ```
+   *  @example
+   *  ```
+   *  for (words <- """\w+""".r findAllMatchIn "A simple example.") yield words.start
+   *  ```
    */
   def findAllMatchIn(source: CharSequence): Iterator[Match] = {
     val matchIterator = findAllIn(source)
@@ -408,7 +411,10 @@ class Regex private[matching](val pattern: Pattern, groupNames: String*) extends
    *
    *  @param source The text to match against.
    *  @return       An [[scala.Option]] of the first matching string in the text.
-   *  @example      ```"""\w+""".r findFirstIn "A simple example." foreach println // prints "A" ```
+   *  @example
+   *  ```
+   *  """\w+""".r findFirstIn "A simple example." foreach println // prints "A"
+   *  ```
    */
   def findFirstIn(source: CharSequence): Option[String] = {
     val m = pattern.matcher(source)
@@ -423,7 +429,10 @@ class Regex private[matching](val pattern: Pattern, groupNames: String*) extends
    *
    *  @param source The text to match against.
    *  @return       A [[scala.Option]] of [[scala.util.matching.Regex.Match]] of the first matching string in the text.
-   *  @example      ```("""[a-z]""".r findFirstMatchIn "A simple example.") map (_.start) // returns `Some(2)`, the index of the first match in the text ```
+   *  @example
+   *  ```
+   *  ("""[a-z]""".r findFirstMatchIn "A simple example.") map (_.start) // returns `Some(2)`, the index of the first match in the text
+   *  ```
    */
   def findFirstMatchIn(source: CharSequence): Option[Match] = {
     val m = pattern.matcher(source)
@@ -439,7 +448,10 @@ class Regex private[matching](val pattern: Pattern, groupNames: String*) extends
    *
    *  @param source The text to match against.
    *  @return       A [[scala.Option]] of the matched prefix.
-   *  @example      ```"""\p{Lower}""".r findPrefixOf "A simple example." // returns `None`, since the text does not begin with a lowercase letter ```
+   *  @example
+   *  ```
+   *  """\p{Lower}""".r findPrefixOf "A simple example." // returns `None`, since the text does not begin with a lowercase letter
+   *  ```
    */
   def findPrefixOf(source: CharSequence): Option[String] = {
     val m = pattern.matcher(source)
@@ -455,7 +467,10 @@ class Regex private[matching](val pattern: Pattern, groupNames: String*) extends
    *
    *  @param source The text to match against.
    *  @return       A [[scala.Option]] of the [[scala.util.matching.Regex.Match]] of the matched string.
-   *  @example      ```"""\w+""".r findPrefixMatchOf "A simple example." map (_.after) // returns `Some(" simple example.")` ```
+   *  @example
+   *  ```
+   *  """\w+""".r findPrefixMatchOf "A simple example." map (_.after) // returns `Some(" simple example.")`
+   *  ```
    */
   def findPrefixMatchOf(source: CharSequence): Option[Match] = {
     val m = pattern.matcher(source)
@@ -469,7 +484,10 @@ class Regex private[matching](val pattern: Pattern, groupNames: String*) extends
    *  @param source The text to match against
    *  @return       true if and only if `source` matches this `Regex`.
    *  @see          [[Regex#unanchored]]
-   *  @example      ```"""\d+""".r matches "123" // returns true ```
+   *  @example
+   *  ```
+   *  """\d+""".r matches "123" // returns true
+   *  ```
    */
   def matches(source: CharSequence): Boolean =
     runMatcher(pattern.matcher(source))
@@ -481,7 +499,10 @@ class Regex private[matching](val pattern: Pattern, groupNames: String*) extends
    *  @param target      The string to match
    *  @param replacement The string that will replace each match
    *  @return            The resulting string
-   *  @example           ```"""\d+""".r replaceAllIn ("July 15", "<NUMBER>") // returns "July <NUMBER>" ```
+   *  @example
+   *  ```
+   *  """\d+""".r replaceAllIn ("July 15", "<NUMBER>") // returns "July <NUMBER>"
+   *  ```
    */
   def replaceAllIn(target: CharSequence, replacement: String): String = {
     val m = pattern.matcher(target)
@@ -896,7 +917,10 @@ object Regex {
    *
    *  All regex metacharacters in the input match themselves literally in the output.
    *
-   *  @example ```List("US\$", "CAN\$").map(Regex.quote).mkString("|").r ```
+   *  @example
+   *  ```
+   *  List("US\$", "CAN\$").map(Regex.quote).mkString("|").r
+   *  ```
    */
   def quote(text: String): String = Pattern.quote(text)
 
@@ -910,7 +934,10 @@ object Regex {
    *
    *  @param text The string one wishes to use as literal replacement.
    *  @return A string that can be used to replace matches with `text`.
-   *  @example ```"CURRENCY".r.replaceAllIn(input, Regex quoteReplacement "US\$") ```
+   *  @example
+   *  ```
+   *  "CURRENCY".r.replaceAllIn(input, Regex quoteReplacement "US\$")
+   *  ```
    */
   def quoteReplacement(text: String): String = Matcher.quoteReplacement(text)
 }

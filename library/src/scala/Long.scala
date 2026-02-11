@@ -52,12 +52,18 @@ final abstract class Long private extends AnyVal {
 
   /** Returns this value bit-shifted left by the specified number of bits,
    *         filling in the new right bits with zeroes.
-   *  @example ``` 6 << 3 == 48 // in binary: 0110 << 3 == 0110000 ```
+   *  @example
+   *  ```
+   *  6 << 3 == 48 // in binary: 0110 << 3 == 0110000
+   *  ```
    */
   def <<(x: Int): Long
   /** Returns this value bit-shifted left by the specified number of bits,
    *         filling in the new right bits with zeroes.
-   *  @example ``` 6 << 3 == 48 // in binary: 0110 << 3 == 0110000 ```
+   *  @example
+   *  ```
+   *  6 << 3 == 48 // in binary: 0110 << 3 == 0110000
+   *  ```
    */
   def <<(x: Long): Long
   /** Returns this value bit-shifted right by the specified number of bits,
