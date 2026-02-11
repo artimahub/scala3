@@ -65,48 +65,78 @@ object WikidocToMarkdown:
     )
 
     // Second pass: line-by-line processing
-    val lines = preprocessed.split("\n", -1).toList
-    val out = collection.mutable.ListBuffer[String]()
-    var inCode = false
-
-    for raw <- lines do
-      val trimmed = raw.trim
-      // Treat both {{{ / }}} and ``` as code fence markers so we preserve their contents.
-      val lead = raw.takeWhile(_.isWhitespace)
-      if (trimmed == "{{{" || (trimmed.startsWith("```") && !inCode)) then
-        inCode = true
-        // Always emit fenced backticks for code fence openings so migration is stable.
-        out += s"${lead}```"
-      else if (trimmed == "}}}" || (trimmed.startsWith("```") && inCode)) then
-        inCode = false
-        // Always emit fenced backticks for code fence closings so migration is stable.
-        out += s"${lead}```"
-      else if inCode then
-        // preserve code block content verbatim
-        out += raw
-      else
-        // apply inline conversions only outside code fences
-        var l = raw
-        // Convert {{{ to ``` when it appears inline (e.g., @example {{{)
-        if l.contains("{{{") then
-          l = l.replace("{{{", "```")
-        if l.contains("}}}") then
-          l = l.replace("}}}", "```")
-        // heading conversions (check more specific patterns first)
-        l = l match
-          case Heading3(indent, text) => s"$indent### $text"
-          case Heading2(indent, text) => s"$indent## $text"
-          case Heading1(indent, text) => s"$indent# $text"
-          case _ => l
-        // wikilinks conversion
-        l = WikiLink.replaceAllIn(l, m => Matcher.quoteReplacement(convertWikiLink(m.group(1))))
-        // bold and italic (single-line only at this point)
-        l = Bold.replaceAllIn(l, m => Matcher.quoteReplacement(s"**${m.group(1)}**"))
-        l = Italic.replaceAllIn(l, m => Matcher.quoteReplacement(s"*${m.group(1)}*"))
-        out += l
-
-    out.mkString("\n")
-
+        val lines = preprocessed.split("\n", -1).toList
+        val out = collection.mutable.ListBuffer[String]()
+        var inCode = false
+    
+        for raw <- lines do
+          val trimmed = raw.trim
+          
+          // Check for inline {{{...}}} blocks (both opening and closing on same line)
+          val inlineCodeBlockPattern = """\{\{\{(.+?)\}\}\}""".r
+          inlineCodeBlockPattern.findFirstMatchIn(raw) match
+            case Some(m) =>
+              // Handle inline {{{...}}} - convert to separate lines
+              val before = raw.substring(0, m.start)
+              val content = m.group(1).trim
+              val after = raw.substring(m.end)
+              val lead = raw.takeWhile(_.isWhitespace)
+              if before.nonEmpty then out += before
+              out += s"$lead```"
+              out += s"$lead$content"
+              out += s"$lead```"
+              if after.nonEmpty then out += after
+            case None =>
+              // Check for inline ```...``` blocks (both opening and closing on same line)
+              val inlineBacktickPattern = """```(.+?)```""".r
+              inlineBacktickPattern.findFirstMatchIn(raw) match
+                case Some(m) =>
+                  // Handle inline ```...``` - convert to separate lines
+                  val before = raw.substring(0, m.start)
+                  val content = m.group(1).trim
+                  val after = raw.substring(m.end)
+                  val lead = raw.takeWhile(_.isWhitespace)
+                  if before.nonEmpty then out += before
+                  out += s"$lead```"
+                  out += s"$lead$content"
+                  out += s"$lead```"
+                  if after.nonEmpty then out += after
+                case None =>
+                  // Treat both {{{ / }}} and ``` as code fence markers so we preserve their contents.
+                  val lead = raw.takeWhile(_.isWhitespace)
+                  if (trimmed == "{{{" || (trimmed.startsWith("```") && !inCode)) then
+                    inCode = true
+                    // Always emit fenced backticks for code fence openings so migration is stable.
+                    out += s"${lead}```"
+                  else if (trimmed == "}}}" || (trimmed.startsWith("```") && inCode)) then
+                    inCode = false
+                    // Always emit fenced backticks for code fence closings so migration is stable.
+                    out += s"${lead}```"
+                  else if inCode then
+                    // preserve code block content verbatim
+                    out += raw
+                  else
+                    // apply inline conversions only outside code fences
+                    var l = raw
+                    // Convert {{{ to ``` when it appears inline (e.g., @example {{{)
+                    if l.contains("{{{") then
+                      l = l.replace("{{{", "```")
+                    if l.contains("}}}") then
+                      l = l.replace("}}}", "```")
+                    // heading conversions (check more specific patterns first)
+                    l = l match
+                      case Heading3(indent, text) => s"$indent### $text"
+                      case Heading2(indent, text) => s"$indent## $text"
+                      case Heading1(indent, text) => s"$indent# $text"
+                      case _ => l
+                    // wikilinks conversion
+                    l = WikiLink.replaceAllIn(l, m => Matcher.quoteReplacement(convertWikiLink(m.group(1))))
+                    // bold and italic (single-line only at this point)
+                    l = Bold.replaceAllIn(l, m => Matcher.quoteReplacement(s"**${m.group(1)}**"))
+                    l = Italic.replaceAllIn(l, m => Matcher.quoteReplacement(s"*${m.group(1)}*"))
+                    out += l
+    
+        out.mkString("\n")
   /** Apply a transformation function only to content outside code blocks ({{{ ... }}} or ``` ... ```). */
   private def applyOutsideCodeBlocks(content: String, transform: String => String): String =
     // Match either triple-brace blocks or fenced code blocks (non-greedy).
@@ -142,9 +172,17 @@ object WikidocToMarkdown:
    *  spliced back into the original comment without changing its structure.
    */
   def migrateScaladocInner(inner: String): String =
-    // If the scaladoc inner already contains fenced code (```), assume it was
-    // migrated previously and return unchanged to ensure idempotency.
-    if inner.contains("```") then inner
+    // Check if already migrated properly (``` on its own line).
+    // We check for a line that is just ``` (possibly with leading * and whitespace)
+    // to distinguish from inline ```content``` blocks.
+    val alreadyMigrated = inner.split("\n").exists(line =>
+      // Check for a line that is just ``` (possibly with leading * and whitespace)
+      // or a line that starts with * and has ``` somewhere in it (e.g., *  ```scala sc:nocompile)
+      val trimmed = line.trim
+      trimmed == "```" ||
+      (trimmed.startsWith("*") && trimmed.substring(1).trim.startsWith("```"))
+    )
+    if alreadyMigrated then inner
     else {
       val startsWithNewline = inner.startsWith("\n")
       val origLines = inner.split("\n", -1).toList
@@ -167,22 +205,45 @@ object WikidocToMarkdown:
 
       // Normalize triple-brace markers to fenced backticks for migrate(), preserving leading whitespace.
       val cleanedArr = cleaned.split("\n", -1).toArray
-      val normalizedForMigrate = cleanedArr.map { ln =>
+      val normalizedForMigrate = cleanedArr.flatMap { ln =>
         val t = ln.trim
         if t == "{{{" || t == "}}}" then
+          Seq(ln.takeWhile(_.isWhitespace) + "```")
+        else if t.contains("{{{") && t.contains("}}}") then
+          // Handle inline {{{...}}} blocks (content on same line as markers)
+          // e.g., "{{{It was the best of times, it was the worst of times}}}"
           val lead = ln.takeWhile(_.isWhitespace)
-          s"$lead```"
+          val inlineCodeBlockPattern = """\{\{\{(.+?)\}\}\}""".r
+          inlineCodeBlockPattern.findFirstMatchIn(ln) match
+            case Some(m) =>
+              val before = ln.substring(0, m.start)
+              val content = m.group(1).trim
+              val after = ln.substring(m.end)
+              // Split into separate lines: before, ``` fence, content, ``` fence, after
+              Seq(
+                if before.trim.isEmpty then "" else s"$lead$before",
+                s"$lead```",
+                s"$lead$content",
+                s"$lead```",
+                if after.trim.isEmpty then "" else s"$lead$after"
+              ).filter(_.nonEmpty)
+            case None => Seq(ln)
         else if t.endsWith("{{{") then
           // Handle cases like "@example {{{"
-          val lead = ln.takeWhile(_.isWhitespace)
-          val content = ln.trim.dropRight(3).trim
-          s"$lead$content ```"
+          // But NOT if the line also contains "}}}" (inline {{{...}}} block)
+          if !t.contains("}}}") then
+            val lead = ln.takeWhile(_.isWhitespace)
+            val content = ln.trim.dropRight(3).trim
+            Seq(s"$lead$content ```")
+          else
+            // Inline {{{...}}} block - keep as-is, will be handled by migrate()
+            Seq(ln)
         else if t.endsWith("}}}") then
-          // Handle cases like "}}}"
-          val lead = ln.takeWhile(_.isWhitespace)
-          val content = ln.trim.dropRight(3).trim
-          s"$lead$content ```"
-        else ln
+          // Handle cases like "}}}" - keep the line as-is
+          // The inline {{{...}}} will be handled by migrate() function
+          Seq(ln)
+        else
+          Seq(ln)
       }.mkString("\n")
 
       val migratedNorm = migrate(normalizedForMigrate)
