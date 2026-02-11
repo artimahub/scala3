@@ -886,3 +886,30 @@ code line 2
     out should not include ("```It was")
     out should not include ("times```")
   }
+
+  "WikidocToMarkdown.migrateScaladocInner" should "not split ${ ... } expressions inside code blocks" in {
+    // The inner content of a Scaladoc comment (inside /** ... */)
+    // This matches what performMigration extracts
+    val input = """
+ *  Quotation context provided by a macro expansion or in the scope of `scala.quoted.staging.run`.
+ *  Used to perform all operations on quoted `Expr` or `Type`.
+ *
+ *  It contains the low-level Typed AST API metaprogramming API.
+ *  This API does not have the static type guarantees that `Expr` and `Type` provide.
+ *  `Quotes` are generated from an enclosing `${ ... }` or `scala.staging.run`. For example:
+ *  ```scala sc:nocompile
+ *  import scala.quoted.*
+ *  inline def myMacro: Expr[T] =
+ *    ${ /* (quotes: Quotes) ?=> */ myExpr }
+ *  def myExpr(using Quotes): Expr[T] =
+ *    '{ f(${ /* (quotes: Quotes) ?=> */ myOtherExpr }) }
+ *  }
+ *  def myOtherExpr(using Quotes): Expr[U] = '{ ... }
+ *  ```
+ """.stripMargin.trim
+
+    val result = WikidocToMarkdown.migrateScaladocInner(input)
+
+    // The input should remain unchanged since it's already properly formatted Markdown
+    result shouldBe input
+  }

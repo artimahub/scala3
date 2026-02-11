@@ -176,7 +176,11 @@ object WikidocToMarkdown:
     // We check for a line that is just ``` (possibly with leading * and whitespace)
     // to distinguish from inline ```content``` blocks.
     val alreadyMigrated = inner.split("\n").exists(line =>
-      line.trim == "```" || (line.trim.startsWith("*") && line.trim.dropWhile(_.isWhitespace) == "```")
+      // Check for a line that is just ``` (possibly with leading * and whitespace)
+      // or a line that starts with * and has ``` somewhere in it (e.g., *  ```scala sc:nocompile)
+      val trimmed = line.trim
+      trimmed == "```" ||
+      (trimmed.startsWith("*") && trimmed.substring(1).trim.startsWith("```"))
     )
     if alreadyMigrated then inner
     else {
