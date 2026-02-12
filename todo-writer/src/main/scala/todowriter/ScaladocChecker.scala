@@ -245,6 +245,7 @@ object ScaladocChecker:
           connection.setConnectTimeout(5000)
           connection.setReadTimeout(5000)
           connection.setInstanceFollowRedirects(true)
+          connection.setRequestProperty("User-Agent", "Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0")
           // Try HEAD first; fallback to GET if server rejects HEAD
           try
             connection.setRequestMethod("HEAD")
@@ -260,6 +261,7 @@ object ScaladocChecker:
               gconn.setConnectTimeout(5000)
               gconn.setReadTimeout(5000)
               gconn.setInstanceFollowRedirects(true)
+              gconn.setRequestProperty("User-Agent", "Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0")
               gconn.setRequestMethod("GET")
               gconn.connect()
               val gcode = gconn.getResponseCode
