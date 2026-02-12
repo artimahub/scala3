@@ -15,7 +15,7 @@ import reporting.{CodeAction, Diagnostic, UnusedSymbol}
 import rewrites.Rewrites.ActionPatch
 
 import MegaPhase.MiniPhase
-import typer.{ImportInfo, Typer}
+import typer.{ImportInfo, Typer, TyperPhase}
 import typer.Deriving.OriginalTypeClass
 import typer.Implicits.{ContextualImplicits, RenamedImplicitRef}
 import util.{Property, Spans, SrcPos}, Spans.Span
@@ -35,6 +35,12 @@ class CheckUnused private (phaseMode: PhaseMode, suffix: String) extends MiniPha
   override def phaseName: String = s"checkUnused$suffix"
 
   override def description: String = "check for unused elements"
+
+  override def runsAfter = Set:
+    phaseMode match
+    case PhaseMode.Aggregate => TyperPhase.name
+    case PhaseMode.Resolve => Inlining.name
+    case PhaseMode.Report => PatternMatcher.name
 
   override def isEnabled(using Context): Boolean = ctx.settings.WunusedHas.any
 
@@ -115,6 +121,13 @@ class CheckUnused private (phaseMode: PhaseMode, suffix: String) extends MiniPha
         if fun.symbol.is(Module) && defn.isTupleClass(fun.symbol.companionClass) then
           args.foreach(_.withAttachment(ForArtifact, ()))
       case _ =>
+    else if !tree.tpe.isInstanceOf[MethodOrPoly] then
+      val f = funPart(tree)
+      if f.symbol.isConstructor then
+        f match
+        case Select(_: New, nme.CONSTRUCTOR) if ctx.outersIterator.exists(_.owner eq f.symbol.owner) =>
+          ignoreArgsOfSelfConstruction(tree, f.symbol)
+        case _ =>
     ctx
   override def transformApply(tree: Apply)(using Context): tree.type =
     // check for multiversal equals
@@ -491,8 +504,9 @@ end CheckUnused
 object CheckUnused:
 
   enum PhaseMode:
-    case Aggregate
-    case Report
+    case Aggregate // new defs are considered
+    case Resolve   // no new defs, only additional references
+    case Report    // report when done
 
   val refInfosKey = Property.StickyKey[RefInfos]
 
@@ -513,9 +527,11 @@ object CheckUnused:
   /** Tree is an inlined parameter. */
   val InlinedParameter = Property.StickyKey[Unit]
 
-  class PostTyper extends CheckUnused(PhaseMode.Aggregate, "PostTyper")
+  def PostTyper() = CheckUnused(PhaseMode.Aggregate, "PostTyper")
 
-  class PostInlining extends CheckUnused(PhaseMode.Report, "PostInlining")
+  def PostInlining() = CheckUnused(PhaseMode.Resolve, "PostInlining")
+
+  def PostPatMat() = CheckUnused(PhaseMode.Report, "PostPatMat")
 
   class RefInfos:
     val defs = mutable.Set.empty[(Symbol, SrcPos)]    // definitions
@@ -591,8 +607,9 @@ object CheckUnused:
       inline def isNone: Boolean = p == NoPrecedence
 
   def reportUnused()(using Context): Unit = if !refInfos.isNullified then
-    for (msg, pos, origin) <- warnings do
-      report.warning(msg, pos, origin)
+    atPhaseBeforeTransforms:
+      for (msg, pos, origin) <- warnings do
+        report.warning(msg, pos, origin)
 
   type MessageInfo = (UnusedSymbol, SrcPos, String) // string is origin or empty
 
@@ -1010,6 +1027,13 @@ object CheckUnused:
           case _ =>
           traverseChildren(tree)
       relaxer.traverse(tree)
+
+  def ignoreArgsOfSelfConstruction(tree: Apply, ctor: Symbol)(using Context): Unit =
+    val pars = ctor.denot.paramSymss.flatten.iterator.filter(_.isTerm)
+    val args = allTermArguments(tree)
+    for (par, arg) <- pars.zip(args) do
+      if arg.symbol.is(ParamAccessor) && arg.symbol.name == par.name && arg.symbol.owner == ctor.owner then
+        arg.putAttachment(Ignore, ())
 
   extension (nm: Name)
     inline def exists(p: Name => Boolean): Boolean = nm.ne(nme.NO_NAME) && p(nm)

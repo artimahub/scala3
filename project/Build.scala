@@ -3,6 +3,7 @@ import java.nio.file._
 import Process._
 import Modes._
 import ScaladocGeneration._
+import com.jsuereth.sbtpgp.PgpKeys
 import sbt.Keys.*
 import sbt.*
 import sbt.nio.FileStamper
@@ -59,7 +60,7 @@ object Build {
    *
    *  Warning: Change of this variable needs to be consulted with `expectedTastyVersion`
    */
-  val referenceVersion = "3.8.0-RC5"
+  val referenceVersion = "3.8.2-RC2"
 
   /** Version of the Scala compiler targeted in the current release cycle
    *  Contains a version without RC/SNAPSHOT/NIGHTLY specific suffixes
@@ -70,7 +71,7 @@ object Build {
    *
    *  Warning: Change of this variable might require updating `expectedTastyVersion`
    */
-  val developedVersion = "3.8.1"
+  val developedVersion = "3.8.3"
 
   /** The version of the compiler including the RC prefix.
    *  Defined as common base before calculating environment specific suffixes in `dottyVersion`
@@ -97,7 +98,7 @@ object Build {
    *      - in release candidate branch is experimental if {patch == 0}
    *      - in stable release is always non-experimetnal
    */
-  val expectedTastyVersion = "28.8-experimental-1"
+  val expectedTastyVersion = "28.9-experimental-1"
   checkReleasedTastyVersion()
 
   /** Final version of Scala compiler, controlled by environment variables. */
@@ -108,11 +109,14 @@ object Build {
       val currentDate =
         formatter.format(java.time.ZonedDateTime.now(java.time.ZoneId.of("UTC")))
       s"${baseVersion}-bin-${currentDate}-${VersionUtil.gitHash}-NIGHTLY"
+    } else if (isBenchmark) {
+      s"${baseVersion}-bin-${VersionUtil.gitHashFull}-BENCH"
     }
     else s"${baseVersion}-bin-SNAPSHOT"
   }
   def isRelease = sys.env.get("RELEASEBUILD").contains("yes")
   def isNightly = sys.env.get("NIGHTLYBUILD").contains("yes")
+  def isBenchmark = sys.env.get("BENCHMARKBUILD").contains("yes")
 
   /** Version calculate for `nonbootstrapped` projects */
   val dottyNonBootstrappedVersion = {
@@ -131,12 +135,12 @@ object Build {
    *   - `3.M.0`     if `P > 0`
    *   - `3.(M-1).0` if `P = 0`
    */
-  val mimaPreviousDottyVersion = "3.8.0-RC1" // temporary until 3.8.0 is released
+  val mimaPreviousDottyVersion = "3.8.0"
 
   /** Version of Scala CLI to download */
-  val scalaCliLauncherVersion = "1.11.0"
+  val scalaCliLauncherVersion = "1.12.2"
   /** Version of Coursier to download for initializing the local maven repo of Scala command */
-  val coursierJarVersion = "2.1.25-M21"
+  val coursierJarVersion = "2.1.25-M23"
 
   object CompatMode {
     final val BinaryCompatible = 0
@@ -287,6 +291,8 @@ object Build {
         password <- sys.env.get("SONATYPE_PW")
       } yield Credentials("Sonatype Nexus Repository Manager", "central.sonatype.com", username, password)
     ).toList,
+    PgpKeys.pgpPassphrase := sys.env.get("PGP_PW").map(_.toCharArray()),
+    PgpKeys.useGpgPinentry := true,
 
     // Do not cut off the bottom of large stack traces (default is 1024)
     javaOptions ++= "-XX:MaxJavaStackTraceDepth=1000000" :: Nil,
@@ -906,8 +912,9 @@ object Build {
           val updateCheckfile = args.contains("--update-checkfiles")
           val rerunFailed = args.contains("--failed")
           val fromTasty = args.contains("--from-tasty")
-          val args1 = if (updateCheckfile | fromTasty | rerunFailed) args.filter(x => x != "--update-checkfiles" && x != "--from-tasty" && x != "--failed") else args
-          val test = if (fromTasty) "dotty.tools.dotc.FromTastyTests" else "dotty.tools.dotc.*CompilationTests dotty.tools.dotc.coverage.*"
+          val coverage = args.contains("--coverage")
+          val args1 = if (updateCheckfile | fromTasty | rerunFailed | coverage) args.filter(x => x != "--update-checkfiles" && x != "--from-tasty" && x != "--failed" && x != "--coverage") else args
+          val test = if (fromTasty) "dotty.tools.dotc.FromTastyTests" else if (coverage) "dotty.tools.dotc.coverage.*" else "dotty.tools.dotc.*CompilationTests"
           val cmd = s" $test -- --exclude-categories=dotty.SlowTests" +
             (if (updateCheckfile) " -Ddotty.tests.updateCheckfiles=TRUE" else "") +
             (if (rerunFailed) " -Ddotty.tests.rerunFailed=TRUE" else "") +
@@ -1121,6 +1128,34 @@ object Build {
   // =================================== SCALA STANDARD LIBRARY ===================================
   // ==============================================================================================
 
+  /* Scala 2 standard library used to patch Scala 3 artifacts */
+  lazy val `scala2-library` = project.in(file("library"))
+    .settings(
+      name          := "scala2-library",
+      moduleName    := "scala2-library",
+      scalaVersion  := ScalaLibraryPlugin.scala2Version,
+      version       := scalaVersion.value,
+      // Remove Scala 3 specific settings
+      scalacOptions --= Seq(
+        "--java-output-version:17",
+        "-Yexplicit-nulls",
+        "-Wsafe-init"
+      ),
+      scalacOptions ++= Seq(
+        "-release:17",
+        s"-sourcepath:${(Compile / sourceDirectory).value}",
+        "-opt:local", // Important: local optimization are fine, inlining is prohibited!
+      ),
+      target := target.value / "scala2-library",
+      Compile / sourceDirectory := (Compile / Keys.target).value / "sources" / scalaVersion.value,
+      Compile / sources := (Compile / sources).dependsOn(
+        ScalaLibraryPlugin.fetchScala2LibrarySources(Compile / sourceDirectory)
+      ).value,
+      autoScalaLibrary := false, // do not add a dependency to stdlib
+      publishArtifact := false,
+      crossPaths := false,
+    )
+
   /* Configuration of the org.scala-lang:scala-library:*.**.**-nonbootstrapped project */
   lazy val `scala-library-nonbootstrapped` = project.in(file("library"))
     .enablePlugins(ScalaLibraryPlugin)
@@ -1154,8 +1189,7 @@ object Build {
       mimaForwardIssueFilters := MiMaFilters.Scala3Library.ForwardsBreakingChanges,
       mimaBackwardIssueFilters := MiMaFilters.Scala3Library.BackwardsBreakingChanges,
       customMimaReportBinaryIssues("MiMaFilters.Scala3Library"),
-      // Should we also patch .sjsir files
-      keepSJSIR := false,
+      scala2LibraryClasspath := Vector((`scala2-library` / Compile / packageBin).value),
       // Generate library.properties, used by scala.util.Properties
       Compile / resourceGenerators += generateLibraryProperties.taskValue,
       Compile / mainClass := None,
@@ -1224,8 +1258,7 @@ object Build {
       mimaForwardIssueFilters := MiMaFilters.Scala3Library.ForwardsBreakingChanges,
       mimaBackwardIssueFilters := MiMaFilters.Scala3Library.BackwardsBreakingChanges,
       customMimaReportBinaryIssues("MiMaFilters.Scala3Library"),
-      // Should we also patch .sjsir files
-      keepSJSIR := false,
+      scala2LibraryClasspath := Vector((`scala2-library` / Compile / packageBin).value),
       // Generate Scala 3 runtime properties overlay
       Compile / resourceGenerators += generateLibraryProperties.taskValue,
       bspEnabled := enableBspAllProjects,
@@ -1353,8 +1386,7 @@ object Build {
       mimaForwardIssueFilters := MiMaFilters.ScalaLibrarySJS.ForwardsBreakingChanges,
       mimaBackwardIssueFilters := MiMaFilters.ScalaLibrarySJS.BackwardsBreakingChanges,
       customMimaReportBinaryIssues("MiMaFilters.ScalaLibrarySJS"),
-      // Should we also patch .sjsir files
-      keepSJSIR := true,
+      scala2LibraryClasspath := ScalaLibraryPlugin.fetchScalaJsScalaLibrary.value,
       bspEnabled := false,
       Compile / mainClass := None,
     )
@@ -1896,28 +1928,30 @@ object Build {
           .andThen(justAPIOverride)
           .apply(Scala3.value)
         }
-        val writeAdditionalFiles = Def.task {
-          val dest = file(config.value.get[OutputDir].get.value)
-          if (!justAPI) {
-            IO.write(dest / "versions" / "latest-nightly-base", majorVersion)
-            // This file is used by GitHub Pages when the page is available in a custom domain
-            IO.write(dest / "CNAME", "dotty.epfl.ch")
+        // Use taskDyn with .result to ensure patches are always reverted, even if generation fails
+        Def.taskDyn {
+          val log = streams.value.log
+          log.info(s"Generating snapshot scaladoc, applying patches to ${sourcePatches.map(_.file)}")
+          sourcePatches.foreach(_.apply())
+
+          Def.task {
+            val docResult = generateDocumentation(config).result.value
+            log.info(s"Generated snapshot scaladoc, reverting changes made to ${sourcePatches.map(_.file)}")
+            sourcePatches.foreach(_.revert())
+
+            docResult match {
+              case Inc(inc) =>
+                throw inc.directCause.getOrElse(new RuntimeException("Documentation generation failed", inc))
+              case Value(_) =>
+                val dest = file(config.value.get[OutputDir].get.value)
+                if (!justAPI) {
+                  IO.write(dest / "versions" / "latest-nightly-base", majorVersion)
+                  // This file is used by GitHub Pages when the page is available in a custom domain
+                  IO.write(dest / "CNAME", "nightly.scala-lang.org")
+                }
+            }
           }
         }
-        val applyPatches = Def.task {
-          streams.value.log.info(s"Generating snapshot scaladoc, would apply patches to ${sourcePatches.map(_.file)}")
-          sourcePatches.foreach(_.apply())
-        }
-        val revertPatches = Def.task {
-          streams.value.log.info(s"Generated snapshot scaladoc, reverting changes made to ${sourcePatches.map(_.file)}")
-          sourcePatches.foreach(_.revert())
-        }
-        writeAdditionalFiles.dependsOn(
-          revertPatches.dependsOn(
-            generateDocumentation(config)
-              .dependsOn(applyPatches)
-          )
-        )
       }.evaluated,
 
       generateStableScala3Documentation := Def.inputTaskDyn {
@@ -1943,6 +1977,7 @@ object Build {
           .add(Revision(version))
           .add(OutputDir(s"scaladoc/output/${version}"))
           .add(SiteRoot(docs.getAbsolutePath))
+          .add(defaultSourceLinks(version = version, allowGitSHA = false))
           .remove[ApiSubdirectory]
         }
         generateDocumentation(config)
@@ -1972,29 +2007,32 @@ object Build {
           IO.write(path, newContent)
         }
 
+        val outputDir = "scaladoc/output/reference"
         val languageReferenceConfig = Def.task {
           Scala3.value
-            .add(OutputDir("scaladoc/output/reference"))
+            .add(OutputDir(outputDir))
             .add(SiteRoot(docs.getAbsolutePath))
             .add(ProjectName("Scala 3 Reference"))
             .add(ProjectVersion(baseVersion))
             .remove[VersionsDictionaryUrl]
             .add(SourceLinks(List(
-              s"${docs.getParentFile().getAbsolutePath}=github://scala/scala3/language-reference-stable"
+              s"${docs.getAbsolutePath}=github://scala/scala3/language-reference-stable#docs"
             )))
+            .add(GenerateAPI(false))
         }
+
+        val generateDocs = generateDocumentation(languageReferenceConfig)
 
         val expectedLinksRegeneration = Def.task {
           if (shouldRegenerateExpectedLinks) {
             val script = (file("project") / "scripts" / "regenerateExpectedLinks").toString
-            val outputDir = languageReferenceConfig.value.get[OutputDir].get.value
             val expectedLinksFile = (file("project") / "scripts" / "expected-links" / "reference-expected-links.txt").toString
             import _root_.scala.sys.process._
             s"$script $outputDir $expectedLinksFile".!
           }
         }
 
-        expectedLinksRegeneration.dependsOn(generateDocumentation(languageReferenceConfig))
+        expectedLinksRegeneration.dependsOn(generateDocs)
       }.evaluated,
 
     )
@@ -2816,10 +2854,10 @@ object ScaladocConfigs {
   private lazy val currentYear: String = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR).toString
 
   def dottyExternalMapping = ".*scala/.*::scaladoc3::https://dotty.epfl.ch/api/"
-  def javaExternalMapping = ".*java/.*::javadoc::https://docs.oracle.com/javase/8/docs/api/"
-  def defaultSourceLinks(version: String) = {
+  def javaExternalMapping = ".*java/.*::javadoc::https://docs.oracle.com/en/java/javase/17/docs/api/"
+  def defaultSourceLinks(version: String, allowGitSHA: Boolean = true) = {
     def dottySrcLink(v: String) = sys.env.get("GITHUB_SHA") match {
-      case Some(sha) => s"github://scala/scala3/$sha"
+      case Some(sha) if allowGitSHA => s"github://scala/scala3/$sha"
       case None => s"github://scala/scala3/$v"
     }
     SourceLinks(List(dottySrcLink(version), "docs=github://scala/scala3/main#docs"))
@@ -2907,14 +2945,8 @@ object ScaladocConfigs {
       .add(ExternalMappings(List(javaExternalMapping)))
       .add(DocRootContent((stdlib / "src" / "rootdoc.txt").toString))
       .add(CommentSyntax(List(
-        // Only the files below use markdown syntax (Scala 3 specific sources)
-        s"$stdlib/src/scala/NamedTuple.scala=markdown",
-        s"$stdlib/src/scala/Tuple.scala=markdown",
-        s"$stdlib/src/scala/compiletime=markdown",
-        s"$stdlib/src/scala/quoted=markdown",
-        s"$stdlib/src/scala/util/boundary.scala=markdown",
-        // Scala 2 sources use wiki syntax, we keep it as the default
-        "wiki"
+        // Markdown syntax is used by default for all sources
+        "markdown"
       )))
       .add(VersionsDictionaryUrl("https://scala-lang.org/api/versions.json"))
       .add(DocumentSyntheticTypes(true))

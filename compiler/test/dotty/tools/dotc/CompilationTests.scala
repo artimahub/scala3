@@ -50,10 +50,6 @@ class CompilationTests {
       if Properties.usingScalaLibraryCCTasty then List(compileDir("tests/pos-special/stdlib", allowDeepSubtypes))
       else Nil
     )
-
-    if scala.util.Properties.isJavaAtLeast("16") then
-      tests ::= compileFilesInDir("tests/pos-java16+", defaultOptions.and("-Wsafe-init"))
-
     aggregateTests(tests*).checkCompile()
   }
 
@@ -160,6 +156,7 @@ class CompilationTests {
         "tests/neg-custom-args/toplevel-samesource/nested/S.scala"),
         defaultOptions),
       compileFile("tests/neg/i7575.scala", defaultOptions.withoutLanguageFeatures),
+      compileFile("tests/neg-custom-args/i20491/Test.scala", defaultOptions.withClasspath("tests/neg-custom-args/i20491/cp")),
     ).checkExpectedErrors()
   }
 
@@ -274,9 +271,9 @@ class CompilationTests {
 
       // Set -sourceroot such that the source code cannot be found by the compiler
       val libOptions = tastSourceOptions.and("-sourceroot", "tests/init-global/special")
-      val lib = compileFile("tests/init-global/special/tastySource/A.scala", libOptions)(group).keepOutput.checkCompile()
+      val lib = compileFile("tests/init-global/special/tastySource/A.scala", libOptions)(using group).keepOutput.checkCompile()
 
-      compileFile("tests/init-global/special/tastySource/B.scala", tastSourceOptions.withClasspath(outDirLib))(group).checkWarnings()
+      compileFile("tests/init-global/special/tastySource/B.scala", tastSourceOptions.withClasspath(outDirLib))(using group).checkWarnings()
 
       lib.delete()
     }
