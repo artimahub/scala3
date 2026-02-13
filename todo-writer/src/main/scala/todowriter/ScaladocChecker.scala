@@ -132,6 +132,38 @@ object ScaladocChecker:
         catch
           case _: Throwable => false
       }
+  /** Return true if the given package exists among .scala source files under `root`. */
+  def packageExistsInSource(root: Path, pkg: String): Boolean =
+    val files = findScalaFiles(root)
+    // Check for various ways packages can be declared:
+    // 1. package scala.math (single declaration)
+    // 2. package scala followed by package math (nested declarations)
+    // 3. package scala followed by package object math (package object)
+    val parts = pkg.split('.')
+    files.exists { p =>
+      try
+        val txt = Files.readString(p)
+        // Extract all package declarations from the file
+        val pkgPattern = raw"""(?m)^\s*package\s+([^\s;]+)""".r
+        val packageObjectPattern = raw"""(?m)^\s*package\s+object\s+(\w+)""".r
+        val pkgs = pkgPattern.findAllMatchIn(txt).map(_.group(1)).toList
+        val packageObjects = packageObjectPattern.findAllMatchIn(txt).map(_.group(1)).toList
+
+        // Check if the full package is declared
+        if pkgs.contains(pkg) then true
+        else
+          // Check for nested packages (e.g., package scala followed by package math)
+          val nestedPkg = parts.mkString(" ")
+          if pkgs.contains(nestedPkg) then true
+          else
+            // Check for package object (e.g., package scala followed by package object math)
+            val parent = parts.init.mkString(".")
+            val child = parts.last
+            pkgs.contains(parent) && packageObjects.contains(child)
+      catch
+        case _: Throwable => false
+    }
+
   /** Find broken HTTP/HTTPS links referenced inside Scaladoc blocks using a custom checker.
     *
     *  Returns a list of tuples: (filePath, lineNumber, url, errorDescription)
@@ -350,7 +382,8 @@ object ScaladocChecker:
             val unescapedType = typeStr.replace("\\.", ".")
             // Normalize type by removing generic parameters
             val baseType = unescapedType.replaceAll("\\[.*\\]", "").trim
-            if knownScalaPrimitives.contains(baseType) then
+            // Check if it's a known primitive (qualified or unqualified)
+            if knownScalaPrimitives.contains(baseType) || knownScalaPrimitives.contains("scala." + baseType) then
               None
             else
               // Try to resolve via reflection or source lookup
@@ -517,11 +550,14 @@ object ScaladocChecker:
 
             // Then check the main symbol
             // First, try to resolve as a fully qualified type (via reflection or source lookup)
-            // Only if that fails and it looks like a member reference, check as a member
+            // Then check if it's a package, and finally treat it as a member reference
             val symbolError =
               if symbolResolvableByReflection(normalized) then
                 None
               else if symbolExistsInSource(root, normalized) then
+                None
+              else if isMemberRef && packageExistsInSource(root, normalized) then
+                // It's a valid package
                 None
               else if isMemberRef then
                 // For member references, try to resolve by finding the containing type and searching for the member

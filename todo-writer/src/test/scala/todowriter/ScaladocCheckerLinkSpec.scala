@@ -276,7 +276,7 @@ class ScaladocCheckerLinkSpec extends AnyFlatSpec with Matchers:
     }
   }
 
-  it should "resolve Predef.print method symbol (failing test)" in {
+  it should "resolve Predef.print method symbol" in {
     val content = """package test
                     |
                     |/** Refer to [print](scala.Predef.print(x:Any)) */
@@ -291,7 +291,7 @@ class ScaladocCheckerLinkSpec extends AnyFlatSpec with Matchers:
     }
   }
 
-  it should "resolve ExecutionContext$.global symbol (failing test)" in {
+  it should "resolve ExecutionContext$.global symbol" in {
     val content = """package test
                     |
                     |/** Refer to [global](scala.concurrent.ExecutionContext$.global) */
@@ -306,7 +306,7 @@ class ScaladocCheckerLinkSpec extends AnyFlatSpec with Matchers:
     }
   }
 
-  it should "resolve object/member symbols like scala.concurrent.duration.Duration.Inf (failing test)" in {
+  it should "resolve object/member symbols like scala.concurrent.duration.Duration.Inf" in {
     val content = """package test
                     |
                     |/** Refer to [Inf](scala.concurrent.duration.Duration.Inf) */
@@ -321,7 +321,7 @@ class ScaladocCheckerLinkSpec extends AnyFlatSpec with Matchers:
     }
   }
 
-  it should "handle unqualified/malformed method references like Predef.print(x:Any) (failing test)" in {
+  it should "handle unqualified/malformed method references like Predef.print(x:Any)" in {
     val content = """package test
                     |
                     |/** Refer to [print](Predef.print(x:Any) */
@@ -333,4 +333,79 @@ class ScaladocCheckerLinkSpec extends AnyFlatSpec with Matchers:
       val urls = broken.map(_._3)
       urls should not contain ("Predef.print(x:Any")
     }
+  }
+
+  it should "resolve fully qualified type references like scala.Product22" in {
+    val tempDir = Files.createTempDirectory("product22-test")
+    try
+      val product22File = tempDir.resolve("Product22.scala")
+      val tuple22File = tempDir.resolve("Tuple22.scala")
+      Files.writeString(product22File, """package scala
+                                         |
+                                         |/** Product22 is a Cartesian product of 22 components. */
+                                         |trait Product22 extends Product
+                                         |""".stripMargin)
+      Files.writeString(tuple22File, """package scala
+                                         |
+                                         |/** A tuple of 22 elements; the canonical representation of a [[scala.Product22]]. */
+                                         |case class Tuple22() extends Product22
+                                         |""".stripMargin)
+      val broken = ScaladocChecker.findBrokenLinks(tempDir)
+      val urls = broken.map(_._3)
+      // scala.Product22 should be recognized as a valid type, not a member reference
+      urls should not contain ("scala.Product22")
+    finally
+      try Files.list(tempDir).forEach(p => try Files.deleteIfExists(p) catch case _: Throwable => ()) catch case _: Throwable => ()
+      try Files.deleteIfExists(tempDir) catch case _: Throwable => ()
+  }
+
+  it should "resolve package references like scala.annotation.meta" in {
+    val tempDir = Files.createTempDirectory("annotation-meta-test")
+    try
+      val setterFile = tempDir.resolve("setter.scala")
+      Files.writeString(setterFile, """package scala.annotation.meta
+                                        |
+                                        |import scala.language.`2.13`
+                                        |
+                                        |/**
+                                        | * Consult the documentation in package [[scala.annotation.meta]].
+                                        | */
+                                        |final class setter extends scala.annotation.StaticAnnotation
+                                        |""".stripMargin)
+      val broken = ScaladocChecker.findBrokenLinks(tempDir)
+      val urls = broken.map(_._3)
+      // scala.annotation.meta should be recognized as a valid package
+      urls should not contain ("scala.annotation.meta")
+    finally
+      try Files.list(tempDir).forEach(p => try Files.deleteIfExists(p) catch case _: Throwable => ()) catch case _: Throwable => ()
+      try Files.deleteIfExists(tempDir) catch case _: Throwable => ()
+  }
+
+  it should "resolve package references defined via package object like scala.math" in {
+    val tempDir = Files.createTempDirectory("scala-math-test")
+    try
+      val pkgFile = tempDir.resolve("package.scala")
+      val equivFile = tempDir.resolve("Equiv.scala")
+      Files.writeString(pkgFile, """package scala
+                                    |
+                                    |/** The package object `scala.math` contains methods for performing basic numeric operations. */
+                                    |package object math {
+                                    |  // ... math methods here
+                                    |}
+                                    |""".stripMargin)
+      Files.writeString(equivFile, """package scala
+                                       |package math
+                                       |
+                                       |/** Equivalence relations for types that support it.
+                                       | *  See also [[scala.math]].
+                                       | */
+                                       |trait Equiv[T]
+                                       |""".stripMargin)
+      val broken = ScaladocChecker.findBrokenLinks(tempDir)
+      val urls = broken.map(_._3)
+      // scala.math should be recognized as a valid package (defined via package object)
+      urls should not contain ("scala.math")
+    finally
+      try Files.list(tempDir).forEach(p => try Files.deleteIfExists(p) catch case _: Throwable => ()) catch case _: Throwable => ()
+      try Files.deleteIfExists(tempDir) catch case _: Throwable => ()
   }
