@@ -45,7 +45,7 @@ object Varargs {
    *  def sumExpr(argsExpr: Expr[Seq[Int]])(using Quotes): Expr[Int] = argsExpr match
    *    case Varargs(argVarargs) => ???
    *      // argVarargs: Seq[Expr[Int]]
-   *
+   *  ```
    *
    *  @tparam T the element type of the varargs sequence
    *  @param expr the expression of a sequence to destructure into individual expressions
