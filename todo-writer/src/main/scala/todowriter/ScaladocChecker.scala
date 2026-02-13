@@ -165,11 +165,37 @@ object ScaladocChecker:
       val blocks = ScaladocBlock.findAll(text)
       for block <- blocks do
         // Use masked content to avoid detecting links that appear inside code spans
-        val masked = maskCodeRegions(block.content)
+        var masked = maskCodeRegions(block.content)
 
-        // Collect link matches from markdown [label](link) and raw http(s) URLs,
+        // Also mask wikidoc links to prevent markdown link extractor from matching inner patterns
+        val wikidocMasked = raw"(?s)\[\[.*?\]\]".r.replaceAllIn(masked, m => maskRegionPreserveNewlines(m.matched))
+
+        // Collect link matches from markdown [label](link), wikidoc [[...]], and raw http(s) URLs,
         // preserving the match start index so we can compute the physical line.
         val matches = collection.mutable.ListBuffer[(String, Int)]()
+
+        // Extract wikidoc links [[...]] and parse them from the original block content
+        def extractWikiLinks(s: String): List[(String, Int)] =
+          val out = collection.mutable.ListBuffer[(String, Int)]()
+          var i = 0
+          while i < s.length do
+            val start = s.indexOf("[[", i)
+            if start < 0 then i = s.length
+            else
+              val end = s.indexOf("]]", start + 2)
+              if end < 0 then i = start + 2
+              else
+                val content = s.substring(start + 2, end)
+                // Wikidoc link format: [[symbol display text]] or [[https://url display text]]
+                // The symbol/URL is the part before the first space
+                val spaceIdx = content.indexOf(' ')
+                var symbolOrUrl = if spaceIdx > 0 then content.substring(0, spaceIdx) else content
+                // Unescape backslash-dot sequences (e.g., scala\.collection\.mutable -> scala.collection.mutable)
+                symbolOrUrl = symbolOrUrl.replace("\\.", ".")
+                out += ((symbolOrUrl, start))
+                i = end + 2
+          out.toList
+
         // Extract markdown links robustly (handle nested parentheses inside link target).
         // Returns (target, startIndex, malformedFlag) where malformedFlag=true when the
         // opening '(' has no matching closing ')'.
@@ -204,7 +230,10 @@ object ScaladocChecker:
                   i = s.length
               else i = cb + 1
           out.toList
-        for (url, start, malformed) <- extractMdLinks(masked) do
+
+        for (symbolOrUrl, start) <- extractWikiLinks(block.content) do
+          matches += ((symbolOrUrl, start))
+        for (url, start, malformed) <- extractMdLinks(wikidocMasked) do
           if malformed then
             // Report malformed markdown link immediately
             val before = block.content.substring(0, start)
@@ -213,7 +242,7 @@ object ScaladocChecker:
             results += ((path.toString, linkLine, url, "Malformed link: missing closing ')'"))
           else
             matches += ((url, start))
-        for m <- urlRegex.findAllMatchIn(masked) do
+        for m <- urlRegex.findAllMatchIn(wikidocMasked) do
           matches += ((m.matched, m.start))
 
         // Deduplicate by (url, start) if needed and check each
@@ -291,13 +320,126 @@ object ScaladocChecker:
             val noGenerics = noParams.replaceAll(raw"\[[^\]]*\]", "")
             noGenerics.trim
 
-          val normalized = normalizeSymbol(u)
- 
+          // Unescape backslash-dot sequences (e.g., scala\.collection\.mutable -> scala.collection.mutable)
+          val unescaped = u.replace("\\.", ".")
+          val normalized = normalizeSymbol(unescaped)
+
           // Extract parameter specification if present (handles unclosed paren too).
           val paramPattern = "\\(([^)]*)\\)".r
           val unclosedParamPattern = "\\(([^)]*)$".r
           val paramSpecOpt: Option[String] =
-            paramPattern.findFirstMatchIn(u).map(_.group(1)).orElse(unclosedParamPattern.findFirstMatchIn(u).map(_.group(1)))
+            paramPattern.findFirstMatchIn(unescaped).map(_.group(1)).orElse(unclosedParamPattern.findFirstMatchIn(unescaped).map(_.group(1)))
+
+          // Extract and validate types in parameter lists
+          // For example, from "(i:Iterato[A], j:List[B])" extract ["Iterato[A]", "List[B]"]
+          def extractTypesFromParams(paramSpec: String): List[String] =
+            // Split by comma first, then extract type after colon
+            paramSpec.split(',').toList.flatMap { param =>
+              val trimmed = param.trim
+              val colonIdx = trimmed.indexOf(':')
+              if colonIdx >= 0 then
+                var typeStr = trimmed.substring(colonIdx + 1).trim
+                // Remove trailing varargs marker or other modifiers
+                typeStr = typeStr.replaceAll("\\s*\\*\\s*$", "")
+                if typeStr.nonEmpty then Some(typeStr) else None
+              else None
+            }
+
+          def validateType(typeStr: String): Option[String] =
+            // Unescape backslash-dot sequences (e.g., scala\.collection\.mutable -> scala.collection.mutable)
+            val unescapedType = typeStr.replace("\\.", ".")
+            // Normalize type by removing generic parameters
+            val baseType = unescapedType.replaceAll("\\[.*\\]", "").trim
+            if knownScalaPrimitives.contains(baseType) then
+              None
+            else
+              // Try to resolve via reflection or source lookup
+              val normalizedType = normalizeSymbol(baseType)
+              try
+                // First try the type as-is
+                if symbolResolvableByReflection(normalizedType) || symbolExistsInSource(root, normalizedType) then
+                  None
+                // For unqualified types (no dot), try common Scala package prefixes
+                else if !normalizedType.contains('.') then
+                  val commonPrefixes = List(
+                    "scala.collection.",
+                    "scala.collection.immutable.",
+                    "scala.collection.mutable.",
+                    "scala.util.",
+                    "scala.concurrent.",
+                    "scala.reflect.",
+                    "scala.",
+                    ""
+                  )
+                  val found = commonPrefixes.exists { prefix =>
+                    val qualified = if prefix.isEmpty then normalizedType else prefix + normalizedType
+                    symbolResolvableByReflection(qualified) || symbolExistsInSource(root, qualified)
+                  }
+                  if found then None else Some(s"Type not found: $unescapedType")
+                else
+                  Some(s"Type not found: $unescapedType")
+              catch
+                case e: Exception => Some(s"Error validating type $unescapedType: ${e.getMessage}")
+
+          // Resolve member references like "AsJavaConverters.asJava" by finding the containing type
+          // and searching for the member in its source file
+          def memberExistsInSource(memberRef: String): Boolean =
+            // Find the dot that separates the containing type from the member name
+            // We need to find a dot that's not inside brackets [...] or parentheses (...)
+            // For example, in "AsJavaConverters.asJava[A](b:scala.collection.mutable.Buffer[A])*"
+            // we want to split at the dot after "AsJavaConverters", not after "mutable"
+            var bracketDepth = 0
+            var parenDepth = 0
+            var splitIdx = -1
+            var i = 0
+            while i < memberRef.length && splitIdx < 0 do
+              memberRef.charAt(i) match
+                case '[' => bracketDepth += 1
+                case ']' => bracketDepth -= 1
+                case '(' => parenDepth += 1
+                case ')' => parenDepth -= 1
+                case '.' =>
+                  if bracketDepth == 0 && parenDepth == 0 then
+                    splitIdx = i
+                case _ => ()
+              i += 1
+
+            if splitIdx < 0 then false
+            else
+              val containingType = memberRef.substring(0, splitIdx)
+              val memberName = memberRef.substring(splitIdx + 1)
+              // Normalize member name (remove generics, params, and trailing varargs marker)
+              val normalizedMember = normalizeSymbol(memberName).replaceAll("\\*\\s*$", "")
+
+              // Find the source file for the containing type
+              val files = findScalaFiles(root)
+              val pkgPattern = raw"""(?m)^\s*package\s+([^\s;]+)""".r
+              val typeName = containingType.split('.').last
+              val typeDeclPattern = raw"""(?m)^\s*(?:class|object|trait|type|case\s+class)\s+%s\b""".format(java.util.regex.Pattern.quote(typeName)).r
+
+              files.exists { file =>
+                try
+                  val txt = Files.readString(file)
+                  val pkgOpt = pkgPattern.findFirstMatchIn(txt).map(_.group(1))
+
+                  // Check if this file declares the containing type
+                  val containsType = if containingType.contains('.') then
+                    // Fully qualified: check if package matches
+                    pkgOpt.exists(pkg => pkg + "." + typeName == containingType) && typeDeclPattern.findFirstIn(txt).isDefined
+                  else
+                    // Unqualified: just check if the type is declared in this file
+                    typeDeclPattern.findFirstIn(txt).isDefined
+
+                  if containsType then
+                    // Search for the member declaration in this file
+                    // Look for: def, val, var, type, or object declarations with the member name
+                    val memberDeclPattern = raw"""(?m)^\s*(?:def|val|var|type|object|lazy\s+val)\s+%s\b""".format(java.util.regex.Pattern.quote(normalizedMember)).r
+                    memberDeclPattern.findFirstIn(txt).isDefined
+                  else
+                    false
+                catch
+                  case _: Throwable => false
+              }
  
           // Enhanced reflection: handle fully-qualified classes, companion objects and simple object members.
           // When a param spec is present and contains a varargs marker ('*'), prefer methods that are varargs.
@@ -362,9 +504,35 @@ object ScaladocChecker:
               case _: Throwable => false
  
           try
-            if symbolResolvableByReflection(normalized) then None
-            else if symbolExistsInSource(root, normalized) then None
-            else Some("Symbol not found")
+            // Always validate types in parameter lists, regardless of main symbol validity
+            val typeError = paramSpecOpt match
+              case Some(paramSpec) =>
+                val types = extractTypesFromParams(paramSpec)
+                types.map(validateType).find(_.isDefined).flatten
+              case None => None
+
+            // Check if this is a member reference (has dots)
+            // A member reference is anything with a dot (e.g., Container.asJava, AsJavaConverters.asJava[A](...))
+            val isMemberRef = unescaped.contains('.')
+
+            // Then check the main symbol
+            // First, try to resolve as a fully qualified type (via reflection or source lookup)
+            // Only if that fails and it looks like a member reference, check as a member
+            val symbolError =
+              if symbolResolvableByReflection(normalized) then
+                None
+              else if symbolExistsInSource(root, normalized) then
+                None
+              else if isMemberRef then
+                // For member references, try to resolve by finding the containing type and searching for the member
+                if memberExistsInSource(unescaped) then None else Some("Member not found")
+              else
+                Some("Symbol not found")
+
+            // Report type error first if exists, otherwise report symbol error
+            typeError match
+              case Some(err) => Some(err)
+              case None => symbolError
           catch
             case e: Exception => Some(s"Error: ${e.getMessage}")
 
