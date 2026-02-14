@@ -17,7 +17,9 @@ class JavadocExternalLocationProviderIntegrationTest extends ExternalLocationPro
     "https://docs.oracle.com/javase/8/docs/api/java/util/ArrayList.html#toArray-T:A-",
     "https://docs.oracle.com/javase/8/docs/api/java/util/ArrayList.html#subList-int-int-",
     "https://docs.oracle.com/javase/8/docs/api/java/io/PrintStream.html#printf-java.lang.String-java.lang.Object...-",
-    "https://docs.oracle.com/javase/8/docs/api/java/io/PrintStream.html#write-byte:A-int-int-"
+    "https://docs.oracle.com/javase/8/docs/api/java/io/PrintStream.html#write-byte:A-int-int-",
+    "https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html#compare-float-float-",
+    "https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html#compare-double-double-"
   )
 )
 
