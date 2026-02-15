@@ -17,12 +17,15 @@
    |--------------------------------------------------------------------------------------------------------------------
    |Inline stack trace
    |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-   |This location contains code that was inlined from boundary.scala:72
-72 |    val local = Label[T]()
+   |This location contains code that was inlined from boundary.scala:86
+86 |    val local = Label[T]()
    |                ^^^^^^^^^^
     --------------------------------------------------------------------------------------------------------------------
    |
    | longer explanation available when compiling with `-explain`
+
+inlined at boundary.scala:5:
+
 -- [E007] Type Mismatch Error: tests/neg-custom-args/captures/boundary.scala:7:33 --------------------------------------
 7 |        boundary.break(l2)(using l1) // error
   |                                 ^^
@@ -57,9 +60,11 @@
    |--------------------------------------------------------------------------------------------------------------------
    |Inline stack trace
    |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-   |This location contains code that was inlined from boundary.scala:74
-74 |    catch case ex: Break[T] @unchecked =>
+   |This location contains code that was inlined from boundary.scala:88
+88 |    catch case ex: Break[T] @unchecked =>
    |                   ^
     --------------------------------------------------------------------------------------------------------------------
    |
    | longer explanation available when compiling with `-explain`
+
+inlined at boundary.scala:5:
