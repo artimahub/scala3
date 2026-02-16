@@ -23,9 +23,6 @@
     --------------------------------------------------------------------------------------------------------------------
    |
    | longer explanation available when compiling with `-explain`
-
-inlined at boundary.scala:5:
-
 -- [E007] Type Mismatch Error: tests/neg-custom-args/captures/boundary.scala:7:33 --------------------------------------
 7 |        boundary.break(l2)(using l1) // error
   |                                 ^^
@@ -66,5 +63,3 @@ inlined at boundary.scala:5:
     --------------------------------------------------------------------------------------------------------------------
    |
    | longer explanation available when compiling with `-explain`
-
-inlined at boundary.scala:5:
