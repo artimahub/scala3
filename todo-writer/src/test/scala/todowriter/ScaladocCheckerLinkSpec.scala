@@ -533,3 +533,28 @@ class ScaladocCheckerLinkSpec extends AnyFlatSpec with Matchers:
       try Files.list(tempDir).forEach(p => try Files.deleteIfExists(p) catch case _: Throwable => ()) catch case _: Throwable => ()
       try Files.deleteIfExists(tempDir) catch case _: Throwable => ()
   }
+
+  it should "resolve nested objects (scala.math.Ordering.Implicits)" in {
+    val content = """package test
+                    |
+                    |/** Test example.
+                    | *
+                    | *  See [[scala.math.Ordering.Implicits]].
+                    | */
+                    |def foo(): Unit = ()
+                    |""".stripMargin
+    val tempDir = Files.createTempDirectory("nested-object-test")
+    try
+      val tempFile = tempDir.resolve("Test.scala")
+      Files.writeString(tempFile, content)
+
+      // Nested objects should be resolved (they're represented with $ in JVM)
+      val broken = ScaladocChecker.findBrokenLinks(tempDir)
+      val urls = broken.map(_._3)
+
+      // Expected: scala.math.Ordering.Implicits should not be reported as broken
+      urls should not contain ("scala.math.Ordering.Implicits")
+    finally
+      try Files.list(tempDir).forEach(p => try Files.deleteIfExists(p) catch case _: Throwable => ()) catch case _: Throwable => ()
+      try Files.deleteIfExists(tempDir) catch case _: Throwable => ()
+  }

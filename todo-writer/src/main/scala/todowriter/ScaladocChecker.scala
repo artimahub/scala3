@@ -563,7 +563,16 @@ object ScaladocChecker:
                       catch
                         case _: ClassNotFoundException => false
 
-                    if hasNestedClass then true
+                    // Also check if it's a nested object (e.g., scala.math.Ordering.Implicits -> scala.math.Ordering$Implicits$)
+                    val nestedObjectName = parent + "$" + member + "$"
+                    val hasNestedObject =
+                      try
+                        Class.forName(nestedObjectName)
+                        true
+                      catch
+                        case _: ClassNotFoundException => false
+
+                    if hasNestedClass || hasNestedObject then true
                     else
                       // Check for fields
                       val hasField =
