@@ -506,3 +506,30 @@ class ScaladocCheckerLinkSpec extends AnyFlatSpec with Matchers:
       try Files.list(tempDir).forEach(p => try Files.deleteIfExists(p) catch case _: Throwable => ()) catch case _: Throwable => ()
       try Files.deleteIfExists(tempDir) catch case _: Throwable => ()
   }
+
+  it should "resolve member references using # notation (scala.Option#flatten)" in {
+    val content = """package test
+                    |
+                    |/** Test example.
+                    | *
+                    | *  @example [[scala.Option#flatten]]
+                    | *  @example [[scala.collection.immutable.List#map]]
+                    | */
+                    |def foo(): Unit = ()
+                    |""".stripMargin
+    val tempDir = Files.createTempDirectory("hash-notation-test")
+    try
+      val tempFile = tempDir.resolve("Test.scala")
+      Files.writeString(tempFile, content)
+
+      // Hash notation (Type#member) should be resolved as a member reference
+      val broken = ScaladocChecker.findBrokenLinks(tempDir)
+      val urls = broken.map(_._3)
+
+      // Expected: scala.Option#flatten and scala.collection.immutable.List#map should not be reported as broken
+      urls should not contain ("scala.Option#flatten")
+      urls should not contain ("scala.collection.immutable.List#map")
+    finally
+      try Files.list(tempDir).forEach(p => try Files.deleteIfExists(p) catch case _: Throwable => ()) catch case _: Throwable => ()
+      try Files.deleteIfExists(tempDir) catch case _: Throwable => ()
+  }

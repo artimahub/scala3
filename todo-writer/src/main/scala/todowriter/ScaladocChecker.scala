@@ -409,13 +409,15 @@ object ScaladocChecker:
 
           // Unescape backslash-dot sequences (e.g., scala\.collection\.mutable -> scala.collection.mutable)
           val unescaped = u.replace("\\.", ".")
-          val normalized = normalizeSymbol(unescaped)
+          // Convert # to . for Scaladoc member references (e.g., scala.Option#flatten -> scala.Option.flatten)
+          val withDotForHash = unescaped.replace("#", ".")
+          val normalized = normalizeSymbol(withDotForHash)
 
           // Extract parameter specification if present (handles unclosed paren too).
           val paramPattern = "\\(([^)]*)\\)".r
           val unclosedParamPattern = "\\(([^)]*)$".r
           val paramSpecOpt: Option[String] =
-            paramPattern.findFirstMatchIn(unescaped).map(_.group(1)).orElse(unclosedParamPattern.findFirstMatchIn(unescaped).map(_.group(1)))
+            paramPattern.findFirstMatchIn(withDotForHash).map(_.group(1)).orElse(unclosedParamPattern.findFirstMatchIn(withDotForHash).map(_.group(1)))
 
           // Extract and validate types in parameter lists
           // For example, from "(i:Iterato[A], j:List[B])" extract ["Iterato[A]", "List[B]"]
@@ -650,7 +652,7 @@ object ScaladocChecker:
                 None
               else if isMemberRef then
                 // For member references, try to resolve by finding the containing type and searching for the member
-                if memberExistsInSource(unescaped) then None
+                if memberExistsInSource(withDotForHash) then None
                 else
                   // Try to resolve using external mappings
                   // Split the member reference into containing type and member name
@@ -659,8 +661,8 @@ object ScaladocChecker:
                   var parenDepth = 0
                   var splitIdx = -1
                   var i = 0
-                  while i < unescaped.length && splitIdx < 0 do
-                    unescaped.charAt(i) match
+                  while i < withDotForHash.length && splitIdx < 0 do
+                    withDotForHash.charAt(i) match
                       case '[' => bracketDepth += 1
                       case ']' => bracketDepth -= 1
                       case '(' => parenDepth += 1
@@ -672,8 +674,8 @@ object ScaladocChecker:
                     i += 1
 
                   if splitIdx >= 0 then
-                    val containingType = unescaped.substring(0, splitIdx)
-                    val memberName = unescaped.substring(splitIdx + 1)
+                    val containingType = withDotForHash.substring(0, splitIdx)
+                    val memberName = withDotForHash.substring(splitIdx + 1)
                     val normalizedMember = normalizeSymbol(memberName).replaceAll("\\*\\s*$", "")
 
                     // Check if the containing type matches an external mapping
