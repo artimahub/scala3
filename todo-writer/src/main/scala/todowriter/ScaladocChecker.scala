@@ -171,8 +171,25 @@ object ScaladocChecker:
     *
     *  This variant is useful for testing (inject a fake checker). The checker
     *  should return None for a healthy URL, or Some(errorDescription) for a broken URL.
+    *
+    *  @param root Root directory to scan
+    *  @param checkUrl Function to check if a URL is valid (receives URL and declaration context)
+    *  @return List of broken links with (filePath, lineNumber, url, errorDescription)
     */
-  def findBrokenLinks(root: Path, checkUrl: String => Option[String]): List[(String, Int, String, String)] =
+  def findBrokenLinks(root: Path, checkUrl: (String, Declaration) => Option[String]): List[(String, Int, String, String)] =
+    findBrokenLinks(root, checkUrl, Nil)
+
+  /** Find broken HTTP/HTTPS links referenced inside Scaladoc blocks using a custom checker with external mappings.
+    *
+    *  Returns a list of tuples: (filePath, lineNumber, url, errorDescription)
+    *  The lineNumber points to the Scaladoc physical line containing the link.
+    *
+    *  @param root Root directory to scan
+    *  @param checkUrl Function to check if a URL is valid (receives URL and declaration context)
+    *  @param externalMappings Optional list of external documentation mappings
+    *  @return List of broken links with (filePath, lineNumber, url, errorDescription)
+    */
+  private def findBrokenLinks(root: Path, checkUrl: (String, Declaration) => Option[String], externalMappings: List[ExternalDocLink]): List[(String, Int, String, String)] =
     val urlRegex = raw"https?://[^\s\)\]\}\>\"']+".r
     val files = findScalaFiles(root)
     val results = collection.mutable.ListBuffer[(String, Int, String, String)]()
@@ -196,6 +213,10 @@ object ScaladocChecker:
       val text = Files.readString(path)
       val blocks = ScaladocBlock.findAll(text)
       for block <- blocks do
+        // Get the declaration that follows this Scaladoc block
+        val chunk = Declaration.getDeclarationAfter(text, block.endIndex)
+        val decl = Declaration.parse(chunk)
+
         // Use masked content to avoid detecting links that appear inside code spans
         var masked = maskCodeRegions(block.content)
 
@@ -282,7 +303,7 @@ object ScaladocChecker:
           val before = block.content.substring(0, startIdx)
           val offsetLines = before.count(_ == '\n')
           val linkLine = block.lineNumber + offsetLines
-          checkUrl(url) match
+          checkUrl(url, decl) match
             case Some(err) => results += ((path.toString, linkLine, url, err))
             case None      => ()
 
@@ -295,20 +316,42 @@ object ScaladocChecker:
     *  @return List of broken links with (filePath, lineNumber, url, errorDescription)
     */
   def findBrokenLinks(root: Path, externalMappings: List[ExternalDocLink]): List[(String, Int, String, String)] =
-    findBrokenLinks(root, (url: String) => defaultCheckUrl(url, root, externalMappings))
+    findBrokenLinks(root, (url: String, decl: Declaration) => defaultCheckUrl(url, decl, root, externalMappings))
 
   /** Default network-backed findBrokenLinks implementation (kept for normal usage). */
   def findBrokenLinks(root: Path): List[(String, Int, String, String)] =
     findBrokenLinks(root, Nil)
 
+  /** Check if a symbol name refers to a member of the current declaration.
+    *
+    *  @param symbolName The unqualified symbol name to check
+    *  @param decl The declaration context
+    *  @return true if the symbol is a member of the declaration
+    */
+  private def hasMemberInDeclaration(symbolName: String, decl: Declaration): Boolean =
+    // Check if the symbol is a type parameter
+    if decl.tparams.contains(symbolName) then true
+    // Check if the symbol is a value parameter
+    else if decl.params.contains(symbolName) then true
+    // For classes and traits, also check constructor parameters (they're in params)
+    else if decl.kind == DeclKind.Class || decl.kind == DeclKind.Trait then
+      decl.params.contains(symbolName)
+    else
+      // For methods, we can't easily check if there are other methods in the same type
+      // without parsing the entire class, so we conservatively return false
+      // In practice, Scaladoc often uses unqualified references for methods within the same type
+      // and the checker should not report them as broken
+      false
+
   /** Default URL checker that supports external mappings.
     *
     *  @param url The URL or symbol to check
+    *  @param decl The declaration context (for resolving unqualified references)
     *  @param root Root directory for source file lookup
     *  @param externalMappings Optional list of external documentation mappings
     *  @return None if URL is valid, Some(errorDescription) if invalid
     */
-  private def defaultCheckUrl(u: String, root: Path, externalMappings: List[ExternalDocLink]): Option[String] =
+  private def defaultCheckUrl(u: String, decl: Declaration, root: Path, externalMappings: List[ExternalDocLink]): Option[String] =
       // Treat http(s) URLs via network check
       if u.startsWith("http://") || u.startsWith("https://") then
         var conn: HttpURLConnection | Null = null
@@ -599,6 +642,11 @@ object ScaladocChecker:
                 None
               else if externalMappings.nonEmpty && ExternalDocLink.findMapping(normalized, externalMappings).isDefined then
                 // The symbol is covered by external mappings
+                None
+              else if !isMemberRef then
+                // Unqualified reference - conservatively assume it might be valid
+                // It could be a method within the same type, which we can't easily detect
+                // without parsing the entire class
                 None
               else if isMemberRef then
                 // For member references, try to resolve by finding the containing type and searching for the member

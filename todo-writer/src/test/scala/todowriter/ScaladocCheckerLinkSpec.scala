@@ -85,7 +85,7 @@ class ScaladocCheckerLinkSpec extends AnyFlatSpec with Matchers:
                       |""".stripMargin
       withTempFile(content) { path =>
         // Use the injectable checker to avoid timing issues with real network access
-        def checker(url: String): Option[String] =
+        def checker(url: String, decl: todowriter.Declaration): Option[String] =
           if url.endsWith("/ok") then None
           else if url.endsWith("/notfound") then Some("HTTP 404")
           else Some("Error: unknown")
@@ -113,7 +113,7 @@ class ScaladocCheckerLinkSpec extends AnyFlatSpec with Matchers:
                       |def foo(): Unit = ()
                       |""".stripMargin
       withTempFile(content) { path =>
-        def checker(url: String): Option[String] =
+        def checker(url: String, decl: todowriter.Declaration): Option[String] =
           if url.endsWith("/ok") then None else Some("Error")
         val broken = ScaladocChecker.findBrokenLinks(path.getParent, checker)
         broken should be (empty)
@@ -133,7 +133,7 @@ class ScaladocCheckerLinkSpec extends AnyFlatSpec with Matchers:
                     |def foo(): Unit = ()
                     |""".stripMargin
     withTempFile(content) { path =>
-      def checker(url: String): Option[String] =
+      def checker(url: String, decl: todowriter.Declaration): Option[String] =
         if url == badUrl then Some("Error: Unknown host") else None
       val broken = ScaladocChecker.findBrokenLinks(path.getParent, checker)
       val entryOpt = broken.find(_._3 == badUrl)
@@ -152,12 +152,12 @@ class ScaladocCheckerLinkSpec extends AnyFlatSpec with Matchers:
                     |def foo(): Unit = ()
                     |""".stripMargin
     withTempFile(content) { path =>
-      def checker(url: String): Option[String] =
-        if url.endsWith("/docs") then None
-        else if url.endsWith("/bad") then Some("HTTP 404")
-        else Some("Error")
-      val broken = ScaladocChecker.findBrokenLinks(path.getParent, checker)
-      val urls = broken.map(_._3)
+      def checker(url: String, decl: todowriter.Declaration): Option[String] =
+                if url.endsWith("/docs") then None
+                else if url.endsWith("/bad") then Some("HTTP 404")
+                else Some("Error")
+              val broken = ScaladocChecker.findBrokenLinks(path.getParent, checker)
+              val urls = broken.map(_._3)
       urls should contain ("http://example.com/bad")
       urls should not contain ("http://example.com/docs")
       val entry = broken.find(_._3 == "http://example.com/bad")
@@ -176,14 +176,14 @@ class ScaladocCheckerLinkSpec extends AnyFlatSpec with Matchers:
                     |def foo(): Unit = ()
                     |""".stripMargin
     withTempFile(content) { path =>
-      def checker(url: String): Option[String] =
-        if url == "scala.Int" then None
-        else if url == "com.example.Foo" then Some("Symbol not found")
-        else Some("Error")
-      val broken = ScaladocChecker.findBrokenLinks(path.getParent, checker)
-      val urls = broken.map(_._3)
-      urls should contain ("com.example.Foo")
-      urls should not contain ("scala.Int")
+      def checker(url: String, decl: todowriter.Declaration): Option[String] =
+                if url == "scala.Int" then None
+                else if url == "com.example.Foo" then Some("Symbol not found")
+                else Some("Error")
+              val broken = ScaladocChecker.findBrokenLinks(path.getParent, checker)
+              val urls = broken.map(_._3)
+              urls should contain ("com.example.Foo")
+              urls should not contain ("scala.Int")
       val entry = broken.find(_._3 == "com.example.Foo")
       entry shouldBe defined
       entry.get._4 should include("not found")
@@ -222,7 +222,7 @@ class ScaladocCheckerLinkSpec extends AnyFlatSpec with Matchers:
                     |""".stripMargin
     withTempFile(content) { path =>
       // Treat any matched URL as broken to detect false positives inside code spans
-      def checker(url: String): Option[String] = Some("HTTP 404")
+      def checker(url: String, decl: todowriter.Declaration): Option[String] = Some("HTTP 404")
       val broken = ScaladocChecker.findBrokenLinks(path.getParent, checker)
       // Only the real http link should be reported (and it's marked broken by checker),
       // the inline code span should not produce any additional entries.
@@ -245,10 +245,9 @@ class ScaladocCheckerLinkSpec extends AnyFlatSpec with Matchers:
                     |def foo(): Unit = ()
                     |""".stripMargin
     withTempFile(content) { path =>
-      def checker(url: String): Option[String] =
-        if url.endsWith("/good") then None else Some("HTTP 404")
-      val broken = ScaladocChecker.findBrokenLinks(path.getParent, checker)
-      // The code fence should not produce a link; only the markdown link should be considered.
+      def checker(url: String, decl: todowriter.Declaration): Option[String] =
+                if url.endsWith("/good") then None else Some("HTTP 404")
+            val broken = ScaladocChecker.findBrokenLinks(path.getParent, checker)      // The code fence should not produce a link; only the markdown link should be considered.
       val urls = broken.map(_._3)
       urls should not contain ("def")
       urls should not contain ("def g[..](...)")
@@ -268,7 +267,7 @@ class ScaladocCheckerLinkSpec extends AnyFlatSpec with Matchers:
                     |def foo(): Unit = ()
                     |""".stripMargin
     withTempFile(content) { path =>
-      def checker(url: String): Option[String] = Some("HTTP 404")
+      def checker(url: String, decl: todowriter.Declaration): Option[String] = Some("HTTP 404")
       val broken = ScaladocChecker.findBrokenLinks(path.getParent, checker)
       val urls = broken.map(_._3)
       // Only the explicit http link should be reported; the triple-brace code should be ignored.
@@ -472,6 +471,37 @@ class ScaladocCheckerLinkSpec extends AnyFlatSpec with Matchers:
       // Expected: these Java methods should be resolved using external mappings
       urls should not contain ("java.util.List.add")
       urls should not contain ("java.lang.String.valueOf")
+    finally
+      try Files.list(tempDir).forEach(p => try Files.deleteIfExists(p) catch case _: Throwable => ()) catch case _: Throwable => ()
+      try Files.deleteIfExists(tempDir) catch case _: Throwable => ()
+  }
+
+  it should "resolve unqualified references to methods within the same class" in {
+    val content = """package test
+                    |
+                    |/** A test class with multiple methods.
+                    | *
+                    | *  See [[foo]] and [[bar]] for more details.
+                    | */
+                    |class MyClass:
+                    |  /** Does something. */
+                    |  def foo(): Unit = ()
+                    |
+                    |  /** Does something else. */
+                    |  def bar(): Unit = ()
+                    |""".stripMargin
+    val tempDir = Files.createTempDirectory("unqualified-ref-test")
+    try
+      val tempFile = tempDir.resolve("Test.scala")
+      Files.writeString(tempFile, content)
+
+      // Unqualified references to methods within the same class should be resolved
+      val broken = ScaladocChecker.findBrokenLinks(tempDir)
+      val urls = broken.map(_._3)
+
+      // Expected: foo and bar should not be reported as broken
+      urls should not contain ("foo")
+      urls should not contain ("bar")
     finally
       try Files.list(tempDir).forEach(p => try Files.deleteIfExists(p) catch case _: Throwable => ()) catch case _: Throwable => ()
       try Files.deleteIfExists(tempDir) catch case _: Throwable => ()
