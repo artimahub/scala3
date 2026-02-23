@@ -409,3 +409,70 @@ class ScaladocCheckerLinkSpec extends AnyFlatSpec with Matchers:
       try Files.list(tempDir).forEach(p => try Files.deleteIfExists(p) catch case _: Throwable => ()) catch case _: Throwable => ()
       try Files.deleteIfExists(tempDir) catch case _: Throwable => ()
   }
+
+  it should "resolve Java class references using external mappings" in {
+    val tempDir = Files.createTempDirectory("java-external-test")
+    try
+      val content = """package test
+                      |
+                      |/** Uses Java standard library classes.
+                      | *  See [[java.util.List]] and [[java.lang.String]].
+                      | *  Also [[java.util.ArrayList]].
+                      | */
+                      |def foo(): Unit = ()
+                      |""".stripMargin
+      val tempFile = tempDir.resolve("Test.scala")
+      Files.writeString(tempFile, content)
+
+      // Create external mappings (simulating scaladoc format)
+      val mappings = List(
+        ExternalDocLink.parse(".*java.*::javadoc::https://docs.oracle.com/javase/8/docs/api/") match
+          case Right(m) => m
+          case Left(err) => fail(s"Failed to parse mapping: $err")
+      )
+
+      // Use the new findBrokenLinks overload with external mappings
+      val broken = ScaladocChecker.findBrokenLinks(tempDir, mappings)
+      val urls = broken.map(_._3)
+
+      // Expected: these Java classes should be resolved using external mappings
+      // and NOT be reported as broken
+      urls should not contain ("java.util.List")
+      urls should not contain ("java.lang.String")
+      urls should not contain ("java.util.ArrayList")
+    finally
+      try Files.list(tempDir).forEach(p => try Files.deleteIfExists(p) catch case _: Throwable => ()) catch case _: Throwable => ()
+      try Files.deleteIfExists(tempDir) catch case _: Throwable => ()
+  }
+
+  it should "resolve Java method references using external mappings" in {
+    val tempDir = Files.createTempDirectory("java-method-external-test")
+    try
+      val content = """package test
+                      |
+                      |/** Uses Java standard library methods.
+                      | *  See [[java.util.List.add]] and [[java.lang.String.valueOf]].
+                      | */
+                      |def foo(): Unit = ()
+                      |""".stripMargin
+      val tempFile = tempDir.resolve("Test.scala")
+      Files.writeString(tempFile, content)
+
+      // Create external mappings
+      val mappings = List(
+        ExternalDocLink.parse(".*java.*::javadoc::https://docs.oracle.com/javase/8/docs/api/") match
+          case Right(m) => m
+          case Left(err) => fail(s"Failed to parse mapping: $err")
+      )
+
+      // Use the new findBrokenLinks overload with external mappings
+      val broken = ScaladocChecker.findBrokenLinks(tempDir, mappings)
+      val urls = broken.map(_._3)
+
+      // Expected: these Java methods should be resolved using external mappings
+      urls should not contain ("java.util.List.add")
+      urls should not contain ("java.lang.String.valueOf")
+    finally
+      try Files.list(tempDir).forEach(p => try Files.deleteIfExists(p) catch case _: Throwable => ()) catch case _: Throwable => ()
+      try Files.deleteIfExists(tempDir) catch case _: Throwable => ()
+  }

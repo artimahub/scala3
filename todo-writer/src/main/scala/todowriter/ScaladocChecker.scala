@@ -288,15 +288,27 @@ object ScaladocChecker:
 
     results.toList
 
+  /** Find broken HTTP/HTTPS links with external mappings support.
+    *
+    *  @param root Root directory to scan
+    *  @param externalMappings Optional list of external documentation mappings
+    *  @return List of broken links with (filePath, lineNumber, url, errorDescription)
+    */
+  def findBrokenLinks(root: Path, externalMappings: List[ExternalDocLink]): List[(String, Int, String, String)] =
+    findBrokenLinks(root, (url: String) => defaultCheckUrl(url, root, externalMappings))
+
   /** Default network-backed findBrokenLinks implementation (kept for normal usage). */
   def findBrokenLinks(root: Path): List[(String, Int, String, String)] =
-    // Default checker: HTTP(S) links are validated over the network; non-http links
-    // are treated as code/symbol references and validated via class lookup, known
-    // Scala primitives, or by scanning the project's source files.
-    //
-    // The helper below performs a best-effort lookup inside source files under `root`.
+    findBrokenLinks(root, Nil)
 
-    def defaultCheck(u: String): Option[String] =
+  /** Default URL checker that supports external mappings.
+    *
+    *  @param url The URL or symbol to check
+    *  @param root Root directory for source file lookup
+    *  @param externalMappings Optional list of external documentation mappings
+    *  @return None if URL is valid, Some(errorDescription) if invalid
+    */
+  private def defaultCheckUrl(u: String, root: Path, externalMappings: List[ExternalDocLink]): Option[String] =
       // Treat http(s) URLs via network check
       if u.startsWith("http://") || u.startsWith("https://") then
         var conn: HttpURLConnection | Null = null
@@ -483,7 +495,7 @@ object ScaladocChecker:
                   val wantsVarargs = spec.contains("*")
                   if wantsVarargs then md.isVarArgs else true
                 case None => true
- 
+
             try
               Class.forName(sym)
               true
@@ -493,29 +505,55 @@ object ScaladocChecker:
                   val parts = sym.split('.')
                   val parent = parts.init.mkString(".")
                   val member = parts.last
+
+                  // First, try to resolve as a member of a regular Java class
                   try
-                    val base = if parent.endsWith("$") then parent else parent + "$"
-                    val candidates =
-                      if parent.contains('.') then List(base)
-                      else List(base, "scala." + base)
-                    candidates.exists { companionClassName =>
+                    val parentClass = Class.forName(parent)
+                    // First check if it's a nested class (e.g., java.util.Spliterator.OfInt -> java.util.Spliterator$OfInt)
+                    val nestedClassName = parent + "$" + member
+                    val hasNestedClass =
                       try
-                        val companionClass = Class.forName(companionClassName)
-                        val moduleField = companionClass.getField("MODULE$")
-                        val instance = moduleField.get(null)
-                        val instClass = instance.getClass
-                        // Check for a declared field or methods with the member name (and params match)
-                        val hasField =
-                          try { instClass.getDeclaredField(member); true }
-                          catch { case _: Throwable => false }
-                        val methods = instClass.getMethods.filter(_.getName == member)
-                        val hasMethod = methods.exists(m => methodMatches(m, paramSpecOpt))
-                        hasField || hasMethod
+                        Class.forName(nestedClassName)
+                        true
+                      catch
+                        case _: ClassNotFoundException => false
+
+                    if hasNestedClass then true
+                    else
+                      // Check for fields
+                      val hasField =
+                        try { parentClass.getDeclaredField(member); true }
+                        catch { case _: Throwable => false }
+                      // Check for methods
+                      val methods = parentClass.getMethods.filter(_.getName == member)
+                      val hasMethod = methods.exists(m => methodMatches(m, paramSpecOpt))
+                      hasField || hasMethod
+                  catch
+                    case _: ClassNotFoundException =>
+                      // Not a regular Java class, try Scala companion object
+                      try
+                        val base = if parent.endsWith("$") then parent else parent + "$"
+                        val candidates =
+                          if parent.contains('.') then List(base)
+                          else List(base, "scala." + base)
+                        candidates.exists { companionClassName =>
+                          try
+                            val companionClass = Class.forName(companionClassName)
+                            val moduleField = companionClass.getField("MODULE$")
+                            val instance = moduleField.get(null)
+                            val instClass = instance.getClass
+                            // Check for a declared field or methods with the member name (and params match)
+                            val hasField =
+                              try { instClass.getDeclaredField(member); true }
+                              catch { case _: Throwable => false }
+                            val methods = instClass.getMethods.filter(_.getName == member)
+                            val hasMethod = methods.exists(m => methodMatches(m, paramSpecOpt))
+                            hasField || hasMethod
+                          catch
+                            case _: Throwable => false
+                        }
                       catch
                         case _: Throwable => false
-                    }
-                  catch
-                    case _: Throwable => false
                 else
                   // No dot — try common containers (scala.Predef) for unqualified member names
                   try
@@ -559,9 +597,46 @@ object ScaladocChecker:
               else if isMemberRef && packageExistsInSource(root, normalized) then
                 // It's a valid package
                 None
+              else if externalMappings.nonEmpty && ExternalDocLink.findMapping(normalized, externalMappings).isDefined then
+                // The symbol is covered by external mappings
+                None
               else if isMemberRef then
                 // For member references, try to resolve by finding the containing type and searching for the member
-                if memberExistsInSource(unescaped) then None else Some("Member not found")
+                if memberExistsInSource(unescaped) then None
+                else
+                  // Try to resolve using external mappings
+                  // Split the member reference into containing type and member name
+                  // For example, "java.util.List.add" -> "java.util.List" and "add"
+                  var bracketDepth = 0
+                  var parenDepth = 0
+                  var splitIdx = -1
+                  var i = 0
+                  while i < unescaped.length && splitIdx < 0 do
+                    unescaped.charAt(i) match
+                      case '[' => bracketDepth += 1
+                      case ']' => bracketDepth -= 1
+                      case '(' => parenDepth += 1
+                      case ')' => parenDepth -= 1
+                      case '.' =>
+                        if bracketDepth == 0 && parenDepth == 0 then
+                          splitIdx = i
+                      case _ => ()
+                    i += 1
+
+                  if splitIdx >= 0 then
+                    val containingType = unescaped.substring(0, splitIdx)
+                    val memberName = unescaped.substring(splitIdx + 1)
+                    val normalizedMember = normalizeSymbol(memberName).replaceAll("\\*\\s*$", "")
+
+                    // Check if the containing type matches an external mapping
+                    ExternalDocLink.findMapping(containingType, externalMappings) match
+                      case Some(mapping) =>
+                        // The type is covered by external mappings, so consider it valid
+                        None
+                      case None =>
+                        Some("Member not found")
+                  else
+                    Some("Member not found")
               else
                 Some("Symbol not found")
 
@@ -571,10 +646,6 @@ object ScaladocChecker:
               case None => symbolError
           catch
             case e: Exception => Some(s"Error: ${e.getMessage}")
-
-    end defaultCheck
-
-    findBrokenLinks(root, defaultCheck)
 
   /** Generate summary statistics from file results. */
   def summarize(results: List[FileResult]): Summary =

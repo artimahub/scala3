@@ -11,7 +11,8 @@ object Main:
       help: Boolean = false,
       skipTodo: Boolean = false,
       migrateMarkdown: Boolean = false,
-      listBrokenLink: Boolean = false
+      listBrokenLink: Boolean = false,
+      externalMappingsFile: Option[Path] = None
   )
 
   def main(args: Array[String]): Unit =
@@ -31,8 +32,8 @@ object Main:
         if !Files.isDirectory(folder) then
           System.err.println(s"Error: folder not found: $folder")
           System.exit(2)
- 
-        run(folder, config.fix, config.json, config.skipTodo, config.migrateMarkdown, config.listBrokenLink)
+
+        run(folder, config.fix, config.json, config.skipTodo, config.migrateMarkdown, config.listBrokenLink, config.externalMappingsFile)
 
   private def parseArgs(args: List[String]): Config =
     args match
@@ -43,6 +44,7 @@ object Main:
       case "--skip-todo" :: rest => parseArgs(rest).copy(skipTodo = true)
       case "--migrate-markdown" :: rest => parseArgs(rest).copy(migrateMarkdown = true)
       case "--list-broken-link" :: rest => parseArgs(rest).copy(listBrokenLink = true)
+      case "--external-mappings" :: file :: rest => parseArgs(rest).copy(externalMappingsFile = Some(Paths.get(file)))
       case arg :: rest if arg.startsWith("-") =>
         System.err.println(s"Unknown option: $arg")
         parseArgs(rest)
@@ -62,8 +64,32 @@ object Main:
               |  --migrate-markdown  Migrate Wikidoc-style scaladoc to Markdown (applies in-place unless --dry)
               |  --skip-todo         Do not insert TODO placeholders for missing tags when fixing
               |  --list-broken-link  Check Scaladoc for broken HTTP/HTTPS links and list them
+              |  --external-mappings <file>  Load external documentation mappings from file
               |  --json              Output results as JSON
               |  --help              Show this help message
+              |
+              |External Mappings File Format:
+              |  Each line should be in the format: regex::docTool::url[::packageList]
+              |  Lines starting with # are treated as comments
+              |
+              |  Fields:
+              |    - regex:   Regular expression matching classpath entries
+              |    - docTool: Documentation type (javadoc, scaladoc2, or scaladoc3)
+              |    - url:     Base URL of the external documentation
+              |    - packageList: (optional) URL to package-list file
+              |
+              |  Examples:
+              |    # Java Standard Library (Javadoc 8)
+              |    .*java.*::javadoc::https://docs.oracle.com/javase/8/docs/api/
+              |
+              |    # Scala Standard Library (Scaladoc 3)
+              |    .*scala/.*::scaladoc3::https://www.scala-lang.org/api/current/
+              |
+              |    # Apache Commons Lang
+              |    .*org/apache/commons/lang3.*::javadoc::https://commons.apache.org/proper/commons-lang/javadocs/api-3.17.0/
+              |
+              |  With external mappings, references like [[java.util.List]] and
+              |  [[java.util.List.add]] will be resolved using the matching mapping.
               |
               |Exit codes:
               |  0                   No issues found (or --fix applied successfully)
@@ -71,14 +97,30 @@ object Main:
               |  2                   Error (folder not found, etc.)
               |""".stripMargin)
 
-  private def run(folder: Path, dry: Boolean, json: Boolean, skipTodo: Boolean, migrateMarkdown: Boolean, listBrokenLink: Boolean): Unit =
+  private def run(folder: Path, dry: Boolean, json: Boolean, skipTodo: Boolean, migrateMarkdown: Boolean, listBrokenLink: Boolean, externalMappingsFile: Option[Path]): Unit =
+    // Load external mappings if provided
+    val externalMappings = externalMappingsFile match
+      case Some(file) =>
+        if !Files.exists(file) then
+          System.err.println(s"Error: external mappings file not found: $file")
+          System.exit(2)
+        val content = Files.readString(file)
+        ExternalDocLink.parseFile(content) match
+          case Right(mappings) => mappings
+          case Left(errors) =>
+            System.err.println("Error parsing external mappings file:")
+            errors.foreach(err => System.err.println(s"  - $err"))
+            System.exit(2)
+            Nil
+      case None => Nil
+
     // Perform optional migration before checking so subsequent checks see migrated content.
     if migrateMarkdown then
       performMigration(folder, dry)
- 
+
     // If the user requested link checking, perform that pass and exit.
     if listBrokenLink then
-      val broken = ScaladocChecker.findBrokenLinks(folder)
+      val broken = ScaladocChecker.findBrokenLinks(folder, externalMappings)
       if broken.isEmpty then
         println("No broken links found.")
         System.exit(0)
