@@ -302,7 +302,7 @@ extends NotFoundMsg(MissingIdentID) {
         |imported from elsewhere.
         |
         |Possible reasons why no matching declaration was found:
-        | - The declaration or the use is mis-spelt.
+        | - The declaration or the use is misspelled.
         | - An import is missing.
         | - The declaration exists but refers to a type in a context where a term is expected, or vice-versa."""
   }
@@ -1271,6 +1271,17 @@ extends SyntaxMsg(ExpectedTokenButFoundID) {
     else
       ""
 }
+
+class ExpectedTokenButFoundSoftKeyword(expected: Token, found: Token, soft: Name, advice: String = "")(using Context)
+extends SyntaxMsg(ExpectedTokenButFoundID):
+  def addendum = if !advice.isEmpty then s"\n$advice" else advice
+  def msg(using Context) =
+    val expectedText = if Tokens.isIdentifier(expected) then "an identifier" else Tokens.showToken(expected)
+    val what = if Tokens.isIdentifier(found) || expected == Tokens.COLONop then "an identifier" else "the soft keyword"
+    s"""$expectedText expected, but ${Tokens.showToken(found)} found
+       |The soft keyword `$soft` was taken as $what in this context.$addendum""".stripMargin
+  def explain(using Context) = s"The soft keyword `$soft` has special meaning only in certain contexts."
+end ExpectedTokenButFoundSoftKeyword
 
 class MixedLeftAndRightAssociativeOps(op1: Name, op2: Name, op2LeftAssoc: Boolean)(using Context)
 extends SyntaxMsg(MixedLeftAndRightAssociativeOpsID) {
@@ -3554,7 +3565,7 @@ final class DeprecatedAssignmentSyntax(key: Name, value: untpd.Tree)(using Conte
 
 class DeprecatedInfixNamedArgumentSyntax()(using Context) extends SyntaxMsg(DeprecatedInfixNamedArgumentSyntaxID):
   def msg(using Context) =
-    i"""Deprecated syntax: infix named arguments lists are deprecated; since 3.7 it is interpreted as a single name tuple argument.
+    i"""Deprecated syntax: infix named arguments lists are deprecated; since 3.7 it is interpreted as a single named tuple argument.
        |To avoid this warning, either remove the argument names or use dotted selection."""
         + Message.rewriteNotice("This", version = SourceVersion.`3.7-migration`)
 
@@ -3855,3 +3866,24 @@ final class OverrideClass(using Context) extends SyntaxMsg(OverrideClassID):
   override protected def explain(using Context) =
     i"""Instead of overriding a type alias with a class type, use an alias of the class.
        |For example, instead of `override class C`, use `override type C = CImpl; class CImpl`."""
+
+final class TypeParameterShadowsType(shadow: Symbol, parent: Symbol, shadowed: Symbol)(using Context)
+    extends NamingMsg(TypeParameterShadowsTypeID):
+  override protected def msg(using Context): String =
+    if shadowed.exists then
+      i"Type parameter ${shadow.name} for $parent shadows the type defined by ${shadowed.showLocated}"
+    else
+      i"Type parameter ${shadow.name} for $parent shadows an explicitly renamed type : ${shadow.name}"
+  override protected def explain(using Context): String =
+    i"""A type parameter shadows another type that is already in scope.
+       |This can lead to confusion and potential errors.
+       |Consider renaming the type parameter to avoid the shadowing."""
+
+final class PrivateShadowsType(shadow: Symbol, shadowed: Symbol)(using Context)
+    extends NamingMsg(PrivateShadowsTypeID):
+  override protected def msg(using Context): String =
+    i"${shadow.showLocated} shadows field ${shadowed.name} inherited from ${shadowed.owner}"
+  override protected def explain(using Context): String =
+    i"""A private field shadows an inherited field with the same name.
+       |This can lead to confusion as the inherited field becomes inaccessible.
+       |Consider renaming the private field to avoid the shadowing."""

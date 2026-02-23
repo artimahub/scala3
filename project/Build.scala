@@ -60,7 +60,7 @@ object Build {
    *
    *  Warning: Change of this variable needs to be consulted with `expectedTastyVersion`
    */
-  val referenceVersion = "3.8.2-RC2"
+  val referenceVersion = "3.8.2-RC3"
 
   /** Version of the Scala compiler targeted in the current release cycle
    *  Contains a version without RC/SNAPSHOT/NIGHTLY specific suffixes
@@ -71,7 +71,7 @@ object Build {
    *
    *  Warning: Change of this variable might require updating `expectedTastyVersion`
    */
-  val developedVersion = "3.8.3"
+  val developedVersion = "3.8.4"
 
   /** The version of the compiler including the RC prefix.
    *  Defined as common base before calculating environment specific suffixes in `dottyVersion`
@@ -418,7 +418,7 @@ object Build {
 
   def scalacOptionsDocSettings(includeExternalMappings: Boolean = true) = {
     val extMap = Seq("-external-mappings:" +
-        (if (includeExternalMappings) ".*scala/.*::scaladoc3::https://dotty.epfl.ch/api/," else "") +
+        (if (includeExternalMappings) ".*scala/.*::scaladoc3::https://nightly.scala-lang.org/api/," else "") +
         ".*java/.*::javadoc::https://docs.oracle.com/javase/8/docs/api/")
     Seq(
       "-skip-by-regex:.+\\.internal($|\\..+)",
@@ -758,7 +758,7 @@ object Build {
         if (args.contains("--help")) {
           println(
             s"""
-               |usage: testCompilation [--help] [--from-tasty] [--update-checkfiles] [--failed] [<filter>]
+               |usage: testCompilation [--help] [--from-tasty] [--update-checkfiles] [--failed] [--enable-coverage-phase] [<filter>]
                |
                |By default runs tests in dotty.tools.dotc.*CompilationTests and dotty.tools.dotc.coverage.*,
                |excluding tests tagged with dotty.SlowTests.
@@ -767,6 +767,7 @@ object Build {
                |  --from-tasty          runs tests in dotty.tools.dotc.FromTastyTests
                |  --update-checkfiles   override the checkfiles that did not match with the current output
                |  --failed              re-run only failed tests
+               |  --enable-coverage-phase enable Scoverage instrumentation phase for compilation tests
                |  <filter>              substring of the path of the tests file
                |
              """.stripMargin
@@ -777,11 +778,13 @@ object Build {
           val updateCheckfile = args.contains("--update-checkfiles")
           val rerunFailed = args.contains("--failed")
           val fromTasty = args.contains("--from-tasty")
-          val args1 = if (updateCheckfile | fromTasty | rerunFailed) args.filter(x => x != "--update-checkfiles" && x != "--from-tasty" && x != "--failed") else args
+          val enableCoveragePhase = args.contains("--enable-coverage-phase")
+          val args1 = if (updateCheckfile | fromTasty | rerunFailed | enableCoveragePhase) args.filter(x => x != "--update-checkfiles" && x != "--from-tasty" && x != "--failed" && x != "--enable-coverage-phase") else args
           val test = if (fromTasty) "dotty.tools.dotc.FromTastyTests" else "dotty.tools.dotc.*CompilationTests dotty.tools.dotc.coverage.*"
           val cmd = s" $test -- --exclude-categories=dotty.SlowTests" +
             (if (updateCheckfile) " -Ddotty.tests.updateCheckfiles=TRUE" else "") +
             (if (rerunFailed) " -Ddotty.tests.rerunFailed=TRUE" else "") +
+            (if (enableCoveragePhase) " -Ddotty.tests.instrumentCoverage=TRUE" else "") +
             (if (args1.nonEmpty) " -Ddotty.tests.filter=" + args1.mkString(" ") else "")
           (`scala3-compiler-nonbootstrapped` / Test / testOnly).toTask(cmd)
         }
@@ -893,7 +896,7 @@ object Build {
         if (args.contains("--help")) {
           println(
             s"""
-               |usage: testCompilation [--help] [--from-tasty] [--update-checkfiles] [--failed] [<filter>]
+               |usage: testCompilation [--help] [--from-tasty] [--update-checkfiles] [--failed] [--enable-coverage-phase] [<filter>]
                |
                |By default runs tests in dotty.tools.dotc.*CompilationTests and dotty.tools.dotc.coverage.*,
                |excluding tests tagged with dotty.SlowTests.
@@ -902,6 +905,7 @@ object Build {
                |  --from-tasty          runs tests in dotty.tools.dotc.FromTastyTests
                |  --update-checkfiles   override the checkfiles that did not match with the current output
                |  --failed              re-run only failed tests
+               |  --enable-coverage-phase enable Scoverage instrumentation phase for compilation tests
                |  <filter>              substring of the path of the tests file
                |
              """.stripMargin
@@ -913,11 +917,13 @@ object Build {
           val rerunFailed = args.contains("--failed")
           val fromTasty = args.contains("--from-tasty")
           val coverage = args.contains("--coverage")
-          val args1 = if (updateCheckfile | fromTasty | rerunFailed | coverage) args.filter(x => x != "--update-checkfiles" && x != "--from-tasty" && x != "--failed" && x != "--coverage") else args
+          val enableCoveragePhase = args.contains("--enable-coverage-phase")
+          val args1 = if (updateCheckfile | fromTasty | rerunFailed | coverage | enableCoveragePhase) args.filter(x => x != "--update-checkfiles" && x != "--from-tasty" && x != "--failed" && x != "--coverage" && x != "--enable-coverage-phase") else args
           val test = if (fromTasty) "dotty.tools.dotc.FromTastyTests" else if (coverage) "dotty.tools.dotc.coverage.*" else "dotty.tools.dotc.*CompilationTests"
           val cmd = s" $test -- --exclude-categories=dotty.SlowTests" +
             (if (updateCheckfile) " -Ddotty.tests.updateCheckfiles=TRUE" else "") +
             (if (rerunFailed) " -Ddotty.tests.rerunFailed=TRUE" else "") +
+            (if (enableCoveragePhase) " -Ddotty.tests.instrumentCoverage=TRUE" else "") +
             (if (args1.nonEmpty) " -Ddotty.tests.filter=" + args1.mkString(" ") else "")
           (`scala3-compiler-bootstrapped` / Test / testOnly).toTask(cmd)
         }
@@ -2009,6 +2015,7 @@ object Build {
 
         val outputDir = "scaladoc/output/reference"
         val languageReferenceConfig = Def.task {
+          val ccDocs = s"${docs.getAbsolutePath}/_docs/reference/experimental/capture-checking"
           Scala3.value
             .add(OutputDir(outputDir))
             .add(SiteRoot(docs.getAbsolutePath))
@@ -2019,6 +2026,11 @@ object Build {
               s"${docs.getAbsolutePath}=github://scala/scala3/language-reference-stable#docs"
             )))
             .add(GenerateAPI(false))
+            .add(SnippetCompiler(List(
+              s"$ccDocs=compile|-language:experimental.captureChecking",
+              s"$ccDocs/separation-checking=compile|-language:experimental.captureChecking|-language:experimental.separationChecking",
+              s"$ccDocs/mutability=compile|-language:experimental.captureChecking|-language:experimental.separationChecking",
+            )))
         }
 
         val generateDocs = generateDocumentation(languageReferenceConfig)
@@ -2220,7 +2232,7 @@ object Build {
           new CloneCommand()
             .setDirectory(trgDir)
             .setURI("https://github.com/scala-js/scala-js.git")
-            .setNoCheckout(true)
+            .setBranch(s"v$ver")
             .call()
         }
 
@@ -2452,7 +2464,7 @@ object Build {
   val generateSelfDocumentation = taskKey[Unit]("Generate example documentation")
   val generateTestcasesDocumentation  = taskKey[Unit]("Generate documentation for testcases, useful for debugging tests")
 
-  // Published on https://dotty.epfl.ch/ by nightly builds
+  // Published on https://nightly.scala-lang.org/ by nightly builds
   // Contains additional internal/contributing docs
   val generateScalaDocumentation = inputKey[Unit]("Generate documentation for snapshot release")
 
@@ -2853,7 +2865,7 @@ object ScaladocConfigs {
   import Build._
   private lazy val currentYear: String = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR).toString
 
-  def dottyExternalMapping = ".*scala/.*::scaladoc3::https://dotty.epfl.ch/api/"
+  def dottyExternalMapping = ".*scala/.*::scaladoc3::https://nightly.scala-lang.org/api/"
   def javaExternalMapping = ".*java/.*::javadoc::https://docs.oracle.com/en/java/javase/17/docs/api/"
   def defaultSourceLinks(version: String, allowGitSHA: Boolean = true) = {
     def dottySrcLink(v: String) = sys.env.get("GITHUB_SHA") match {
@@ -2956,6 +2968,9 @@ object ScaladocConfigs {
         s"$stdlib/src/scala/util/control=compile",
         s"$stdlib/src/scala/util=compile",
         s"$stdlib/src/scala=compile",
+        "docs/_docs/reference/experimental/capture-checking=compile|-language:experimental.captureChecking",
+        "docs/_docs/reference/experimental/capture-checking/separation-checking=compile|-language:experimental.captureChecking|-language:experimental.separationChecking",
+        "docs/_docs/reference/experimental/capture-checking/mutability=compile|-language:experimental.captureChecking|-language:experimental.separationChecking",
       )))
       .add(SiteRoot("docs"))
       .add(ApiSubdirectory(true))

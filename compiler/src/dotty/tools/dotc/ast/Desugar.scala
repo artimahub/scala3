@@ -64,9 +64,16 @@ object desugar {
   val PolyFunctionApply: Property.Key[Unit] = Property.StickyKey()
 
   /** An attachment key to indicate that an Apply is created as a last `map`
-   *  scall in a for-comprehension.
+   *  call in a for-comprehension.
    */
   val TrailingForMap: Property.Key[Unit] = Property.StickyKey()
+
+  /** An attachment key to indicate that an Apply (`map` or `flatMap`)
+   *  in a for-comprehension has a nested tupling operation that no longer
+   *  generates an extra `map` call. That call would select the other overload
+   *  of `Map#map` and change the result to `List`. `DropForMap` warns about it.
+   */
+  val TuplingMigrationForMap: Property.Key[Unit] = Property.StickyKey()
 
   val WasTypedInfix: Property.Key[Unit] = Property.StickyKey()
 
@@ -1982,12 +1989,23 @@ object desugar {
       flags =
         if params.nonEmpty && params.head.mods.is(Given) then SyntheticTermParam | Given
         else SyntheticTermParam)
+
+    def paramIsUsed(name: Name, body: Tree): Boolean =
+      val acc = new UntypedTreeAccumulator[Boolean]:
+        def apply(x: Boolean, t: Tree)(using Context) =
+          if x then true
+          else t match
+            case Ident(id) => id == name
+            case _ => foldOver(x, t)
+      acc(false, body)
+
     def selector(n: Int) =
       if (isGenericTuple) Apply(Select(refOfDef(param), nme.apply), Literal(Constant(n)))
       else Select(refOfDef(param), nme.selectorName(n))
     val vdefs =
-      params.zipWithIndex.map {
-        case (param, idx) =>
+      params.zipWithIndex.collect {
+        case (param, idx) if param.name != nme.WILDCARD &&
+          (!param.name.is(WildcardParamName) || paramIsUsed(param.name, body)) =>
           ValDef(param.name, param.tpt, selector(idx))
             .withSpan(param.span)
             .withAttachment(UntupledParam, ())
@@ -2286,7 +2304,9 @@ object desugar {
             val selectName =
               if suffix.exists(_.isInstanceOf[GenFrom]) then flatMapName
               else mapName
-            Apply(rhsSelect(gen, selectName), makeLambda(gen, cont))
+            val app = Apply(rhsSelect(gen, selectName), makeLambda(gen, cont))
+            if valeqs.lengthIs > 1 then app.withAttachment(TuplingMigrationForMap, ())
+            else app
           else
             val (pats, rhss) = valeqs.map { case GenAlias(pat, rhs) => (pat, rhs) }.unzip
             val (defpat0, id0) = makeIdPat(gen.pat)

@@ -1191,24 +1191,22 @@ object Parsers {
 
     private def migrateInfixOp(opInfo: OpInfo, isType: Boolean)(infixOp: InfixOp): Tree = {
       def isNamedTupleOperator = opInfo.operator.name match
-        case nme.EQ | nme.NE |  nme.eq | nme.ne | nme.`++` | nme.zip => true
+        case nme.EQ | nme.NE |  nme.eq | nme.ne | nme.`++` | nme.zip | nme.PUREARROW => true
         case _ => false
+      def handle(args: List[Tree]): Tree =
+        import MigrationVersion.AmbiguousNamedTupleSyntax as ANTS
+        report.errorOrMigrationWarning(DeprecatedInfixNamedArgumentSyntax(), infixOp.right.srcPos, ANTS)
+        if ANTS.needsPatch then
+          val asApply = cpy.Apply(infixOp)(Select(opInfo.operand, opInfo.operator.name), args)
+          patch(source, infixOp.span, asApply.show(using ctx.withoutColors))
+          asApply // allow to use pre-3.6 syntax in migration mode
+        else infixOp
       if isType then infixOp
       else infixOp.right match
         case Tuple(args) if args.exists(_.isInstanceOf[NamedArg]) && !isNamedTupleOperator =>
-          report.errorOrMigrationWarning(DeprecatedInfixNamedArgumentSyntax(), infixOp.right.srcPos, MigrationVersion.AmbiguousNamedTupleSyntax)
-          if MigrationVersion.AmbiguousNamedTupleSyntax.needsPatch then
-            val asApply = cpy.Apply(infixOp)(Select(opInfo.operand, opInfo.operator.name), args)
-            patch(source, infixOp.span, asApply.show(using ctx.withoutColors))
-            asApply // allow to use pre-3.6 syntax in migration mode
-          else infixOp
+          handle(args)
         case Parens(assign @ Assign(ident, value)) if !isNamedTupleOperator =>
-          report.errorOrMigrationWarning(DeprecatedInfixNamedArgumentSyntax(), infixOp.right.srcPos, MigrationVersion.AmbiguousNamedTupleSyntax)
-          if MigrationVersion.AmbiguousNamedTupleSyntax.needsPatch then
-            val asApply = cpy.Apply(infixOp)(Select(opInfo.operand, opInfo.operator.name), assign :: Nil)
-            patch(source, infixOp.span, asApply.show(using ctx.withoutColors))
-            asApply // allow to use pre-3.6 syntax in migration mode
-          else infixOp
+          handle(assign :: Nil)
         case _ => infixOp
     }
 
@@ -2106,7 +2104,7 @@ object Parsers {
         typeBounds().withSpan(Span(start, in.lastOffset, start))
       else
         val tpt = simpleType1()
-        if in.featureEnabled(Feature.modularity)  && in.token == LPAREN then
+        if in.featureEnabled(Feature.modularity) && in.token == LPAREN then
           parArgumentExprss(wrapNew(tpt))
         else
           tpt
@@ -2929,7 +2927,9 @@ object Parsers {
      */
     def newExpr(): Tree =
       val start = in.skipToken()
-      def reposition(t: Tree) = t.withSpan(Span(start, in.lastOffset))
+      def reposition(t: Tree) =
+        val end = if t.span.exists then in.lastOffset max t.span.end else in.lastOffset
+        t.withSpan(Span(start, end))
       possibleTemplateStart()
       val parents =
         if in.isNestedStart then Nil
@@ -2943,11 +2943,12 @@ object Parsers {
           else parent
       case parents =>
         // With brace syntax, the last token consumed by a parser is }, but with indent syntax,
-        // the last token consumed by a parser is OUTDENT, which causes mismatching spans, so don't reposition.
+        // the last token consumed by a parser is OUTDENT, which causes mismatching spans, so don't update end.
         val indented = in.token == INDENT
         val body =
-          val bo = templateBodyOpt(emptyConstructor, parents, derived = Nil)
-          if !indented then reposition(bo) else bo
+          val tbo = templateBodyOpt(emptyConstructor, parents, derived = Nil)
+          if indented then tbo.withSpan(tbo.span.withStart(start))
+          else reposition(tbo)
         New(body)
     end newExpr
 
@@ -3730,6 +3731,8 @@ object Parsers {
 
       def addParamMod(mod: () => Mod) = impliedMods = addMod(impliedMods, atSpan(in.skipToken()) { mod() })
 
+      def paramModAdvice = "It is a keyword only at the beginning of a parameter clause."
+
       def paramMods() =
         if in.token == IMPLICIT then
           report.errorOrMigrationWarning(
@@ -3747,6 +3750,8 @@ object Parsers {
           if initialMods.is(Given) then
             syntaxError(em"`using` is already implied here, should not be given explicitly", in.offset)
           addParamMod(() => Mod.Given())
+          if in.isColon then
+            syntaxErrorOrIncomplete(ExpectedTokenButFoundSoftKeyword(IDENTIFIER, COLONop, nme.using, paramModAdvice))
 
       def param(): ValDef = {
         val start = in.offset
@@ -3773,8 +3778,20 @@ object Parsers {
           mods |= Param
         }
         atSpan(start, nameStart) {
-          val name = ident()
-          acceptColon()
+          val name = ident() match
+            case nme.using if !in.isColon =>
+              val msg = ExpectedTokenButFoundSoftKeyword(expected = COLONop, found = in.token, nme.using, paramModAdvice)
+              val span = Span(in.offset, in.offset + (if in.name != null then in.name.show.length else 0))
+              val pickOne =
+                if in.token == IDENTIFIER then
+                  while in.isSoftModifierInParamModifierPosition do ident() // skip to intended name, discard mods
+                  ident()
+                else nme.using
+              syntaxErrorOrIncomplete(msg, span)
+              pickOne
+            case name =>
+              acceptColon()
+              name
           if (in.token == ARROW && paramOwner.isClass && !mods.is(Local))
             syntaxError(VarValParametersMayNotBeCallByName(name, mods.is(Mutable)))
               // needed?, it's checked later anyway
@@ -3810,7 +3827,7 @@ object Parsers {
             syntaxError(em"`using` expected")
           Nil
         else
-          val clause =
+          val clause = {
             if paramOwner == ParamOwner.ExtensionPrefix
                 && !isIdent(nme.using) && !isIdent(nme.erased)
             then
@@ -3840,7 +3857,8 @@ object Parsers {
                 else contextTypes(paramOwner, numLeadParams, impliedMods)
               params match
                 case Nil => Nil
-                case (h :: t) => h.withAddedFlags(firstParamMod.flags) :: t
+                case h :: t => h.withAddedFlags(firstParamMod.flags) :: t
+          }
           checkVarArgsRules(clause)
           clause
       }
