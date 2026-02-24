@@ -674,33 +674,50 @@ object ScaladocChecker:
           // Resolve member references like "AsJavaConverters.asJava" by finding the containing type
           // and searching for the member in its source file
           def memberExistsInSourceLocal(memberRef: String): Boolean =
-            memberExistsInSourceRecursive(memberRef, root)
-            // Find the dot that separates the containing type from the member name
-            // We need to find a dot that's not inside brackets [...] or parentheses (...)
-            // For example, in "AsJavaConverters.asJava[A](b:scala.collection.mutable.Buffer[A])*"
-            // we want to split at the dot after "AsJavaConverters", not after "mutable"
-            var bracketDepth = 0
-            var parenDepth = 0
-            var splitIdx = -1
-            var i = 0
-            while i < memberRef.length && splitIdx < 0 do
-              memberRef.charAt(i) match
-                case '[' => bracketDepth += 1
-                case ']' => bracketDepth -= 1
-                case '(' => parenDepth += 1
-                case ')' => parenDepth -= 1
-                case '.' =>
-                  if bracketDepth == 0 && parenDepth == 0 then
-                    splitIdx = i
-                case _ => ()
-              i += 1
+            // In Scaladoc, '!' serves as a separator between type and member signature
+            // Check if there's a '!' separator first
+            val bangIdx = memberRef.indexOf('!')
 
-            if splitIdx < 0 then false
+            val (containingType, memberName) = if bangIdx >= 0 then
+              // Split at '!' - everything before is the type, everything after is the member
+              val typePart = memberRef.substring(0, bangIdx)
+              var memberPart = memberRef.substring(bangIdx + 1)
+              // Remove leading dot if present (e.g., ".sizeCompare" -> "sizeCompare")
+              if memberPart.startsWith(".") then
+                memberPart = memberPart.substring(1)
+              (typePart, memberPart)
             else
-              val containingType = memberRef.substring(0, splitIdx)
-              val memberName = memberRef.substring(splitIdx + 1)
-              // Normalize member name (remove generics, params, and trailing varargs marker)
-              val normalizedMember = normalizeSymbol(memberName).replaceAll("\\*\\s*$", "")
+              // No '!' separator - use the old logic to find the dot that separates the type from the member
+              // Find the dot that's not inside brackets [...] or parentheses (...)
+              // For example, in "AsJavaConverters.asJava[A](b:scala.collection.mutable.Buffer[A])*"
+              // we want to split at the dot after "AsJavaConverters", not after "mutable"
+              var bracketDepth = 0
+              var parenDepth = 0
+              var splitIdx = -1
+              var i = 0
+              while i < memberRef.length && splitIdx < 0 do
+                memberRef.charAt(i) match
+                  case '[' => bracketDepth += 1
+                  case ']' => bracketDepth -= 1
+                  case '(' => parenDepth += 1
+                  case ')' => parenDepth -= 1
+                  case '.' =>
+                    if bracketDepth == 0 && parenDepth == 0 then
+                      splitIdx = i
+                  case _ => ()
+                i += 1
+
+              if splitIdx < 0 then (memberRef, "")
+              else (memberRef.substring(0, splitIdx), memberRef.substring(splitIdx + 1))
+
+            if memberName.isEmpty then false
+            else
+              // Normalize member name (remove generics, params, return type, and trailing varargs marker)
+              var normalizedMember = normalizeSymbol(memberName).replaceAll("\\*\\s*$", "")
+              // Remove return type annotation (e.g., "sizeCompare:Int" -> "sizeCompare")
+              val colonIdx = normalizedMember.indexOf(':')
+              if colonIdx >= 0 then
+                normalizedMember = normalizedMember.substring(0, colonIdx)
 
               // Find the source file for the containing type
               val files = findScalaFiles(root)
@@ -714,7 +731,22 @@ object ScaladocChecker:
               files.exists { file =>
                 try
                   val txt = Files.readString(file)
-                  val pkgOpt = pkgPattern.findFirstMatchIn(txt).map(_.group(1))
+                  // Handle package chaining: find consecutive package declarations and concatenate them
+                  // e.g., "package scala\npackage collection" -> "scala.collection"
+                  val pkgMatch = pkgPattern.findFirstMatchIn(txt)
+                  val pkgOpt = if pkgMatch.isDefined then
+                    val firstMatch = pkgMatch.get
+                    val firstPkg = firstMatch.group(1)
+                    val afterFirstPkg = txt.substring(firstMatch.end)
+                    // Look for more package declarations immediately following
+                    val pkgPattern2 = raw"""(?m)^\s*package\s+([^\s;\n]+)""".r
+                    val secondPkgMatch = pkgPattern2.findFirstMatchIn(afterFirstPkg)
+                    if secondPkgMatch.isDefined then
+                      Some(firstPkg + "." + secondPkgMatch.get.group(1))
+                    else
+                      Some(firstPkg)
+                  else
+                    None
 
                   // Check if this file declares the containing type
                   val containsType = if containingType.contains('.') then

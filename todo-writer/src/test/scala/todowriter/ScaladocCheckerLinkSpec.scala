@@ -789,3 +789,49 @@ def foo(): Unit = ()
       try Files.list(tempDir).forEach(p => try Files.deleteIfExists(p) catch case _: Throwable => ()) catch case _: Throwable => ()
       try Files.deleteIfExists(tempDir) catch case _: Throwable => ()
   }
+  "ScaladocChecker" should "resolve references with ! separator between type and member signature" in {
+    val tempDir = Files.createTempDirectory("bang-separator-test")
+    try
+      // Create IterableOps with sizeCompare method
+      val iterableOpsFile = tempDir.resolve("IterableOps.scala")
+      Files.writeString(iterableOpsFile, """package scala.collection
+
+trait IterableOps[A, CC[_], C] {
+
+  /** Compares the size of this collection to the size of another `Iterable`.
+   *
+   *  @param   that the `Iterable` whose size is compared with this $coll's size.
+   *  @return  A value `x` where
+   */
+  def sizeCompare(that: IterableOps[_, AnyConstr, ?]): Int = ???
+
+  /** Compares the size of this collection to the size of a number.
+   *
+   *  @param   otherSize the size to compare with
+   *  @return  A value `x` where
+   */
+  def sizeCompare(otherSize: Int): Int = ???
+}
+""")
+
+      // Create a test file that references IterableOps.sizeCompare using ! separator
+      val testFile = tempDir.resolve("Test.scala")
+      Files.writeString(testFile, """package test
+
+/** Test example.
+ *
+ *  See [[scala.collection.IterableOps!.sizeCompare(Int):Int*]].
+ */
+def foo(): Unit = ()
+""")
+
+      // Use the default checker (reflection + source lookup) to validate symbol resolution.
+      val broken = ScaladocChecker.findBrokenLinks(tempDir)
+      val urls = broken.map(_._3)
+
+      // Expected: The link with ! separator should be resolved correctly
+      urls should not contain ("scala.collection.IterableOps!.sizeCompare(Int):Int*")
+    finally
+      try Files.list(tempDir).forEach(p => try Files.deleteIfExists(p) catch case _: Throwable => ()) catch case _: Throwable => ()
+      try Files.deleteIfExists(tempDir) catch case _: Throwable => ()
+  }
