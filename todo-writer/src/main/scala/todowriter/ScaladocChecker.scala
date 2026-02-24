@@ -902,11 +902,20 @@ object ScaladocChecker:
                       case None =>
                         // Try to find the member in source files (for @compileTimeOnly members)
                         if memberExistsInSourceRecursive(withDotForHash, root) then None
-                        else Some("Member not found")
+                        else
+                          // Try adding scala. prefix for common Scala library references
+                          // For example, "collection.JavaConverters" -> "scala.collection.JavaConverters"
+                          val withScalaPrefix = "scala." + withDotForHash
+                          if memberExistsInSourceRecursive(withScalaPrefix, root) then None
+                          else Some("Member not found")
                   else
                     // Single component - try source file lookup
                     if memberExistsInSourceRecursive(withDotForHash, root) then None
-                    else Some("Member not found")
+                    else
+                      // Try adding scala. prefix for common Scala library references
+                      val withScalaPrefix = "scala." + withDotForHash
+                      if memberExistsInSourceRecursive(withScalaPrefix, root) then None
+                      else Some("Member not found")
               else
                 Some("Symbol not found")
 

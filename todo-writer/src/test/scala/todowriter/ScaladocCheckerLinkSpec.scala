@@ -753,3 +753,39 @@ def foo(): Unit = ()
       try Files.list(tempDir).forEach(p => try Files.deleteIfExists(p) catch case _: Throwable => ()) catch case _: Throwable => ()
       try Files.deleteIfExists(tempDir) catch case _: Throwable => ()
   }
+
+  it should "resolve references with omitted scala. prefix" in {
+    val tempDir = Files.createTempDirectory("omitted-prefix-test")
+    try
+      // Create a test file that mimics the actual structure
+      val javaConvertersFile = tempDir.resolve("JavaConverters.scala")
+      Files.writeString(javaConvertersFile, """package scala.collection
+
+object JavaConverters {
+  /** Provides conversions from Scala collections to Java collections. */
+  def asScala: Int = ???
+}
+""")
+
+      // Create a test file that references the object without scala. prefix
+      val testFile = tempDir.resolve("Test.scala")
+      Files.writeString(testFile, """package test
+
+/** Test example.
+ *
+ *  See [[collection.JavaConverters]].
+ */
+def foo(): Unit = ()
+""")
+
+      // Use the default checker (reflection + source lookup) to validate symbol resolution.
+      val broken = ScaladocChecker.findBrokenLinks(tempDir)
+      val urls = broken.map(_._3)
+
+      // Expected: collection.JavaConverters should be resolved to scala.collection.JavaConverters
+      // and NOT be reported as broken
+      urls should not contain ("collection.JavaConverters")
+    finally
+      try Files.list(tempDir).forEach(p => try Files.deleteIfExists(p) catch case _: Throwable => ()) catch case _: Throwable => ()
+      try Files.deleteIfExists(tempDir) catch case _: Throwable => ()
+  }
