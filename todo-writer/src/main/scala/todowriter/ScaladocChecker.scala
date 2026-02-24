@@ -181,24 +181,47 @@ object ScaladocChecker:
   /** Recursively search for a member path through the type hierarchy.
     *  parts: ["scala", "language", "experimental", "captureChecking"]
     *  Returns true if "captureChecking" exists in "experimental" which exists in "language" which exists in package "scala"
+    *
+    *  For references like ["scala", "collection", "MapOps", "LazyKeySet"]:
+    *  - First, find the longest prefix that matches a package (e.g., "scala.collection")
+    *  - Then find the type in that package (e.g., "MapOps")
+    *  - Then search for the rest of the path inside that type (e.g., "LazyKeySet")
     */
   private def findMemberInType(parts: List[String], rootPath: Path): Boolean =
     parts match
       case Nil => false
-      case name :: Nil => 
+      case name :: Nil =>
         // Single component - check if it exists as a top-level type
         symbolExistsInSource(rootPath, name)
-      case pkgName :: typeName :: rest =>
-        // Multiple components - first find the type, then recursively search for members
-        val fullName = pkgName + "." + typeName
-        
-        // Check if this type exists as a top-level declaration
-        if typeExistsInSource(rootPath, fullName) then
-          // Type exists, now search for the rest of the path inside this type
-          findMemberInTypeSource(fullName, rest, rootPath)
+      case _ =>
+        // Multiple components - try to find the longest prefix that matches a package
+        // We need to find where the package ends and the type begins
+        // Try different splits: [pkg, type, rest], [pkg.subpkg, type, rest], etc.
+        var found = false
+        var i = parts.length - 2
+        while !found && i >= 1 do
+          val pkgParts = parts.take(i)
+          val typeName = parts(i)
+          val rest = parts.drop(i + 1)
+
+          val pkg = pkgParts.mkString(".")
+          val fullName = pkg + "." + typeName
+
+          // Check if this type exists as a top-level declaration
+          if typeExistsInSource(rootPath, fullName) then
+            // Type exists, now search for the rest of the path inside this type
+            found = findMemberInTypeSource(fullName, rest, rootPath)
+          else
+            // Try the next split
+            i -= 1
+
+        // If we didn't find it with any split, try the original logic
+        if !found && parts.length >= 2 then
+          val pkgName = parts.init.mkString(".")
+          val typeName = parts.last
+          findNestedTypeInPackage(pkgName, typeName, Nil, rootPath)
         else
-          // Type doesn't exist as top-level, try to find it nested in the package
-          findNestedTypeInPackage(pkgName, typeName, rest, rootPath)
+          found
 
   /** Check if a type exists in source files. */
   private def typeExistsInSource(rootPath: Path, typeName: String): Boolean =
@@ -244,7 +267,8 @@ object ScaladocChecker:
               // Look for class, object, trait, def, val, var, type declarations with the member name
               // Include optional modifiers like implicit, final, private, protected, override, etc.
               // Modifiers can appear multiple times and in any order
-              val memberDeclPattern = raw"""(?m)^\s*(?:implicit|final|private|protected|override|abstract|sealed|lazy|open|transparent|inline|\s+)*(?:class|object|trait|def|val|var|lazy\s+val|type)\s+%s\b""".format(java.util.regex.Pattern.quote(memberName)).r
+              // Also handle access modifiers with brackets like private[collection], protected[This]
+              val memberDeclPattern = raw"""(?m)^\s*(?:implicit|final|private|protected|override|abstract|sealed|lazy|open|transparent|inline|private\[.*?\]|protected\[.*?\]|\s+)*(?:class|object|trait|def|val|var|lazy\s+val|type)\s+%s\b""".format(java.util.regex.Pattern.quote(memberName)).r
 
               if memberDeclPattern.findFirstIn(txt).isDefined then
                 // Found the member. Now we need to search for the rest of the path.
@@ -282,14 +306,15 @@ object ScaladocChecker:
         // Find the position of the current member's declaration
         // Include optional modifiers like implicit, final, private, protected, override, etc.
         // Modifiers can appear multiple times and in any order
-        val memberDeclPattern = raw"""(?m)^\s*(?:implicit|final|private|protected|override|abstract|sealed|lazy|open|transparent|inline|\s+)*(?:class|object|trait|def|val|var|lazy\s+val|type)\s+%s\b""".format(java.util.regex.Pattern.quote(currentMemberName)).r
+        // Also handle access modifiers with brackets like private[collection], protected[This]
+        val memberDeclPattern = raw"""(?m)^\s*(?:implicit|final|private|protected|override|abstract|sealed|lazy|open|transparent|inline|private\[.*?\]|protected\[.*?\]|\s+)*(?:class|object|trait|def|val|var|lazy\s+val|type)\s+%s\b""".format(java.util.regex.Pattern.quote(currentMemberName)).r
         memberDeclPattern.findFirstMatchIn(txt) match
           case Some(m) =>
             // Get the text after this member's declaration
             val afterMember = txt.substring(m.end)
 
             // Look for the next member in the remaining path
-            val nextMemberPattern = raw"""(?m)^\s*(?:implicit|final|private|protected|override|abstract|sealed|lazy|open|transparent|inline|\s+)*(?:class|object|trait|def|val|var|lazy\s+val|type)\s+%s\b""".format(java.util.regex.Pattern.quote(nextMember)).r
+            val nextMemberPattern = raw"""(?m)^\s*(?:implicit|final|private|protected|override|abstract|sealed|lazy|open|transparent|inline|private\[.*?\]|protected\[.*?\]|\s+)*(?:class|object|trait|def|val|var|lazy\s+val|type)\s+%s\b""".format(java.util.regex.Pattern.quote(nextMember)).r
             nextMemberPattern.findFirstMatchIn(afterMember) match
               case Some(_) =>
                 // Found the next member, recursively search for the rest
@@ -657,7 +682,8 @@ object ScaladocChecker:
               val typeName = containingType.split('.').last
               // Include optional modifiers like implicit, final, private, protected, override, etc.
               // Modifiers can appear multiple times and in any order
-              val typeDeclPattern = raw"""(?m)^\s*(?:implicit|final|private|protected|override|abstract|sealed|lazy|open|transparent|inline|\s+)*(?:class|object|trait|type|case\s+class)\s+%s\b""".format(java.util.regex.Pattern.quote(typeName)).r
+              // Also handle access modifiers with brackets like private[collection], protected[This]
+              val typeDeclPattern = raw"""(?m)^\s*(?:implicit|final|private|protected|override|abstract|sealed|lazy|open|transparent|inline|private\[.*?\]|protected\[.*?\]|\s+)*(?:class|object|trait|type|case\s+class)\s+%s\b""".format(java.util.regex.Pattern.quote(typeName)).r
 
               files.exists { file =>
                 try
@@ -677,7 +703,8 @@ object ScaladocChecker:
                     // Look for: class, object, trait, def, val, var, type declarations with the member name
                     // Include optional modifiers like implicit, final, private, protected, override, etc.
                     // Modifiers can appear multiple times and in any order
-                    val memberDeclPattern = raw"""(?m)^\s*(?:implicit|final|private|protected|override|abstract|sealed|lazy|open|transparent|inline|\s+)*(?:class|object|trait|def|val|var|lazy\s+val|type)\s+%s\b""".format(java.util.regex.Pattern.quote(normalizedMember)).r
+                    // Also handle access modifiers with brackets like private[collection], protected[This]
+                    val memberDeclPattern = raw"""(?m)^\s*(?:implicit|final|private|protected|override|abstract|sealed|lazy|open|transparent|inline|private\[.*?\]|protected\[.*?\]|\s+)*(?:class|object|trait|def|val|var|lazy\s+val|type)\s+%s\b""".format(java.util.regex.Pattern.quote(normalizedMember)).r
                     memberDeclPattern.findFirstIn(txt).isDefined
                   else
                     false

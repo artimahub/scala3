@@ -666,3 +666,56 @@ object Function1 {
       try Files.list(tempDir).forEach(p => try Files.deleteIfExists(p) catch case _: Throwable => ()) catch case _: Throwable => ()
       try Files.deleteIfExists(tempDir) catch case _: Throwable => ()
   }
+
+  it should "resolve member references to classes inside companion objects (scala.collection.MapOps.LazyKeySet)" in {
+    val tempDir = Files.createTempDirectory("lazykeyset-test")
+    try
+      // Create a structure similar to scala.collection.Map with MapOps
+      val mapFile = tempDir.resolve("Map.scala")
+      Files.writeString(mapFile, """package scala.collection
+
+object MapOps {
+
+  /** The implementation class of the set returned by `keySet`, for pure maps. */
+  private[collection] class LazyKeySet[K, +V](mp: MapOps[K, V]) extends AnyRef {
+    def iterator: Iterator[K] = ???
+  }
+
+  /** The implementation class of the set returned by `keySet`, for impure maps. */
+  private[collection] class StrictKeySet[K, +V](mp: MapOps[K, V]) extends AnyRef {
+    def iterator: Iterator[K] = ???
+  }
+}
+
+trait MapOps[K, V] {
+  /** A generic trait that is reused by keyset implementations.
+   *
+   *  See [[MapOps.LazyKeySet]] for a version that lazily captures the map.
+   */
+  protected trait GenKeySet {
+    def iterator: Iterator[K]
+  }
+}
+""")
+
+      // Create a test file that references the class
+      val testFile = tempDir.resolve("Test.scala")
+      Files.writeString(testFile, """package test
+
+/** Test example.
+ *
+ *  See [[scala.collection.MapOps.LazyKeySet]].
+ */
+def foo(): Unit = ()
+""")
+
+      // Use the default checker (reflection + source lookup) to validate symbol resolution.
+      val broken = ScaladocChecker.findBrokenLinks(tempDir)
+      val urls = broken.map(_._3)
+
+      // Expected: scala.collection.MapOps.LazyKeySet should not be reported as broken
+      urls should not contain ("scala.collection.MapOps.LazyKeySet")
+    finally
+      try Files.list(tempDir).forEach(p => try Files.deleteIfExists(p) catch case _: Throwable => ()) catch case _: Throwable => ()
+      try Files.deleteIfExists(tempDir) catch case _: Throwable => ()
+  }
