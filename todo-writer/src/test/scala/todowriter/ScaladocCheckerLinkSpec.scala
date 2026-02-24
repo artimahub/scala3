@@ -719,3 +719,37 @@ def foo(): Unit = ()
       try Files.list(tempDir).forEach(p => try Files.deleteIfExists(p) catch case _: Throwable => ()) catch case _: Throwable => ()
       try Files.deleteIfExists(tempDir) catch case _: Throwable => ()
   }
+
+  it should "correctly extract types with generic parameters from wikidoc links" in {
+    val tempDir = Files.createTempDirectory("generic-types-test")
+    try
+      // Create a test file with wikidoc links containing generic types
+      val testFile = tempDir.resolve("Test.scala")
+      Files.writeString(testFile, """package test
+
+/** Test example.
+ *
+ *  See [[AsJavaConverters.asJava[K,V](m:scala.collection.mutable.Map[K,V])*]].
+ *  Also see [[AsJavaConverters.asJava[K,V](m:scala.collection.Map[K,V])*]].
+ *  And see [[scala.collection.mutable.Map]] which should be valid.
+ */
+def foo(): Unit = ()
+""")
+
+      // Use the default checker (reflection + source lookup) to validate symbol resolution.
+      val broken = ScaladocChecker.findBrokenLinks(tempDir)
+      val urls = broken.map(_._3)
+      val errors = broken.map(_._4)
+
+      // Expected: The type extraction should work correctly, so errors should be about the member, not truncated types
+      // The issue was that types like "scala.collection.mutable.Map[K,V]" were being cut off at "["
+      // Now they should be extracted correctly
+      errors should not contain ("Type not found: scala.collection.mutable.Map[K")
+      errors should not contain ("Type not found: scala.collection.Map[K")
+      
+      // The valid type should not be reported as broken
+      urls should not contain ("scala.collection.mutable.Map")
+    finally
+      try Files.list(tempDir).forEach(p => try Files.deleteIfExists(p) catch case _: Throwable => ()) catch case _: Throwable => ()
+      try Files.deleteIfExists(tempDir) catch case _: Throwable => ()
+  }

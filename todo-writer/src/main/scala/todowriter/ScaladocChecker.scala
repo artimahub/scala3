@@ -596,8 +596,34 @@ object ScaladocChecker:
           // Extract and validate types in parameter lists
           // For example, from "(i:Iterato[A], j:List[B])" extract ["Iterato[A]", "List[B]"]
           def extractTypesFromParams(paramSpec: String): List[String] =
-            // Split by comma first, then extract type after colon
-            paramSpec.split(',').toList.flatMap { param =>
+            // Split by comma, but only at commas that are outside brackets [...] and parentheses (...)
+            var result = List[String]()
+            var currentParam = new StringBuilder()
+            var bracketDepth = 0
+            var parenDepth = 0
+            
+            for ch <- paramSpec do
+              ch match
+                case '[' => bracketDepth += 1; currentParam.append(ch)
+                case ']' => bracketDepth -= 1; currentParam.append(ch)
+                case '(' => parenDepth += 1; currentParam.append(ch)
+                case ')' => parenDepth -= 1; currentParam.append(ch)
+                case ',' =>
+                  if bracketDepth == 0 && parenDepth == 0 then
+                    // Comma at depth 0 - this is a parameter separator
+                    result = result :+ currentParam.toString().trim
+                    currentParam = new StringBuilder()
+                  else
+                    // Comma inside brackets or parentheses - part of the type
+                    currentParam.append(ch)
+                case _ => currentParam.append(ch)
+            
+            // Add the last parameter
+            if currentParam.nonEmpty then
+              result = result :+ currentParam.toString().trim
+            
+            // Extract type from each parameter (after the colon)
+            result.flatMap { param =>
               val trimmed = param.trim
               val colonIdx = trimmed.indexOf(':')
               if colonIdx >= 0 then
