@@ -595,3 +595,74 @@ def foo(): Unit = ()
       try Files.list(tempDir).forEach(p => try Files.deleteIfExists(p) catch case _: Throwable => ()) catch case _: Throwable => ()
       try Files.deleteIfExists(tempDir) catch case _: Throwable => ()
   }
+
+  it should "resolve member references to implicit class methods (scala.Function1.UnliftOps.unlift)" in {
+    val tempDir = Files.createTempDirectory("unliftops-test")
+    try
+      // Create a structure similar to scala.Function1 with UnliftOps
+      val function1File = tempDir.resolve("Function1.scala")
+      Files.writeString(function1File, """package scala
+
+object Function1:
+
+  implicit final class UnliftOps[A, B] private[Function1](private val f: A => Option[B]) extends AnyVal {
+    /** Converts an optional function to a partial function.
+     *
+     *  @example Unlike [[Function.unlift]], this [[UnliftOps.unlift]] method can be used in extractors.
+     */
+    def unlift: PartialFunction[A, B] = ???
+  }
+""")
+
+      // Create a test file that references the method
+      val testFile = tempDir.resolve("Test.scala")
+      Files.writeString(testFile, """package test
+
+/** Test example.
+ *
+ *  See [[scala.Function1.UnliftOps.unlift]].
+ */
+def foo(): Unit = ()
+""")
+
+      // Use the default checker (reflection + source lookup) to validate symbol resolution.
+      val broken = ScaladocChecker.findBrokenLinks(tempDir)
+      val urls = broken.map(_._3)
+
+      // Expected: scala.Function1.UnliftOps.unlift should not be reported as broken
+      urls should not contain ("scala.Function1.UnliftOps.unlift")
+    finally
+      try Files.list(tempDir).forEach(p => try Files.deleteIfExists(p) catch case _: Throwable => ()) catch case _: Throwable => ()
+      try Files.deleteIfExists(tempDir) catch case _: Throwable => ()
+  }
+
+  it should "resolve unqualified member references in the same file (UnliftOps.unlift)" in {
+    val tempDir = Files.createTempDirectory("unqualified-ref-test")
+    try
+      // Create a structure similar to scala.Function1 with UnliftOps
+      val function1File = tempDir.resolve("Function1.scala")
+      Files.writeString(function1File, """package scala
+
+object Function1 {
+
+  implicit final class UnliftOps[A, B] private[Function1](private val f: A => Option[B]) extends AnyVal {
+    /** Converts an optional function to a partial function.
+     *
+     *  @example Unlike [[Function.unlift]], this [[UnliftOps.unlift]] method can be used in extractors.
+     */
+    def unlift: PartialFunction[A, B] = Function.unlift(f)
+  }
+
+}
+""")
+
+      // Check the Function1.scala file itself
+      val broken = ScaladocChecker.findBrokenLinks(tempDir)
+      val urls = broken.map(_._3)
+
+      // Expected: UnliftOps.unlift should not be reported as broken
+      urls should not contain ("UnliftOps.unlift")
+    finally
+      try Files.list(tempDir).forEach(p => try Files.deleteIfExists(p) catch case _: Throwable => ()) catch case _: Throwable => ()
+      try Files.deleteIfExists(tempDir) catch case _: Throwable => ()
+  }
