@@ -558,3 +558,40 @@ class ScaladocCheckerLinkSpec extends AnyFlatSpec with Matchers:
       try Files.list(tempDir).forEach(p => try Files.deleteIfExists(p) catch case _: Throwable => ()) catch case _: Throwable => ()
       try Files.deleteIfExists(tempDir) catch case _: Throwable => ()
   }
+
+  it should "resolve deeply nested objects (scala.language.experimental.captureChecking)" in {
+    val tempDir = Files.createTempDirectory("deeply-nested-test")
+    try
+      // Create a structure similar to scala.language
+      val langFile = tempDir.resolve("language.scala")
+      Files.writeString(langFile, """package scala
+
+/** The `scala.language` object enables language features. */
+object language:
+  /** Experimental language features. */
+  object experimental:
+    /** Capture checking feature. */
+    object captureChecking
+""")
+
+      // Create a test file that references the deeply nested object
+      val testFile = tempDir.resolve("Test.scala")
+      Files.writeString(testFile, """package test
+
+/** Test example.
+ *
+ *  See [[scala.language.experimental.captureChecking]].
+ */
+def foo(): Unit = ()
+""")
+
+      // Use the default checker (reflection + source lookup) to validate symbol resolution.
+      val broken = ScaladocChecker.findBrokenLinks(tempDir)
+      val urls = broken.map(_._3)
+
+      // Expected: scala.language.experimental.captureChecking should not be reported as broken
+      urls should not contain ("scala.language.experimental.captureChecking")
+    finally
+      try Files.list(tempDir).forEach(p => try Files.deleteIfExists(p) catch case _: Throwable => ()) catch case _: Throwable => ()
+      try Files.deleteIfExists(tempDir) catch case _: Throwable => ()
+  }

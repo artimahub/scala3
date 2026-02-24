@@ -114,7 +114,7 @@ object ScaladocChecker:
       val name = parts.last
       val files = findScalaFiles(root)
       val declPattern = raw"""(?m)^\s*(?:class|object|trait|type|case\s+class)\s+%s\b""".format(java.util.regex.Pattern.quote(name)).r
-      val pkgPattern = raw"""(?m)^\s*package\s+([^\s;]+)""".r
+      val pkgPattern = raw"""(?m)^\s*package\s+([^\s;\n]+)""".r
       files.exists { p =>
         try
           val txt = Files.readString(p)
@@ -144,7 +144,7 @@ object ScaladocChecker:
       try
         val txt = Files.readString(p)
         // Extract all package declarations from the file
-        val pkgPattern = raw"""(?m)^\s*package\s+([^\s;]+)""".r
+        val pkgPattern = raw"""(?m)^\s*package\s+([^\s;\n]+)""".r
         val packageObjectPattern = raw"""(?m)^\s*package\s+object\s+(\w+)""".r
         val pkgs = pkgPattern.findAllMatchIn(txt).map(_.group(1)).toList
         val packageObjects = packageObjectPattern.findAllMatchIn(txt).map(_.group(1)).toList
@@ -163,6 +163,151 @@ object ScaladocChecker:
       catch
         case _: Throwable => false
     }
+
+  /** Check if a member exists in source files with a given root path (recursive version for deeply nested objects).
+    *  This is a helper that can be called from outside the defaultCheckUrl function.
+    *  Handles deeply nested objects by recursively searching through the structure.
+    */
+  private def memberExistsInSourceRecursive(memberRef: String, rootPath: Path): Boolean =
+    // For deeply nested objects like "scala.language.experimental.captureChecking",
+    // we need to recursively search through the structure.
+    // Split the reference into parts: ["scala", "language", "experimental", "captureChecking"]
+    val parts = memberRef.split('.').toList
+    if parts.length < 2 then false
+    else
+      // Try to find the first part as a top-level type, then recursively search for the rest
+      findMemberInType(parts, rootPath)
+
+  /** Recursively search for a member path through the type hierarchy.
+    *  parts: ["scala", "language", "experimental", "captureChecking"]
+    *  Returns true if "captureChecking" exists in "experimental" which exists in "language" which exists in package "scala"
+    */
+  private def findMemberInType(parts: List[String], rootPath: Path): Boolean =
+    parts match
+      case Nil => false
+      case name :: Nil => 
+        // Single component - check if it exists as a top-level type
+        symbolExistsInSource(rootPath, name)
+      case pkgName :: typeName :: rest =>
+        // Multiple components - first find the type, then recursively search for members
+        val fullName = pkgName + "." + typeName
+        
+        // Check if this type exists as a top-level declaration
+        if typeExistsInSource(rootPath, fullName) then
+          // Type exists, now search for the rest of the path inside this type
+          findMemberInTypeSource(fullName, rest, rootPath)
+        else
+          // Type doesn't exist as top-level, try to find it nested in the package
+          findNestedTypeInPackage(pkgName, typeName, rest, rootPath)
+
+  /** Check if a type exists in source files. */
+  private def typeExistsInSource(rootPath: Path, typeName: String): Boolean =
+    val parts = typeName.split('.')
+    val name = parts.last
+    val pkg = parts.init.mkString(".")
+    val files = findScalaFiles(rootPath)
+    val pkgPattern = raw"""(?m)^\s*package\s+([^\s;\n]+)""".r
+    val typeDeclPattern = raw"""(?m)^\s*(?:class|object|trait|type|case\s+class)\s+%s\b""".format(java.util.regex.Pattern.quote(name)).r
+
+    files.exists { file =>
+      try
+        val txt = Files.readString(file)
+        val pkgOpt = pkgPattern.findFirstMatchIn(txt).map(_.group(1))
+        pkgOpt.exists(p => p == pkg) && typeDeclPattern.findFirstIn(txt).isDefined
+      catch
+        case _: Throwable => false
+    }
+
+  /** Find a member inside a specific type by reading its source file.
+    *  This function handles nested objects by searching within the same source file
+    *  for all levels of nesting.
+    */
+  private def findMemberInTypeSource(typeName: String, memberPath: List[String], rootPath: Path): Boolean =
+    memberPath match
+      case Nil => true  // Found everything
+      case memberName :: rest =>
+        // Find the file that declares the type
+        val parts = typeName.split('.')
+        val name = parts.last
+        val pkg = parts.init.mkString(".")
+        val files = findScalaFiles(rootPath)
+        val pkgPattern = raw"""(?m)^\s*package\s+([^\s;\n]+)""".r
+        val typeDeclPattern = raw"""(?m)^\s*(?:class|object|trait|type|case\s+class)\s+%s\b""".format(java.util.regex.Pattern.quote(name)).r
+
+        files.exists { file =>
+          try
+            val txt = Files.readString(file)
+            val pkgOpt = pkgPattern.findFirstMatchIn(txt).map(_.group(1))
+            
+            if pkgOpt.exists(p => p == pkg) && typeDeclPattern.findFirstIn(txt).isDefined then
+              // Found the type, now search for the member inside it
+              // Look for object, def, val, var, type declarations with the member name
+              val memberDeclPattern = raw"""(?m)^\s*(?:object|def|val|var|lazy\s+val|type)\s+%s\b""".format(java.util.regex.Pattern.quote(memberName)).r
+              
+              if memberDeclPattern.findFirstIn(txt).isDefined then
+                // Found the member. Now we need to search for the rest of the path.
+                // For deeply nested objects, we search within the same source file.
+                // We need to find the member declaration and then search within its body.
+                if rest.isEmpty then
+                  true  // Found everything
+                else
+                  // Search for the rest of the path within the member's body
+                  findMemberWithinBody(memberName, rest, txt)
+              else
+                false
+            else
+              false
+          catch
+            case _: Throwable => false
+        }
+
+  /** Find a member path within a body of code (e.g., inside an object definition).
+    *  This handles deeply nested objects by recursively searching within nested bodies.
+    *  @param currentMemberName The name of the current member we're searching inside
+    *  @param remainingPath The remaining path to search (e.g., ["captureChecking"])
+    *  @param txt The source text to search within
+    *  @return true if the path is found
+    */
+  private def findMemberWithinBody(currentMemberName: String, remainingPath: List[String], txt: String): Boolean =
+    remainingPath match
+      case Nil => true  // Found everything
+      case nextMember :: rest =>
+        // Find the body of the current member
+        // We need to locate the object/class definition and then search within its body
+        // This is a simplified approach - we search for the member declaration anywhere
+        // after the current member's declaration.
+        
+        // Find the position of the current member's declaration
+        val memberDeclPattern = raw"""(?m)^\s*(?:object|def|val|var|lazy\s+val|type)\s+%s\b""".format(java.util.regex.Pattern.quote(currentMemberName)).r
+        memberDeclPattern.findFirstMatchIn(txt) match
+          case Some(m) =>
+            // Get the text after this member's declaration
+            val afterMember = txt.substring(m.end)
+            
+            // Look for the next member in the remaining path
+            val nextMemberPattern = raw"""(?m)^\s*(?:object|def|val|var|lazy\s+val|type)\s+%s\b""".format(java.util.regex.Pattern.quote(nextMember)).r
+            nextMemberPattern.findFirstMatchIn(afterMember) match
+              case Some(_) =>
+                // Found the next member, recursively search for the rest
+                if rest.isEmpty then
+                  true  // Found everything
+                else
+                  // Continue searching within the same body
+                  findMemberWithinBody(nextMember, rest, afterMember)
+              case None =>
+                // Next member not found
+                false
+          case None =>
+            // Current member not found
+            false
+
+  /** Find a nested type inside a package. */
+  private def findNestedTypeInPackage(pkgName: String, typeName: String, memberPath: List[String], rootPath: Path): Boolean =
+    // This is complex - for now, just try to find the type with the full name
+    // The recursive search would require parsing the entire package structure
+    // For @compileTimeOnly members, we rely on the fact that they are declared in source files
+    typeExistsInSource(rootPath, pkgName + "." + typeName) && 
+      findMemberInTypeSource(pkgName + "." + typeName, memberPath, rootPath)
 
   /** Find broken HTTP/HTTPS links referenced inside Scaladoc blocks using a custom checker.
     *
@@ -473,7 +618,8 @@ object ScaladocChecker:
 
           // Resolve member references like "AsJavaConverters.asJava" by finding the containing type
           // and searching for the member in its source file
-          def memberExistsInSource(memberRef: String): Boolean =
+          def memberExistsInSourceLocal(memberRef: String): Boolean =
+            memberExistsInSourceRecursive(memberRef, root)
             // Find the dot that separates the containing type from the member name
             // We need to find a dot that's not inside brackets [...] or parentheses (...)
             // For example, in "AsJavaConverters.asJava[A](b:scala.collection.mutable.Buffer[A])*"
@@ -503,7 +649,7 @@ object ScaladocChecker:
 
               // Find the source file for the containing type
               val files = findScalaFiles(root)
-              val pkgPattern = raw"""(?m)^\s*package\s+([^\s;]+)""".r
+              val pkgPattern = raw"""(?m)^\s*package\s+([^\s;\n]+)""".r
               val typeName = containingType.split('.').last
               val typeDeclPattern = raw"""(?m)^\s*(?:class|object|trait|type|case\s+class)\s+%s\b""".format(java.util.regex.Pattern.quote(typeName)).r
 
@@ -661,7 +807,7 @@ object ScaladocChecker:
                 None
               else if isMemberRef then
                 // For member references, try to resolve by finding the containing type and searching for the member
-                if memberExistsInSource(withDotForHash) then None
+                if memberExistsInSourceLocal(withDotForHash) then None
                 else
                   // Try to resolve using external mappings
                   // Split the member reference into containing type and member name
@@ -693,9 +839,13 @@ object ScaladocChecker:
                         // The type is covered by external mappings, so consider it valid
                         None
                       case None =>
-                        Some("Member not found")
+                        // Try to find the member in source files (for @compileTimeOnly members)
+                        if memberExistsInSourceRecursive(withDotForHash, root) then None
+                        else Some("Member not found")
                   else
-                    Some("Member not found")
+                    // Single component - try source file lookup
+                    if memberExistsInSourceRecursive(withDotForHash, root) then None
+                    else Some("Member not found")
               else
                 Some("Symbol not found")
 
