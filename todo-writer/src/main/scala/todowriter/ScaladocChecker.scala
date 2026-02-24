@@ -139,6 +139,7 @@ object ScaladocChecker:
     // 1. package scala.math (single declaration)
     // 2. package scala followed by package math (nested declarations)
     // 3. package scala followed by package object math (package object)
+    // 4. package scala followed by package util.hashing (package chaining with dots)
     val parts = pkg.split('.')
     files.exists { p =>
       try
@@ -156,10 +157,15 @@ object ScaladocChecker:
           val nestedPkg = parts.mkString(" ")
           if pkgs.contains(nestedPkg) then true
           else
-            // Check for package object (e.g., package scala followed by package object math)
-            val parent = parts.init.mkString(".")
-            val child = parts.last
-            pkgs.contains(parent) && packageObjects.contains(child)
+            // Check for package chaining (e.g., package scala followed by package util.hashing)
+            // Concatenate consecutive package declarations with dots
+            val concatenated = pkgs.mkString(".")
+            if concatenated == pkg then true
+            else
+              // Check for package object (e.g., package scala followed by package object math)
+              val parent = parts.init.mkString(".")
+              val child = parts.last
+              pkgs.contains(parent) && packageObjects.contains(child)
       catch
         case _: Throwable => false
     }

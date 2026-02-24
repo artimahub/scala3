@@ -835,3 +835,42 @@ def foo(): Unit = ()
       try Files.list(tempDir).forEach(p => try Files.deleteIfExists(p) catch case _: Throwable => ()) catch case _: Throwable => ()
       try Files.deleteIfExists(tempDir) catch case _: Throwable => ()
   }
+
+  "ScaladocChecker" should "resolve package references like scala.util.hashing" in {
+    val tempDir = Files.createTempDirectory("package-ref-test")
+    try
+      // Create the directory structure for scala.util.hashing
+      val hashingDir = tempDir.resolve("scala/util/hashing")
+      Files.createDirectories(hashingDir)
+
+      // Create a file in the hashing package using package chaining
+      val hashingFile = hashingDir.resolve("Hashing.scala")
+      Files.writeString(hashingFile, """package scala
+package util.hashing
+
+/** Test trait in hashing package */
+trait Hashing
+""")
+
+      // Create a test file that references scala.util.hashing package
+      val testFile = tempDir.resolve("Test.scala")
+      Files.writeString(testFile, """package test
+
+/** Test example.
+ *
+ *  See [[scala.util.hashing]].
+ */
+def foo(): Unit = ()
+""")
+
+      // Use the default checker to validate symbol resolution
+      val broken = ScaladocChecker.findBrokenLinks(tempDir)
+      val urls = broken.map(_._3)
+
+      // Expected: The package reference should not be reported as broken
+      // (packages are valid references in Scaladoc)
+      urls should not contain ("scala.util.hashing")
+    finally
+      try Files.list(tempDir).forEach(p => try Files.deleteIfExists(p) catch case _: Throwable => ()) catch case _: Throwable => ()
+      try Files.deleteIfExists(tempDir) catch case _: Throwable => ()
+  }
