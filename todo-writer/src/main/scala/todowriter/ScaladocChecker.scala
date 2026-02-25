@@ -33,16 +33,84 @@ case class Summary(
 )
 
 object ScaladocChecker:
+  // Cache for package declarations to avoid repeated regex scanning
+  // Maps file path to its full package name (with chaining support)
+  private val packageCache = collection.mutable.Map[String, Option[String]]()
+  
+  // Cache for Scala files list to avoid repeated directory walks
+  // Maps root path to its list of Scala files
+  private val scalaFilesCache = collection.mutable.Map[String, List[Path]]()
+  
+  // Cache for file contents to avoid repeated disk reads
+  // Maps file path to its content
+  private val fileContentCache = collection.mutable.Map[String, String]()
+  
+  // Cache for type existence checks to avoid repeated regex searches
+  // Maps type name to whether it exists in source
+  private val typeExistsCache = collection.mutable.Map[String, Boolean]()
+
+  /** Clear all caches. Call this before running tests with different root directories. */
+  def clearCaches(): Unit =
+    packageCache.clear()
+    scalaFilesCache.clear()
+    fileContentCache.clear()
+    typeExistsCache.clear()
+
+  /** Get file content with caching. */
+  private def getFileContent(file: Path): String =
+    val pathStr = file.toString
+    fileContentCache.getOrElseUpdate(pathStr,
+      try Files.readString(file)
+      catch case _: Throwable => ""
+    )
+
+  /** Get the full package name for a file (with chaining support and caching).
+    *  Returns the full package name like "scala.jdk.javaapi" for chained declarations.
+    */
+  private def getPackageName(file: Path): Option[String] =
+    val pathStr = file.toString
+    packageCache.getOrElseUpdate(pathStr,
+      try
+        val txt = getFileContent(file)
+        val pkgPattern = raw"""(?m)^\s*package\s+([^\s;\n]+)""".r
+        val pkgMatch = pkgPattern.findFirstMatchIn(txt)
+        if pkgMatch.isDefined then
+          val firstMatch = pkgMatch.get
+          val firstPkg = firstMatch.group(1)
+          val afterFirstPkg = txt.substring(firstMatch.end)
+          // Look for more package declarations immediately following
+          val pkgPattern2 = raw"""(?m)^\s*package\s+([^\s;\n]+)""".r
+          pkgPattern2.findFirstMatchIn(afterFirstPkg) match
+            case Some(secondPkgMatch) =>
+              val secondPkg = secondPkgMatch.group(1)
+              val afterSecondPkg = afterFirstPkg.substring(secondPkgMatch.end)
+              // Look for third package declaration
+              pkgPattern2.findFirstMatchIn(afterSecondPkg) match
+                case Some(thirdPkgMatch) =>
+                  Some(firstPkg + "." + secondPkg + "." + thirdPkgMatch.group(1))
+                case None =>
+                  Some(firstPkg + "." + secondPkg)
+            case None =>
+              Some(firstPkg)
+        else
+          None
+      catch
+        case _: Throwable => None
+    )
+
   /** Find all .scala files recursively under the given directory. */
   def findScalaFiles(root: Path): List[Path] =
     if !Files.isDirectory(root) then Nil
     else
-      Files
-        .walk(root)
-        .iterator()
-        .asScala
-        .filter(p => Files.isRegularFile(p) && p.toString.endsWith(".scala"))
-        .toList
+      val rootStr = root.toString
+      scalaFilesCache.getOrElseUpdate(rootStr,
+        Files
+          .walk(root)
+          .iterator()
+          .asScala
+          .filter(p => Files.isRegularFile(p) && p.toString.endsWith(".scala"))
+          .toList
+      )
 
   /** Check a single file and return results. */
   def checkFile(path: Path): FileResult =
@@ -105,6 +173,8 @@ object ScaladocChecker:
   
   /** Return true if the given fully-qualified or simple symbol exists among
     *  .scala source files under `root`. This is public for testing.
+    *  Note: For test isolation, consider calling clearCaches() before calling this function
+    *  if running multiple tests with different root directories.
     */
   def symbolExistsInSource(root: Path, symbol: String): Boolean =
     // symbol like "com.example.Foo" -> pkg="com.example", name="Foo"
@@ -117,9 +187,10 @@ object ScaladocChecker:
       val pkgPattern = raw"""(?m)^\s*package\s+([^\s;\n]+)""".r
       files.exists { p =>
         try
-          val txt = Files.readString(p)
-          // If package declaration exists, check full name match first
-          val pkgOpt = pkgPattern.findFirstMatchIn(txt).map(_.group(1))
+          val txt = getFileContent(p)
+          // Use cached package lookup
+          val pkgOpt = getPackageName(p)
+
           val fullNameMatches =
             pkgOpt match
               case Some(pkg) => pkg + "." + name == symbol && declPattern.findFirstIn(txt).isDefined
@@ -143,7 +214,7 @@ object ScaladocChecker:
     val parts = pkg.split('.')
     files.exists { p =>
       try
-        val txt = Files.readString(p)
+        val txt = getFileContent(p)
         // Extract all package declarations from the file
         val pkgPattern = raw"""(?m)^\s*package\s+([^\s;\n]+)""".r
         val packageObjectPattern = raw"""(?m)^\s*package\s+object\s+(\w+)""".r
@@ -217,6 +288,8 @@ object ScaladocChecker:
           if typeExistsInSource(rootPath, fullName) then
             // Type exists, now search for the rest of the path inside this type
             found = findMemberInTypeSource(fullName, rest, rootPath)
+            // Always decrement i to try the next split if not found
+            if !found then i -= 1
           else
             // Try the next split
             i -= 1
@@ -231,21 +304,26 @@ object ScaladocChecker:
 
   /** Check if a type exists in source files. */
   private def typeExistsInSource(rootPath: Path, typeName: String): Boolean =
-    val parts = typeName.split('.')
-    val name = parts.last
-    val pkg = parts.init.mkString(".")
-    val files = findScalaFiles(rootPath)
-    val pkgPattern = raw"""(?m)^\s*package\s+([^\s;\n]+)""".r
-    val typeDeclPattern = raw"""(?m)^\s*(?:class|object|trait|type|case\s+class)\s+%s\b""".format(java.util.regex.Pattern.quote(name)).r
+    // Check cache first
+    val cacheKey = rootPath.toString + ":" + typeName
+    typeExistsCache.getOrElseUpdate(cacheKey, {
+      val parts = typeName.split('.')
+      val name = parts.last
+      val pkg = parts.init.mkString(".")
+      val files = findScalaFiles(rootPath)
+      val pkgPattern = raw"""(?m)^\s*package\s+([^\s;\n]+)""".r
+      val typeDeclPattern = raw"""(?m)^\s*(?:class|object|trait|type|case\s+class)\s+%s\b""".format(java.util.regex.Pattern.quote(name)).r
 
-    files.exists { file =>
-      try
-        val txt = Files.readString(file)
-        val pkgOpt = pkgPattern.findFirstMatchIn(txt).map(_.group(1))
-        pkgOpt.exists(p => p == pkg) && typeDeclPattern.findFirstIn(txt).isDefined
-      catch
-        case _: Throwable => false
-    }
+      files.exists { file =>
+        try
+          val txt = getFileContent(file)
+          // Use cached package lookup
+          val pkgOpt = getPackageName(file)
+          pkgOpt.exists(p => p == pkg) && typeDeclPattern.findFirstIn(txt).isDefined
+        catch
+          case _: Throwable => false
+      }
+    })
 
   /** Find a member inside a specific type by reading its source file.
     *  This function handles nested objects by searching within the same source file
@@ -265,8 +343,9 @@ object ScaladocChecker:
 
         files.exists { file =>
           try
-            val txt = Files.readString(file)
-            val pkgOpt = pkgPattern.findFirstMatchIn(txt).map(_.group(1))
+            val txt = getFileContent(file)
+            // Use cached package lookup
+            val pkgOpt = getPackageName(file)
             
             if pkgOpt.exists(p => p == pkg) && typeDeclPattern.findFirstIn(txt).isDefined then
               // Found the type, now search for the member inside it
@@ -335,6 +414,8 @@ object ScaladocChecker:
           case None =>
             // Current member not found
             false
+      case _ =>
+        false
 
   /** Find a nested type inside a package. */
   private def findNestedTypeInPackage(pkgName: String, typeName: String, memberPath: List[String], rootPath: Path): Boolean =
@@ -370,6 +451,9 @@ object ScaladocChecker:
     *  @return List of broken links with (filePath, lineNumber, url, errorDescription)
     */
   private def findBrokenLinks(root: Path, checkUrl: (String, Declaration) => Option[String], externalMappings: List[ExternalDocLink]): List[(String, Int, String, String)] =
+    // Clear all caches at the start of each run
+    clearCaches()
+    
     val urlRegex = raw"https?://[^\s\)\]\}\>\"']+".r
     val files = findScalaFiles(root)
     val results = collection.mutable.ListBuffer[(String, Int, String, String)]()
@@ -736,23 +820,9 @@ object ScaladocChecker:
 
               files.exists { file =>
                 try
-                  val txt = Files.readString(file)
-                  // Handle package chaining: find consecutive package declarations and concatenate them
-                  // e.g., "package scala\npackage collection" -> "scala.collection"
-                  val pkgMatch = pkgPattern.findFirstMatchIn(txt)
-                  val pkgOpt = if pkgMatch.isDefined then
-                    val firstMatch = pkgMatch.get
-                    val firstPkg = firstMatch.group(1)
-                    val afterFirstPkg = txt.substring(firstMatch.end)
-                    // Look for more package declarations immediately following
-                    val pkgPattern2 = raw"""(?m)^\s*package\s+([^\s;\n]+)""".r
-                    val secondPkgMatch = pkgPattern2.findFirstMatchIn(afterFirstPkg)
-                    if secondPkgMatch.isDefined then
-                      Some(firstPkg + "." + secondPkgMatch.get.group(1))
-                    else
-                      Some(firstPkg)
-                  else
-                    None
+                  val txt = getFileContent(file)
+                  // Use cached package lookup
+                  val pkgOpt = getPackageName(file)
 
                   // Check if this file declares the containing type
                   val containsType = if containingType.contains('.') then
@@ -945,7 +1015,15 @@ object ScaladocChecker:
                           // For example, "collection.JavaConverters" -> "scala.collection.JavaConverters"
                           val withScalaPrefix = "scala." + withDotForHash
                           if memberExistsInSourceRecursive(withScalaPrefix, root) then None
-                          else Some("Member not found")
+                          else
+                            // Try resolving relative package references for jdk javaapi
+                            // For example, in package scala.jdk, "javaapi.FutureConverters" -> "scala.jdk.javaapi.FutureConverters"
+                            if withDotForHash.startsWith("javaapi.") then
+                              val qualified = "scala.jdk." + withDotForHash
+                              if symbolExistsInSource(root, qualified) then None
+                              else Some("Member not found")
+                            else
+                              Some("Member not found")
                   else
                     // Single component - try source file lookup
                     if memberExistsInSourceRecursive(withDotForHash, root) then None

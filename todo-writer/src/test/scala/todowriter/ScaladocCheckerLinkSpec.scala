@@ -2,6 +2,7 @@ package todowriter
 
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
+import org.scalatest.BeforeAndAfterAll
 import java.nio.file.{Files, Path}
 import java.net.ServerSocket
 import java.util.concurrent.Executors
@@ -195,6 +196,7 @@ class ScaladocCheckerLinkSpec extends AnyFlatSpec with Matchers:
     val file1 = tempDir.resolve("Foo.scala")
     val file2 = tempDir.resolve("Bar.scala")
     try
+      ScaladocChecker.clearCaches()
       Files.writeString(file1, "package com.example\n\nclass Foo\n")
       Files.writeString(file2, "object Bar\n")
       ScaladocChecker.symbolExistsInSource(tempDir, "com.example.Foo") should be(true)
@@ -203,6 +205,7 @@ class ScaladocCheckerLinkSpec extends AnyFlatSpec with Matchers:
       // Also verify case class and trait detection
       val file3 = tempDir.resolve("Baz.scala")
       Files.writeString(file3, "package pkg\n\ncase class Baz(x: Int)\ntrait Qux\n")
+      ScaladocChecker.clearCaches()
       ScaladocChecker.symbolExistsInSource(tempDir, "pkg.Baz") should be(true)
       ScaladocChecker.symbolExistsInSource(tempDir, "Qux") should be(true)
     finally
@@ -870,6 +873,50 @@ def foo(): Unit = ()
       // Expected: The package reference should not be reported as broken
       // (packages are valid references in Scaladoc)
       urls should not contain ("scala.util.hashing")
+    finally
+      try Files.list(tempDir).forEach(p => try Files.deleteIfExists(p) catch case _: Throwable => ()) catch case _: Throwable => ()
+      try Files.deleteIfExists(tempDir) catch case _: Throwable => ()
+  }
+
+  "ScaladocChecker" should "resolve unqualified member references within the same parent package (javaapi.FutureConverters)" in {
+    val tempDir = Files.createTempDirectory("unqualified-subpkg-test")
+    try
+      // Create the directory structure for scala.jdk
+      val jdkDir = tempDir.resolve("scala/jdk")
+      Files.createDirectories(jdkDir)
+
+      // Create a file in the jdk package that references javaapi.FutureConverters
+      val jdkFile = jdkDir.resolve("FutureConverters.scala")
+      Files.writeString(jdkFile, """package scala.jdk
+
+/** This object provides extension methods that convert between Scala [[scala.concurrent.Future]] and Java
+ * [[java.util.concurrent.CompletionStage]]
+ *
+ * When writing Java code, use the explicit conversion methods defined in
+ * [[javaapi.FutureConverters]] instead.
+ */
+object FutureConverters
+""")
+
+      // Create the directory structure for scala.jdk.javaapi
+      val javaapiDir = tempDir.resolve("scala/jdk/javaapi")
+      Files.createDirectories(javaapiDir)
+
+      // Create a file in the javaapi package
+      val javaapiFile = javaapiDir.resolve("FutureConverters.scala")
+      Files.writeString(javaapiFile, """package scala.jdk.javaapi
+
+/** This object provides conversion methods for Java code. */
+object FutureConverters
+""")
+
+      // Use the default checker to validate symbol resolution
+      val broken = ScaladocChecker.findBrokenLinks(tempDir)
+      val urls = broken.map(_._3)
+
+      // Expected: The unqualified reference should be resolved correctly
+      // javaapi.FutureConverters in scala.jdk package should resolve to scala.jdk.javaapi.FutureConverters
+      urls should not contain ("javaapi.FutureConverters")
     finally
       try Files.list(tempDir).forEach(p => try Files.deleteIfExists(p) catch case _: Throwable => ()) catch case _: Throwable => ()
       try Files.deleteIfExists(tempDir) catch case _: Throwable => ()
