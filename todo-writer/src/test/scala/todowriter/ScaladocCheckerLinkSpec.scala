@@ -939,3 +939,39 @@ object FutureConverters
       try Files.deleteIfExists(scalaDir) catch case _: Throwable => ()
       try Files.deleteIfExists(tempDir) catch case _: Throwable => ()
   }
+
+  it should "resolve ExecutionContext.Implicits.global" in {
+    val tempDir = Files.createTempDirectory("todowriter-link-test")
+    val concurrentDir = tempDir.resolve("scala/concurrent")
+    try
+      Files.createDirectories(concurrentDir)
+
+      // Create ExecutionContext.scala with the nested object structure
+      val ecContent = """package scala.concurrent
+
+object ExecutionContext {
+  object Implicits {
+    implicit val global: ExecutionContext = ???
+  }
+}
+"""
+      Files.writeString(concurrentDir.resolve("ExecutionContext.scala"), ecContent)
+
+      // Create a test file that references ExecutionContext.Implicits.global
+      val testFile = concurrentDir.resolve("Test.scala")
+      Files.writeString(testFile, """package scala.concurrent
+
+/** See [[ExecutionContext.Implicits.global]] */
+def foo(): Unit = ()
+""")
+
+      ScaladocChecker.clearCaches()
+      val broken = ScaladocChecker.findBrokenLinks(tempDir)
+      val urls = broken.map(_._3)
+
+      urls should not contain ("ExecutionContext.Implicits.global")
+    finally
+      try Files.list(concurrentDir).forEach(p => try Files.deleteIfExists(p) catch case _: Throwable => ()) catch case _: Throwable => ()
+      try Files.deleteIfExists(concurrentDir) catch case _: Throwable => ()
+      try Files.deleteIfExists(tempDir) catch case _: Throwable => ()
+  }

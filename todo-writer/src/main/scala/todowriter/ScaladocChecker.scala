@@ -192,31 +192,37 @@ object ScaladocChecker:
           val txt = getFileContent(p)
           // Use cached package lookup
           val pkgOpt = getPackageName(p)
-          
-          // Check if it's a regular package member
-          val fullNameMatches =
-            pkgOpt match
-              case Some(pkg) => pkg + "." + name == symbol && declPattern.findFirstIn(txt).isDefined
-              case None => declPattern.findFirstIn(txt).isDefined && name == symbol
-          
-          if fullNameMatches then true
+
+          // First, check for simple name match (unqualified reference)
+          // This allows "ExecutionContext" to match regardless of package
+          // Useful for same-package references like ExecutionContext.Implicits.global
+          val simpleNameMatch = declPattern.findFirstIn(txt).isDefined
+          if !symbol.contains('.') && simpleNameMatch then
+            true
           else
-            // Also check inside package objects
-            // For example, scala.BigInt is defined in package object scala
-            if symbol.contains('.') then
-              val pkgName = symbol.substring(0, symbol.lastIndexOf('.'))
-              val memberName = name
-              // Look for a package object that matches the package name
-              val pkgObjectMatch = pkgObjectPattern.findFirstMatchIn(txt)
-              if pkgObjectMatch.isDefined && pkgObjectMatch.get.group(1) == pkgName then
-                // Found a package object matching the package name, check for the member
-                declPattern.findFirstIn(txt).isDefined
-              else
-                false
+            // Check if it's a regular package member with full qualified name
+            val fullNameMatches =
+              pkgOpt match
+                case Some(pkg) => pkg + "." + name == symbol && declPattern.findFirstIn(txt).isDefined
+                case None => declPattern.findFirstIn(txt).isDefined && name == symbol
+
+            if fullNameMatches then true
             else
-              // Also accept top-level declaration without package when symbol is unqualified
-              if !symbol.contains('.') && declPattern.findFirstIn(txt).isDefined then true
-              else false
+              // Also check inside package objects
+              // For example, scala.BigInt is defined in package object scala
+              if symbol.contains('.') then
+                val pkgName = symbol.substring(0, symbol.lastIndexOf('.'))
+                val memberName = name
+                // Look for a package object that matches the package name
+                val pkgObjectMatch = pkgObjectPattern.findFirstMatchIn(txt)
+                if pkgObjectMatch.isDefined && pkgObjectMatch.get.group(1) == pkgName then
+                  // Found a package object matching the package name, check for the member
+                  declPattern.findFirstIn(txt).isDefined
+                else
+                  false
+              else
+                // Fallback for unqualified name (redundant but kept for safety)
+                simpleNameMatch
         catch
           case _: Throwable => false
       }
@@ -311,11 +317,27 @@ object ScaladocChecker:
             // Try the next split
             i -= 1
 
-        // If we didn't find it with any split, try the original logic
+        // If we didn't find it with any split, try the fallback logic
         if !found && parts.length >= 2 then
-          val pkgName = parts.init.mkString(".")
-          val typeName = parts.last
-          findNestedTypeInPackage(pkgName, typeName, Nil, rootPath)
+          // Fallback 1: Try treating the reference as "package.Type.member" where "package.Type" is the full type name
+          // For "ExecutionContext.Implicits.global", try to find type "ExecutionContext" first,
+          // then search for "Implicits.global" inside it. This handles same-package references
+          // where the file is in the same package as the type.
+          val firstComponent = parts.head
+          val rest = parts.tail
+
+          // First, try to find the first component as a standalone type
+          // This checks all packages for a type named "ExecutionContext" by simple name
+          if symbolExistsInSource(rootPath, firstComponent) then
+            found = findMemberInTypeSource(firstComponent, rest, rootPath)
+
+          // Fallback 2: Try the original logic for package-based lookup
+          if !found then
+            val pkgName = parts.init.mkString(".")
+            val typeName = parts.last
+            found = findNestedTypeInPackage(pkgName, typeName, Nil, rootPath)
+
+          found
         else
           found
 
@@ -363,8 +385,19 @@ object ScaladocChecker:
             val txt = getFileContent(file)
             // Use cached package lookup
             val pkgOpt = getPackageName(file)
-            
-            if pkgOpt.exists(p => p == pkg) && typeDeclPattern.findFirstIn(txt).isDefined then
+
+            // Check if this file contains the type
+            // For qualified names (e.g., "scala.concurrent.ExecutionContext"), require package match
+            // For unqualified names (e.g., "ExecutionContext"), just check the simple name
+            val typeMatches =
+              if typeName.contains('.') then
+                // Qualified name: require both package and simple name to match
+                pkgOpt.exists(p => p == pkg) && typeDeclPattern.findFirstIn(txt).isDefined
+              else
+                // Unqualified name: just check the simple name (any package)
+                typeDeclPattern.findFirstIn(txt).isDefined
+
+            if typeMatches then
               // Found the type, now search for the member inside it
               // Look for class, object, trait, def, val, var, type declarations with the member name
               // Include optional modifiers like implicit, final, private, protected, override, etc.
@@ -996,6 +1029,7 @@ object ScaladocChecker:
                 // Before that, also try to resolve as a type (in case it's a type with dots like scala.BigInt)
                 if symbolExistsInSource(root, withDotForHash) then None
                 else if memberExistsInSourceLocal(withDotForHash) then None
+                else if memberExistsInSourceRecursive(withDotForHash, root) then None
                 else
                   // Try to resolve using external mappings
                   // Split the member reference into containing type and member name
