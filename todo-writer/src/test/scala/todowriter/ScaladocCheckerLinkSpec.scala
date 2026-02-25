@@ -921,3 +921,21 @@ object FutureConverters
       try Files.list(tempDir).forEach(p => try Files.deleteIfExists(p) catch case _: Throwable => ()) catch case _: Throwable => ()
       try Files.deleteIfExists(tempDir) catch case _: Throwable => ()
   }
+
+  it should "resolve scala.BigInt and scala.BigDecimal" in {
+    val tempDir = Files.createTempDirectory("todowriter-link-test")
+    val scalaDir = tempDir.resolve("scala")
+    try
+      Files.createDirectories(scalaDir)
+      Files.writeString(scalaDir.resolve("BigInt.scala"), "package scala\n\nclass BigInt\n")
+      Files.writeString(scalaDir.resolve("BigDecimal.scala"), "package scala\n\nclass BigDecimal\n")
+      
+      ScaladocChecker.clearCaches()
+      ScaladocChecker.symbolExistsInSource(tempDir, "scala.BigInt") should be(true)
+      ScaladocChecker.clearCaches()
+      ScaladocChecker.symbolExistsInSource(tempDir, "scala.BigDecimal") should be(true)
+    finally
+      try Files.list(scalaDir).forEach(p => try Files.deleteIfExists(p) catch case _: Throwable => ()) catch case _: Throwable => ()
+      try Files.deleteIfExists(scalaDir) catch case _: Throwable => ()
+      try Files.deleteIfExists(tempDir) catch case _: Throwable => ()
+  }

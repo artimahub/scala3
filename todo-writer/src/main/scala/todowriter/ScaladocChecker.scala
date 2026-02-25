@@ -72,14 +72,15 @@ object ScaladocChecker:
     packageCache.getOrElseUpdate(pathStr,
       try
         val txt = getFileContent(file)
-        val pkgPattern = raw"""(?m)^\s*package\s+([^\s;\n]+)""".r
+        // Skip package object declarations - they should not be treated as packages
+        val pkgPattern = raw"""(?m)^\s*package\s+(?!object\s+)([^\s;\n]+)""".r
         val pkgMatch = pkgPattern.findFirstMatchIn(txt)
         if pkgMatch.isDefined then
           val firstMatch = pkgMatch.get
           val firstPkg = firstMatch.group(1)
           val afterFirstPkg = txt.substring(firstMatch.end)
           // Look for more package declarations immediately following
-          val pkgPattern2 = raw"""(?m)^\s*package\s+([^\s;\n]+)""".r
+          val pkgPattern2 = raw"""(?m)^\s*package\s+(?!object\s+)([^\s;\n]+)""".r
           pkgPattern2.findFirstMatchIn(afterFirstPkg) match
             case Some(secondPkgMatch) =>
               val secondPkg = secondPkgMatch.group(1)
@@ -185,21 +186,37 @@ object ScaladocChecker:
       val files = findScalaFiles(root)
       val declPattern = raw"""(?m)^\s*(?:class|object|trait|type|case\s+class)\s+%s\b""".format(java.util.regex.Pattern.quote(name)).r
       val pkgPattern = raw"""(?m)^\s*package\s+([^\s;\n]+)""".r
+      val pkgObjectPattern = raw"""(?m)^\s*package\s+object\s+([^\s;\n]+)""".r
       files.exists { p =>
         try
           val txt = getFileContent(p)
           // Use cached package lookup
           val pkgOpt = getPackageName(p)
-
+          
+          // Check if it's a regular package member
           val fullNameMatches =
             pkgOpt match
               case Some(pkg) => pkg + "." + name == symbol && declPattern.findFirstIn(txt).isDefined
-              case None      => declPattern.findFirstIn(txt).isDefined && name == symbol
+              case None => declPattern.findFirstIn(txt).isDefined && name == symbol
+          
           if fullNameMatches then true
           else
-            // Also accept top-level declaration without package when symbol is unqualified
-            if !symbol.contains('.') && declPattern.findFirstIn(txt).isDefined then true
-            else false
+            // Also check inside package objects
+            // For example, scala.BigInt is defined in package object scala
+            if symbol.contains('.') then
+              val pkgName = symbol.substring(0, symbol.lastIndexOf('.'))
+              val memberName = name
+              // Look for a package object that matches the package name
+              val pkgObjectMatch = pkgObjectPattern.findFirstMatchIn(txt)
+              if pkgObjectMatch.isDefined && pkgObjectMatch.get.group(1) == pkgName then
+                // Found a package object matching the package name, check for the member
+                declPattern.findFirstIn(txt).isDefined
+              else
+                false
+            else
+              // Also accept top-level declaration without package when symbol is unqualified
+              if !symbol.contains('.') && declPattern.findFirstIn(txt).isDefined then true
+              else false
         catch
           case _: Throwable => false
       }
@@ -976,7 +993,9 @@ object ScaladocChecker:
                 None
               else if isMemberRef then
                 // For member references, try to resolve by finding the containing type and searching for the member
-                if memberExistsInSourceLocal(withDotForHash) then None
+                // Before that, also try to resolve as a type (in case it's a type with dots like scala.BigInt)
+                if symbolExistsInSource(root, withDotForHash) then None
+                else if memberExistsInSourceLocal(withDotForHash) then None
                 else
                   // Try to resolve using external mappings
                   // Split the member reference into containing type and member name
