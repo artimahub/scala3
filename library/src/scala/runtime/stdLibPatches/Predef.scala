@@ -67,7 +67,7 @@ private[scala] object Predef:
      *  using `eq` rather than only `==`. This is needed because `Null` no longer has
      *  `eq` or `ne` methods, only `==` and `!=` inherited from `Any`. 
      *
-     *  @param inline y the reference to compare against for referential equality
+     *  @param y the reference to compare against for referential equality
      */
     inline infix def eq(inline y: AnyRef | Null): Boolean =
       x.asInstanceOf[AnyRef] eq y.asInstanceOf[AnyRef]
@@ -75,7 +75,7 @@ private[scala] object Predef:
      *  using `ne` rather than only `!=`. This is needed because `Null` no longer has
      *  `eq` or `ne` methods, only `==` and `!=` inherited from `Any`. 
      *
-     *  @param inline y the reference to compare against for referential inequality
+     *  @param y the reference to compare against for referential inequality
      */
     inline infix def ne(inline y: AnyRef | Null): Boolean =
       !(x eq y)
