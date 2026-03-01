@@ -685,7 +685,7 @@ object Predef extends LowPriorityImplicits {
      *  using `eq` rather than only `==`. This is needed because `Null` no longer has
      *  `eq` or `ne` methods, only `==` and `!=` inherited from `Any`.
      *
-     *  @param inline y the reference to compare against for reference equality
+     *  @param y the reference to compare against for reference equality
      */
     inline infix def eq(inline y: AnyRef | Null): Boolean =
       x.asInstanceOf[AnyRef] eq y.asInstanceOf[AnyRef]
@@ -693,7 +693,7 @@ object Predef extends LowPriorityImplicits {
      *  using `ne` rather than only `!=`. This is needed because `Null` no longer has
      *  `eq` or `ne` methods, only `==` and `!=` inherited from `Any`.
      *
-     *  @param inline y the reference to compare against for reference non-equality
+     *  @param y the reference to compare against for reference non-equality
      */
     inline infix def ne(inline y: AnyRef | Null): Boolean =
       !(x eq y)
