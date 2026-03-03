@@ -249,7 +249,7 @@ trait Future[+T] extends Awaitable[T] {
    *
    *  @tparam S  the type of the returned `Future`
    *  @param f   the function which will be applied to the successful result of this `Future`
-   *  @param executor the `ExecutionContext` on which the callback will be executed
+   *  @param executor the `ExecutionContext` on which the function will be executed
    *  @return    a `Future` which will be completed with the result of the application of the function
    *  @group Transformations
    */
@@ -264,7 +264,7 @@ trait Future[+T] extends Awaitable[T] {
    *
    *  @tparam S  the type of the returned `Future`
    *  @param f   the function which will be applied to the successful result of this `Future`
-   *  @param executor the `ExecutionContext` on which the callback will be executed
+   *  @param executor the `ExecutionContext` on which the function will be executed
    *  @return    a `Future` which will be completed with the result of the application of the function
    *  @group Transformations
    */
@@ -317,7 +317,7 @@ trait Future[+T] extends Awaitable[T] {
    *  @group Transformations
    *
    *  @param p the predicate to apply to the successful result of this `Future`
-   *  @param executor the `ExecutionContext` on which the callback will be executed
+   *  @param executor the `ExecutionContext` on which the predicate will be executed
    */
   final def withFilter(p: T => Boolean)(implicit executor: ExecutionContext): Future[T] = filter(p)(using executor)
 
@@ -343,7 +343,7 @@ trait Future[+T] extends Awaitable[T] {
    *
    *  @tparam S    the type of the returned `Future`
    *  @param pf    the `PartialFunction` to apply to the successful result of this `Future`
-   *  @param executor the `ExecutionContext` on which the callback will be executed
+   *  @param executor the `ExecutionContext` on which the `PartialFunction` will be executed
    *  @return      a `Future` holding the result of application of the `PartialFunction` or a `NoSuchElementException`
    *  @group Transformations
    */
@@ -391,7 +391,7 @@ trait Future[+T] extends Awaitable[T] {
    *
    *  @tparam U    the type of the returned `Future`
    *  @param pf    the `PartialFunction` to apply if this `Future` fails
-   *  @param executor the `ExecutionContext` on which the callback will be executed
+   *  @param executor the `ExecutionContext` on which the `PartialFunction` will be executed
    *  @return      a `Future` with the successful value of this `Future` or the outcome of the `Future` returned by the `PartialFunction`
    *  @group Transformations
    */
