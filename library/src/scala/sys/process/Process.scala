@@ -101,6 +101,7 @@ trait ProcessCreation {
    *  @param command the command string, including parameters separated by spaces
    *  @param cwd the working directory for the process
    *  @param extraEnv environment variable name-value pairs to add to the process environment
+   *  @return a new `ProcessBuilder` for the given command with the specified working directory
    */
   def apply(command: String, cwd: File, extraEnv: (String, String)*): ProcessBuilder =
     apply(command, Some(cwd), extraEnv*)
@@ -116,6 +117,7 @@ trait ProcessCreation {
    *  @param command a sequence where the first element is the executable and the rest are arguments
    *  @param cwd the working directory for the process
    *  @param extraEnv environment variable name-value pairs to add to the process environment
+   *  @return a new `ProcessBuilder` for the given command with the specified working directory
    */
   def apply(command: scala.collection.Seq[String], cwd: File, extraEnv: (String, String)*): ProcessBuilder =
     apply(command, Some(cwd), extraEnv*)
@@ -131,6 +133,7 @@ trait ProcessCreation {
    *  @param command the command string, including parameters separated by spaces
    *  @param cwd an optional working directory for the process
    *  @param extraEnv environment variable name-value pairs to add to the process environment
+   *  @return a new `ProcessBuilder` for the given command
    */
   def apply(command: String, cwd: Option[File], extraEnv: (String, String)*): ProcessBuilder =
     apply(Parser.tokenize(command), cwd, extraEnv*)
@@ -146,6 +149,7 @@ trait ProcessCreation {
    *  @param command a sequence where the first element is the executable and the rest are arguments
    *  @param cwd an optional working directory for the process
    *  @param extraEnv environment variable name-value pairs to add to the process environment
+   *  @return a new `ProcessBuilder` for the given command
    */
   def apply(command: scala.collection.Seq[String], cwd: Option[File], extraEnv: (String, String)*): ProcessBuilder = {
     val jpb = new JProcessBuilder(command.toArray*)
@@ -170,6 +174,7 @@ trait ProcessCreation {
    *  pipe things from and to it.
    *
    *  @param file the file to use as a source or sink for the process
+   *  @return a `FileBuilder` wrapping the given file
    */
   def apply(file: File): FileBuilder                  = new FileImpl(file)
 
@@ -178,6 +183,7 @@ trait ProcessCreation {
    *  from it.
    *
    *  @param url the URL to use as a source for the process
+   *  @return a `URLBuilder` wrapping the given URL
    */
   def apply(url: URL): URLBuilder                     = new URLImpl(url)
 
@@ -185,6 +191,7 @@ trait ProcessCreation {
    *  to force an exit value.
    *
    *  @param value if `true`, the process exits with code 0; if `false`, with code 1
+   *  @return a `ProcessBuilder` that immediately exits with the corresponding exit code
    */
   def apply(value: Boolean): ProcessBuilder           = apply(value.toString, if (value) 0 else 1)
 
@@ -194,6 +201,7 @@ trait ProcessCreation {
    *
    *  @param name the name used for the `toString` representation of this process
    *  @param exitValue the exit code that this process will return (by-name, evaluated on each access)
+   *  @return a `ProcessBuilder` that immediately exits with the given exit code
    */
   def apply(name: String, exitValue: => Int): ProcessBuilder = new Dummy(name, exitValue)
 
@@ -203,6 +211,7 @@ trait ProcessCreation {
    *  @tparam T the type of the elements to be converted to `Source`
    *  @param builders the sequence of elements to convert
    *  @param convert the implicit conversion from `T` to `Source`
+   *  @return a sequence of `Source` instances converted from the input elements
    */
   def applySeq[T](builders: scala.collection.Seq[T])(implicit convert: T => Source): scala.collection.Seq[Source] = builders.map(convert)
 
@@ -259,12 +268,14 @@ trait ProcessImplicits {
    *  @tparam T the type of the elements to be converted to `Source`
    *  @param builders the sequence of elements to convert
    *  @param convert the implicit conversion from `T` to `Source`
+   *  @return a sequence of `Source` instances converted from the input elements
    */
   implicit def buildersToProcess[T](builders: scala.collection.Seq[T])(implicit convert: T => Source): scala.collection.Seq[Source] = applySeq(builders)
 
   /** Implicitly convert a `java.lang.ProcessBuilder` into a Scala one.
    *
    *  @param builder the `java.lang.ProcessBuilder` to convert
+   *  @return a Scala `ProcessBuilder` wrapping the given Java process builder
    */
   implicit def builderToProcess(builder: JProcessBuilder): ProcessBuilder = apply(builder)
 
@@ -277,6 +288,7 @@ trait ProcessImplicits {
    *  ```
    *
    *  @param file the file to convert into a `FileBuilder`
+   *  @return a `FileBuilder` wrapping the given file
    */
   implicit def fileToProcess(file: File): FileBuilder                     = apply(file)
 
@@ -289,12 +301,14 @@ trait ProcessImplicits {
    *  ```
    *
    *  @param url the URL to convert into a `URLBuilder`
+   *  @return a `URLBuilder` wrapping the given URL
    */
   implicit def urlToProcess(url: URL): URLBuilder                         = apply(url)
 
   /** Implicitly convert a `String` into a [[scala.sys.process.ProcessBuilder]].
    *
    *  @param command the command string to convert into a `ProcessBuilder`
+   *  @return a `ProcessBuilder` for the given command string
    */
   implicit def stringToProcess(command: String): ProcessBuilder           = apply(command)
 
@@ -304,6 +318,7 @@ trait ProcessImplicits {
    *  When using this, arguments may contain spaces.
    *
    *  @param command a sequence where the first element is the executable and the rest are arguments
+   *  @return a `ProcessBuilder` for the given command sequence
    */
   implicit def stringSeqToProcess(command: scala.collection.Seq[String]): ProcessBuilder = apply(command)
 }

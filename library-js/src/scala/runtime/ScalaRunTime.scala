@@ -42,6 +42,7 @@ object ScalaRunTime {
   /** Returns the class object representing an array with element class `clazz`.
    *
    *  @param clazz the element class for the resulting array type
+   *  @return the `Class` object representing `Array[clazz]`
    */
   def arrayClass(clazz: jClass[_]): jClass[_] = {
     // newInstance throws an exception if the erasure is Void.TYPE. see scala/bug#5680
@@ -55,6 +56,7 @@ object ScalaRunTime {
    *
    *  @tparam T the primitive value type whose runtime class is to be retrieved
    *  @param value the value instance (unused; the class is derived from the implicit `ClassTag`)
+   *  @return the runtime `Class` representing the unboxed type `T`
    */
   def anyValClass[T <: AnyVal : ClassTag](value: T): jClass[T] =
     classTag[T].runtimeClass.asInstanceOf[jClass[T]]
@@ -63,6 +65,7 @@ object ScalaRunTime {
    *
    *  @param xs the array to access, typed as `AnyRef` to support both reference and primitive arrays
    *  @param idx the zero-based index of the element to retrieve
+   *  @return the element at position `idx` in the array
    */
   def array_apply(xs: AnyRef, idx: Int): Any = {
     xs match {
@@ -103,6 +106,7 @@ object ScalaRunTime {
   /** Gets generic array length.
    *
    *  @param xs the array whose length is to be determined
+   *  @return the number of elements in the array
    */
   @inline def array_length(xs: AnyRef): Int = java.lang.reflect.Array.getLength(xs)
 
@@ -126,6 +130,7 @@ object ScalaRunTime {
    *  to a generic Java vararg parameter T ...
    *
    *  @param src the source array to convert, which may be a primitive array
+   *  @return an `Array[Object]` containing the (boxed) elements of `src`
    */
   def toObjectArray(src: AnyRef): Array[Object] = src match {
     case x: Array[AnyRef] => x
@@ -160,6 +165,7 @@ object ScalaRunTime {
    *
    *  @tparam T the target element type to which each product element is cast (unchecked)
    *  @param x the product instance to iterate over
+   *  @return an iterator over the product's elements, cast to type `T`
    */
   def typedProductIterator[T](x: Product): Iterator[T] = {
     new AbstractIterator[T] {
@@ -273,6 +279,7 @@ object ScalaRunTime {
    *
    *  @param arg the value to convert to a string representation
    *  @param maxElements the maximum number of collection elements to include in the output
+   *  @return a string representation of `arg`, formatted for REPL display
    */
   def replStringOf(arg: Any, maxElements: Int): String =
     stringOf(arg, maxElements) match {

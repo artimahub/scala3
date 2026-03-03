@@ -370,6 +370,8 @@ trait ProcessBuilder extends Source with Sink {
 
   /** Starts the process represented by this builder.  Standard output and error
    *  are sent to the console.
+   *
+   *  @return the started `Process`
    */
   def run(): Process
 
@@ -377,6 +379,7 @@ trait ProcessBuilder extends Source with Sink {
    *  are sent to the given ProcessLogger.
    *
    *  @param log the `ProcessLogger` to receive standard output and error
+   *  @return the started `Process`
    */
   def run(log: ProcessLogger): Process
 
@@ -384,6 +387,7 @@ trait ProcessBuilder extends Source with Sink {
    *  given ProcessIO instance.
    *
    *  @param io the `ProcessIO` that handles the process's standard input, output, and error streams
+   *  @return the started `Process`
    */
   def run(io: ProcessIO): Process
 
@@ -392,6 +396,7 @@ trait ProcessBuilder extends Source with Sink {
    *  input of the current process if `connectInput` is true.
    *
    *  @param connectInput whether to connect the process's standard input to the current process's stdin
+   *  @return the started `Process`
    */
   def run(connectInput: Boolean): Process
 
@@ -401,6 +406,7 @@ trait ProcessBuilder extends Source with Sink {
    *
    *  @param log the `ProcessLogger` to receive standard output and error
    *  @param connectInput whether to connect the process's standard input to the current process's stdin
+   *  @return the started `Process`
    */
   def run(log: ProcessLogger, connectInput: Boolean): Process
 
@@ -408,6 +414,7 @@ trait ProcessBuilder extends Source with Sink {
    *  command succeeds.
    *
    *  @param other the command to run if this one returns an exit code of zero
+   *  @return a new `ProcessBuilder` that sequences this and `other` conditionally
    */
   def #&& (other: ProcessBuilder): ProcessBuilder
 
@@ -415,6 +422,7 @@ trait ProcessBuilder extends Source with Sink {
    *  command does not succeed.
    *
    *  @param other the command to run if this one returns a non-zero exit code
+   *  @return a new `ProcessBuilder` that sequences this and `other` conditionally
    */
   def #|| (other: ProcessBuilder): ProcessBuilder
 
@@ -422,6 +430,7 @@ trait ProcessBuilder extends Source with Sink {
    *  `other`.  `other` must be a simple command.
    *
    *  @param other the command to receive the output of this process as its input
+   *  @return a new `ProcessBuilder` that pipes output from this to `other`
    */
   def #| (other: ProcessBuilder): ProcessBuilder
 
@@ -429,6 +438,7 @@ trait ProcessBuilder extends Source with Sink {
    *  exit code will be the exit code of `other`.
    *
    *  @param other the command to run after this one, regardless of exit code
+   *  @return a new `ProcessBuilder` that sequences this and `other` unconditionally
    */
   def ### (other: ProcessBuilder): ProcessBuilder
 
@@ -459,24 +469,28 @@ object ProcessBuilder extends ProcessBuilderImpl {
     /** Appends the contents of a `java.io.File` to this file.
      *
      *  @param f the file whose contents will be appended
+     *  @return a `ProcessBuilder` that appends `f` to this file when run
      */
     def #<<(f: File): ProcessBuilder
 
     /** Appends the contents from a `java.net.URL` to this file.
      *
      *  @param u the URL whose contents will be appended
+     *  @return a `ProcessBuilder` that appends `u` to this file when run
      */
     def #<<(u: URL): ProcessBuilder
 
     /** Appends the contents of a `java.io.InputStream` to this file.
      *
      *  @param i the input stream whose contents will be appended
+     *  @return a `ProcessBuilder` that appends `i` to this file when run
      */
     def #<<(i: => InputStream): ProcessBuilder
 
     /** Appends the contents of a [[scala.sys.process.ProcessBuilder]] to this file.
      *
      *  @param p the process builder whose output will be appended
+     *  @return a `ProcessBuilder` that appends `p`'s output to this file when run
      */
     def #<<(p: ProcessBuilder): ProcessBuilder
   }
@@ -490,12 +504,14 @@ object ProcessBuilder extends ProcessBuilderImpl {
     /** Writes the output stream of this process to the given file.
      *
      *  @param f the file to write the output to
+     *  @return a `ProcessBuilder` that redirects output to `f`
      */
     def #> (f: File): ProcessBuilder = toFile(f, append = false)
 
     /** Appends the output stream of this process to the given file.
      *
      *  @param f the file to append the output to
+     *  @return a `ProcessBuilder` that appends output to `f`
      */
     def #>> (f: File): ProcessBuilder = toFile(f, append = true)
 
@@ -504,12 +520,14 @@ object ProcessBuilder extends ProcessBuilderImpl {
      *  time this process is executed.
      *
      *  @param out the output stream to write to, created anew for each execution
+     *  @return a `ProcessBuilder` that redirects output to `out`
      */
     def #>(out: => OutputStream): ProcessBuilder = #> (new OStreamBuilder(out, "<output stream>"))
 
     /** Writes the output stream of this process to a [[scala.sys.process.ProcessBuilder]].
      *
      *  @param b the process builder to receive this process's output as input
+     *  @return a `ProcessBuilder` that pipes output to `b`
      */
     def #>(b: ProcessBuilder): ProcessBuilder = new PipedBuilder(toSource, b, toError = false)
 
@@ -527,12 +545,14 @@ object ProcessBuilder extends ProcessBuilderImpl {
     /** Reads the given file into the input stream of this process.
      *
      *  @param f the file to read from as input
+     *  @return a `ProcessBuilder` that reads input from `f`
      */
     def #< (f: File): ProcessBuilder = #< (new FileInput(f))
 
     /** Reads the given URL into the input stream of this process.
      *
      *  @param f the `URL` to read from as input
+     *  @return a `ProcessBuilder` that reads input from `f`
      */
     def #< (f: URL): ProcessBuilder = #< (new URLInput(f))
 
@@ -541,12 +561,14 @@ object ProcessBuilder extends ProcessBuilderImpl {
      *  time this process is executed.
      *
      *  @param in the input stream to read from, created anew for each execution
+     *  @return a `ProcessBuilder` that reads input from `in`
      */
     def #<(in: => InputStream): ProcessBuilder = #< (new IStreamBuilder(in, "<input stream>"))
 
     /** Reads the output of a [[scala.sys.process.ProcessBuilder]] into the input stream of this process.
      *
      *  @param b the process builder whose output will be used as input to this process
+     *  @return a `ProcessBuilder` that pipes `b`'s output to this process
      */
     def #<(b: ProcessBuilder): ProcessBuilder = new PipedBuilder(b, toSink, toError = false)
   }

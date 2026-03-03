@@ -95,6 +95,7 @@ object ProcessLogger {
   /** Creates a [[scala.sys.process.ProcessLogger]] that redirects output to a `java.io.File`.
    *
    *  @param file the `java.io.File` to which output will be appended
+   *  @return a `FileProcessLogger` that writes to the given file
    */
   def apply(file: File): FileProcessLogger = new FileProcessLogger(file)
 
@@ -102,6 +103,7 @@ object ProcessLogger {
    *  to the passed function.
    *
    *  @param fn the function to apply to each line of standard and error output
+   *  @return a `ProcessLogger` that passes all output to `fn`
    */
   def apply(fn: String => Unit): ProcessLogger = apply(fn, fn)
 
@@ -109,8 +111,8 @@ object ProcessLogger {
    *  function.
    *
    *  @param fout the function that will receive each line of standard output
-   *
    *  @param ferr the function that will receive each line of standard error
+   *  @return a `ProcessLogger` that passes output to `fout` and errors to `ferr`
    */
   def apply(fout: String => Unit, ferr: String => Unit): ProcessLogger =
     new ProcessLogger {
