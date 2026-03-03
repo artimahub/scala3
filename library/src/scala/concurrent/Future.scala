@@ -391,7 +391,7 @@ trait Future[+T] extends Awaitable[T] {
    *
    *  @tparam U    the type of the returned `Future`
    *  @param pf    the `PartialFunction` to apply if this `Future` fails
-   *  @param executor the `ExecutionContext` on which the callback will be executed
+   *  @param executor the `ExecutionContext` on which the `PartialFunction` will be executed
    *  @return      a `Future` with the successful value of this `Future` or the outcome of the `Future` returned by the `PartialFunction`
    *  @group Transformations
    */
