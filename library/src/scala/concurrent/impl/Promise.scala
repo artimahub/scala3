@@ -330,8 +330,6 @@ private[concurrent] object Promise {
     /** Tries to add the callback, if already completed, it dispatches the callback to be executed.
      *  Used by `onComplete()` to add callbacks to a promise and by `link()` to transfer callbacks
      *  to the root promise when linking two promises together.
-     *
-     *  @tparam C the specific subtype of `Callbacks[T]` being dispatched or added
      */
     @tailrec private final def dispatchOrAddCallbacks[C <: Callbacks[T]](state: AnyRef, callbacks: C): C =
       if (state.isInstanceOf[Try[?]]) {
