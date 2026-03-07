@@ -1018,3 +1018,57 @@ def foo(): Unit = ()
       try Files.deleteIfExists(durationDir) catch case _: Throwable => ()
       try Files.deleteIfExists(tempDir) catch case _: Throwable => ()
   }
+
+  it should "resolve method references without parameters when there's only one method with that name" in {
+    val tempDir = Files.createTempDirectory("todowriter-link-test")
+    val javaapiDir = tempDir.resolve("scala/jdk/javaapi")
+    try
+      Files.createDirectories(javaapiDir)
+
+      // Create DurationConverters.scala with a toScala method
+      val durationConvertersContent = """package scala.jdk.javaapi
+
+import java.time.{Duration => JDuration}
+import scala.concurrent.duration.FiniteDuration
+
+object DurationConverters {
+  /** Converts a Java duration to a Scala duration.
+   *
+   *  @param duration the Java duration
+   *  @return the Scala duration
+   */
+  def toScala(duration: JDuration): FiniteDuration = ???
+
+  /** Converts a Scala duration to a Java duration.
+   *
+   *  @param duration the Scala duration
+   *  @return the Java duration
+   */
+  def toJava(duration: FiniteDuration): JDuration = ???
+}
+"""
+      Files.writeString(javaapiDir.resolve("DurationConverters.scala"), durationConvertersContent)
+
+      // Create a test file that references javaapi.DurationConverters.toScala
+      // Note: No parameters are specified, but there's only one method named "toScala"
+      val testFile = javaapiDir.resolve("Test.scala")
+      Files.writeString(testFile, """package scala.jdk
+
+/** See [[javaapi.DurationConverters.toScala]] */
+implicit class JavaDurationOps(private val duration: java.time.Duration) extends AnyVal {
+  def toScala: FiniteDuration = javaapi.DurationConverters.toScala(duration)
+}
+""")
+
+      ScaladocChecker.clearCaches()
+      val broken = ScaladocChecker.findBrokenLinks(tempDir)
+      val urls = broken.map(_._3)
+
+      // The link "javaapi.DurationConverters.toScala" should be resolved and NOT reported as broken
+      // even though no parameters are specified, because there's only one method with that name
+      urls should not contain ("javaapi.DurationConverters.toScala")
+    finally
+      try Files.list(javaapiDir).forEach(p => try Files.deleteIfExists(p) catch case _: Throwable => ()) catch case _: Throwable => ()
+      try Files.deleteIfExists(javaapiDir) catch case _: Throwable => ()
+      try Files.deleteIfExists(tempDir) catch case _: Throwable => ()
+  }

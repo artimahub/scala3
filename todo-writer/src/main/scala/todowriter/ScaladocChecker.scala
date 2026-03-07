@@ -836,11 +836,13 @@ object ScaladocChecker:
               // Find the dot that's not inside brackets [...] or parentheses (...)
               // For example, in "AsJavaConverters.asJava[A](b:scala.collection.mutable.Buffer[A])*"
               // we want to split at the dot after "AsJavaConverters", not after "mutable"
+              // For "javaapi.DurationConverters.toScala", we want to split at the dot after "DurationConverters"
               var bracketDepth = 0
               var parenDepth = 0
               var splitIdx = -1
               var i = 0
-              while i < memberRef.length && splitIdx < 0 do
+              // Find the last dot that's not inside brackets or parentheses
+              while i < memberRef.length do
                 memberRef.charAt(i) match
                   case '[' => bracketDepth += 1
                   case ']' => bracketDepth -= 1
@@ -848,7 +850,7 @@ object ScaladocChecker:
                   case ')' => parenDepth -= 1
                   case '.' =>
                     if bracketDepth == 0 && parenDepth == 0 then
-                      splitIdx = i
+                      splitIdx = i  // Keep updating to find the last dot
                   case _ => ()
                 i += 1
 
@@ -857,6 +859,10 @@ object ScaladocChecker:
 
             if memberName.isEmpty then false
             else
+              // Check if parameters were specified in the original member reference
+              // For example, "toScala(JDuration)" has parameters, "toScala" does not
+              val hasParameters = memberName.contains('(') && memberName.contains(')')
+
               // Normalize member name (remove generics, params, return type, and trailing varargs marker)
               var normalizedMember = normalizeSymbol(memberName).replaceAll("\\*\\s*$", "")
               // Remove return type annotation (e.g., "sizeCompare:Int" -> "sizeCompare")
@@ -893,19 +899,43 @@ object ScaladocChecker:
                   val containsType = if baseType.contains('.') then
                     // Fully qualified: check if package matches
                     // For companion object references, compare against the base type (without $)
-                    pkgOpt.exists(pkg => pkg + "." + typeName == baseType) && typeDeclPattern.findFirstIn(txt).isDefined
+                    val exactMatch = pkgOpt.exists(pkg => pkg + "." + typeName == baseType) && typeDeclPattern.findFirstIn(txt).isDefined
+                    // Also try simple name match for relative package references
+                    // For example, javaapi.DurationConverters should match scala.jdk.javaapi.DurationConverters
+                    val simpleNameMatch = typeDeclPattern.findFirstIn(txt).isDefined
+                    exactMatch || simpleNameMatch
                   else
                     // Unqualified: just check if the type is declared in this file
                     typeDeclPattern.findFirstIn(txt).isDefined
 
                   if containsType then
                     // Search for the member declaration in this file
+                    // When parameters are specified, we need to be more strict about matching
+                    // When no parameters are specified, check if there's exactly one method with that name
+                    val matches = collection.mutable.ListBuffer[String]()
                     // Look for: class, object, trait, def, val, var, type declarations with the member name
                     // Include optional modifiers like implicit, final, private, protected, override, etc.
                     // Modifiers can appear multiple times and in any order
                     // Also handle access modifiers with brackets like private[collection], protected[This]
                     val memberDeclPattern = raw"""(?m)^\s*(?:implicit|final|private|protected|override|abstract|sealed|lazy|open|transparent|inline|private\[.*?\]|protected\[.*?\]|\s+)*(?:class|object|trait|def|val|var|lazy\s+val|type)\s+%s\b""".format(java.util.regex.Pattern.quote(normalizedMember)).r
-                    memberDeclPattern.findFirstIn(txt).isDefined
+
+                    // Find all matches
+                    memberDeclPattern.findAllMatchIn(txt).foreach { m =>
+                      matches += m.matched
+                    }
+
+                    if matches.isEmpty then
+                      false
+                    else if hasParameters then
+                      // When parameters are specified, check if the full memberName (with parameters) matches
+                      // This is a simplified check - we just verify that the member name is present
+                      // A more thorough check would require parsing the full signature
+                      matches.nonEmpty
+                    else
+                      // When no parameters are specified, check if there's exactly one method with that name
+                      // If there are multiple methods with the same name (overloaded), it's ambiguous
+                      val defCount = matches.count(_.contains("def "))
+                      defCount == 1 || defCount == 0 && matches.nonEmpty
                   else
                     false
                 catch
