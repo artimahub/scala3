@@ -376,9 +376,13 @@ object Parsers {
         else
           val found = in.token
           val statFollows = mustStartStatTokens.contains(found)
+          val extra =
+          if in.isOperator && Tokens.canStartExprTokens3.contains(in.lookahead.token) then
+            " - did you intend to apply an infix operator? If so, wrap the right operand in parentheses or in a block."
+          else ""
           syntaxError(
             if noPrevStat then IllegalStartOfStatement(what, isModifier, statFollows)
-            else em"end of $what expected but ${showToken(found)} found")
+            else em"end of $what expected but ${showToken(found)} found$extra")
           if statFollows then
             stopping // it's a statement that might be legal in an outer context
           else
@@ -2478,8 +2482,12 @@ object Parsers {
 
           val t = expr1(location)
           if in.isArrow then
-            placeholderParams = Nil // don't interpret `_' to the left of `=>` as placeholder
-            wrapPlaceholders(closureRest(start, location, convertToParams(t)))
+            if in.currentRegion.isInstanceOf[Scanners.InCase] && location == Location.InBlock then
+              checkNonParamTuple(t)
+              wrapPlaceholders(t)
+            else
+              placeholderParams = Nil // don't interpret `_' to the left of `=>` as placeholder
+              wrapPlaceholders(closureRest(start, location, convertToParams(t)))
           else if isWildcard(t) then
             placeholderParams = placeholderParams ::: saved
             t
@@ -2654,7 +2662,7 @@ object Parsers {
     /* When parsing (what will become) a sub sub match, that is,
      * when in a guard of case of a match, in a guard of case of a match;
      * we will eventually reach Scanners.handleNewLine at the end of the sub sub match
-     * with an in.currretRegion of the shape `InCase +: Indented :+ InCase :+ Indented :+ ...`
+     * with an in.currentRegion of the shape `InCase +: Indented :+ InCase :+ Indented :+ ...`
      * if we did not do dropInnerCaseRegion.
      * In effect, a single outdent would be inserted by handleNewLine after the sub sub match.
      * This causes the remaining cases of the outer match to be included in the intermediate sub match.
@@ -3218,6 +3226,7 @@ object Parsers {
      */
     def caseClause(exprOnly: Boolean = false): CaseDef = atSpan(in.offset) {
       val (pat, grd) = inSepRegion(InCase) {
+        in.currentRegion.proposeKnownWidth(in.indentWidth(in.offset), CASE)
         accept(CASE)
         (withinMatchPattern(pattern()), guard())
       }
@@ -3245,10 +3254,14 @@ object Parsers {
                           |an indented case.""")
             expr()
           else block()
-        case IF => atSpan(in.skipToken()):
-          // a sub match after a guard is parsed the same as one without
-          val t = inSepRegion(InCase)(postfixExpr(Location.InGuard))
-          t.asSubMatch
+        case IF =>
+          val offset = in.skipToken()
+          atSpan(offset):
+            // a sub match after a guard is parsed the same as one without
+            inSepRegion(InCase):
+              in.currentRegion.proposeKnownWidth(in.indentWidth(offset), IF)
+              postfixExpr(Location.InGuard)
+            .asSubMatch
         case other =>
           // the guard is reinterpreted as a sub-match when there is no leading IF or ARROW token
           val t = grd1.asSubMatch
@@ -3265,6 +3278,7 @@ object Parsers {
      */
     def typeCaseClause(): CaseDef = atSpan(in.offset) {
       val pat = inSepRegion(InCase) {
+        in.currentRegion.proposeKnownWidth(in.indentWidth(in.offset), CASE)
         accept(CASE)
         in.token match {
           case USCORE if in.lookahead.isArrow =>
@@ -4338,14 +4352,12 @@ object Parsers {
 
     /** ClassDef ::= id ClassConstr TemplateOpt
      */
-    def classDef(start: Offset, mods: Modifiers): TypeDef = atSpan(start, nameStart) {
-      classDefRest(start, mods, ident().toTypeName)
-    }
-
-    def classDefRest(start: Offset, mods: Modifiers, name: TypeName): TypeDef =
-      val constr = classConstr(if mods.is(Case) then ParamOwner.CaseClass else ParamOwner.Class)
-      val templ = templateOpt(constr)
-      finalizeDef(TypeDef(name, templ), mods, start)
+    def classDef(start: Offset, mods: Modifiers): TypeDef =
+      atSpan(start, nameStart):
+        val name = ident().toTypeName
+        val constr = classConstr(if mods.is(Case) then ParamOwner.CaseClass else ParamOwner.Class)
+        val templ = templateOpt(constr)
+        finalizeDef(TypeDef(name, templ), mods, start)
 
     /** ClassConstr ::= [ClsTypeParamClause] [ConstrMods] ClsTermParamClauses
      */
@@ -4667,13 +4679,31 @@ object Parsers {
       val meths = new ListBuffer[Tree]
       while
         val start = in.offset
-        if in.token == EXPORT then
-          meths ++= exportClause()
-        else
-          val mods = defAnnotsMods(modifierTokens)
-          if in.token != EOF then
+        val mods = defAnnotsMods(modifierTokens)
+        in.token match
+          case IMPORT =>
+            syntaxError(em"imports are not allowed inside extensions")
+            meths ++= importClause()
+          case EXPORT =>
+            meths ++= exportClause()
+          case VAL =>
+            accept(VAL)
+            val tree = patDefOrDcl(start, mods)
+            meths += tree
+            syntaxError(em"values are not allowed inside extensions", tree.span)
+          case VAR =>
+            accept(VAR)
+            val tree = patDefOrDcl(start, mods) // we don't set the Var modifier here (we don't care)
+            meths += tree
+            syntaxError(em"values are not allowed inside extensions", tree.span)
+          case DEF =>
             accept(DEF)
             meths += defDefOrDcl(start, mods, numLeadParams)
+          case TYPE =>
+            val tree = typeDefOrDcl(start, in.skipToken(mods))
+            meths += tree
+            syntaxError(em"types are not allowed inside extensions", tree.span)
+          case _ =>
         in.token != EOF && statSepOrEnd(meths, what = "extension method")
       do ()
       if meths.isEmpty then syntaxErrorOrIncomplete(em"`def` expected")

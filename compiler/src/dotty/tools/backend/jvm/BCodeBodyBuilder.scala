@@ -3,18 +3,15 @@ package backend
 package jvm
 
 import scala.language.unsafeNulls
-
 import scala.annotation.{switch, tailrec}
 import scala.collection.mutable.SortedMap
-
 import scala.tools.asm
 import scala.tools.asm.{Handle, Opcodes}
 import BCodeHelpers.InvokeStyle
-
 import dotty.tools.dotc.ast.tpd
 import dotty.tools.dotc.CompilationUnit
 import dotty.tools.dotc.core.Constants.*
-import dotty.tools.dotc.core.Flags.{Label => LabelFlag, _}
+import dotty.tools.dotc.core.Flags.{Label as LabelFlag, *}
 import dotty.tools.dotc.core.Types.*
 import dotty.tools.dotc.core.StdNames.{nme, str}
 import dotty.tools.dotc.core.Symbols.*
@@ -27,9 +24,9 @@ import dotty.tools.dotc.core.Names.*
 import dotty.tools.dotc.report
 import dotty.tools.dotc.ast.Trees.SyntheticUnit
 import dotty.tools.dotc.ast.Positioned
-
 import tpd.*
 import DottyBackendInterface.symExtensions
+import dotty.tools.dotc.util.SrcPos
 
 /*
  *
@@ -457,12 +454,12 @@ trait BCodeBodyBuilder(val primitives: DottyPrimitives)(using ctx: Context) exte
             else locals.load(sym)
           }
 
-        case Literal(value) =>
+        case l @ Literal(value) =>
           if (value.tag != UnitTag) (value.tag, expectedType) match {
             case (IntTag,   LONG  ) => bc.lconst(value.longValue);       generatedType = LONG
             case (FloatTag, DOUBLE) => bc.dconst(value.doubleValue);     generatedType = DOUBLE
             case (NullTag,  _     ) => bc.emit(asm.Opcodes.ACONST_NULL); generatedType = ts.srNullRef
-            case _                  => genConstant(value);               generatedType = tpeTK(tree)
+            case _                  => genConstant(value, l.srcPos);     generatedType = tpeTK(tree)
           }
 
         case blck @ Block(stats, expr) =>
@@ -570,8 +567,8 @@ trait BCodeBodyBuilder(val primitives: DottyPrimitives)(using ctx: Context) exte
      *   must-single-thread
      * Otherwise it's safe to call from multiple threads.
      */
-    def genConstant(const: Constant): Unit = {
-      (const.tag/*: @switch*/) match {
+    private def genConstant(const: Constant, pos: SrcPos): Unit = {
+      (const.tag: @switch) match {
 
         case BooleanTag => bc.boolconst(const.booleanValue)
 
@@ -588,7 +585,10 @@ trait BCodeBodyBuilder(val primitives: DottyPrimitives)(using ctx: Context) exte
 
         case StringTag  =>
           assert(const.value != null, const) // TODO this invariant isn't documented in `case class Constant`
-          mnode.visitLdcInsn(const.stringValue) // `stringValue` special-cases null, but not for a const with StringTag
+          if BCodeUtils.checkConstantStringLength(const.stringValue) then
+            mnode.visitLdcInsn(const.stringValue) // `stringValue` special-cases null, but not for a const with StringTag
+          else
+            report.error("String constant is too long for the JVM", pos)
 
         case NullTag    => emit(asm.Opcodes.ACONST_NULL)
 
@@ -603,7 +603,11 @@ trait BCodeBodyBuilder(val primitives: DottyPrimitives)(using ctx: Context) exte
               ts.jlClassRef.descriptor
             )
           else
-            mnode.visitLdcInsn(tp.toASMType)
+            val toASM = tp.toASMType
+            if BCodeUtils.checkConstantStringLength(toASM.getInternalName) then
+              mnode.visitLdcInsn(toASM)
+            else
+              report.error("Type name is too long for the JVM", pos)
 
         case _ => abort(s"Unknown constant value: $const")
       }
@@ -774,7 +778,7 @@ trait BCodeBodyBuilder(val primitives: DottyPrimitives)(using ctx: Context) exte
             if (t.symbol ne defn.Object_synchronized) genTypeApply(t)
             else genSynchronized(app, expectedType)
 
-        case Apply(fun @ DesugaredSelect(Super(superQual, _), _), args) =>
+        case Apply(fun @ DesugaredSelect(superRef @ Super(superQual, _), _), args) =>
           // 'super' call: Note: since constructors are supposed to
           // return an instance of what they construct, we have to take
           // special care. On JVM they are 'void', and Scala forbids (syntactically)
@@ -787,7 +791,20 @@ trait BCodeBodyBuilder(val primitives: DottyPrimitives)(using ctx: Context) exte
           stack.push(superQualTK)
           genLoadArguments(args, paramTKs(app))
           stack.pop()
-          generatedType = genCallMethod(fun.symbol, InvokeStyle.Super, app.span)
+          // The receiver in bytecode should be based on the call site qualifier type,
+          // instead of method declaration owner class
+          // (`fun.symbol.owner`, which is default receiver type in `genCallMethod`).
+          // This avoids IllegalAccessError when the declaration owner is less accessible than the
+          // direct superclass (see https://github.com/scala/scala3/issues/22628).
+          val specificReceiver = superRef.tpe.dealias match {
+            case superType: SuperType =>
+              val sym = superType.supertpe.typeSymbol
+              if (sym.isClass && !isEmittedInterface(sym)) sym
+              else null
+            case _ =>
+              null
+          }
+          generatedType = genCallMethod(fun.symbol, InvokeStyle.Super, app.span, specificReceiver)
 
         // 'new' constructor call: Note: since constructors are
         // thought to return an instance of what they construct,
@@ -1391,7 +1408,7 @@ trait BCodeBodyBuilder(val primitives: DottyPrimitives)(using ctx: Context) exte
     /**
      * Generate a method invocation. If `specificReceiver != null`, it is used as receiver in the
      * invocation instruction, otherwise `method.owner`. A specific receiver class is needed to
-     * prevent an IllegalAccessError, (aladdin bug 455).
+     * prevent IllegalAccessError in some virtual and super calls (aladdin bug 455, i22628).
      */
     def genCallMethod(method: Symbol, style: InvokeStyle, pos: Span = NoSpan, specificReceiver: Symbol = null): BType = {
       val methodOwner = method.owner
@@ -1399,7 +1416,7 @@ trait BCodeBodyBuilder(val primitives: DottyPrimitives)(using ctx: Context) exte
       // the class used in the invocation's method descriptor in the classfile
       val receiverClass = {
         if (specificReceiver != null)
-          assert(style.isVirtual || specificReceiver == methodOwner, s"specificReceiver can only be specified for virtual calls. $method - $specificReceiver")
+          assert(style.isVirtual || style.isSuper || specificReceiver == methodOwner, s"specificReceiver can only be specified for virtual and super calls. $method - $specificReceiver")
 
         val useSpecificReceiver = specificReceiver != null && !defn.isBottomClass(specificReceiver) && !method.isScalaStatic
         val receiver = if (useSpecificReceiver) specificReceiver else methodOwner

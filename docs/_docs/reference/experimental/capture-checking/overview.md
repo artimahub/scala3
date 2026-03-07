@@ -14,7 +14,7 @@ For a more systematic description of all the details we refer you to the followi
  - [Capture Checking Basics](./basics.md): Getting started with capture checking.
  - [Capture Checking of Classes](./classes.md): Rules for capture checking classes and objects.
  - [Capability Polymorphism](./polymorphism.md): Subtyping of capturing types and capture set variables.
- - [Scoping of Capabilities](./scoped-caps.md): Scoping of `any` and `fresh` capabilities.
+ - [Scoping of Capabilities](./scoped-capabilities.md): Scoping of `any` and `fresh` capabilities.
  - [Capability Classifiers](./classifiers.md): Classifiers for capabilities and projection with the `.only[...]` operator.
  - [Checked Exceptions](./checked-exceptions.md): `CanThrow` capabilities and `throws` clauses.
  - [Stateful Capabilities](./mutability.md): Capabilities for mutable data structures.
@@ -208,8 +208,12 @@ object Console {
 }
 ```
 Here, `in`, and `out` are of type `File`, so `Console.in`, and `Console.out` are global capabilities. A function `() => Console.out.println("hi")` would have type
-`() ->{Console.out} Unit`. It could not be passed into a context expecting a pure function.
-
+`() ->{Console.out} Unit`. It could not be passed into a context expecting a pure function. A global object that refers to `Console` needs to declare that dependency in a `uses` clause.
+```scala sc:nocompile
+object SimpleLogger uses Console {
+  def log(str: String) = Console.out.println(str)
+}
+```
 Allowing global capabilities like `Console.out` is quite useful since it means that we don't need to fundamentally change a system's architecture to make it capability-safe. In traditional capability systems all capabilities provided by the host system have to be passed as parameters into the main entry point and from there to all functions that need access. This usually requires a global refactoring of the code base and can lead to more complex code.
 
 ### Summary

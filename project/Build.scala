@@ -11,8 +11,6 @@ import sbt.nio.Keys.*
 import complete.DefaultParsers._
 import pl.project13.scala.sbt.JmhPlugin
 import pl.project13.scala.sbt.JmhPlugin.JmhKeys.Jmh
-import com.gradle.develocity.agent.sbt.DevelocityPlugin.autoImport._
-import com.gradle.develocity.agent.sbt.api.experimental.buildcache
 import com.typesafe.sbt.packager.Keys._
 import com.typesafe.sbt.packager.MappingsHelper.directory
 import com.typesafe.sbt.packager.universal.UniversalPlugin
@@ -60,7 +58,7 @@ object Build {
    *
    *  Warning: Change of this variable needs to be consulted with `expectedTastyVersion`
    */
-  val referenceVersion = "3.8.2-RC3"
+  val referenceVersion = "3.8.3-RC1"
 
   /** Version of the Scala compiler targeted in the current release cycle
    *  Contains a version without RC/SNAPSHOT/NIGHTLY specific suffixes
@@ -138,7 +136,7 @@ object Build {
   val mimaPreviousDottyVersion = "3.8.0"
 
   /** Version of Scala CLI to download */
-  val scalaCliLauncherVersion = "1.12.2"
+  val scalaCliLauncherVersion = "1.12.4"
   /** Version of Coursier to download for initializing the local maven repo of Scala command */
   val coursierJarVersion = "2.1.25-M23"
 
@@ -172,8 +170,6 @@ object Build {
   val ideTestsDependencyClasspath = taskKey[Seq[File]]("Dependency classpath to use in IDE tests")
 
   val fetchScalaJSSource = taskKey[File]("Fetch the sources of Scala.js")
-
-  val extraDevelocityCacheInputFiles = taskKey[Seq[Path]]("Extra input files for caching")
 
   lazy val SourceDeps = config("sourcedeps")
 
@@ -213,54 +209,6 @@ object Build {
 
     // enable verbose exception messages for JUnit
     (Test / testOptions) += Tests.Argument(TestFrameworks.JUnit, "-a", "-v", "-s"),
-
-    // Configuration to publish build scans to develocity.scala-lang.org
-    develocityConfiguration := {
-      val isInsideCI = insideCI.value
-      val config = develocityConfiguration.value
-      val buildScan = config.buildScan
-      val buildCache = config.buildCache
-      // disable test retry on compilation test classes
-      val noRetryTestClasses = Set(
-        "dotty.tools.dotc.BestEffortOptionsTests",
-        "dotty.tools.dotc.CompilationTests",
-        "dotty.tools.dotc.FromTastyTests",
-        "dotty.tools.dotc.IdempotencyTests",
-        "dotty.tools.dotc.ScalaJSCompilationTests",
-        "dotty.tools.dotc.TastyBootstrapTests",
-        "dotty.tools.dotc.coverage.CoverageTests",
-        "dotty.tools.dotc.transform.PatmatExhaustivityTest",
-        "dotty.tools.repl.ScriptedTests"
-      )
-      config
-        .withProjectId(ProjectId("scala3"))
-        .withServer(config.server.withUrl(Some(url("https://develocity.scala-lang.org"))))
-        .withBuildScan({
-          val scan = buildScan
-            .withPublishing(Publishing.onlyIf(_.authenticated))
-            .withBackgroundUpload(!isInsideCI)
-            .withObfuscation(buildScan.obfuscation.withIpAddresses(_.map(_ => "0.0.0.0")))
-          if (isNightly) scan.withTag("NIGHTLY") else scan
-        })
-        .withBuildCache(
-          buildCache
-            .withLocal(buildCache.local.withEnabled(false).withStoreEnabled(false))
-            .withRemote(buildCache.remote.withEnabled(false).withStoreEnabled(false))
-            .withRequireClean(!isInsideCI)
-        )
-        .withTestRetry(
-          config.testRetry
-            .withFlakyTestPolicy(FlakyTestPolicy.Fail)
-            .withMaxRetries(if (isInsideCI) 1 else 0)
-            .withMaxFailures(10)
-            .withClassesFilter((className, _) => !noRetryTestClasses.contains(className))
-        )
-    },
-    // Deactivate Develocity's test caching because it caches all tests or nothing.
-    // Also at the moment, it does not take compilation files as inputs.
-    Test / develocityBuildCacheClient := None,
-    extraDevelocityCacheInputFiles := Seq.empty,
-    extraDevelocityCacheInputFiles / outputFileStamper := FileStamper.Hash,
   )
 
   // Settings shared globally (scoped in Global). Used in build.sbt
@@ -332,16 +280,6 @@ object Build {
       Package.ManifestAttributes(
         "Automatic-Module-Name" -> s"${dottyOrganization.replaceAll("-",".")}.${moduleName.value.replaceAll("-",".")}"
       ),
-
-    // add extraDevelocityCacheInputFiles in cache key components
-    Compile / compile / buildcache.develocityTaskCacheKeyComponents +=
-      (Compile / extraDevelocityCacheInputFiles / outputFileStamps).taskValue,
-    Test / test / buildcache.develocityTaskCacheKeyComponents +=
-      (Test / extraDevelocityCacheInputFiles / outputFileStamps).taskValue,
-    Test / testOnly / buildcache.develocityInputTaskCacheKeyComponents +=
-      (Test / extraDevelocityCacheInputFiles / outputFileStamps).taskValue,
-    Test / testQuick / buildcache.develocityInputTaskCacheKeyComponents +=
-      (Test / extraDevelocityCacheInputFiles / outputFileStamps).taskValue
   )
 
   // Settings used for projects compiled only with Java
@@ -582,9 +520,6 @@ object Build {
         scalaInstanceTopLoader.value
       )
     },
-    // force recompilation of bootstrapped modules when the compiler changes
-    Compile / extraDevelocityCacheInputFiles ++=
-      (`scala3-compiler-nonbootstrapped` / Compile / fullClasspathAsJars).value.map(_.data.toPath)
   ) ++ scaladocDerivedInstanceSettings
 
   /*lazy val commonBenchmarkSettings = Seq(
@@ -1115,6 +1050,9 @@ object Build {
           s"-Ddotty.tests.classes.jlineReader=${findArtifactPath(externalDeps, "jline-reader")}",
           s"-Ddotty.tests.classes.dottyStaging=${(LocalProject("scala3-staging") / Compile / packageBin).value}",
           s"-Ddotty.tests.classes.dottyTastyInspector=${(LocalProject("scala3-tasty-inspector") / Compile / packageBin).value}",
+          s"-Ddotty.tests.classes.pprint=${findArtifactPath(externalDeps, "pprint_3")}",
+          s"-Ddotty.tests.classes.fansi=${findArtifactPath(externalDeps, "fansi_3")}",
+          s"-Ddotty.tests.classes.sourcecode=${findArtifactPath(externalDeps, "sourcecode_3")}",
           s"-Ddotty.tools.dotc.semanticdb.test=${(ThisBuild / baseDirectory).value/"tests"/"semanticdb"}",
         )
       },
@@ -1127,7 +1065,7 @@ object Build {
         // with it as a parameter. THIS IS NOT A LEGIT USE CASE OF THE `-usejavacp` FLAG.
         (Compile / run).partialInput(" -usejavacp").evaluated
       },
-      bspEnabled := false,
+      bspEnabled := enableBspAllProjects,
     )
 
   // ==============================================================================================
@@ -1179,8 +1117,9 @@ object Build {
       crossPaths    := false, // org.scala-lang:scala-library doesn't have a crosspath
       autoScalaLibrary := false, // do not add a dependency to stdlib
       // Add the source directories for the stdlib (non-boostrapped)
-      Compile / unmanagedSourceDirectories := Seq(baseDirectory.value / "src"),
-      Compile / unmanagedSourceDirectories += baseDirectory.value / "src-non-bootstrapped",
+      Compile / unmanagedSourceDirectories   := Seq(baseDirectory.value / "src"),
+      Compile / unmanagedSourceDirectories   += baseDirectory.value / "src-non-bootstrapped",
+      Compile / unmanagedResourceDirectories := Seq(baseDirectory.value / "resources"),
       Compile / compile / scalacOptions ++= Seq(
         // Needed so that the library sources are visible when `dotty.tools.dotc.core.Definitions#init` is called
         "-sourcepath", (Compile / sourceDirectories).value.map(_.getCanonicalPath).distinct.mkString(File.pathSeparator),
@@ -1199,6 +1138,21 @@ object Build {
       // Generate library.properties, used by scala.util.Properties
       Compile / resourceGenerators += generateLibraryProperties.taskValue,
       Compile / mainClass := None,
+
+      Test / unmanagedSourceDirectories   := Seq(baseDirectory.value / "test"),
+      Test / unmanagedResourceDirectories := Seq(baseDirectory.value / "test-resources"),
+      libraryDependencies ++= Seq(
+        "com.github.sbt" % "junit-interface" % "0.13.3" % Test,
+      ),
+      // We do not want to list any dependency for the stdlib
+      pomPostProcess := { (node: XmlNode) =>
+        new RuleTransformer(new RewriteRule {
+          override def transform(node: XmlNode): XmlNodeSeq = node match {
+            case e: Elem if e.label == "dependencies" => XmlNodeSeq.Empty
+            case _ => node
+          }
+        }).transform(node).head
+      },
     )
 
   /* Configuration of the org.scala-lang:scala3-library_3:*.**.**-nonbootstrapped project */
@@ -1246,8 +1200,9 @@ object Build {
       crossPaths    := false, // org.scala-lang:scala-library doesn't have a crosspath
       autoScalaLibrary     := false, // DO NOT DEPEND ON THE STDLIB, IT IS THE STDLIB
       // Add the source directories for the stdlib (non-boostrapped)
-      Compile / unmanagedSourceDirectories := Seq(baseDirectory.value / "src"),
-      Compile / unmanagedSourceDirectories += baseDirectory.value / "src-bootstrapped",
+      Compile / unmanagedSourceDirectories   := Seq(baseDirectory.value / "src"),
+      Compile / unmanagedSourceDirectories   += baseDirectory.value / "src-bootstrapped",
+      Compile / unmanagedResourceDirectories := Seq(baseDirectory.value / "resources"),
       Compile / compile / scalacOptions ++= Seq(
         // Needed so that the library sources are visible when `dotty.tools.dotc.core.Definitions#init` is called
         "-sourcepath", (Compile / sourceDirectories).value.map(_.getCanonicalPath).distinct.mkString(File.pathSeparator),
@@ -1269,6 +1224,21 @@ object Build {
       Compile / resourceGenerators += generateLibraryProperties.taskValue,
       bspEnabled := enableBspAllProjects,
       Compile / mainClass := None,
+
+      Test / unmanagedSourceDirectories   := Seq(baseDirectory.value / "test"),
+      Test / unmanagedResourceDirectories := Seq(baseDirectory.value / "test-resources"),
+      libraryDependencies ++= Seq(
+        "com.github.sbt" % "junit-interface" % "0.13.3" % Test,
+      ),
+      // We do not want to list any dependency for the stdlib
+      pomPostProcess := { (node: XmlNode) =>
+        new RuleTransformer(new RewriteRule {
+          override def transform(node: XmlNode): XmlNodeSeq = node match {
+            case e: Elem if e.label == "dependencies" => XmlNodeSeq.Empty
+            case _ => node
+          }
+        }).transform(node).head
+      },
     )
 
   /* Configuration of the org.scala-lang:scala3-library_3:*.**.**-bootstrapped project */
@@ -2027,9 +1997,11 @@ object Build {
             )))
             .add(GenerateAPI(false))
             .add(SnippetCompiler(List(
+              s"${docs.getAbsolutePath}/_docs/reference/enums=compile",
               s"$ccDocs=compile|-language:experimental.captureChecking",
               s"$ccDocs/separation-checking=compile|-language:experimental.captureChecking|-language:experimental.separationChecking",
               s"$ccDocs/mutability=compile|-language:experimental.captureChecking|-language:experimental.separationChecking",
+              s"$ccDocs/safe=compile|-language:experimental.safe",
             )))
         }
 
@@ -2051,7 +2023,7 @@ object Build {
 
   lazy val `scala3-presentation-compiler` = project.in(file("presentation-compiler"))
     .settings(commonBootstrappedSettings)
-    .dependsOn(`scala3-compiler-bootstrapped`, `scala3-library-bootstrapped`, `scala3-presentation-compiler-testcases` % "test->test")
+    .dependsOn(`scala3-compiler-bootstrapped` % "compile->compile;test->test", `scala3-library-bootstrapped`, `scala3-presentation-compiler-testcases` % "test->test")
     .settings(presentationCompilerSettings)
     .settings(scala3PresentationCompilerBuildInfo)
 
@@ -2308,10 +2280,15 @@ object Build {
 
         val isWebAssembly = linkerConfig.experimentalUseWebAssembly
 
+        val b = List.newBuilder[File]
+
         if (linkerConfig.moduleKind != ModuleKind.NoModule && !linkerConfig.closureCompiler && !isWebAssembly)
-          Seq(baseDirectory.value / "test-require-multi-modules")
-        else
-          Nil
+          b += baseDirectory.value / "test-require-multi-modules"
+
+        if (linkerConfig.esFeatures.esVersion >= ESVersion.ES2017)
+          b += baseDirectory.value / "test-require-async-await"
+
+        b.result()
       },
 
       (Compile / managedSources) ++= {
@@ -2866,7 +2843,7 @@ object ScaladocConfigs {
   private lazy val currentYear: String = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR).toString
 
   def dottyExternalMapping = ".*scala/.*::scaladoc3::https://nightly.scala-lang.org/api/"
-  def javaExternalMapping = ".*java/.*::javadoc::https://docs.oracle.com/en/java/javase/17/docs/api/"
+  def javaExternalMapping = ".*java/.*::javadoc::https://docs.oracle.com/en/java/javase/17/docs/api/java.base/"
   def defaultSourceLinks(version: String, allowGitSHA: Boolean = true) = {
     def dottySrcLink(v: String) = sys.env.get("GITHUB_SHA") match {
       case Some(sha) if allowGitSHA => s"github://scala/scala3/$sha"
@@ -2943,6 +2920,13 @@ object ScaladocConfigs {
       .withTargets(tastyRoots)
   }
 
+  def snippetCompilerTargets(dottyLibSrc:String) = List(
+    s"$dottyLibSrc/scala=compile",
+    s"$dottyLibSrc/scala/quoted=compile",
+    s"$dottyLibSrc/scala/compiletime=compile",
+    s"$dottyLibSrc/scala/util=compile",
+    s"$dottyLibSrc/scala/util/control=compile",
+  )
   lazy val Scala3 = Def.task {
     val stdlib = { // relative path to the stdlib directory ('library/')
       val projectRoot = (ThisBuild/baseDirectory).value.toPath
@@ -2955,22 +2939,20 @@ object ScaladocConfigs {
       .add(OutputDir(file("scaladoc/output/scala3").getAbsoluteFile.getAbsolutePath))
       .add(Revision("main"))
       .add(ExternalMappings(List(javaExternalMapping)))
-      .add(DocRootContent((stdlib / "src" / "rootdoc.txt").toString))
+      .add(DocRootContent((stdlib / "resources" / "rootdoc.txt").toString))
       .add(CommentSyntax(List(
         // Markdown syntax is used by default for all sources
         "markdown"
       )))
       .add(VersionsDictionaryUrl("https://scala-lang.org/api/versions.json"))
       .add(DocumentSyntheticTypes(true))
-      .add(SnippetCompiler(List(
-        s"$stdlib/src/scala/compiletime=compile",
-        s"$stdlib/src/scala/quoted=compile",
-        s"$stdlib/src/scala/util/control=compile",
-        s"$stdlib/src/scala/util=compile",
-        s"$stdlib/src/scala=compile",
+      .add(SnippetCompiler(
+        snippetCompilerTargets(s"$stdlib/src") ++ List(
+        "docs/_docs/reference/enums=compile",
         "docs/_docs/reference/experimental/capture-checking=compile|-language:experimental.captureChecking",
         "docs/_docs/reference/experimental/capture-checking/separation-checking=compile|-language:experimental.captureChecking|-language:experimental.separationChecking",
         "docs/_docs/reference/experimental/capture-checking/mutability=compile|-language:experimental.captureChecking|-language:experimental.separationChecking",
+        "docs/_docs/reference/experimental/capture-checking/safe=compile|-language:experimental.safe",
       )))
       .add(SiteRoot("docs"))
       .add(ApiSubdirectory(true))

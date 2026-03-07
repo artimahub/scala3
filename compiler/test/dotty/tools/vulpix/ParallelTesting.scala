@@ -24,10 +24,11 @@ import scala.util.matching.Regex
 import scala.collection.mutable.ListBuffer
 
 import dotc.{Compiler, Driver}
+import dotty.tools.dotc.CoverageSupport
 import dotc.core.Contexts.*
 import dotc.decompiler
 import dotc.report
-import dotc.interfaces.Diagnostic.ERROR
+import dotc.interfaces.Diagnostic.{ERROR, WARNING}
 import dotc.reporting.{Reporter, TestReporter}
 import dotc.reporting.Diagnostic
 import dotc.config.Config
@@ -41,7 +42,7 @@ import dotty.tools.vulpix.TestConfiguration.defaultOptions
  *  using this, you should be running your JUnit tests **sequentially**, as the
  *  test suite itself runs with a high level of concurrency.
  */
-trait ParallelTesting extends RunnerOrchestration:
+trait ParallelTesting extends RunnerOrchestration with CoverageSupport:
   import ParallelTesting.*
 
   /** If the running environment supports an interactive terminal, each `Test`
@@ -793,7 +794,7 @@ trait ParallelTesting extends RunnerOrchestration:
   private final class PosTest(testSources: List[TestSource], times: Int, threadLimit: Option[Int], suppressAllOutput: Boolean)(implicit summaryReport: SummaryReporting)
   extends Test(testSources, times, threadLimit, suppressAllOutput)
 
-  private final class WarnTest(testSources: List[TestSource], times: Int, threadLimit: Option[Int], suppressAllOutput: Boolean)(implicit summaryReport: SummaryReporting)
+  protected class WarnTest(testSources: List[TestSource], times: Int, threadLimit: Option[Int], suppressAllOutput: Boolean)(implicit summaryReport: SummaryReporting)
   extends Test(testSources, times, threadLimit, suppressAllOutput):
     override def suppressErrors = true
     override def onSuccess(testSource: TestSource, reporters: Seq[TestReporter], logger: LoggedRunnable): Unit =
@@ -802,8 +803,8 @@ trait ParallelTesting extends RunnerOrchestration:
     override def maybeFailureMessage(testSource: TestSource, reporters: Seq[TestReporter]): Option[String] =
       lazy val (expected, expCount) = getWarnMapAndExpectedCount(testSource.sourceFiles.toIndexedSeq)
       lazy val obtCount = reporters.foldLeft(0)(_ + _.warningCount)
-      lazy val (unfulfilled, unexpected) = getMissingExpectedWarnings(expected, diagnostics.iterator)
       lazy val diagnostics = reporters.flatMap(_.diagnostics.toSeq.sortBy(_.pos.line))
+      lazy val (unfulfilled, unexpected) = getMissingExpectedWarnings(expected, diagnostics.iterator.filter(_.level >= WARNING))
       lazy val messages = diagnostics.map(d => s" at ${d.pos.line + 1}: ${d.message}")
       def showLines(title: String, lines: Seq[String]) = if lines.isEmpty then "" else lines.mkString(s"$title\n", "\n", "")
       def hasMissingAnnotations = unfulfilled.nonEmpty || unexpected.nonEmpty
@@ -874,7 +875,7 @@ trait ParallelTesting extends RunnerOrchestration:
     end getMissingExpectedWarnings
   end WarnTest
 
-  private final class RewriteTest(testSources: List[TestSource], checkFiles: Map[JFile, JFile], times: Int, threadLimit: Option[Int], suppressAllOutput: Boolean)(implicit summaryReport: SummaryReporting)
+  protected class RewriteTest(testSources: List[TestSource], checkFiles: Map[JFile, JFile], times: Int, threadLimit: Option[Int], suppressAllOutput: Boolean)(implicit summaryReport: SummaryReporting)
   extends Test(testSources, times, threadLimit, suppressAllOutput) {
     private def verifyOutput(testSource: TestSource, reporters: Seq[TestReporter], logger: LoggedRunnable) = {
       testSource.sourceFiles.foreach { file =>
@@ -961,7 +962,12 @@ trait ParallelTesting extends RunnerOrchestration:
               |${unexpected.mkString("Unexpected errors:\n", "\n", "")}
               |$showErrors
               |""".stripMargin.trim.linesIterator.mkString("\n", "\n", "")
-        else if hasMissingAnnotations then s"\nErrors found on incorrect row numbers when compiling $testSource\n$showErrors"
+        else if hasMissingAnnotations then
+          s"""|Errors found on incorrect row numbers when compiling $testSource
+              |$showErrors
+              |${expected.mkString("Unfulfilled expectations:\n", "\n", "")}
+              |${unexpected.mkString("Unexpected errors:\n", "\n", "")}
+              |""".stripMargin.trim.linesIterator.mkString("\n", "\n", "")
         else if !errorMap.isEmpty then s"\nExpected error(s) have {<error position>=<unreported error>}: $errorMap"
         else null
       }
@@ -1263,7 +1269,11 @@ trait ParallelTesting extends RunnerOrchestration:
           target.copy(dir = copyToDir(outDir, dir))
       }
 
-      val test = new RewriteTest(copiedTargets, checkFileMap, times, threadLimit, shouldFail || shouldSuppressOutput)
+      val test =
+        if dotty.Properties.testsInstrumentCoverage then
+          new RewriteTestWithCoverage(copiedTargets, checkFileMap, times, threadLimit, shouldFail || shouldSuppressOutput)
+        else
+          new RewriteTest(copiedTargets, checkFileMap, times, threadLimit, shouldFail || shouldSuppressOutput)
 
       checkFail(test, "Rewrite")
     }
