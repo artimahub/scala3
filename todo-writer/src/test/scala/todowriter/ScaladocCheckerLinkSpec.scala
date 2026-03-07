@@ -975,3 +975,46 @@ def foo(): Unit = ()
       try Files.deleteIfExists(concurrentDir) catch case _: Throwable => ()
       try Files.deleteIfExists(tempDir) catch case _: Throwable => ()
   }
+
+  it should "resolve Duration$.apply(s:String)* wikidoc link reference" in {
+    val tempDir = Files.createTempDirectory("todowriter-link-test")
+    val durationDir = tempDir.resolve("scala/concurrent/duration")
+    try
+      Files.createDirectories(durationDir)
+
+      // Create Duration.scala with an apply method that takes a String
+      val durationContent = """package scala.concurrent.duration
+
+object Duration {
+  /** Creates a Duration from a string.
+   *
+   *  @param s the string representation
+   *  @return the duration
+   */
+  def apply(s: String): Duration = ???
+}
+
+trait Duration
+"""
+      Files.writeString(durationDir.resolve("Duration.scala"), durationContent)
+
+      // Create a test file that references Duration$.apply(s:String)*
+      // Note: The * in wikidoc is just part of the display text, not a varargs marker
+      val testFile = durationDir.resolve("Test.scala")
+      Files.writeString(testFile, """package scala.concurrent.duration
+
+/** See [[Duration$.apply(s:String)* apply(String)]] */
+def foo(): Unit = ()
+""")
+
+      ScaladocChecker.clearCaches()
+      val broken = ScaladocChecker.findBrokenLinks(tempDir)
+      val urls = broken.map(_._3)
+
+      // The wikidoc link "Duration$.apply(s:String)*" should be resolved and NOT reported as broken
+      urls should not contain ("Duration$.apply(s:String)*")
+    finally
+      try Files.list(durationDir).forEach(p => try Files.deleteIfExists(p) catch case _: Throwable => ()) catch case _: Throwable => ()
+      try Files.deleteIfExists(durationDir) catch case _: Throwable => ()
+      try Files.deleteIfExists(tempDir) catch case _: Throwable => ()
+  }

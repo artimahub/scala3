@@ -557,6 +557,11 @@ object ScaladocChecker:
                 // The symbol/URL is the part before the first space
                 val spaceIdx = content.indexOf(' ')
                 var symbolOrUrl = if spaceIdx > 0 then content.substring(0, spaceIdx) else content
+                // In wikidoc format, when a symbol includes a parameter list, the format is:
+                // [[symbol* display text]] where '*' is a delimiter between the symbol and display text
+                // Strip the trailing '*' if it appears right before a space
+                if symbolOrUrl.endsWith("*") then
+                  symbolOrUrl = symbolOrUrl.substring(0, symbolOrUrl.length - 1)
                 // Unescape backslash-dot sequences (e.g., scala\.collection\.mutable -> scala.collection.mutable)
                 symbolOrUrl = symbolOrUrl.replace("\\.", ".")
                 out += ((symbolOrUrl, start))
@@ -862,11 +867,21 @@ object ScaladocChecker:
               // Find the source file for the containing type
               val files = findScalaFiles(root)
               val pkgPattern = raw"""(?m)^\s*package\s+([^\s;\n]+)""".r
-              val typeName = containingType.split('.').last
+
+              // In Scaladoc wikidoc syntax, Type$.method refers to a method in the companion object of Type
+              // Strip the trailing '$' from the type name when searching for the declaration
+              val isCompanionObjectRef = containingType.endsWith("$")
+              val baseType = if isCompanionObjectRef then containingType.substring(0, containingType.length - 1) else containingType
+              val typeName = baseType.split('.').last
+
               // Include optional modifiers like implicit, final, private, protected, override, etc.
               // Modifiers can appear multiple times and in any order
               // Also handle access modifiers with brackets like private[collection], protected[This]
-              val typeDeclPattern = raw"""(?m)^\s*(?:implicit|final|private|protected|override|abstract|sealed|lazy|open|transparent|inline|private\[.*?\]|protected\[.*?\]|\s+)*(?:class|object|trait|type|case\s+class)\s+%s\b""".format(java.util.regex.Pattern.quote(typeName)).r
+              // For companion object references, we specifically look for 'object' declarations
+              val typeDeclPattern = if isCompanionObjectRef then
+                raw"""(?m)^\s*(?:implicit|final|private|protected|override|abstract|sealed|lazy|open|transparent|inline|private\[.*?\]|protected\[.*?\]|\s+)*object\s+%s\b""".format(java.util.regex.Pattern.quote(typeName)).r
+              else
+                raw"""(?m)^\s*(?:implicit|final|private|protected|override|abstract|sealed|lazy|open|transparent|inline|private\[.*?\]|protected\[.*?\]|\s+)*(?:class|object|trait|type|case\s+class)\s+%s\b""".format(java.util.regex.Pattern.quote(typeName)).r
 
               files.exists { file =>
                 try
@@ -875,9 +890,10 @@ object ScaladocChecker:
                   val pkgOpt = getPackageName(file)
 
                   // Check if this file declares the containing type
-                  val containsType = if containingType.contains('.') then
+                  val containsType = if baseType.contains('.') then
                     // Fully qualified: check if package matches
-                    pkgOpt.exists(pkg => pkg + "." + typeName == containingType) && typeDeclPattern.findFirstIn(txt).isDefined
+                    // For companion object references, compare against the base type (without $)
+                    pkgOpt.exists(pkg => pkg + "." + typeName == baseType) && typeDeclPattern.findFirstIn(txt).isDefined
                   else
                     // Unqualified: just check if the type is declared in this file
                     typeDeclPattern.findFirstIn(txt).isDefined
