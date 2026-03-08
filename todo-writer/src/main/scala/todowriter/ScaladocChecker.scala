@@ -730,43 +730,96 @@ object ScaladocChecker:
           val unescaped = u.replace("\\.", ".")
           // Convert # to . for Scaladoc member references (e.g., scala.Option#flatten -> scala.Option.flatten)
           val withDotForHash = unescaped.replace("#", ".")
-          val normalized = normalizeSymbol(withDotForHash)
 
           // Extract parameter specification if present (handles unclosed paren too).
-          val paramPattern = "\\(([^)]*)\\)".r
-          val unclosedParamPattern = "\\(([^)]*)$".r
+          // Extract parameter specification by finding the outermost pair of parentheses
+          // This handles nested parentheses correctly, e.g., for (Int,String)=>Boolean
           val paramSpecOpt: Option[String] =
-            paramPattern.findFirstMatchIn(withDotForHash).map(_.group(1)).orElse(unclosedParamPattern.findFirstMatchIn(withDotForHash).map(_.group(1)))
+            val openParenIdx = withDotForHash.indexOf('(')
+            if openParenIdx < 0 then None
+            else
+              var depth = 1
+              var closeParenIdx = openParenIdx + 1
+              var found = false
+              while closeParenIdx < withDotForHash.length && !found do
+                withDotForHash.charAt(closeParenIdx) match
+                  case '(' => depth += 1
+                  case ')' =>
+                    depth -= 1
+                    if depth == 0 then found = true
+                  case _ => ()
+                closeParenIdx += 1
+              if found then
+                Some(withDotForHash.substring(openParenIdx + 1, closeParenIdx - 1))
+              else
+                // Unclosed parenthesis - return everything after the opening parenthesis
+                Some(withDotForHash.substring(openParenIdx + 1))
+
+          // Extract the base symbol (without parameter list) for validation
+          // If there's a parameter specification, remove it to get the base symbol
+          val baseSymbolForValidation = paramSpecOpt match
+            case Some(paramSpec) =>
+              // Remove the parameter list from the symbol
+              // For "TestClass.forall(p:(Int,String)=>Boolean)", we want "TestClass.forall"
+              val openParenIdx = withDotForHash.indexOf('(')
+              if openParenIdx >= 0 then
+                withDotForHash.substring(0, openParenIdx)
+              else
+                withDotForHash
+            case None =>
+              // No parameter list, use the full symbol
+              withDotForHash
+
+          // Normalize the base symbol (remove generics) for validation
+          val normalized = normalizeSymbol(baseSymbolForValidation)
 
           // Extract and validate types in parameter lists
           // For example, from "(i:Iterato[A], j:List[B])" extract ["Iterato[A]", "List[B]"]
           def extractTypesFromParams(paramSpec: String): List[String] =
             // Split by comma, but only at commas that are outside brackets [...] and parentheses (...)
+            // Also handle function types like (A,B)=>C correctly
             var result = List[String]()
             var currentParam = new StringBuilder()
             var bracketDepth = 0
             var parenDepth = 0
-            
+            var inFunctionType = false
+
             for ch <- paramSpec do
               ch match
                 case '[' => bracketDepth += 1; currentParam.append(ch)
                 case ']' => bracketDepth -= 1; currentParam.append(ch)
-                case '(' => parenDepth += 1; currentParam.append(ch)
-                case ')' => parenDepth -= 1; currentParam.append(ch)
+                case '(' =>
+                  parenDepth += 1
+                  currentParam.append(ch)
+                case ')' =>
+                  parenDepth -= 1
+                  currentParam.append(ch)
+                case '=' =>
+                  // Check if this is part of a function type arrow "=>"
+                  if currentParam.length > 0 && currentParam.charAt(currentParam.length - 1) == '>' then
+                    inFunctionType = true
+                    currentParam.append(ch)
+                  else
+                    currentParam.append(ch)
                 case ',' =>
-                  if bracketDepth == 0 && parenDepth == 0 then
+                  // Only split if we're at depth 0 and not inside a function type
+                  if bracketDepth == 0 && parenDepth == 0 && !inFunctionType then
                     // Comma at depth 0 - this is a parameter separator
                     result = result :+ currentParam.toString().trim
                     currentParam = new StringBuilder()
                   else
-                    // Comma inside brackets or parentheses - part of the type
+                    // Comma inside brackets or parentheses, or inside a function type - part of the type
                     currentParam.append(ch)
-                case _ => currentParam.append(ch)
-            
+                case _ =>
+                  currentParam.append(ch)
+                  // Reset inFunctionType when we encounter a character that's not part of the arrow
+                  if inFunctionType && ch != '>' then
+                    inFunctionType = false
+
             // Add the last parameter
             if currentParam.nonEmpty then
               result = result :+ currentParam.toString().trim
-            
+
             // Extract type from each parameter (after the colon)
             result.flatMap { param =>
               val trimmed = param.trim
@@ -784,8 +837,23 @@ object ScaladocChecker:
             val unescapedType = typeStr.replace("\\.", ".")
             // Normalize type by removing generic parameters
             val baseType = unescapedType.replaceAll("\\[.*\\]", "").trim
+
+            // Check if it's a function type (e.g., Int => Int, (A, B) => C)
+            // Function types are valid Scala types and should be accepted
+            if baseType.contains("=>") then
+              // It's a function type - check if it's well-formed
+              // A function type has the form: (args) => result or arg => result
+              // We can check if both sides are non-empty
+              val arrowIdx = baseType.indexOf("=>")
+              val lhs = baseType.substring(0, arrowIdx).trim
+              val rhs = baseType.substring(arrowIdx + 2).trim
+              if lhs.nonEmpty && rhs.nonEmpty then
+                // It's a well-formed function type, consider it valid
+                None
+              else
+                Some(s"Invalid function type: $unescapedType")
             // Check if it's a known primitive (qualified or unqualified)
-            if knownScalaPrimitives.contains(baseType) || knownScalaPrimitives.contains("scala." + baseType) then
+            else if knownScalaPrimitives.contains(baseType) || knownScalaPrimitives.contains("scala." + baseType) then
               None
             else
               // Try to resolve via reflection or source lookup
@@ -864,11 +932,24 @@ object ScaladocChecker:
               val hasParameters = memberName.contains('(') && memberName.contains(')')
 
               // Normalize member name (remove generics, params, return type, and trailing varargs marker)
-              var normalizedMember = normalizeSymbol(memberName).replaceAll("\\*\\s*$", "")
+              // If parameters are present, extract just the method name without the parameter list
+              var normalizedMember = if hasParameters then
+                val openParenIdx = memberName.indexOf('(')
+                if openParenIdx >= 0 then
+                  memberName.substring(0, openParenIdx)
+                else
+                  memberName
+              else
+                memberName
+
               // Remove return type annotation (e.g., "sizeCompare:Int" -> "sizeCompare")
               val colonIdx = normalizedMember.indexOf(':')
               if colonIdx >= 0 then
                 normalizedMember = normalizedMember.substring(0, colonIdx)
+
+              // Remove generic parameters (e.g., "asJava[A]" -> "asJava")
+              // This is needed when searching for the member declaration
+              val memberForSearch = normalizedMember.replaceAll("\\[.*\\]", "")
 
               // Find the source file for the containing type
               val files = findScalaFiles(root)
@@ -917,7 +998,7 @@ object ScaladocChecker:
                     // Include optional modifiers like implicit, final, private, protected, override, etc.
                     // Modifiers can appear multiple times and in any order
                     // Also handle access modifiers with brackets like private[collection], protected[This]
-                    val memberDeclPattern = raw"""(?m)^\s*(?:implicit|final|private|protected|override|abstract|sealed|lazy|open|transparent|inline|private\[.*?\]|protected\[.*?\]|\s+)*(?:class|object|trait|def|val|var|lazy\s+val|type)\s+%s\b""".format(java.util.regex.Pattern.quote(normalizedMember)).r
+                    val memberDeclPattern = raw"""(?m)^\s*(?:implicit|final|private|protected|override|abstract|sealed|lazy|open|transparent|inline|private\[.*?\]|protected\[.*?\]|\s+)*(?:class|object|trait|def|val|var|lazy\s+val|type)\s+%s\b""".format(java.util.regex.Pattern.quote(memberForSearch)).r
 
                     // Find all matches
                     memberDeclPattern.findAllMatchIn(txt).foreach { m =>
@@ -932,10 +1013,10 @@ object ScaladocChecker:
                       // A more thorough check would require parsing the full signature
                       matches.nonEmpty
                     else
-                      // When no parameters are specified, check if there's exactly one method with that name
-                      // If there are multiple methods with the same name (overloaded), it's ambiguous
+                      // When no parameters are specified, consider it valid if there's at least one method match
+                      // Multiple methods with the same name (overloaded methods) are OK
                       val defCount = matches.count(_.contains("def "))
-                      defCount == 1 || defCount == 0 && matches.nonEmpty
+                      matches.nonEmpty
                   else
                     false
                 catch

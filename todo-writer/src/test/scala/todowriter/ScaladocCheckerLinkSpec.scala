@@ -1072,3 +1072,177 @@ implicit class JavaDurationOps(private val duration: java.time.Duration) extends
       try Files.deleteIfExists(javaapiDir) catch case _: Throwable => ()
       try Files.deleteIfExists(tempDir) catch case _: Throwable => ()
   }
+
+  it should "recognize function types like Int=>Int as valid types in parameter lists" in {
+    val tempDir = Files.createTempDirectory("todowriter-link-test")
+    val testDir = tempDir.resolve("test")
+    try
+      Files.createDirectories(testDir)
+
+      // Create IntAccumulator.scala with a map method that takes a function
+      val intAccumulatorContent = """package test
+
+import scala.collection.mutable
+
+class IntAccumulator {
+  /** Maps the elements of this IntAccumulator.
+   *
+   *  @param f the function to apply to each element
+   *  @return a new IntAccumulator with the mapped elements
+   */
+  def map(f: Int => Int): IntAccumulator = ???
+}
+"""
+      Files.writeString(testDir.resolve("IntAccumulator.scala"), intAccumulatorContent)
+
+      // Create a test file that references IntAccumulator.map(f:Int=>Int)
+      val testFile = testDir.resolve("Test.scala")
+      Files.writeString(testFile, """package test
+
+/** See [[IntAccumulator.map(f:Int=>Int)* map]] */
+def foo(): Unit = ()
+""")
+
+      ScaladocChecker.clearCaches()
+      val broken = ScaladocChecker.findBrokenLinks(tempDir)
+      val urls = broken.map(_._3)
+
+      // The link "IntAccumulator.map(f:Int=>Int)" should be resolved and NOT reported as broken
+      // Function types like Int=>Int should be recognized as valid types
+      urls should not contain ("IntAccumulator.map(f:Int=>Int)")
+    finally
+      try Files.list(testDir).forEach(p => try Files.deleteIfExists(p) catch case _: Throwable => ()) catch case _: Throwable => ()
+      try Files.deleteIfExists(testDir) catch case _: Throwable => ()
+      try Files.deleteIfExists(tempDir) catch case _: Throwable => ()
+  }
+
+  it should "recognize tuple function types like (Int,String)=>Boolean as valid types in parameter lists" in {
+    val tempDir = Files.createTempDirectory("todowriter-link-test")
+    val testDir = tempDir.resolve("test")
+    try
+      Files.createDirectories(testDir)
+
+      // Create a test class with a method that takes a tuple function
+      val testContent = """package test
+
+class TestClass {
+  /** Tests elements of this collection.
+   *
+   *  @param p the predicate function
+   *  @return true if all elements satisfy the predicate
+   */
+  def forall(p: (Int, String) => Boolean): Boolean = ???
+}
+"""
+      Files.writeString(testDir.resolve("TestClass.scala"), testContent)
+
+      // Create a test file that references TestClass.forall with a tuple function type
+      val testFile = testDir.resolve("Test.scala")
+      Files.writeString(testFile, """package test
+
+/** See [[TestClass.forall(p:(Int,String)=>Boolean)* forall]] */
+def foo(): Unit = ()
+""")
+
+      ScaladocChecker.clearCaches()
+      val broken = ScaladocChecker.findBrokenLinks(tempDir)
+      val urls = broken.map(_._3)
+
+      // The link "TestClass.forall(p:(Int,String)=>Boolean)" should be resolved and NOT reported as broken
+      // Tuple function types like (Int,String)=>Boolean should be recognized as valid types
+      urls should not contain ("TestClass.forall(p:(Int,String)=>Boolean)")
+    finally
+      try Files.list(testDir).forEach(p => try Files.deleteIfExists(p) catch case _: Throwable => ()) catch case _: Throwable => ()
+      try Files.deleteIfExists(testDir) catch case _: Throwable => ()
+      try Files.deleteIfExists(tempDir) catch case _: Throwable => ()
+  }
+
+  it should "resolve member references with generic type parameters and parameter lists" in {
+    val tempDir = Files.createTempDirectory("todowriter-link-test")
+    val testDir = tempDir.resolve("test")
+    try
+      Files.createDirectories(testDir)
+
+      // Create AsJavaConverters.scala with a generic asJava method
+      val asJavaConvertersContent = """package test
+
+class AsJavaConverters {
+  /** Converts a Scala iterator to a Java iterator.
+   *
+   *  @param i the Scala iterator
+   *  @tparam A the element type
+   *  @return the Java iterator
+   */
+  def asJava[A](i: Iterator[A]): java.util.Iterator[A] = ???
+}
+
+trait Iterator[+A]
+"""
+      Files.writeString(testDir.resolve("AsJavaConverters.scala"), asJavaConvertersContent)
+
+      // Create a test file that references AsJavaConverters.asJava[A](i:Iterator[A])
+      val testFile = testDir.resolve("Test.scala")
+      Files.writeString(testFile, """package test
+
+/** See [[AsJavaConverters.asJava[A](i:Iterator[A])* asJava]] */
+def foo(): Unit = ()
+""")
+
+      ScaladocChecker.clearCaches()
+      val broken = ScaladocChecker.findBrokenLinks(tempDir)
+      val urls = broken.map(_._3)
+
+      // The link "AsJavaConverters.asJava[A](i:Iterator[A])" should be resolved and NOT reported as broken
+      urls should not contain ("AsJavaConverters.asJava[A](i:Iterator[A])")
+    finally
+      try Files.list(testDir).forEach(p => try Files.deleteIfExists(p) catch case _: Throwable => ()) catch case _: Throwable => ()
+      try Files.deleteIfExists(testDir) catch case _: Throwable => ()
+      try Files.deleteIfExists(tempDir) catch case _: Throwable => ()
+  }
+
+  it should "resolve references to trait methods like IterableOnceOps.fold" in {
+    val tempDir = Files.createTempDirectory("todowriter-link-test")
+    val testDir = tempDir.resolve("test")
+    try
+      Files.createDirectories(testDir)
+
+      // Create IterableOnce.scala with a trait containing a fold method
+      // This simulates the actual structure in the Scala library
+      // Note: Using multiple package declarations like the actual library
+      val iterableOnceContent = """package scala
+package collection
+
+trait IterableOnce[+A]
+
+transparent trait IterableOnceOps[+A, +CC[_], +C] extends Any { this: IterableOnce[A]^ =>
+  def fold[A1 >: A](z: A1)(op: (A1, A1) => A1): A1 = ???
+}
+"""
+      Files.writeString(testDir.resolve("IterableOnce.scala"), iterableOnceContent)
+
+      // Create a test class that references IterableOnceOps.fold
+      val testFile = testDir.resolve("ArrayOps.scala")
+      Files.writeString(testFile, """package scala
+package collection
+
+class ArrayOps {
+  /** Alias for [[foldLeft]].
+   *
+   *  The type parameter is more restrictive than for `foldLeft` to be
+   *  consistent with [[IterableOnceOps.fold]].
+   */
+  def fold[A](z: A)(op: (A, A) => A): A = ???
+}
+""")
+
+      ScaladocChecker.clearCaches()
+      val broken = ScaladocChecker.findBrokenLinks(tempDir)
+      val urls = broken.map(_._3)
+
+      // The link "IterableOnceOps.fold" should be resolved and NOT reported as broken
+      urls should not contain ("IterableOnceOps.fold")
+    finally
+      try Files.list(testDir).forEach(p => try Files.deleteIfExists(p) catch case _: Throwable => ()) catch case _: Throwable => ()
+      try Files.deleteIfExists(testDir) catch case _: Throwable => ()
+      try Files.deleteIfExists(tempDir) catch case _: Throwable => ()
+  }
