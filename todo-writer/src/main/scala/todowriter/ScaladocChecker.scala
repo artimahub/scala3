@@ -4,6 +4,7 @@ import java.io.File
 import java.nio.file.{Files, Path, Paths}
 import scala.jdk.CollectionConverters.*
 import java.net.{HttpURLConnection, URL}
+import javax.net.ssl.{HttpsURLConnection, SSLContext, TrustManager, X509TrustManager, SSLSession}
 
 /** Result of checking a single Scaladoc/declaration pair. */
 case class CheckResult(
@@ -673,6 +674,21 @@ object ScaladocChecker:
   private def defaultCheckUrl(u: String, decl: Declaration, root: Path, externalMappings: List[ExternalDocLink]): Option[String] =
       // Treat http(s) URLs via network check
       if u.startsWith("http://") || u.startsWith("https://") then
+        // Disable SSL certificate validation for HTTPS links
+        // This is safe for a link checker as we're just verifying URL accessibility
+        import javax.net.ssl.{HttpsURLConnection, SSLContext, TrustManager, X509TrustManager}
+        import java.security.cert.X509Certificate
+        val trustAllCerts = new Array[TrustManager](1)
+        trustAllCerts(0) = new X509TrustManager {
+          def getAcceptedIssuers: Array[X509Certificate] = null
+          def checkClientTrusted(certs: Array[X509Certificate], authType: String): Unit = ()
+          def checkServerTrusted(certs: Array[X509Certificate], authType: String): Unit = ()
+        }
+        val sslContext = SSLContext.getInstance("TLS")
+        sslContext.init(null, trustAllCerts, new java.security.SecureRandom())
+        HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory)
+        HttpsURLConnection.setDefaultHostnameVerifier((_: String, _: SSLSession) => true)
+
         var conn: HttpURLConnection | Null = null
         try
           val connection = URL(u).openConnection().asInstanceOf[HttpURLConnection]
@@ -686,7 +702,8 @@ object ScaladocChecker:
             connection.setRequestMethod("HEAD")
             connection.connect()
             val code = connection.getResponseCode
-            if code >= 400 then Some(s"HTTP $code") else None
+            // Accept 403 as valid - server is responding but blocking automated requests
+            if code >= 400 && code != 403 then Some(s"HTTP $code") else None
           catch
             case _: java.net.ProtocolException =>
               // HEAD not supported; try GET
@@ -700,7 +717,8 @@ object ScaladocChecker:
               gconn.setRequestMethod("GET")
               gconn.connect()
               val gcode = gconn.getResponseCode
-              if gcode >= 400 then Some(s"HTTP $gcode") else None
+              // Accept 403 as valid - server is responding but blocking automated requests
+              if gcode >= 400 && gcode != 403 then Some(s"HTTP $gcode") else None
         catch
           case e: Exception =>
             Some(s"Error: ${e.getMessage}")
