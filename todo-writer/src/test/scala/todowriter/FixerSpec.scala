@@ -152,7 +152,110 @@ class FixerSpec extends AnyFlatSpec with Matchers:
     paramYIdx should be < returnIdx
   }
 
-  it should "keep @see in exposition section, before signature tags" in {
+  it should "sort @throws after @return" in {
+    val text = """/** Does something.
+                 | *
+                 | *  @throws Exception when bad
+                 | *  @return the result
+                 | *  @param x the input
+                 | */""".stripMargin
+    val block = ScaladocBlock.findAll(text).head
+    val result = Fixer.buildFixedBlock(text, block, Nil, Nil, false)
+
+    val paramIdx = result.indexOf("@param")
+    val returnIdx = result.indexOf("@return")
+    val throwsIdx = result.indexOf("@throws")
+
+    // Signature tags should be sorted: @param, @return, @throws
+    paramIdx should be < returnIdx
+    returnIdx should be < throwsIdx
+  }
+
+  it should "keep non-signature tag after signature tags in place" in {
+    val text = """/** Does something.
+                 | *
+                 | *  @param x the input
+                 | *  @return the result
+                 | *  @see [[Other]]
+                 | */""".stripMargin
+    val block = ScaladocBlock.findAll(text).head
+    val result = Fixer.buildFixedBlock(text, block, Nil, Nil, false)
+
+    val paramIdx = result.indexOf("@param")
+    val returnIdx = result.indexOf("@return")
+    val seeIdx = result.indexOf("@see")
+
+    // @see should stay after @return (where it was originally)
+    paramIdx should be < returnIdx
+    returnIdx should be < seeIdx
+  }
+
+  it should "keep non-signature tag between signature tags in place" in {
+    val text = """/** Does something.
+                 | *
+                 | *  @param x the input
+                 | *  @see [[Other]]
+                 | *  @return the result
+                 | */""".stripMargin
+    val block = ScaladocBlock.findAll(text).head
+    val result = Fixer.buildFixedBlock(text, block, Nil, Nil, false)
+
+    val paramIdx = result.indexOf("@param")
+    val seeIdx = result.indexOf("@see")
+    val returnIdx = result.indexOf("@return")
+
+    // @see should stay between @param and @return (where it was originally)
+    paramIdx should be < seeIdx
+    seeIdx should be < returnIdx
+  }
+
+  it should "reorder signature tags while keeping non-signature tags in place" in {
+    val text = """/** Does something.
+                 | *
+                 | *  @return the result
+                 | *  @note important info
+                 | *  @param x the input
+                 | */""".stripMargin
+    val block = ScaladocBlock.findAll(text).head
+    val result = Fixer.buildFixedBlock(text, block, Nil, Nil, false)
+
+    val paramIdx = result.indexOf("@param")
+    val noteIdx = result.indexOf("@note")
+    val returnIdx = result.indexOf("@return")
+
+    // @param and @return should be reordered (param before return)
+    // @note should stay at its original position (between the signature tags)
+    paramIdx should be < noteIdx
+    noteIdx should be < returnIdx
+  }
+
+  it should "insert new signature tags in correct positions relative to existing ones" in {
+    val text = """/** Does something.
+                 | *
+                 | *  @note Be careful.
+                 | *  @param x the input
+                 | *  @see [[Other]]
+                 | */""".stripMargin
+    val block = ScaladocBlock.findAll(text).head
+    val result = Fixer.buildFixedBlock(text, block, List("A"), Nil, true)
+
+    val noteIdx = result.indexOf("@note")
+    val tparamIdx = result.indexOf("@tparam")
+    val paramIdx = result.indexOf("@param")
+    val returnIdx = result.indexOf("@return")
+    val seeIdx = result.indexOf("@see")
+
+    // @note stays at start (before signature tags)
+    // @tparam inserted before @param
+    // @return inserted after @param
+    // @see stays at end (after signature tags)
+    noteIdx should be < tparamIdx
+    tparamIdx should be < paramIdx
+    paramIdx should be < returnIdx
+    returnIdx should be < seeIdx
+  }
+
+  it should "keep @see in its original position when inserting new signature tags" in {
     val text = """/** Does something.
                  | *
                  | *  @see [[Other]]
@@ -165,13 +268,13 @@ class FixerSpec extends AnyFlatSpec with Matchers:
     val paramIdx = result.indexOf("@param")
     val returnIdx = result.indexOf("@return")
 
-    // @see is exposition, so it comes before all signature tags
+    // @see stays where it was (before signature tags), new tags inserted after
     seeIdx should be < tparamIdx
     seeIdx should be < paramIdx
     seeIdx should be < returnIdx
   }
 
-  it should "have blank line between exposition (@see) and signature section" in {
+  it should "have blank line between @see and inserted signature tags" in {
     val text = """/** Does something.
                  | *
                  | *  @see [[SomeClass]]
@@ -188,7 +291,7 @@ class FixerSpec extends AnyFlatSpec with Matchers:
     linesBetween.exists(_.trim == "*") should be(true)
   }
 
-  it should "preserve @example in exposition section" in {
+  it should "keep @example in its original position when inserting new signature tags" in {
     val text = """/** Does something.
                  | *
                  | *  @example {{{ code }}}
@@ -199,7 +302,7 @@ class FixerSpec extends AnyFlatSpec with Matchers:
     val exampleIdx = result.indexOf("@example")
     val paramIdx = result.indexOf("@param")
 
-    // @example is exposition, so it comes before @param
+    // @example stays where it was, @param inserted after
     exampleIdx should be < paramIdx
 
     // There should be a blank line between @example and @param
@@ -634,36 +737,49 @@ class FixerSpec extends AnyFlatSpec with Matchers:
 
   // Tests merged from AsteriskAlignmentSpec
 
-  it should "convert two-space asterisk alignment to one-space" in {
-    // Include a following method definition to ensure leading indentation context exists.
+  it should "promote simple text to the /** line (previously tested asterisk alignment)" in {
+    // Simple text-only scaladocs should be promoted to the /** line for consistency.
     val text = """/**
                  |  * Testing
                  |  */
                  |def foo(): Unit = ()""".stripMargin
     val block = ScaladocBlock.findAll(text).head
     val result = Fixer.buildFixedBlock(text, block, Nil, Nil, false)
-    val lines = result.split("\n")
 
-    // Expect multi-line output:
-    val expected = """/**
-                     | *  Testing
-                     | */""".stripMargin
+    // Expect single-line output since the only content is simple text:
+    val expected = "/** Testing */"
     result should be(expected)
   }
 
-  it should "convert indented one-space asterisk alignment to two-space after leading indentation" in {
-    // Indented scaladoc followed by an indented method definition.
+  it should "promote simple text to the /** line when indented" in {
+    // Indented scaladoc with simple text should also be promoted.
     val text =   """    /**
                   |     * Testing
                   |     */""".stripMargin
     val block = ScaladocBlock.findAll(text).head
     val result = Fixer.buildFixedBlock(text, block, Nil, Nil, false)
-    val lines = result.split("\n")
 
-    // The asterisk line should be aligned relative to the method indentation.
-    val expected = """    /**
-                     |     *  Testing
-                     |     */""".stripMargin
+    // Expect single-line output:
+    val expected = "    /** Testing */"
+    result should be(expected)
+  }
+
+  it should "preserve multi-line format and align asterisks when there are multiple content items" in {
+    // Multi-line scaladocs with multiple items should stay multi-line.
+    val text = """/**
+                 |  * First line.
+                 |  *
+                 |  * Second paragraph.
+                 |  */
+                 |def foo(): Unit = ()""".stripMargin
+    val block = ScaladocBlock.findAll(text).head
+    val result = Fixer.buildFixedBlock(text, block, Nil, Nil, false)
+
+    // Expect multi-line output with first line promoted:
+    val expected = """/** First line.
+                     | *
+                     | *  Second paragraph.
+                     | */""".stripMargin
     result should be(expected)
   }
 
@@ -820,4 +936,183 @@ class FixerSpec extends AnyFlatSpec with Matchers:
       assert(line.startsWith(" *  ~5 == -6") || line.startsWith(" *  // in binary"),
              s"Line '$line' should start with ' *  ~5 == -6' or ' *  // in binary'")
     }
+  }
+
+  // Idempotency tests - applying fixes twice should yield the same result
+
+  it should "be idempotent when promoting text with @inheritdoc tag" in {
+    // This was a bug where first pass would leave a trailing blank line before */
+    // that the second pass would then remove.
+    val text = """/** @inheritdoc
+                 | *
+                 | *  Note: *Must* be overridden in subclasses.
+                 | */
+                 |def head: A""".stripMargin
+
+    val block = ScaladocBlock.findAll(text).head
+    val chunk = Declaration.getDeclarationAfter(text, block.endIndex)
+    val decl = Declaration.parse(chunk)
+    val result = CheckResult(block, decl, Nil)
+
+    // First pass (skip-todo mode)
+    val (afterFirstPass, _) = Fixer.applyFixes(text, List(result), insertTodo = false)
+
+    // Second pass on the result
+    val block2 = ScaladocBlock.findAll(afterFirstPass).head
+    val chunk2 = Declaration.getDeclarationAfter(afterFirstPass, block2.endIndex)
+    val decl2 = Declaration.parse(chunk2)
+    val result2 = CheckResult(block2, decl2, Nil)
+    val (afterSecondPass, _) = Fixer.applyFixes(afterFirstPass, List(result2), insertTodo = false)
+
+    // Should be idempotent - no changes on second pass
+    afterSecondPass should be(afterFirstPass)
+
+    // And there should be no trailing blank line before */
+    afterFirstPass should not include " *\n */"
+  }
+
+  it should "be idempotent when formatting scaladocs with @inheritdoc in skip-todo mode" in {
+    // Test that simulates the LazyList.scala case from the library
+    val text = """/** $preservesLaziness
+                 | *  @inheritdoc
+                 | */
+                 |override def knownSize: Int = if (knownIsEmpty) 0 else -1""".stripMargin
+
+    val block = ScaladocBlock.findAll(text).head
+    val chunk = Declaration.getDeclarationAfter(text, block.endIndex)
+    val decl = Declaration.parse(chunk)
+    val result = CheckResult(block, decl, Nil)
+
+    // First pass
+    val (afterFirstPass, _) = Fixer.applyFixes(text, List(result), insertTodo = false)
+
+    // Second pass
+    val block2 = ScaladocBlock.findAll(afterFirstPass).head
+    val chunk2 = Declaration.getDeclarationAfter(afterFirstPass, block2.endIndex)
+    val decl2 = Declaration.parse(chunk2)
+    val result2 = CheckResult(block2, decl2, Nil)
+    val (afterSecondPass, _) = Fixer.applyFixes(afterFirstPass, List(result2), insertTodo = false)
+
+    // Should be idempotent
+    afterSecondPass should be(afterFirstPass)
+  }
+
+  // Tests for @inheritdoc not being reordered relative to other content
+
+  it should "not move @inheritdoc below text when @inheritdoc is first" in {
+    // @inheritdoc on first line, text on second - should keep @inheritdoc on opening line
+    val text = """/** @inheritdoc
+                 | *  Note: *Must* be overridden in subclasses.
+                 | */
+                 |def head: A""".stripMargin
+
+    val block = ScaladocBlock.findAll(text).head
+    val result = Fixer.buildFixedBlock(text, block, Nil, Nil, false)
+
+    // @inheritdoc should remain on the opening line (before "Note")
+    result should startWith("/** @inheritdoc")
+    // The text should come after on a subsequent line
+    result should include("Note: *Must* be overridden")
+    // @inheritdoc should NOT appear after the text
+    val inheritdocIdx = result.indexOf("@inheritdoc")
+    val noteIdx = result.indexOf("Note:")
+    inheritdocIdx should be < noteIdx
+  }
+
+  it should "keep @inheritdoc after text when it was originally after text" in {
+    // Text first, then @inheritdoc - should keep that order
+    val text = """/** Note: *Must* be overridden in subclasses.
+                 | *  @inheritdoc
+                 | */
+                 |def head: A""".stripMargin
+
+    val block = ScaladocBlock.findAll(text).head
+    val result = Fixer.buildFixedBlock(text, block, Nil, Nil, false)
+
+    // Text should be on opening line
+    result should startWith("/** Note: *Must* be overridden")
+    // @inheritdoc should come after
+    val noteIdx = result.indexOf("Note:")
+    val inheritdocIdx = result.indexOf("@inheritdoc")
+    noteIdx should be < inheritdocIdx
+  }
+
+  it should "promote @inheritdoc to opening line when it's the only content" in {
+    val text = """/**
+                 | *  @inheritdoc
+                 | */
+                 |def head: A""".stripMargin
+
+    val block = ScaladocBlock.findAll(text).head
+    val result = Fixer.buildFixedBlock(text, block, Nil, Nil, false)
+
+    // Should be promoted to a single-line format
+    result should be("/** @inheritdoc */")
+  }
+
+  it should "preserve @inheritdoc position with signature tags after it" in {
+    // @inheritdoc followed by @param - @inheritdoc should stay where it is
+    val text = """/** @inheritdoc
+                 | *
+                 | *  @param x the input
+                 | */
+                 |def foo(x: Int): Int""".stripMargin
+
+    val block = ScaladocBlock.findAll(text).head
+    val result = Fixer.buildFixedBlock(text, block, Nil, Nil, false)
+
+    // @inheritdoc should still be on the opening line
+    result should startWith("/** @inheritdoc")
+    // @param should come after
+    val inheritdocIdx = result.indexOf("@inheritdoc")
+    val paramIdx = result.indexOf("@param")
+    inheritdocIdx should be < paramIdx
+  }
+
+  it should "preserve @inheritdoc position when inserting new signature tags" in {
+    val text = """/** @inheritdoc
+                 | *  Note: Important info.
+                 | */
+                 |def foo(x: Int): Int""".stripMargin
+
+    val block = ScaladocBlock.findAll(text).head
+    val result = Fixer.buildFixedBlock(text, block, Nil, List("x"), true)
+
+    // @inheritdoc should be on opening line
+    result should startWith("/** @inheritdoc")
+    // @inheritdoc should come before "Note"
+    val inheritdocIdx = result.indexOf("@inheritdoc")
+    val noteIdx = result.indexOf("Note:")
+    inheritdocIdx should be < noteIdx
+    // New @param should be added at the end
+    result should include("@param x TODO FILL IN")
+  }
+
+  it should "match the exact LazyList.scala pattern - @inheritdoc followed by Note about overriding" in {
+    // This is the exact pattern from library/src/scala/collection/immutable/LazyList.scala
+    // that was being incorrectly rewritten in the feature-consistent-scaladoc-format-and-markdown branch
+    val text = """/** @inheritdoc
+                 | *  Note: *Must* be overridden in subclasses. The default implementation that is inherited from [[SeqOps]]
+                 | *  uses `lengthCompare`, which is implemented here in terms of `sizeCompare`.
+                 | */
+                 |override def head: A""".stripMargin
+
+    val block = ScaladocBlock.findAll(text).head
+    val result = Fixer.buildFixedBlock(text, block, Nil, Nil, false)
+
+    // The @inheritdoc MUST stay on the opening line, NOT be moved after the Note
+    // This was the bug: the old code would produce:
+    //   /** Note: *Must* be overridden...
+    //    *  @inheritdoc     <-- WRONG! @inheritdoc was moved after text
+    //    */
+    // The correct output keeps @inheritdoc on the opening line:
+    result should startWith("/** @inheritdoc")
+
+    // The Note should come on subsequent lines
+    result should include("Note: *Must* be overridden")
+
+    // @inheritdoc must appear BEFORE the Note text
+    val inheritdocIdx = result.indexOf("@inheritdoc")
+    val noteIdx = result.indexOf("Note:")
+    inheritdocIdx should be < noteIdx
   }

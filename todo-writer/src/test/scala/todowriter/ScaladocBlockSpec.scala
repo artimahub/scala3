@@ -133,3 +133,25 @@ class ScaladocBlockSpec extends AnyFlatSpec with Matchers:
     blocks.head.params should be(List("x"))
     blocks.head.hasReturn should be(true)
   }
+
+  it should "not match Scaladoc inside // line comments" in {
+    val text = """//  /** All this trouble and foreach still appears faster.
+                 |//   *  Leaving in place in case someone would like to investigate further.
+                 |//   */
+                 |//  def linearSeqHash(xs: scala.collection.LinearSeq[_], seed: Int): Int = ???""".stripMargin
+    val blocks = ScaladocBlock.findAll(text)
+    blocks should have size 0
+  }
+
+  it should "match real Scaladoc but not commented-out Scaladoc" in {
+    val text = """/** Real scaladoc. */
+                 |def foo(): Unit = ()
+                 |
+                 |//  /** Commented out scaladoc.
+                 |//   *  Should not be matched.
+                 |//   */
+                 |//  def bar(): Unit = ()""".stripMargin
+    val blocks = ScaladocBlock.findAll(text)
+    blocks should have size 1
+    blocks.head.content.trim should be("Real scaladoc.")
+  }

@@ -149,23 +149,23 @@ object WikidocToMarkdown:
       val startsWithNewline = inner.startsWith("\n")
       val origLines = inner.split("\n", -1).toList
 
-val cleanedLines = origLines.map { line =>
-  // Only strip a leading '*' when the first non-whitespace character is '*'.
-  // This avoids removing content from lines like "/** ..." where '*' appears as part of the comment start.
-  if line.trim.startsWith("*") then
-    val starIdx = line.indexOf('*')
-    line.substring(starIdx + 1)
-  else
-    line
-}
+      val cleanedLines = origLines.map { line =>
+        // Only strip a leading '*' when the first non-whitespace character is '*'.
+        // This avoids removing content from lines like "/** ..." where '*' appears as part of the comment start.
+        if line.trim.startsWith("*") then
+          val starIdx = line.indexOf('*')
+          line.substring(starIdx + 1)
+        else
+          line
+      }
 
-// prefixes (leading whitespace) for original tail/star lines (used to reinsert exact indentation)
-val tailPrefixes: List[String] = origLines.drop(1).map(_.takeWhile(_.isWhitespace))
-val origFirstLeading = origLines.headOption.map(_.takeWhile(_.isWhitespace)).getOrElse("")
-val cleaned = cleanedLines.mkString("\n")
-val origEndsWithEmpty = origLines.lastOption.exists(_.trim.isEmpty)
+      // prefixes (leading whitespace) for original tail/star lines (used to reinsert exact indentation)
+      val tailPrefixes: List[String] = origLines.drop(1).map(_.takeWhile(_.isWhitespace))
+      val origFirstLeading = origLines.headOption.map(_.takeWhile(_.isWhitespace)).getOrElse("")
+      val cleaned = cleanedLines.mkString("\n")
+      val origEndsWithEmpty = origLines.lastOption.exists(_.trim.isEmpty)
 
-// Normalize triple-brace markers to fenced backticks for migrate(), preserving leading whitespace.
+      // Normalize triple-brace markers to fenced backticks for migrate(), preserving leading whitespace.
       val cleanedArr = cleaned.split("\n", -1).toArray
       val normalizedForMigrate = cleanedArr.map { ln =>
         val t = ln.trim
@@ -194,6 +194,26 @@ val origEndsWithEmpty = origLines.lastOption.exists(_.trim.isEmpty)
       val migLines = migratedRestored.split("\n", -1).toList
       val out = new StringBuilder
 
+      // Determine the standard scaladoc prefix (whitespace before '*') from lines that have '*'.
+      // This is used for lines that originally didn't have '*' (e.g., lines inside {{{ }}} blocks).
+      // Use the MOST COMMON prefix to handle files with mixed indentation.
+      val prefixCounts = origLines
+        .filter(l => l.contains('*') && l.trim.startsWith("*"))
+        .map(_.takeWhile(_.isWhitespace))
+        .groupBy(identity)
+        .view.mapValues(_.size).toMap
+      val standardPrefix = if prefixCounts.nonEmpty then
+        prefixCounts.maxBy(_._2)._1
+      else " "
+
+      // Helper to ensure content has at least 2 leading spaces after '*'
+      def ensureContentSpacing(content: String): String =
+        if content.isEmpty then content
+        else
+          val leadingSpaces = content.takeWhile(_.isWhitespace).length
+          if leadingSpaces >= 2 then content
+          else "  " + content.dropWhile(_.isWhitespace)
+
       if startsWithNewline then
         // Build lines into a buffer and join.
         // Use original per-line prefixes (when available) to preserve indentation before '*'.
@@ -202,12 +222,17 @@ val origEndsWithEmpty = origLines.lastOption.exists(_.trim.isEmpty)
 
         for idx <- migLines.indices do
           val line = migLines(idx)
-          val prefix = tailPrefixes.lift(idx).orElse(origLines.lift(idx).map(_.takeWhile(_.isWhitespace))).getOrElse(" ")
           // When the scaladoc inner starts with a newline, migLines[idx] corresponds to cleanedLines[idx].
           // The leading newline is preserved as an empty string at index 0 in both lists.
           val origHadStar = origLines.lift(idx).exists(_.contains('*'))
           val origWasEmpty = cleanedLines.lift(idx).exists(_.trim.isEmpty)
           val lineIsBlank = line.trim.isEmpty
+
+          // Use standard prefix for lines that originally didn't have '*', otherwise use the original prefix.
+          val prefix = if origHadStar then
+            tailPrefixes.lift(idx).orElse(origLines.lift(idx).map(_.takeWhile(_.isWhitespace))).getOrElse(" ")
+          else
+            standardPrefix
 
           if lineIsBlank then
             // Preserve blank lines that were in the original, but don't add new ones
@@ -220,8 +245,9 @@ val origEndsWithEmpty = origLines.lastOption.exists(_.trim.isEmpty)
               () // skip this blank line
           else
             // line already may start with whitespace (it is the cleaned content after the '*')
-            // Preserve the content after '*' exactly (do not reintroduce trailing-only spaces).
-            outLines += prefix + "*" + line
+            // For lines that originally didn't have '*', ensure proper spacing after '*'.
+            val content = if origHadStar then line else ensureContentSpacing(line)
+            outLines += prefix + "*" + content
         out.append(outLines.mkString("\n"))
       else
         if migLines.nonEmpty then
@@ -238,10 +264,14 @@ val origEndsWithEmpty = origLines.lastOption.exists(_.trim.isEmpty)
           val outLines = collection.mutable.ListBuffer[String]()
           for idx <- tail.indices do
             val line = tail(idx)
-            val prefix = tailPrefixes.lift(idx).getOrElse(origFirstLeading)
             val origWasEmpty = cleanedLines.lift(idx + 1).exists(_.trim.isEmpty)
             val origHadStar = origLines.lift(idx + 1).exists(_.contains('*'))
             val lineIsBlank = line.trim.isEmpty
+            // Use standard prefix for lines that originally didn't have '*', otherwise use the original prefix.
+            val prefix = if origHadStar then
+              tailPrefixes.lift(idx).getOrElse(origFirstLeading)
+            else
+              standardPrefix
             if lineIsBlank then
               // Preserve blank lines that were in the original, but don't add new ones
               if origWasEmpty && origHadStar then
@@ -249,7 +279,9 @@ val origEndsWithEmpty = origLines.lastOption.exists(_.trim.isEmpty)
               else
                 () // skip this blank line
             else
-              outLines += prefix + "*" + line
+              // For lines that originally didn't have '*', ensure proper spacing after '*'.
+              val content = if origHadStar then line else ensureContentSpacing(line)
+              outLines += prefix + "*" + content
           out.append("\n").append(outLines.mkString("\n"))
 
       out.toString

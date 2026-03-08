@@ -26,23 +26,33 @@ object ScaladocBlock:
 
   /** Find all Scaladoc blocks in the given text. */
   def findAll(text: String): List[ScaladocBlock] =
-    ScaladocPattern.findAllMatchIn(text).map { m =>
+    ScaladocPattern.findAllMatchIn(text).flatMap { m =>
       val inner = m.group("inner")
       val startIndex = m.start
       val endIndex = m.end
-      val lineNumber = text.substring(0, startIndex).count(_ == '\n') + 1
-      val tags = extractTags(inner)
-      val oneLiner = isOneLinerContent(inner)
-      ScaladocBlock(
-        content = inner,
-        startIndex = startIndex,
-        endIndex = endIndex,
-        lineNumber = lineNumber,
-        params = tags.params,
-        tparams = tags.tparams,
-        hasReturn = tags.hasReturn,
-        isOneLiner = oneLiner
-      )
+
+      // Check if the /** is inside a // line comment
+      // Find the start of the line containing the /**
+      val lineStart = text.lastIndexOf('\n', startIndex) + 1
+      val lineBeforeMatch = text.substring(lineStart, startIndex)
+
+      // If there's a // before the /** on the same line, skip this match
+      if lineBeforeMatch.contains("//") then
+        None
+      else
+        val lineNumber = text.substring(0, startIndex).count(_ == '\n') + 1
+        val tags = extractTags(inner)
+        val oneLiner = isOneLinerContent(inner)
+        Some(ScaladocBlock(
+          content = inner,
+          startIndex = startIndex,
+          endIndex = endIndex,
+          lineNumber = lineNumber,
+          params = tags.params,
+          tparams = tags.tparams,
+          hasReturn = tags.hasReturn,
+          isOneLiner = oneLiner
+        ))
     }.toList
 
   private case class ExtractedTags(
