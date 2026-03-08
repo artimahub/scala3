@@ -7,9 +7,8 @@ import typer.{TyperPhase, RefChecks}
 import parsing.Parser
 import Phases.Phase
 import transform.*
-import backend.jvm.{CollectSuperCalls, GenBCode}
+import backend.jvm.GenBCode
 import localopt.{StringInterpolatorOpt, DropForMap}
-import semanticdb.ExtractSemanticDB.{ExtractSemanticInfo, AppendDiagnostics as AppendSemanticDiagnostics}
 
 /** The central class of the dotc compiler. The job of a compiler is to create
  *  runs, which process given `phases` in a given `rootContext`.
@@ -39,7 +38,7 @@ class Compiler {
          CheckShadowing()) ::       // Check for shadowed elements
     List(new YCheckPositions) ::    // YCheck positions
     List(new sbt.ExtractDependencies) :: // Sends information on classes' dependencies to sbt via callbacks
-    List(ExtractSemanticInfo()) ::  // Extract info into .semanticdb files
+    List(new semanticdb.ExtractSemanticInfo) :: // Extract info into .semanticdb files
     List(new PostTyper) ::          // Additional checks and cleanups after type checking
     List(new UnrollDefinitions) ::  // Unroll annotated methods if detected in PostTyper
     List(new sjs.PrepJSInterop) ::  // Additional checks and transformations for Scala.js (Scala.js only)
@@ -88,7 +87,7 @@ class Compiler {
     List(new cc.Setup) ::            // Preparations for check captures phase, enabled under captureChecking
     List(new cc.CheckCaptures) ::    // Check captures, enabled under captureChecking
     List(CheckUnused.PostPatMat()) :: // Check for unused elements and report
-    List(AppendSemanticDiagnostics()) :: // Attach warnings to extracted SemanticDB and write to .semanticdb file
+    List(new semanticdb.AppendDiagnostics) :: // Attach warnings to extracted SemanticDB and write to .semanticdb file
     List(new ElimOpaque,             // Turn opaque into normal aliases
          new sjs.ExplicitJSClasses,  // Make all JS classes explicit (Scala.js only)
          new ExplicitOuter,          // Add accessors to outer classes from nested ones.
@@ -145,7 +144,6 @@ class Compiler {
          new SelectStatic,           // get rid of selects that would be compiled into GetStatic
          new sjs.JUnitBootstrappers, // Generate JUnit-specific bootstrapper classes for Scala.js (not enabled by default)
          new CollectEntryPoints,     // Collect all entry points and save them in the context
-         new CollectSuperCalls,      // Find classes that are called with super
          new RepeatableAnnotations) :: // Aggregate repeatable annotations
     Nil
 

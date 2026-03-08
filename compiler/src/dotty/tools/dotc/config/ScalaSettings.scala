@@ -62,6 +62,8 @@ trait AllScalaSettings extends CommonScalaSettings, PluginSettings, VerboseSetti
 
   /* Decompiler settings */
   val printTasty: Setting[Boolean] = BooleanSetting(RootSetting, "print-tasty", "Prints the raw tasty.", aliases = List("--print-tasty"))
+  @deprecated(message = "Scheduled for removal in 3.9.0, no-op since 3.8.3", since = "3.8.3")
+  val printLines: Setting[Boolean] = BooleanSetting(RootSetting, "print-lines", "Show source code line numbers.", aliases = List("--print-lines"), deprecation = Deprecation.removed(Some("3.9.0")))
 
   /* Scala.js-related settings */
   val scalajsGenStaticForwardersForNonTopLevelObjects: Setting[Boolean] = BooleanSetting(RootSetting, "scalajs-genStaticForwardersForNonTopLevelObjects", "Generate static forwarders even for non-top-level objects (Scala.js only).")
@@ -151,8 +153,10 @@ private sealed trait VerboseSettings:
   val Vprofile: Setting[Boolean] = BooleanSetting(VerboseSetting, "Vprofile", "Show metrics about sources and internal representations to estimate compile-time complexity.")
   val VprofileSortedBy = ChoiceSetting(VerboseSetting, "Vprofile-sorted-by", "key", "Show metrics about sources and internal representations sorted by given column name", List("name", "path", "lines", "tokens", "tasty", "complexity"), "")
   val VprofileDetails = IntSetting(VerboseSetting, "Vprofile-details", "Show metrics about sources and internal representations of the most complex methods", 0)
-  val VreplMaxPrintElements: Setting[Int] = IntSetting(VerboseSetting, "Vrepl-max-print-elements", "Number of elements to be printed before output is truncated.", 1000)
-  val VreplMaxPrintCharacters: Setting[Int] = IntSetting(VerboseSetting, "Vrepl-max-print-characters", "Number of characters to be printed before output is truncated.", 50000)
+  @deprecated(message = "No longer supported, scheduled for removal", since = "3.9.0")
+  val VreplMaxPrintElements: Setting[Int] = IntSetting(VerboseSetting, "Vrepl-max-print-elements", "Number of elements to be printed before output is truncated.", 1000, deprecation = Some(Deprecation("Configuring output truncation is no longer supported")))
+  @deprecated(message = "No longer supported, scheduled for removal", since = "3.9.0")
+  val VreplMaxPrintCharacters: Setting[Int] = IntSetting(VerboseSetting, "Vrepl-max-print-characters", "Number of characters to be printed before output is truncated.", 50000, deprecation = Some(Deprecation("Configuring output truncation is no longer supported")))
 
 /** -W "Warnings" settings
  */
@@ -365,7 +369,7 @@ private sealed trait XSettings:
 
   /** Pipeline compilation options */
   val XjavaTasty: Setting[Boolean] = BooleanSetting(AdvancedSetting, "Xjava-tasty", "Pickler phase should compute TASTy for .java defined symbols for use by build tools", aliases = List("-Xpickle-java", "-Yjava-tasty", "-Ypickle-java"), preferPrevious = true)
-  val XearlyTastyOutput: Setting[AbstractFile] = OutputSetting(AdvancedSetting, "Xearly-tasty-output", "directory|jar", "Destination to write generated .tasty files to for use in pipelined compilation.", NoAbstractFile, aliases = List("-Xpickle-write", "-Yearly-tasty-output", "-Ypickle-write"), preferPrevious = true)
+  val XearlyTastyOutput: Setting[AbstractFile] = OutputSetting(AdvancedSetting, "Xearly-tasty-output", "directory|jar", "Destination to write generated .tasty files to for use in pipelined compilation.", NoAbstractFile, aliases = List("-Xpickle-write", "-Yearly-tasty-output", "-Ypickle-write"), ignoreInvalidArgs = true, preferPrevious = true)
   val XallowOutlineFromTasty: Setting[Boolean] = BooleanSetting(AdvancedSetting, "Xallow-outline-from-tasty", "Allow outline TASTy to be loaded with the -from-tasty option.", aliases = List("-Yallow-outline-from-tasty"))
 
   val XmixinForceForwarders = ChoiceSetting(

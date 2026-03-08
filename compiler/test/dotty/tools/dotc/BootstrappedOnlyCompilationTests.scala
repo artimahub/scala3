@@ -114,8 +114,8 @@ class BootstrappedOnlyCompilationTests {
 
   @Test def runMacros: Unit = {
     implicit val testGroup: TestGroup = TestGroup("runMacros")
-    compileFilesInDir("tests/run-macros", defaultOptions.and("-Xcheck-macros"), FileFilter.exclude(TestSources.runMacrosScala2LibraryTastyExcludelisted))
-      .checkRuns()
+    val compilationTest = withCoverage(compileFilesInDir("tests/run-macros", defaultOptions.and("-Xcheck-macros"), FileFilter.exclude(TestSources.runMacrosScala2LibraryTastyExcludelisted)))
+    runWithCoverageOrFallback[RunTestWithCoverage](compilationTest, "Run")
   }
 
   @Test def runWithCompiler: Unit = {
@@ -129,7 +129,8 @@ class BootstrappedOnlyCompilationTests {
       if scala.util.Properties.isWin then basicTests
       else compileDir("tests/old-tasty-interpreter-prototype", withTastyInspectorOptions) :: basicTests
 
-    aggregateTests(tests*).checkRuns()
+    val compilationTest = withCoverage(aggregateTests(tests*))
+    runWithCoverageOrFallback[RunTestWithCoverage](compilationTest, "Run")
   }
 
   @Ignore @Test def runScala2LibraryFromTasty: Unit = {
@@ -144,9 +145,10 @@ class BootstrappedOnlyCompilationTests {
 
   @Test def runBootstrappedOnly: Unit = {
     implicit val testGroup: TestGroup = TestGroup("runBootstrappedOnly")
-    aggregateTests(
+    val compilationTest = withCoverage(aggregateTests(
       compileFilesInDir("tests/run-bootstrapped", withCompilerOptions),
-    ).checkRuns()
+    ))
+    runWithCoverageOrFallback[RunTestWithCoverage](compilationTest, "Run")
   }
 
   @Test def posBootstrappedOnly: Unit = {
@@ -220,7 +222,7 @@ class BootstrappedOnlyCompilationTests {
   }
 }
 
-object BootstrappedOnlyCompilationTests extends ParallelTesting {
+object BootstrappedOnlyCompilationTests extends ParallelTesting with CoverageSupport {
   // Test suite configuration --------------------------------------------------
 
   def maxDuration = 100.seconds
