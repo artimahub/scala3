@@ -148,3 +148,18 @@ class DeclarationSpec extends AnyFlatSpec with Matchers:
     decl.tparams should be(List("A"))
     decl.params should be(List("x"))
   }
+
+  it should "handle parameters starting with underscore" in {
+    val chunk = "def foo(_i0: Int, _iN: String, x: Int): Unit = ???"
+    val decl = Declaration.parse(chunk)
+    decl.kind should be(DeclKind.Def)
+    decl.params should contain allOf ("_i0", "_iN", "x")
+  }
+
+  it should "handle class with underscore-prefixed constructor parameters" in {
+    val chunk = "class Foo(_i0: Int, _iN: String)"
+    val decl = Declaration.parse(chunk)
+    decl.kind should be(DeclKind.Class)
+    decl.name should be("Foo")
+    decl.params should contain allOf ("_i0", "_iN")
+  }
