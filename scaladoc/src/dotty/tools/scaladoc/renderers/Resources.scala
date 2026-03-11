@@ -124,7 +124,7 @@ trait Resources(using ctx: DocContext) extends Locations, Writer:
       "https://d3js.org/d3.v6.min.js",
       "https://cdn.jsdelivr.net/npm/graphlib-dot@0.6.2/dist/graphlib-dot.min.js",
       "https://cdnjs.cloudflare.com/ajax/libs/dagre-d3/0.6.1/dagre-d3.min.js",
-      "https://scastie.scala-lang.org/embedded.js"
+      s"${ctx.args.scastieServerUrl}/embedded.js"
     ).map(Resource.URL.apply)
 
     fromResources ++ urls ++ projectLogo ++ darkProjectLogo ++ Seq(scaladocVersionFile, dynamicJsData)

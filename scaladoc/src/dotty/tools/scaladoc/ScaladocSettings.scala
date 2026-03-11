@@ -126,6 +126,9 @@ class ScaladocSettings extends SettingGroup with AllScalaSettings:
   val scastieConfiguration: Setting[String] =
     StringSetting(RootSetting, "scastie-configuration", "Scastie configuration", "Additional configuration passed to Scastie in code snippets", "")
 
+  val scastieServerUrl: Setting[String] =
+    StringSetting(RootSetting, "scastie-server-url", "Scastie server URL", "URL of the Scastie server (e.g., http://localhost:9000 for local development). Defaults to https://scastie.scala-lang.org", "https://scastie.scala-lang.org")
+
   val defaultTemplate: Setting[String] =
     StringSetting(
       RootSetting,
@@ -151,4 +154,4 @@ class ScaladocSettings extends SettingGroup with AllScalaSettings:
     BooleanSetting(RootSetting, "suppressCC", "Suppress rendering anything related to experimental capture checking", false)
 
   def scaladocSpecificSettings: Set[Setting[?]] =
-    Set(sourceLinks, legacySourceLink, syntax, revision, externalDocumentationMappings, socialLinks, skipById, skipByRegex, deprecatedSkipPackages, docRootContent, snippetCompiler, generateInkuire, defaultTemplate, scastieConfiguration, quickLinks, dynamicSideMenu, suppressCC, generateApi)
+    Set(sourceLinks, legacySourceLink, syntax, revision, externalDocumentationMappings, socialLinks, skipById, skipByRegex, deprecatedSkipPackages, docRootContent, snippetCompiler, generateInkuire, defaultTemplate, scastieConfiguration, scastieServerUrl, quickLinks, dynamicSideMenu, suppressCC, generateApi)
