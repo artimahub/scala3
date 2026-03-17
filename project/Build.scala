@@ -58,7 +58,7 @@ object Build {
    *
    *  Warning: Change of this variable needs to be consulted with `expectedTastyVersion`
    */
-  val referenceVersion = "3.8.3-RC1"
+  val referenceVersion = "3.8.3-RC2"
 
   /** Version of the Scala compiler targeted in the current release cycle
    *  Contains a version without RC/SNAPSHOT/NIGHTLY specific suffixes
@@ -168,6 +168,7 @@ object Build {
   val ideTestsCompilerVersion = taskKey[String]("Compiler version to use in IDE tests")
   val ideTestsCompilerArguments = taskKey[Seq[String]]("Compiler arguments to use in IDE tests")
   val ideTestsDependencyClasspath = taskKey[Seq[File]]("Dependency classpath to use in IDE tests")
+  val ideTestsScalaJSClasspath = taskKey[Seq[File]]("Scala.js dependency classpath to use in IDE tests")
 
   val fetchScalaJSSource = taskKey[File]("Fetch the sources of Scala.js")
 
@@ -1347,6 +1348,9 @@ object Build {
       autoScalaLibrary := false,
       // Configure the nonbootstrapped compiler
       bootstrappedScalaInstanceSettings,
+      // Disable documentation generation for this project, it results in errors when compiling code snippets
+      // It was also empty before, see https://repo1.maven.org/maven2/org/scala-js/scalajs-scalalib_2.13/2.13.18+1.20.2/ javadoc artifacts
+      Compile / doc / sources := Seq.empty,
       // See https://stackoverflow.com/a/51416386
       pomPostProcess := { (node: XmlNode) =>
         new RuleTransformer(new RewriteRule {
@@ -1997,11 +2001,9 @@ object Build {
             )))
             .add(GenerateAPI(false))
             .add(SnippetCompiler(List(
+              s"${docs.getAbsolutePath}/_docs/reference/new-types=compile",
               s"${docs.getAbsolutePath}/_docs/reference/enums=compile",
-              s"$ccDocs=compile|-language:experimental.captureChecking",
-              s"$ccDocs/separation-checking=compile|-language:experimental.captureChecking|-language:experimental.separationChecking",
-              s"$ccDocs/mutability=compile|-language:experimental.captureChecking|-language:experimental.separationChecking",
-              s"$ccDocs/safe=compile|-language:experimental.safe",
+              s"$ccDocs=compile",
             )))
         }
 
@@ -2034,10 +2036,20 @@ object Build {
         val dottyLib = (`scala-library-bootstrapped` / Compile / classDirectory).value
         testCasesLib :: dottyLib :: Nil
       },
+      ideTestsScalaJSClasspath := {
+        val externalJSCommonDeps = (`scaladoc-js-common`  / Compile / externalDependencyClasspath).value
+        println(externalJSCommonDeps)
+        val scalaJSCommonDom = findArtifact(externalJSCommonDeps, "scalajs-dom_sjs1_3")
+        val externalJSDeps = (`scala-library-sjs` / Compile / externalDependencyClasspath).value
+        val scalaJSLibrary = findArtifact(externalJSDeps, "scalajs-library_2.13")
+        val scalaJSJavalib = findArtifact(externalJSDeps, "scalajs-javalib")
+        val scalaJSScalalib = (`scala-library-sjs` / Compile / packageBin).value
+        scalaJSLibrary :: scalaJSJavalib :: scalaJSScalalib :: scalaJSCommonDom :: Nil
+      },
       Compile / buildInfoPackage := "dotty.tools.pc.buildinfo",
       Compile / buildInfoKeys := Seq(scalaVersion),
       Test / buildInfoPackage := "dotty.tools.pc.tests.buildinfo",
-      Test / buildInfoKeys := Seq(scalaVersion, ideTestsDependencyClasspath)
+      Test / buildInfoKeys := Seq(scalaVersion, ideTestsDependencyClasspath, ideTestsScalaJSClasspath)
     ) ++ BuildInfoPlugin.buildInfoScopedSettings(Compile) ++
       BuildInfoPlugin.buildInfoScopedSettings(Test) ++
       BuildInfoPlugin.buildInfoDefaultSettings
@@ -2948,16 +2960,13 @@ object ScaladocConfigs {
       .add(DocumentSyntheticTypes(true))
       .add(SnippetCompiler(
         snippetCompilerTargets(s"$stdlib/src") ++ List(
+        "docs/_docs/reference/new-types=compile",
         "docs/_docs/reference/enums=compile",
-        "docs/_docs/reference/experimental/capture-checking=compile|-language:experimental.captureChecking",
-        "docs/_docs/reference/experimental/capture-checking/separation-checking=compile|-language:experimental.captureChecking|-language:experimental.separationChecking",
-        "docs/_docs/reference/experimental/capture-checking/mutability=compile|-language:experimental.captureChecking|-language:experimental.separationChecking",
-        "docs/_docs/reference/experimental/capture-checking/safe=compile|-language:experimental.safe",
+        "docs/_docs/reference/experimental/capture-checking=compile",
       )))
       .add(SiteRoot("docs"))
       .add(ApiSubdirectory(true))
       .withTargets((`scala-library-bootstrapped` / Compile / products).value.map(_.getAbsolutePath))
   }
-
 
 }
