@@ -1246,3 +1246,52 @@ class ArrayOps {
       try Files.deleteIfExists(testDir) catch case _: Throwable => ()
       try Files.deleteIfExists(tempDir) catch case _: Throwable => ()
   }
+
+  it should "resolve references to members defined in package objects like scala.concurrent.blocking" in {
+    val tempDir = Files.createTempDirectory("scala-concurrent-test")
+    val concurrentDir = tempDir.resolve("scala/concurrent")
+    try
+      Files.createDirectories(concurrentDir)
+
+      // Create package.scala with a package object containing the blocking function
+      // This simulates the actual structure in the Scala library
+      val packageContent = """package scala
+
+package object concurrent {
+  /** Used to designate a piece of code which potentially blocks.
+   *
+   *  @param body A piece of code which contains potentially blocking calls.
+   *  @return the result of evaluating `body`
+   */
+  def blocking[T](body: => T): T = ???
+}
+
+package concurrent {
+  /** Await is what is used to ensure proper handling of blocking. */
+  object Await {
+    /** Await the "completed" state of an Awaitable.
+     *
+     *  Although this method is blocking, the internal use of [[scala.concurrent.blocking blocking]] ensures that
+     *  the underlying ExecutionContext is given an opportunity to properly manage the blocking.
+     *
+     *  @param awaitable the Awaitable to be awaited
+     *  @return the awaitable
+     */
+    def ready[T](awaitable: Any, atMost: Any): Any = ???
+  }
+}
+"""
+      Files.writeString(concurrentDir.resolve("package.scala"), packageContent)
+
+      ScaladocChecker.clearCaches()
+      val broken = ScaladocChecker.findBrokenLinks(tempDir)
+      val urls = broken.map(_._3)
+
+      // The link "scala.concurrent.blocking" should be resolved and NOT reported as broken
+      // This is the false positive we're trying to fix
+      urls should not contain ("scala.concurrent.blocking")
+    finally
+      try Files.list(concurrentDir).forEach(p => try Files.deleteIfExists(p) catch case _: Throwable => ()) catch case _: Throwable => ()
+      try Files.deleteIfExists(concurrentDir) catch case _: Throwable => ()
+      try Files.deleteIfExists(tempDir) catch case _: Throwable => ()
+  }

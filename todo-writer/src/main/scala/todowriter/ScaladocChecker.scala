@@ -1040,7 +1040,66 @@ object ScaladocChecker:
                 catch
                   case _: Throwable => false
               }
- 
+
+          /** Check if a member is defined in a package object.
+            *
+            *  This function handles cases where a member like `scala.concurrent.blocking` is defined
+            *  in a `package object concurrent` within the `scala.concurrent` package, rather than
+            *  in a regular class/object.
+            *
+            *  @param memberRef The member reference (e.g., "scala.concurrent.blocking")
+            *  @param rootPath The root directory for source file lookup
+            *  @return true if the member is found in a package object
+            */
+          def memberExistsInPackageObject(memberRef: String, rootPath: Path): Boolean =
+            // Split the reference into package path and member name
+            // For "scala.concurrent.blocking":
+            // - Package: scala.concurrent
+            // - Package object name: concurrent (last part of package)
+            // - Member name: blocking
+            val lastDotIdx = memberRef.lastIndexOf('.')
+            if lastDotIdx < 0 then
+              false
+            else
+              val pkgPath = memberRef.substring(0, lastDotIdx)  // e.g., "scala.concurrent"
+              val memberName = memberRef.substring(lastDotIdx + 1)  // e.g., "blocking"
+
+              // Extract the package object name (last part of the package path)
+              val pkgParts = pkgPath.split('.')
+              if pkgParts.isEmpty then
+                false
+              else
+                val pkgObjectName = pkgParts.last  // e.g., "concurrent"
+
+                // Look for package.scala in the package directory
+                val files = findScalaFiles(rootPath)
+                val pkgPattern = raw"""(?m)^\s*package\s+([^\s;\n]+)""".r
+
+                files.exists { file =>
+                  try
+                    val txt = getFileContent(file)
+                    val pkgOpt = getPackageName(file)
+
+                    // Check if this file is in the correct package
+                    val inCorrectPackage = pkgOpt.exists(_ == pkgPath)
+
+                    if inCorrectPackage then
+                      // Check if this file contains a package object declaration
+                      val pkgObjectPattern = raw"""(?m)^\s*package\s+object\s+%s\b""".format(java.util.regex.Pattern.quote(pkgObjectName)).r
+
+                      if pkgObjectPattern.findFirstIn(txt).isDefined then
+                        // Found the package object, now search for the member
+                        // Look for: def, val, var, type declarations with the member name
+                        val memberDeclPattern = raw"""(?m)^\s*(?:implicit|final|private|protected|override|abstract|sealed|lazy|open|transparent|inline|private\[.*?\]|protected\[.*?\]|\s+)*(?:def|val|var|lazy\s+val|type)\s+%s\b""".format(java.util.regex.Pattern.quote(memberName)).r
+                        memberDeclPattern.findFirstIn(txt).isDefined
+                      else
+                        false
+                    else
+                      false
+                  catch
+                    case _: Throwable => false
+                }
+
           // Enhanced reflection: handle fully-qualified classes, companion objects and simple object members.
           // When a param spec is present and contains a varargs marker ('*'), prefer methods that are varargs.
           def symbolResolvableByReflection(sym: String): Boolean =
@@ -1175,6 +1234,7 @@ object ScaladocChecker:
                 if symbolExistsInSource(root, withDotForHash) then None
                 else if memberExistsInSourceLocal(withDotForHash) then None
                 else if memberExistsInSourceRecursive(withDotForHash, root) then None
+                else if memberExistsInPackageObject(withDotForHash, root) then None
                 else
                   // Try to resolve using external mappings
                   // Split the member reference into containing type and member name
