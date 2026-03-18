@@ -404,7 +404,8 @@ object ScaladocChecker:
               // Include optional modifiers like implicit, final, private, protected, override, etc.
               // Modifiers can appear multiple times and in any order
               // Also handle access modifiers with brackets like private[collection], protected[This]
-              val memberDeclPattern = raw"""(?m)^\s*(?:implicit|final|private|protected|override|abstract|sealed|lazy|open|transparent|inline|private\[.*?\]|protected\[.*?\]|\s+)*(?:class|object|trait|def|val|var|lazy\s+val|type)\s+%s\b""".format(java.util.regex.Pattern.quote(memberName)).r
+              // And annotations like @inline, @throws, etc.
+              val memberDeclPattern = raw"""(?m)^\s*(?:@?\w+|private\[.*?\]|protected\[.*?\]|\s+)*(?:class|object|trait|def|val|var|lazy\s+val|type)\s+%s\b""".format(java.util.regex.Pattern.quote(memberName)).r
 
               if memberDeclPattern.findFirstIn(txt).isDefined then
                 // Found the member. Now we need to search for the rest of the path.
@@ -443,14 +444,15 @@ object ScaladocChecker:
         // Include optional modifiers like implicit, final, private, protected, override, etc.
         // Modifiers can appear multiple times and in any order
         // Also handle access modifiers with brackets like private[collection], protected[This]
-        val memberDeclPattern = raw"""(?m)^\s*(?:implicit|final|private|protected|override|abstract|sealed|lazy|open|transparent|inline|private\[.*?\]|protected\[.*?\]|\s+)*(?:class|object|trait|def|val|var|lazy\s+val|type)\s+%s\b""".format(java.util.regex.Pattern.quote(currentMemberName)).r
+        // And annotations like @inline, @throws, etc.
+        val memberDeclPattern = raw"""(?m)^\s*(?:@?\w+|private\[.*?\]|protected\[.*?\]|\s+)*(?:class|object|trait|def|val|var|lazy\s+val|type)\s+%s\b""".format(java.util.regex.Pattern.quote(currentMemberName)).r
         memberDeclPattern.findFirstMatchIn(txt) match
           case Some(m) =>
             // Get the text after this member's declaration
             val afterMember = txt.substring(m.end)
 
             // Look for the next member in the remaining path
-            val nextMemberPattern = raw"""(?m)^\s*(?:implicit|final|private|protected|override|abstract|sealed|lazy|open|transparent|inline|private\[.*?\]|protected\[.*?\]|\s+)*(?:class|object|trait|def|val|var|lazy\s+val|type)\s+%s\b""".format(java.util.regex.Pattern.quote(nextMember)).r
+            val nextMemberPattern = raw"""(?m)^\s*(?:@?\w+|private\[.*?\]|protected\[.*?\]|\s+)*(?:class|object|trait|def|val|var|lazy\s+val|type)\s+%s\b""".format(java.util.regex.Pattern.quote(nextMember)).r
             nextMemberPattern.findFirstMatchIn(afterMember) match
               case Some(_) =>
                 // Found the next member, recursively search for the rest
@@ -982,11 +984,12 @@ object ScaladocChecker:
               // Include optional modifiers like implicit, final, private, protected, override, etc.
               // Modifiers can appear multiple times and in any order
               // Also handle access modifiers with brackets like private[collection], protected[This]
+              // And annotations like @inline, @throws, etc.
               // For companion object references, we specifically look for 'object' declarations
               val typeDeclPattern = if isCompanionObjectRef then
-                raw"""(?m)^\s*(?:implicit|final|private|protected|override|abstract|sealed|lazy|open|transparent|inline|private\[.*?\]|protected\[.*?\]|\s+)*object\s+%s\b""".format(java.util.regex.Pattern.quote(typeName)).r
+                raw"""(?m)^\s*(?:@?\w+|private\[.*?\]|protected\[.*?\]|\s+)*object\s+%s\b""".format(java.util.regex.Pattern.quote(typeName)).r
               else
-                raw"""(?m)^\s*(?:implicit|final|private|protected|override|abstract|sealed|lazy|open|transparent|inline|private\[.*?\]|protected\[.*?\]|\s+)*(?:class|object|trait|type|case\s+class)\s+%s\b""".format(java.util.regex.Pattern.quote(typeName)).r
+                raw"""(?m)^\s*(?:@?\w+|private\[.*?\]|protected\[.*?\]|\s+)*(?:class|object|trait|type|case\s+class)\s+%s\b""".format(java.util.regex.Pattern.quote(typeName)).r
 
               files.exists { file =>
                 try
@@ -1016,7 +1019,8 @@ object ScaladocChecker:
                     // Include optional modifiers like implicit, final, private, protected, override, etc.
                     // Modifiers can appear multiple times and in any order
                     // Also handle access modifiers with brackets like private[collection], protected[This]
-                    val memberDeclPattern = raw"""(?m)^\s*(?:implicit|final|private|protected|override|abstract|sealed|lazy|open|transparent|inline|private\[.*?\]|protected\[.*?\]|\s+)*(?:class|object|trait|def|val|var|lazy\s+val|type)\s+%s\b""".format(java.util.regex.Pattern.quote(memberForSearch)).r
+                    // And annotations like @inline, @throws, etc.
+                    val memberDeclPattern = raw"""(?m)^\s*(?:@?\w+|private\[.*?\]|protected\[.*?\]|\s+)*(?:class|object|trait|def|val|var|lazy\s+val|type)\s+%s\b""".format(java.util.regex.Pattern.quote(memberForSearch)).r
 
                     // Find all matches
                     memberDeclPattern.findAllMatchIn(txt).foreach { m =>
@@ -1090,7 +1094,8 @@ object ScaladocChecker:
                       if pkgObjectPattern.findFirstIn(txt).isDefined then
                         // Found the package object, now search for the member
                         // Look for: def, val, var, type declarations with the member name
-                        val memberDeclPattern = raw"""(?m)^\s*(?:implicit|final|private|protected|override|abstract|sealed|lazy|open|transparent|inline|private\[.*?\]|protected\[.*?\]|\s+)*(?:def|val|var|lazy\s+val|type)\s+%s\b""".format(java.util.regex.Pattern.quote(memberName)).r
+                        // Include optional modifiers and annotations
+                        val memberDeclPattern = raw"""(?m)^\s*(?:@?\w+|private\[.*?\]|protected\[.*?\]|\s+)*(?:def|val|var|lazy\s+val|type)\s+%s\b""".format(java.util.regex.Pattern.quote(memberName)).r
                         memberDeclPattern.findFirstIn(txt).isDefined
                       else
                         false
