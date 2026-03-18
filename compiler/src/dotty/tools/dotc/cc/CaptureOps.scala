@@ -645,6 +645,9 @@ extension (cls: ClassSymbol) {
           case TypeRef(prefix: ThisType, _) if prefix.cls == cls => locals
           case TypeRef(prefix, _) => locals.map(AsSeenFromMap(prefix, cls.owner))
           case _ => locals
+
+  def refiningGetterNamed(name: Name)(using Context): Symbol =
+    cls.info.decls.lookup(name).suchThat(_.isRefiningParamAccessor).symbol
 }
 
 extension (sym: Symbol) {
@@ -922,7 +925,7 @@ object OnlyCapability:
 
   def unapply(tree: AnnotatedType)(using Context): Option[(Type, ClassSymbol)] = tree match
     case AnnotatedType(parent: Type, ann) if ann.hasSymbol(defn.OnlyCapabilityAnnot) =>
-      ann.tree.tpe.argTypes.head.classSymbol match
+      ann.tree.tpe.argTypes.head.dealias.typeSymbol match
         case cls: ClassSymbol => Some((parent, cls))
         case _ => None
     case _ => None
