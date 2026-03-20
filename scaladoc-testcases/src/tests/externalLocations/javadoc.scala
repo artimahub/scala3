@@ -25,3 +25,7 @@ class MethodTest {
   def compareDoubles(x: Double, y: Double): Int = java.lang.Double.compare(x, y)
 }
 
+object ScalaDoubleLike {
+  /** It differs from [[java.lang.Double.MIN_VALUE]] **/
+  final val MinValue = -java.lang.Double.MAX_VALUE
+}
