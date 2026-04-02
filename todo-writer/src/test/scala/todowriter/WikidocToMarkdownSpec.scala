@@ -821,3 +821,95 @@ code line 2
     // The ``` markers should have proper spacing (at least 2 spaces after *)
     codeStartLine should startWith(" *  ```")
   }
+
+  it should "convert inline {{{ }}} to fenced code block with content on separate lines" in {
+    // The issue: {{{It was the best of times, it was the worst of times}}}
+    // should become:
+    // ```
+    // It was the best of times, it was the worst of times
+    // ```
+
+    val in = "{{{It was the best of times, it was the worst of times}}}"
+    val out = WikidocToMarkdown.migrate(in)
+
+    // Should start with ``` on its own line
+    out should startWith("```")
+    // Should end with ``` on its own line
+    out should endWith("```")
+    // The content should be on a separate line between the markers
+    out should include("\nIt was the best of times, it was the worst of times\n")
+    // Should NOT have content on the same line as the markers
+    out should not include ("{{{It was")
+    out should not include ("times}}}")
+  }
+
+  it should "convert inline {{{ }}} to fenced code block in scaladoc inner content" in {
+    val inner =
+      """
+       *  An example of inline code.
+       *  {{{It was the best of times, it was the worst of times}}}
+       *  End of example.
+       """.stripMargin
+
+    val migrated = WikidocToMarkdown.migrateScaladocInner(inner)
+
+    // The inline {{{ }}} should be converted to fenced code block with content on separate lines
+    migrated should include(" *  ```")
+    migrated should include("It was the best of times, it was the worst of times")
+    // The closing ``` should be on its own line after the content
+    val lines = migrated.split("\n")
+    val codeBlockStartIdx = lines.indexWhere(_.contains("```"))
+    val codeBlockEndIdx = lines.lastIndexWhere(_.contains("```"))
+
+    codeBlockStartIdx should be >= 0
+    codeBlockEndIdx should be >= 0
+    codeBlockEndIdx should be > codeBlockStartIdx + 1  // Content should be on at least one line between markers
+  }
+
+  it should "convert existing backtick-fenced inline code to proper fenced code block" in {
+    // The issue: ```It was the best of times, it was the worst of times```
+    // should become:
+    // ```
+    // It was the best of times, it was the worst of times
+    // ```
+
+    val in = "```It was the best of times, it was the worst of times```"
+    val out = WikidocToMarkdown.migrate(in)
+
+    // Should start with ``` on its own line
+    out should startWith("```")
+    // Should end with ``` on its own line
+    out should endWith("```")
+    // The content should be on a separate line between the markers
+    out should include("\nIt was the best of times, it was the worst of times\n")
+    // Should NOT have content on the same line as the markers
+    out should not include ("```It was")
+    out should not include ("times```")
+  }
+
+  "WikidocToMarkdown.migrateScaladocInner" should "not split ${ ... } expressions inside code blocks" in {
+    // The inner content of a Scaladoc comment (inside /** ... */)
+    // This matches what performMigration extracts
+    val input = """
+ *  Quotation context provided by a macro expansion or in the scope of `scala.quoted.staging.run`.
+ *  Used to perform all operations on quoted `Expr` or `Type`.
+ *
+ *  It contains the low-level Typed AST API metaprogramming API.
+ *  This API does not have the static type guarantees that `Expr` and `Type` provide.
+ *  `Quotes` are generated from an enclosing `${ ... }` or `scala.staging.run`. For example:
+ *  ```scala sc:nocompile
+ *  import scala.quoted.*
+ *  inline def myMacro: Expr[T] =
+ *    ${ /* (quotes: Quotes) ?=> */ myExpr }
+ *  def myExpr(using Quotes): Expr[T] =
+ *    '{ f(${ /* (quotes: Quotes) ?=> */ myOtherExpr }) }
+ *  }
+ *  def myOtherExpr(using Quotes): Expr[U] = '{ ... }
+ *  ```
+ """.stripMargin.trim
+
+    val result = WikidocToMarkdown.migrateScaladocInner(input)
+
+    // The input should remain unchanged since it's already properly formatted Markdown
+    result shouldBe input
+  }
