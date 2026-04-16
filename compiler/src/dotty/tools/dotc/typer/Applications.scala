@@ -3,7 +3,7 @@ package dotc
 package typer
 
 import core.*
-import ast.{Trees, tpd, untpd, desugar}
+import ast.{Trees, tpd, untpd, desugar, TreeTypeMap}
 import util.Stats.record
 import util.{SrcPos, NoSourcePosition}
 import Contexts.*
@@ -294,7 +294,7 @@ object Applications {
         case argType :: Nil
         if args.lengthCompare(1) > 0
             && Feature.autoTuplingEnabled
-            && defn.isTupleNType(argType) =>
+            && defn.isTupleNType(argType.normalizedTupleType) =>
           untpd.Tuple(args) :: Nil
         case _ =>
           args
@@ -428,7 +428,21 @@ object Applications {
 
   /** Splice new method reference `meth` into existing application `app` */
   private def spliceMeth(meth: Tree, app: Tree)(using Context): Tree = app match {
-    case Apply(fn, args) =>
+    case Apply(fn, args0) =>
+      def duplicateByNameArg(arg: Tree, formal: Type): Tree = {
+        if formal.isByName then
+          // Default getter calls reuse by-name argument trees. If that argument contains
+          // local definitions, reusing the same tree would duplicate the same symbols.
+          // Use a fresh copy of those symbols here.
+          // see https://github.com/scala/scala3/issues/2939
+          new TreeTypeMap(oldOwners = ctx.owner :: Nil, newOwners = ctx.owner :: Nil).transform(arg)
+        else arg
+      }
+
+      val args = fn.tpe.widen match
+        case mt: MethodType => args0.zipWithConserve(mt.paramInfos)(duplicateByNameArg)
+        case _ => args0
+
       // Constructors written with a leading implicit parameter list are normalized
       // to have one leading non-implicit parameter list. See NamerOps.normalizeIfConstructor.
       // However, a default getter for the implicit parameter will not reflect the augmented signature.
@@ -1216,8 +1230,8 @@ trait Applications extends Compatibility {
             // with all non-explicit default parameters at the end in declaration order.
             val orderedArgDefs = {
               // Indices of original typed arguments that are lifted by liftArgs
-              val impureArgIndices = typedArgBuf.zipWithIndex.collect {
-                case (arg, idx) if !lifter.noLift(arg) => idx
+              val impureArgIndices = typedArgBuf.lazyZip(methodType.paramInfos).zipWithIndex.collect {
+                case ((arg, tp), idx) if lifter.wouldLift(arg, tp) => idx
               }
               def position(arg: Trees.Tree[T]) = {
                 val i = args.indexOf(arg)
@@ -1683,7 +1697,7 @@ trait Applications extends Compatibility {
       val widened = TypeComparer.dropTransparentTraits(
         tree.tpe.parents.reduceLeft(TypeComparer.andType(_, _)),
         pt)
-      if widened <:< pt then Typed(tree, TypeTree(widened))
+      if widened <:< pt then Typed(tree, TypeTree(widened, inferred = true))
       else tree
     else tree
 

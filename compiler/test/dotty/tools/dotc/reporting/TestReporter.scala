@@ -19,7 +19,6 @@ import scala.collection.mutable
 import scala.compiletime.uninitialized
 import scala.io.Codec
 import scala.jdk.CollectionConverters.*
-import scala.language.unsafeNulls
 
 class TestReporter protected (outWriter: PrintWriter, logLevel: Int)
 extends Reporter with UniqueMessagePositions with HideNonSensicalMessages with MessageRendering {
@@ -45,7 +44,7 @@ extends Reporter with UniqueMessagePositions with HideNonSensicalMessages with M
 
   protected final def inlineInfo(pos: SourcePosition)(using Context): String =
     if (pos.exists) {
-      if (pos.outer.exists)
+      if (pos.outer != null)
         i"\ninlined at ${pos.outer}:\n" + inlineInfo(pos.outer)
       else ""
     }

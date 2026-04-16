@@ -2,6 +2,8 @@
 
 This file provides guidance to AI coding agents when working with code in this repository.
 
+**Important**: Read `CONTRIBUTING.md`, in particular the "Forbidden" section!
+
 ## Project Overview
 
 Dotty is the Scala 3 compiler (`dotc`). It compiles Scala source code into JVM bytecode (and optionally Scala.js IR). The compiler is itself written in Scala 3.
@@ -62,3 +64,5 @@ Documentation lives in `docs/_docs/`:
 - `docs/_docs/reference/` - Scala 3 language reference
 - `docs/_docs/reference/experimental/capture-checking/` - Capture checking specification
 - `docs/_docs/internals/` - Compiler internals documentation
+
+For available AI-assisted documentation workflows or skills start refer to [./docs/.ai/INDEX.md](./docs/.ai/INDEX.md)

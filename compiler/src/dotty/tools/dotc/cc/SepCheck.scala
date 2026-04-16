@@ -583,9 +583,9 @@ class SepCheck(checker: CheckCaptures.CheckerAPI) extends tpd.TreeTraverser:
         def escapes(ref: Capability): Boolean = ref.pathRoot match
           case ref @ LocalCap(NoPrefix)
           if ref.classifier.derivesFrom(defn.Caps_Unscoped) =>
-            // we have an escaping reference if the LocalCap's adjustded owner
+            // we have an escaping reference if the LocalCap's adjusted owner
             // is properly contained inside the scope of the variable.
-            ref.adjustOwner(ref.ccOwner).isProperlyContainedIn(lhsOwner)
+            ref.ccOwner.widenOwner(skipModules = false).isProperlyContainedIn(lhsOwner)
           case _ =>
             ref.visibility.isProperlyContainedIn(lhsOwner) // ref itself is not levelOK
             && !ref.isTerminalCapability                   // ... and ...
@@ -682,7 +682,7 @@ class SepCheck(checker: CheckCaptures.CheckerAPI) extends tpd.TreeTraverser:
         hiddenRef.pathRoot match
           case ref: TermRef if ref.symbol != role.dclSym =>
             val refSym = ref.symbol
-            if currentOwner.enclosingMethodOrClass.isProperlyContainedIn(refSym.maybeOwner.enclosingMethodOrClass) then
+            if currentOwner.enclosingMethodOrClassOrObject.isProperlyContainedIn(refSym.enclosingMethodOrClassOrObject) then
               report.error(em"""Separation failure: $descr non-local $refSym""", pos)
             else if refSym.is(TermParam)
               && !refSym.isConsumeParam
@@ -690,7 +690,7 @@ class SepCheck(checker: CheckCaptures.CheckerAPI) extends tpd.TreeTraverser:
             then
               badParams += refSym
           case ref: ThisType =>
-            val encl = currentOwner.enclosingMethodOrClass
+            val encl = currentOwner.enclosingMethodOrClassOrObject
             if encl.isProperlyContainedIn(ref.cls)
                 && !encl.is(Synthetic)
                 && !encl.hasAnnotation(defn.ConsumeAnnot)

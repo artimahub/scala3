@@ -165,7 +165,7 @@ object Declaration:
         if colonIdx > 0 then trimmed.substring(0, colonIdx).trim
         else trimmed.takeWhile(c => c.isLetterOrDigit || c == '_')
 
-      if name.nonEmpty && name.head.isLetter then Some(name) else None
+      if name.nonEmpty && (name.head.isLetter || name.head == '_') then Some(name) else None
 
   /** Split a string by commas, but ignore commas inside brackets/parentheses. */
   private def splitByCommasTopLevel(str: String): List[String] =

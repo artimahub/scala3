@@ -668,7 +668,7 @@ object desugar {
     val impl @ Template(constr0, _, self, _) = cdef.rhs: @unchecked
     val className = normalizeName(cdef, impl).asTypeName
     val parents = impl.parents
-    val (implDerived, implUses) = impl.derived.partition(getRetainsAnnot(_).isEmpty)
+    val (implDerived, implUses) = impl.derived.span(!_.isInstanceOf[UseRef])
     val mods = cdef.mods
     val companionMods = mods
         .withFlags((mods.flags & (AccessFlags | Final)).toCommonFlags)
@@ -677,17 +677,14 @@ object desugar {
 
     var defaultGetters: List[Tree] = Nil
 
-    /** If there is a uses or uses_init clause, convert it to a @retains annotation
-     *  and add it to `mods`.
-     *  @param  idx  the index in implUses that describes the clause as a CapSet^{...}
-     *               reference: 0 for `uses...`, 1 for `uses_init...`
-     */
-    def addImplUse(mods: Modifiers, idx: 0 | 1): Modifiers =
-      if implUses.nonEmpty then
-        val retains = getRetainsAnnot(implUses(idx))
-        if isEmptyRetainsAnnot(retains) then mods
-        else mods.withAddedAnnotation(retains)
-      else mods
+    /** If there is a uses clause, collect the references with matching `initially`
+     *  and, if there are some, turn them to a @retains annotation and add it to `mods`.
+      */
+    def addImplUse(mods: Modifiers, initially: Boolean): Modifiers =
+      val uses = implUses.collect:
+        case UseRef(ref, `initially`) => ref
+      if uses.isEmpty then mods
+      else mods.withAddedAnnotation(makeRetainsAnnot(uses, tpnme.retains))
 
     def decompose(ddef: Tree): DefDef = ddef match {
       case meth: DefDef => meth
@@ -771,7 +768,7 @@ object desugar {
         derived.withAnnotations(Nil)
 
     val constr = cpy.DefDef(constr1)(paramss = joinParams(constrTparams, constrVparamss))
-      .withMods(addImplUse(constr1.mods, 1))
+      .withMods(addImplUse(constr1.mods, initially = true))
 
     if enumTParams.nonEmpty then
       defaultGetters = defaultGetters.map:
@@ -1122,7 +1119,7 @@ object desugar {
         }
       }
       if mods.isAllOf(Given | Inline | Transparent) then
-        report.error("inline given instances cannot be trasparent", cdef)
+        report.error("inline given instances cannot be transparent", cdef)
       var classMods = if mods.is(Given) then mods &~ (Inline | Transparent) | Synthetic else mods
       val newBody = tparamAccessors ::: vparamAccessors ::: normalizedBody ::: caseClassMeths
       if newBody.collect { case d: ValOrDefDef => d }.exists(_.mods.is(Tracked)) then
@@ -1132,7 +1129,7 @@ object desugar {
         name = className,
         rhs = cpy.Template(impl)(constr, parents1, clsDerived, self1,
           newBody)
-      ).withMods(addImplUse(classMods, 0))
+      ).withMods(addImplUse(classMods, initially = false))
     }
 
     // install the watch on classTycon
@@ -1348,26 +1345,29 @@ object desugar {
       case _ => body
     cpy.PolyFunction(tree)(tree.targs, stripped(tree.body)).asInstanceOf[PolyFunction]
 
+  /** Apply function-level parameter flags such as `given` and `erased` to term parameters. */
+  private def addFunctionParamFlags(params: List[ValDef], funFlags: FlagSet, erasedParams: List[Boolean])(using Context): List[ValDef] =
+    val commonFlags = funFlags.toTermFlags & GivenOrImplicit
+    params.zipWithConserve(erasedParams): (param, isErased) =>
+      val flags = commonFlags | (if isErased then Erased else EmptyFlags)
+      if flags.isEmpty then param else param.withAddedFlags(flags)
+
   /** Desugar [T_1, ..., T_M] => (P_1, ..., P_N) => R
    *  Into    scala.PolyFunction { def apply[T_1, ..., T_M](x$1: P_1, ..., x$N: P_N): R }
    */
   def makePolyFunctionType(tree: PolyFunction)(using Context): RefinedTypeTree = (tree: @unchecked) match
     case PolyFunction(tparams: List[untpd.TypeDef] @unchecked, fun @ untpd.Function(vparamTypes, res)) =>
-      val paramFlags = fun match
+      val vparams0 = vparamTypes.zipWithIndex.map {
+        case (p: ValDef, _) => p
+        case (p, n) => makeSyntheticParameter(n + 1, p)
+      }.toList
+      val vparams = fun match
         case fun: FunctionWithMods =>
           // TODO: make use of this in the desugaring when pureFuns is enabled.
           // val isImpure = funFlags.is(Impure)
-
-          // Function flags to be propagated to each parameter in the desugared method type.
-          val givenFlag = fun.mods.flags.toTermFlags & Given
-          fun.erasedParams.map(isErased => if isErased then givenFlag | Erased else givenFlag)
+          addFunctionParamFlags(vparams0, fun.mods.flags, fun.erasedParams)
         case _ =>
-          vparamTypes.map(_ => EmptyFlags)
-
-      val vparams = vparamTypes.lazyZip(paramFlags).zipWithIndex.map {
-        case ((p: ValDef, paramFlags), n) => p.withAddedFlags(paramFlags)
-        case ((p, paramFlags), n) => makeSyntheticParameter(n + 1, p).withAddedFlags(paramFlags)
-      }.toList
+          vparams0
 
       RefinedTypeTree(ref(defn.PolyFunctionType), List(
         DefDef(nme.apply, tparams :: vparams :: Nil, res, EmptyTree)
@@ -1477,10 +1477,11 @@ object desugar {
        | IrrefutableGenFrom => sel.withAttachment(CheckIrrefutable, checkMode)
       // TODO: use `pushAttachment` and investigate duplicate attachment
 
-  /** Desugars `pat = rhs` where `pat` is a pattern,
-   *  given the `span` the overall pattern def occurs at, whether `given` patterns are allowed
-   *  (they are if `rhs` comes from a `GenAlias` but not a `PatDef`),
-   *  and optionally the modifiers that should apply to the result, if they can't be taken from `pat` itself.
+  /** Desugars `pat = rhs` where `pat` is a pattern.
+   *
+   *  The `original` tree determines the `span` of the overall pattern def.
+   *  `given` patterns are allowed if it is a `GenAlias` but not a `PatDef`.
+   *  Modifiers derive from a `PatDef`, or from the pattern if it is a definition.
    *
    *  Outputs simpler desugaring if possible, e.g.,
    *  `(a, b) = (x, y)` does not need the full generalizability of `(a, _, c) = foo()`.
@@ -1493,7 +1494,8 @@ object desugar {
    *   val/var/lazy val p = e  ==>  val/var/lazy val x_1 = (e: @unchecked) match (case p => (x_1))
    *
    *   in case there are zero or more than one variables in pattern
-   *   val/var/lazy p = e  ==>  private[this] synthetic [lazy] val t$ = (e: @unchecked) match (case p => (x_1, ..., x_N))
+   *   val/var/lazy p = e  ==>
+   *     private[this] synthetic [lazy] val t$ = (e: @unchecked) match (case p => (x_1, ..., x_N))
    *                   val/var/def x_1 = t$._1
    *                   ...
    *                   val/var/def x_N = t$._N
@@ -1567,8 +1569,8 @@ object desugar {
           case TuplePattern(pats, _) =>
             // We want to include wildcards for the optimizations, so we can't use `IdPattern` which excludes them
             val allVariables = pats.map {
-              case id: Ident => Some(id, TypeTree())
-              case Typed(id: Ident, tpt) => Some((id, tpt))
+              case id: Ident if isVarPattern(id) => Some(id, TypeTree())
+              case Typed(id: Ident, tpt) if isVarPattern(id) => Some((id, tpt))
               case _ => None
             }.flatten
             if allVariables.size == pats.size then
@@ -1577,8 +1579,8 @@ object desugar {
                 case _ => false
               }
               if forallResults(rhs, isMatchingTuple) then (Optimization.SimpleTuple, allVariables)
-              else if rhs.isInstanceOf[Annotated] then (Optimization.None, generalGetVariables)
-              else (Optimization.MatchableTuple, allVariables)
+              else if !rhs.isInstanceOf[Annotated] then (Optimization.MatchableTuple, allVariables)
+              else (Optimization.None, generalGetVariables)
             else
               (Optimization.None, generalGetVariables)
           case _ => (Optimization.None, generalGetVariables)
@@ -1592,13 +1594,9 @@ object desugar {
           // In the matchable tuple case, we use a pattern but replace all names in it with wildcards,
           // name the overall pattern, and use that name.
           case Optimization.MatchableTuple =>
-            val patAsWildcard = pat match
-              case TuplePattern(pats, _) =>
-                val wildcardPats = pats.map(p => Ident(nme.WILDCARD).withSpan(p.span))
-                Tuple(wildcardPats).withSpan(pat.span)
             val tmpTuple = UniqueName.fresh()
             val tupled = Ident(tmpTuple).withAttachment(ForArtifact, ())
-            val caseDef = CaseDef(Bind(tmpTuple, patAsWildcard), EmptyTree, tupled)
+            val caseDef = CaseDef(Bind(tmpTuple, pat), EmptyTree, tupled)
             Match(makeSelector(rhs, MatchCheck.IrrefutablePatDef), caseDef :: Nil)
           // In the general case, we must name each individual item we want to extract.
           case Optimization.None =>
@@ -1638,9 +1636,9 @@ object desugar {
                 // make sure we mark it as "synthetic" so, e.g., the field for `class C { val (a, b) = (1, 2) }`
                 // does not leak into the API,
                 val patMods = (mods & Lazy) | Synthetic | (if (ctx.owner.isClass) PrivateLocal else EmptyFlags)
-                // use the type of the tuple as declared if there is one so we don't lose information,
+                // when optimizing use the declared type of the tuple to preserve information
                 val tupType = pat match
-                  case TuplePattern(_, t) => t
+                  case TuplePattern(_, tpt) if opt != Optimization.None => tpt
                   case _ => TypeTree()
                 // and define the assignment.
                 val firstDef =
@@ -1648,7 +1646,7 @@ object desugar {
                     .withSpan(pat.span.union(rhs.span))
                     .withMods(patMods)
                 (List(firstDef), tmpName)
-              // Then, write each assignment, keeping in mind we need special selection if we exceed the max tuple arity,
+              // Then write each assignment, keeping in mind we need special selection if we exceed the max tuple arity
               val useSelectors = variables.length <= Definitions.MaxTupleArity
               def selector(idx: Int) = splitRhs match
                 case elems: List[Tree] => elems(idx)
@@ -1673,7 +1671,6 @@ object desugar {
               flatTree(firstDef ++ restDefs)
     }
   }
-  end makePatDef
 
   /** Expand variable identifier x to x @ _ */
   def patternVar(tree: Tree)(using Context): Bind = {
@@ -2079,24 +2076,18 @@ object desugar {
         if augmenting then paramNamesOrNil.map(ContextFunctionParamName.fresh(_))
         else paramNamesOrNil
       else List.fill(formals.length)(ContextFunctionParamName.fresh())
-    val params = for (tpt, pname) <- formals.zip(paramNames) yield
-      ValDef(pname, tpt, EmptyTree).withFlags(Given | Param)
+    val params0 = for (tpt, pname) <- formals.zip(paramNames) yield
+      ValDef(pname, tpt, EmptyTree).withFlags(Param)
+    val params = addFunctionParamFlags(params0, Given, erasedParams)
     FunctionWithMods(params, body, Modifiers(Given), erasedParams)
 
-  private def derivedValDef(originalSpan: Span, named: NameTree, tpt: Tree, rhs: Tree, mods: Modifiers)(using Context) = {
+  private def derivedValDef(originalSpan: Span, named: NameTree, tpt: Tree, rhs: Tree, mods: Modifiers)(using Context) =
     val vdef = ValDef(named.name.asTermName, tpt, rhs)
       .withMods(mods)
       .withSpan(originalSpan.withPoint(named.span.start))
       .withAttachment(PatternVar, ())
     val mayNeedSetter = valDef(vdef)
     mayNeedSetter
-  }
-
-  @unused
-  private def derivedDefDef(original: Tree, named: NameTree, tpt: Tree, rhs: Tree, mods: Modifiers)(implicit src: SourceFile) =
-    DefDef(named.name.asTermName, Nil, tpt, rhs)
-      .withMods(mods)
-      .withSpan(original.span.withPoint(named.span.start))
 
   /** Main desugaring method */
   def apply(tree: Tree, pt: Type = NoType)(using Context): Tree = {
