@@ -25,7 +25,7 @@ import dotty.tools.dotc.report
 import dotty.tools.dotc.ast.Trees.SyntheticUnit
 import dotty.tools.dotc.ast.Positioned
 import tpd.*
-import DottyBackendInterface.symExtensions
+import SymbolUtils.given
 import dotty.tools.dotc.util.SrcPos
 
 /*
@@ -34,14 +34,12 @@ import dotty.tools.dotc.util.SrcPos
  *  @version 1.0
  *
  */
-trait BCodeBodyBuilder(val primitives: DottyPrimitives)(using ctx: Context) extends BCodeSkelBuilder {
+trait BCodeBodyBuilder(val primitives: ScalaPrimitives)(using ctx: Context) extends BCodeSkelBuilder {
 
   /*
    * Functionality to build the body of ASM MethodNode, except for `synchronized` and `try` expressions.
    */
   abstract class PlainBodyBuilder(cunit: CompilationUnit) extends PlainSkelBuilder(cunit) {
-
-    import Primitives.TestOp
 
     private object DesugaredSelect {
       private val desugared = new java.util.IdentityHashMap[Type, tpd.Select]
@@ -153,7 +151,7 @@ trait BCodeBodyBuilder(val primitives: DottyPrimitives)(using ctx: Context) exte
           code match {
             case POS => () // nothing
             case NEG => bc.neg(resKind)
-            case NOT => bc.genPrimitiveArithmetic(Primitives.NOT, resKind)
+            case NOT => bc.genPrimitiveNot(resKind)
             case _ => abort(s"Unknown unary operation: ${fun.symbol.showFullName} code: $code")
           }
 
@@ -395,7 +393,7 @@ trait BCodeBodyBuilder(val primitives: DottyPrimitives)(using ctx: Context) exte
             stack.push(prefixTK)
           }
 
-          genLoadArguments(env, fun.symbol.info.firstParamTypes map toTypeKind)
+          genLoadArguments(env, fun.symbol.info.firstParamTypes map ts.toTypeKind)
           stack.restoreSize(savedStackSize)
           generatedType = genInvokeDynamicLambda(NoSymbol, fun.symbol, env.size, functionalInterface)
 
@@ -527,7 +525,7 @@ trait BCodeBodyBuilder(val primitives: DottyPrimitives)(using ctx: Context) exte
           val thrownType = expectedType
           // `throw null` is valid although scala.Null (as defined in src/library-aux) isn't a subtype of Throwable.
           // Similarly for scala.Nothing (again, as defined in src/library-aux).
-          assert(thrownType.isNullType || thrownType.isNothingType || thrownType.asClassBType.isSubtypeOf(ts.jlThrowableRef).getOrElse(false))
+          assert(thrownType.isNullType || thrownType.isNothingType || thrownType.asClassBType.isSubtypeOf(ts.jlThrowableRef))
           emit(asm.Opcodes.ATHROW)
     end genAdaptAndSendToDest
 
@@ -549,7 +547,7 @@ trait BCodeBodyBuilder(val primitives: DottyPrimitives)(using ctx: Context) exte
     private def fieldOp(field: Symbol, isLoad: Boolean, specificReceiver: Symbol): Unit = {
       val useSpecificReceiver = specificReceiver != null && !field.isScalaStatic
 
-      val owner      = internalName(if (useSpecificReceiver) specificReceiver else field.owner)
+      val owner      = ts.internalName(if (useSpecificReceiver) specificReceiver else field.owner)
       val fieldJName = field.javaSimpleName
       val fieldDescr = symInfoTK(field).descriptor
       val isStatic   = field.isStaticMember
@@ -588,12 +586,14 @@ trait BCodeBodyBuilder(val primitives: DottyPrimitives)(using ctx: Context) exte
           if BCodeUtils.checkConstantStringLength(const.stringValue) then
             mnode.visitLdcInsn(const.stringValue) // `stringValue` special-cases null, but not for a const with StringTag
           else
+            // Emit a fake constant anyway so the resulting bytecode is valid, even if wrong (e.g., if the optimizer consumes it)
+            mnode.visitLdcInsn("<string too long>")
             report.error("String constant is too long for the JVM", pos)
 
         case NullTag    => emit(asm.Opcodes.ACONST_NULL)
 
         case ClazzTag   =>
-          val tp = toTypeKind(const.typeValue)
+          val tp = ts.toTypeKind(const.typeValue)
           if tp.isPrimitive then
             val boxedClass = ts.boxedClassOfPrimitive(tp.asPrimitiveBType)
             mnode.visitFieldInsn(
@@ -607,6 +607,8 @@ trait BCodeBodyBuilder(val primitives: DottyPrimitives)(using ctx: Context) exte
             if BCodeUtils.checkConstantStringLength(toASM.getInternalName) then
               mnode.visitLdcInsn(toASM)
             else
+              // Emit a fake constant anyway so the resulting bytecode is valid, even if wrong (e.g., if the optimizer consumes it)
+              mnode.visitLdcInsn("<type name too long>")
               report.error("Type name is too long for the JVM", pos)
 
         case _ => abort(s"Unknown constant value: $const")
@@ -771,7 +773,7 @@ trait BCodeBodyBuilder(val primitives: DottyPrimitives)(using ctx: Context) exte
         case Apply(_, args) if app.symbol eq defn.newArrayMethod =>
           val List(elemClaz, Literal(c: Constant), av: tpd.JavaSeqLiteral) = args: @unchecked
 
-          generatedType = toTypeKind(c.typeValue)
+          generatedType = ts.toTypeKind(c.typeValue)
           mkArrayConstructorCall(generatedType.asArrayBType, app, av.elems)
         case Apply(t :TypeApply, _) =>
           generatedType =
@@ -804,7 +806,7 @@ trait BCodeBodyBuilder(val primitives: DottyPrimitives)(using ctx: Context) exte
             case _ =>
               null
           }
-          generatedType = genCallMethod(fun.symbol, InvokeStyle.Super, app.span, specificReceiver)
+          generatedType = genCallMethod(fun.symbol, InvokeStyle.Super, app, specificReceiver)
 
         // 'new' constructor call: Note: since constructors are
         // thought to return an instance of what they construct,
@@ -814,7 +816,7 @@ trait BCodeBodyBuilder(val primitives: DottyPrimitives)(using ctx: Context) exte
           val ctor = fun.symbol
           assert(ctor.isClassConstructor, s"'new' call to non-constructor: ${ctor.name}")
 
-          generatedType = toTypeKind(tpt.tpe)
+          generatedType = ts.toTypeKind(tpt.tpe)
           assert(generatedType.isRef, s"Non reference type cannot be instantiated: $generatedType")
 
           generatedType match {
@@ -829,7 +831,7 @@ trait BCodeBodyBuilder(val primitives: DottyPrimitives)(using ctx: Context) exte
               stack.push(rt)
               genLoadArguments(args, paramTKs(app))
               stack.pop(2)
-              genCallMethod(ctor, InvokeStyle.Special, app.span)
+              genCallMethod(ctor, InvokeStyle.Special, app)
 
             case _ =>
               abort(s"Cannot instantiate $tpt of kind: $generatedType")
@@ -839,7 +841,7 @@ trait BCodeBodyBuilder(val primitives: DottyPrimitives)(using ctx: Context) exte
           val nativeKind = tpeTK(expr)
           genLoad(expr, nativeKind)
           val MethodNameAndType(mname, methodType) = ts.asmBoxTo(nativeKind)
-          bc.invokestatic(ts.srBoxesRuntimeRef.internalName, mname, methodType.descriptor, itf = false)
+          bc.invokestatic(ts.srBoxesRuntimeRef.internalName, mname, methodType.descriptor, itf = false, app)
           generatedType = ts.boxResultType(fun.symbol) // was toTypeKind(fun.symbol.tpe.resultType)
 
         case Apply(fun, List(expr)) if Erasure.Boxing.isUnbox(fun.symbol) && fun.symbol.denot.owner != defn.UnitModuleClass =>
@@ -847,7 +849,7 @@ trait BCodeBodyBuilder(val primitives: DottyPrimitives)(using ctx: Context) exte
           val boxType = ts.unboxResultType(fun.symbol) // was toTypeKind(fun.symbol.owner.linkedClassOfClass.tpe)
           generatedType = boxType
           val MethodNameAndType(mname, methodType) = ts.asmUnboxTo(boxType)
-          bc.invokestatic(ts.srBoxesRuntimeRef.internalName, mname, methodType.descriptor, itf = false)
+          bc.invokestatic(ts.srBoxesRuntimeRef.internalName, mname, methodType.descriptor, itf = false, app)
 
         case app @ Apply(fun, args) =>
           val sym = fun.symbol
@@ -884,8 +886,8 @@ trait BCodeBodyBuilder(val primitives: DottyPrimitives)(using ctx: Context) exte
               // Example: `class C { override def clone(): Object = "hi" }`
               // Emitting `def f(c: C) = c.clone()` as `Object.clone()` gives a VerifyError.
               val target: String = tpeTK(qual).asRefBType.classOrArrayType
-              val methodBType = asmMethodType(sym)
-              bc.invokevirtual(target, sym.javaSimpleName, methodBType.descriptor)
+              val methodBType = ts.asmMethodType(sym)
+              bc.invokevirtual(target, sym.javaSimpleName, methodBType.descriptor, app)
               generatedType = methodBType.returnType
             } else {
               val receiverClass = if (!invokeStyle.isVirtual) null else {
@@ -901,7 +903,7 @@ trait BCodeBodyBuilder(val primitives: DottyPrimitives)(using ctx: Context) exte
                   defn.ObjectClass
                 } else qualSym
               }
-              generatedType = genCallMethod(sym, invokeStyle, app.span, receiverClass)
+              generatedType = genCallMethod(sym, invokeStyle, app, receiverClass)
             }
           }
       }
@@ -922,7 +924,7 @@ trait BCodeBodyBuilder(val primitives: DottyPrimitives)(using ctx: Context) exte
     }
 
     private def genArray(elems: List[Tree], elemType: Type): BType = {
-      val elmKind       = toTypeKind(elemType)
+      val elmKind       = ts.toTypeKind(elemType)
       val generatedType = ArrayBType(elmKind)
 
       bc.iconst(elems.length)
@@ -1137,7 +1139,7 @@ trait BCodeBodyBuilder(val primitives: DottyPrimitives)(using ctx: Context) exte
      *  `varsInScope`, ending at the current program point.
      */
     def emitLocalVarScopes(): Unit =
-      if (emitVars) {
+      if (BackendUtils.emitVars) {
         val end = currProgramPoint()
         for ((sym, start) <- varsInScope.reverse) {
           emitLocalVarScope(sym, start, end)
@@ -1212,7 +1214,7 @@ trait BCodeBodyBuilder(val primitives: DottyPrimitives)(using ctx: Context) exte
         } else if (to == UNIT) {
           bc.drop(from)
         }
-      } else if (!from.conformsTo(to).get) {
+      } else if (!from.conformsTo(to)) {
         to match {
           case UNIT => bc.drop(from)
           case _    => bc.emitT2T(from, to)
@@ -1410,7 +1412,7 @@ trait BCodeBodyBuilder(val primitives: DottyPrimitives)(using ctx: Context) exte
      * invocation instruction, otherwise `method.owner`. A specific receiver class is needed to
      * prevent IllegalAccessError in some virtual and super calls (aladdin bug 455, i22628).
      */
-    def genCallMethod(method: Symbol, style: InvokeStyle, pos: Span = NoSpan, specificReceiver: Symbol = null): BType = {
+    private def genCallMethod(method: Symbol, style: InvokeStyle, pos: Positioned | Null = null, specificReceiver: Symbol = null): BType = {
       val methodOwner = method.owner
 
       // the class used in the invocation's method descriptor in the classfile
@@ -1421,6 +1423,7 @@ trait BCodeBodyBuilder(val primitives: DottyPrimitives)(using ctx: Context) exte
         val useSpecificReceiver = specificReceiver != null && !defn.isBottomClass(specificReceiver) && !method.isScalaStatic
         val receiver = if (useSpecificReceiver) specificReceiver else methodOwner
 
+        // TODO this JVM bug was resolved a very long time ago, workaround could be removed?
         // workaround for a JVM bug: https://bugs.openjdk.java.net/browse/JDK-8154587
         // when an interface method overrides a member of Object (note that all interfaces implicitly
         // have superclass Object), the receiver needs to be the interface declaring the override (and
@@ -1447,25 +1450,27 @@ trait BCodeBodyBuilder(val primitives: DottyPrimitives)(using ctx: Context) exte
       }
 
       receiverClass.info // ensure types the type is up to date; erasure may add lateINTERFACE to traits
-      val receiverName = internalName(receiverClass)
+      val receiverName = ts.internalName(receiverClass)
 
       val jname    = method.javaSimpleName
-      val bmType   = asmMethodType(method)
+      val bmType   = ts.asmMethodType(method)
       val mdescr   = bmType.descriptor
 
       val isInterface = isEmittedInterface(receiverClass)
       import InvokeStyle.*
       if (style == Super) {
-        val ownerBType = toTypeKind(method.owner.info)
-        if (isInterface) {
-          superCallTargets.add(ownerBType.asClassBType)
-        }
+        val ownerBType = ts.toTypeKind(method.owner.info)
         if (isInterface && !method.is(JavaDefined)) {
           val staticDesc = MethodBType(ownerBType :: bmType.argumentTypes, bmType.returnType).descriptor
-          val staticName = traitSuperAccessorName(method)
-          bc.invokestatic(receiverName, staticName, staticDesc, isInterface)
+          val staticName = BackendUtils.traitSuperAccessorName(method)
+          bc.invokestatic(receiverName, staticName, staticDesc, isInterface, pos)
         } else {
-          bc.invokespecial(receiverName, jname, mdescr, isInterface)
+          if (isInterface) {
+            superCallTargets.add(ownerBType.asClassBType)
+          }
+          // invokespecial on non-interfaces is only allowed for the direct superclass,
+          // so we must keep track of the fact we emitted this to ensure the class is a direct superclass
+          bc.invokespecial(receiverName, jname, mdescr, isInterface, pos)
         }
       } else {
         val opc = style match {
@@ -1473,7 +1478,7 @@ trait BCodeBodyBuilder(val primitives: DottyPrimitives)(using ctx: Context) exte
           case Special => Opcodes.INVOKESPECIAL
           case Virtual => if (isInterface) Opcodes.INVOKEINTERFACE else Opcodes.INVOKEVIRTUAL
         }
-        bc.emitInvoke(opc, receiverName, jname, mdescr, isInterface)
+        bc.emitInvoke(opc, receiverName, jname, mdescr, isInterface, pos)
       }
 
       bmType.returnType
@@ -1509,8 +1514,7 @@ trait BCodeBodyBuilder(val primitives: DottyPrimitives)(using ctx: Context) exte
         } else if (tk.isRef) { // REFERENCE(_) | ARRAY(_)
           bc.emitIF_ACMP(op, success)
         } else {
-          import Primitives.*
-          def useCmpG = if (negated) op == GT || op == GE else op == LT || op == LE
+          def useCmpG = if (negated) op == TestOp.GT || op == TestOp.GE else op == TestOp.LT || op == TestOp.LE
           (tk: @unchecked) match {
             case LONG   => emit(asm.Opcodes.LCMP)
             case FLOAT  => emit(if (useCmpG) asm.Opcodes.FCMPG else asm.Opcodes.FCMPL)
@@ -1524,18 +1528,17 @@ trait BCodeBodyBuilder(val primitives: DottyPrimitives)(using ctx: Context) exte
 
     /* Emits code to compare (and consume) stack-top and zero using the 'op' operator */
     private def genCZJUMP(success: asm.Label, failure: asm.Label, op: TestOp, tk: BType, targetIfNoJump: asm.Label, negated: Boolean = false): Unit = {
-      import Primitives.*
       if (targetIfNoJump == success) genCZJUMP(failure, success, op.negate(), tk, targetIfNoJump, negated = !negated)
       else {
         if (tk.isIntSizedType) { // BOOL, BYTE, CHAR, SHORT, or INT
           bc.emitIF(op, success)
         } else if (tk.isRef) { // REFERENCE(_) | ARRAY(_)
           (op: @unchecked) match { // references are only compared with EQ and NE
-            case EQ => bc.emitIFNULL(   success)
-            case NE => bc.emitIFNONNULL(success)
+            case TestOp.EQ => bc.emitIFNULL(   success)
+            case TestOp.NE => bc.emitIFNONNULL(success)
           }
         } else {
-          def useCmpG = if (negated) op == GT || op == GE else op == LT || op == LE
+          def useCmpG = if (negated) op == TestOp.GT || op == TestOp.GE else op == TestOp.LT || op == TestOp.LE
           (tk: @unchecked) match {
             case LONG   =>
               emit(asm.Opcodes.LCONST_0)
@@ -1554,14 +1557,14 @@ trait BCodeBodyBuilder(val primitives: DottyPrimitives)(using ctx: Context) exte
     }
 
     def testOpForPrimitive(primitiveCode: Int) = (primitiveCode: @switch) match {
-       case ScalaPrimitivesOps.ID => Primitives.EQ
-       case ScalaPrimitivesOps.NI => Primitives.NE
-       case ScalaPrimitivesOps.EQ => Primitives.EQ
-       case ScalaPrimitivesOps.NE => Primitives.NE
-       case ScalaPrimitivesOps.LT => Primitives.LT
-       case ScalaPrimitivesOps.LE => Primitives.LE
-       case ScalaPrimitivesOps.GT => Primitives.GT
-       case ScalaPrimitivesOps.GE => Primitives.GE
+       case ScalaPrimitivesOps.ID => TestOp.EQ
+       case ScalaPrimitivesOps.NI => TestOp.NE
+       case ScalaPrimitivesOps.EQ => TestOp.EQ
+       case ScalaPrimitivesOps.NE => TestOp.NE
+       case ScalaPrimitivesOps.LT => TestOp.LT
+       case ScalaPrimitivesOps.LE => TestOp.LE
+       case ScalaPrimitivesOps.GT => TestOp.GT
+       case ScalaPrimitivesOps.GE => TestOp.GE
      }
 
     /*
@@ -1594,7 +1597,7 @@ trait BCodeBodyBuilder(val primitives: DottyPrimitives)(using ctx: Context) exte
 
       def loadAndTestBoolean() = {
         genLoad(tree, BOOL)
-        genCZJUMP(success, failure, Primitives.NE, BOOL, targetIfNoJump)
+        genCZJUMP(success, failure, TestOp.NE, BOOL, targetIfNoJump)
       }
 
       lineNumber(tree)
@@ -1706,17 +1709,17 @@ trait BCodeBodyBuilder(val primitives: DottyPrimitives)(using ctx: Context) exte
         genLoad(r, ts.ObjectRef)
         stack.pop()
         genCallMethod(equalsMethod, InvokeStyle.Static)
-        genCZJUMP(success, failure, Primitives.NE, BOOL, targetIfNoJump)
+        genCZJUMP(success, failure, TestOp.NE, BOOL, targetIfNoJump)
       }
       else {
         if (isNull(l)) {
           // null == expr -> expr eq null
           genLoad(r, ts.ObjectRef)
-          genCZJUMP(success, failure, Primitives.EQ, ts.ObjectRef, targetIfNoJump)
+          genCZJUMP(success, failure, TestOp.EQ, ts.ObjectRef, targetIfNoJump)
         } else if (isNull(r)) {
           // expr == null -> expr eq null
           genLoad(l, ts.ObjectRef)
-          genCZJUMP(success, failure, Primitives.EQ, ts.ObjectRef, targetIfNoJump)
+          genCZJUMP(success, failure, TestOp.EQ, ts.ObjectRef, targetIfNoJump)
         } else if (isNonNullExpr(l)) {
           // SI-7852 Avoid null check if L is statically non-null.
           genLoad(l, ts.ObjectRef)
@@ -1724,7 +1727,7 @@ trait BCodeBodyBuilder(val primitives: DottyPrimitives)(using ctx: Context) exte
           genLoad(r, ts.ObjectRef)
           stack.pop()
           genCallMethod(defn.Any_equals, InvokeStyle.Virtual)
-          genCZJUMP(success, failure, Primitives.NE, BOOL, targetIfNoJump)
+          genCZJUMP(success, failure, TestOp.NE, BOOL, targetIfNoJump)
         } else {
           // l == r -> Objects.equals(l, r)
           genLoad(l, ts.ObjectRef)
@@ -1732,7 +1735,7 @@ trait BCodeBodyBuilder(val primitives: DottyPrimitives)(using ctx: Context) exte
           genLoad(r, ts.ObjectRef)
           stack.pop()
           genCallMethod(defn.Objects_equals, InvokeStyle.Static)
-          genCZJUMP(success, failure, Primitives.NE, BOOL, targetIfNoJump)
+          genCZJUMP(success, failure, TestOp.NE, BOOL, targetIfNoJump)
         }
       }
     }
@@ -1760,7 +1763,7 @@ trait BCodeBodyBuilder(val primitives: DottyPrimitives)(using ctx: Context) exte
         new asm.Handle(invokeStyle,
           ts.classBTypeFromSymbol(lambdaTarget.owner).internalName,
           lambdaTarget.javaSimpleName,
-          asmMethodType(lambdaTarget).descriptor,
+          ts.asmMethodType(lambdaTarget).descriptor,
           /* itf = */ isInterface)
 
       val (a,b) = lambdaTarget.info.firstParamTypes.splitAt(environmentSize)
@@ -1768,10 +1771,11 @@ trait BCodeBodyBuilder(val primitives: DottyPrimitives)(using ctx: Context) exte
 
       if (invokeStyle != asm.Opcodes.H_INVOKESTATIC) capturedParamsTypes = lambdaTarget.owner.info :: capturedParamsTypes
 
+      // TODO: this comment seems to indicate this is very old and could be removed? this lib isn't recommended since >=2.13
       // Requires https://github.com/scala/scala-java8-compat on the runtime classpath
       val returnUnit = lambdaTarget.info.resultType.typeSymbol == defn.UnitClass
       val functionalInterfaceDesc: String = generatedType.descriptor
-      val desc = capturedParamsTypes.map(tpe => toTypeKind(tpe)).mkString(("("), "", ")") + functionalInterfaceDesc
+      val desc = capturedParamsTypes.map(tpe => ts.toTypeKind(tpe)).mkString(("("), "", ")") + functionalInterfaceDesc
 
       val samMethod = atPhase(erasurePhase) {
         val samMethods = toDenot(functionalInterface).info.possibleSamMethods.toList
@@ -1784,7 +1788,7 @@ trait BCodeBodyBuilder(val primitives: DottyPrimitives)(using ctx: Context) exte
       }
 
       val methodName = samMethod.javaSimpleName
-      val samMethodBType = asmMethodType(samMethod)
+      val samMethodBType = ts.asmMethodType(samMethod)
       val samMethodType = samMethodBType.toASMType
 
       def boxInstantiated(instantiatedType: BType, samType: BType): BType =
@@ -1793,8 +1797,8 @@ trait BCodeBodyBuilder(val primitives: DottyPrimitives)(using ctx: Context) exte
         else instantiatedType
       // TODO specialization
       val instantiatedMethodBType = new MethodBType(
-        lambdaParamTypes.map(p =>  toTypeKind(p)),
-        boxInstantiated(toTypeKind(lambdaTarget.info.resultType), samMethodBType.returnType)
+        lambdaParamTypes.map(p =>  ts.toTypeKind(p)),
+        boxInstantiated(ts.toTypeKind(lambdaTarget.info.resultType), samMethodBType.returnType)
       )
 
       val instantiatedMethodType = instantiatedMethodBType.toASMType
@@ -1805,7 +1809,7 @@ trait BCodeBodyBuilder(val primitives: DottyPrimitives)(using ctx: Context) exte
       val bridgeMethods = atPhase(erasurePhase){
         samMethod.allOverriddenSymbols.toList
       }
-      val overriddenMethodTypes = bridgeMethods.map(b => asmMethodType(b).toASMType)
+      val overriddenMethodTypes = bridgeMethods.map(b => ts.asmMethodType(b).toASMType)
 
       // any methods which `samMethod` overrides need bridges made for them
       // this is done automatically during erasure for classes we generate, but LMF needs to have them explicitly mentioned
@@ -1846,7 +1850,7 @@ trait BCodeBodyBuilder(val primitives: DottyPrimitives)(using ctx: Context) exte
    *  create for Java-defined classes as well as for Java annotations
    *  which we represent as classes.
    */
-  private def isEmittedInterface(sym: Symbol): Boolean = sym.isInterface ||
+  private def isEmittedInterface(sym: Symbol): Boolean = sym.is(Trait) ||
     sym.is(JavaDefined) && (toDenot(sym).isAnnotation || sym.is(ModuleClass) && (sym.companionClass.is(PureInterface)) || sym.companionClass.is(Trait))
 
 

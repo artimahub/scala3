@@ -579,7 +579,22 @@ class QuotesImpl private (using val ctx: Context) extends Quotes, QuoteUnpickler
       def overloaded(qualifier: Term, name: String, targs: List[TypeRepr], args: List[Term], returnType: TypeRepr): Term =
         withDefaultPos(tpd.applyOverloaded(qualifier, name.toTermName, args, targs, returnType))
       def copy(original: Tree)(qualifier: Term, name: String): Select =
-        tpd.cpy.Select(original)(qualifier, name.toTermName)
+        original match
+          case original: tpd.Select if original.name.toString == name =>
+            // Name unchanged: preserve original Name object and use tpd.cpy.Select
+            // which correctly handles qualifier type changes via derivedSelect
+            tpd.cpy.Select(original)(qualifier, original.name)
+          case _ =>
+            // Name changed: resolve the name and create a fresh Select with proper type
+            val simpleName = name.toTermName
+            val resolvedName =
+              val member = qualifier.tpe.member(simpleName)
+              if member.exists then simpleName
+              else
+                val unmangled = simpleName.unmangle(NameKinds.Scala2MethodNameKinds)
+                if (unmangled ne simpleName) && qualifier.tpe.member(unmangled).exists then unmangled
+                else simpleName
+            tpd.Select(qualifier, resolvedName)
       def unapply(x: Select): (Term, String) =
         (x.qualifier, x.name.toString)
     end Select
@@ -1891,7 +1906,12 @@ class QuotesImpl private (using val ctx: Context) extends Quotes, QuoteUnpickler
           // even if that symbol is not a direct member of that prefix, but a nested one.
           def isTypeRelatedToThePassedMember =
             import scala.util.boundary
-            boundary {
+            // the symbol for `self` will not exist for LambdaTypes,
+            // which don't seem to be supported by asSeenFrom anyway
+            // (but also don't seem to cause crashes, and return no-op member.info,
+            // which we might not be able to access otherwise, so we need to allow this).
+            val isLambdaType = self.isInstanceOf[LambdaType]
+            isLambdaType || boundary {
               var checked: Symbol = member
               while(checked.exists) {
                 if self.derivesFrom(checked)
@@ -1902,6 +1922,7 @@ class QuotesImpl private (using val ctx: Context) extends Quotes, QuoteUnpickler
               }
               boundary.break(false)
             }
+
           xCheckMacroAssert(isTypeRelatedToThePassedMember, s"$member is not a member of ${self.show}")
 
           // we replace thisTypes here to avoid resolving otherwise unstable prefixes into Nothing

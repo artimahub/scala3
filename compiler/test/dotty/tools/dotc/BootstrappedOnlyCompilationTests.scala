@@ -4,23 +4,20 @@ package dotc
 
 import scala.language.unsafeNulls
 
-import org.junit.{ Test, BeforeClass, AfterClass }
-import org.junit.Assert._
-import org.junit.Assume._
-import org.junit.Ignore
+import org.junit.{AfterClass, Ignore, Test}
 import org.junit.experimental.categories.Category
 
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 import reporting.TestReporter
-import vulpix._
+import vulpix.*
 
-import java.nio.file._
+import java.nio.file.*
 
 @Category(Array(classOf[BootstrappedOnlyTests]))
 class BootstrappedOnlyCompilationTests {
-  import ParallelTesting._
-  import TestConfiguration._
-  import BootstrappedOnlyCompilationTests._
+  import ParallelTesting.*
+  import TestConfiguration.*
+  import BootstrappedOnlyCompilationTests.*
   import CompilationTest.aggregateTests
 
   // Positive tests ------------------------------------------------------------
@@ -97,7 +94,7 @@ class BootstrappedOnlyCompilationTests {
   // Negative tests ------------------------------------------------------------
 
   @Test def negMacros: Unit = {
-    implicit val testGroup: TestGroup = TestGroup("compileNegWithCompiler")
+    given TestGroup = TestGroup("negMacros")
     compileFilesInDir("tests/neg-macros", defaultOptions.and("-Xcheck-macros"))
       .checkExpectedErrors()
   }
@@ -151,16 +148,6 @@ class BootstrappedOnlyCompilationTests {
     runWithCoverageOrFallback[RunTestWithCoverage](compilationTest, "Run")
   }
 
-  @Test def posBootstrappedOnly: Unit = {
-    given TestGroup = TestGroup("compilePosBootstrappedOnly")
-    compileFilesInDir("tests/pos-bootstrapped", defaultOptions).checkCompile()
-  }
-
-  @Test def warnBootstrappedOnly: Unit = {
-    given TestGroup = TestGroup("compileWarnBootstrappedOnly")
-    compileFilesInDir("tests/warn-bootstrapped", defaultOptions).checkWarnings()
-  }
-
   // Pickling Tests ------------------------------------------------------------
   //
   // Pickling tests are very memory intensive and as such need to be run with a
@@ -199,7 +186,7 @@ class BootstrappedOnlyCompilationTests {
     // 1. hack with absolute path for -Xplugin
     // 2. copy `pluginFile` to destination
     def compileFilesInDir(dir: String, run: Boolean = false): CompilationTest = {
-      val outDir = defaultOutputDir + "testPlugins/"
+      val outDir = new java.io.File(defaultOutputDir, "testPlugins")
       val sourceDir = new java.io.File(dir)
 
       val dirs = sourceDir.listFiles.toList.filter(_.isDirectory)

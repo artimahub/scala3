@@ -857,6 +857,8 @@ class RefinedPrinter(_ctx: Context) extends PlainPrinter(_ctx) {
         prefix ~~ idx.toString ~~ "|" ~~ tpeText ~~ "|" ~~ argsText ~~ "|" ~~ contentText ~~ postfix
       case CapturesAndResult(refs, parent) =>
         changePrec(GlobalPrec)("^{" ~ Text(refs.map(toText), ", ") ~ "}" ~ toText(parent))
+      case UseRef(ref, initially) =>
+        toText(ref) ~~ (Str("initially") `provided` initially)
       case ContextBoundTypeTree(tycon, pname, ownName) =>
         toText(pname) ~ " : " ~ toText(tycon) ~ (" as " ~ toText(ownName) `provided` !ownName.isEmpty)
       case _ =>
@@ -1175,6 +1177,10 @@ class RefinedPrinter(_ctx: Context) extends PlainPrinter(_ctx) {
 
   protected override def annotText(sym: Symbol): Text =
     if sym == defn.ConsumeAnnot then "consume" else super.annotText(sym)
+
+  protected override def specialAnnotText(sym: ClassSymbol, tp: Type): Text =
+    if sym == defn.ConsumeAnnot then keywordText("consume ").provided(tp.hasAnnotation(sym))
+    else super.specialAnnotText(sym, tp)
 
   protected def modText(mods: untpd.Modifiers, sym: Symbol, kw: String, isType: Boolean): Text = { // DD
     val suppressKw = if (enclDefIsClass) mods.isAllOf(LocalParam) else mods.is(Param)

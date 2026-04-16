@@ -2015,6 +2015,7 @@ object Parsers {
     def typeBlockStat(): Tree =
       val mods = defAnnotsMods(BitSet())
       val tdef = typeDefOrDcl(in.offset, in.skipToken(mods))
+      in.observeOutdented()
       if in.token == SEMI then in.nextToken()
       if in.isNewLine then in.nextToken()
       tdef
@@ -2326,14 +2327,19 @@ object Parsers {
 
     /** ContextBound      ::=  Type [`as` id] */
     def contextBound(pname: TypeName): Tree =
+      val start = in.offset
       val t = toplevelTyp(inContextBound = true)
       val ownName =
         if isIdent(nme.as) && sourceVersion.enablesNewGivens then
           in.nextToken()
           ident()
         else EmptyTermName
-      val newSpan = t.span.withPoint(t.span.end).withEnd(in.lastOffset)
-      ContextBoundTypeTree(t, pname, ownName).withSpan(newSpan)
+      ContextBoundTypeTree(t, pname, ownName)
+        .withSpan:
+          if t.span.exists then
+            Span(t.span.start, end = in.lastOffset, point = t.span.end)
+          else
+            Span(start, end = in.lastOffset, point = start)
 
     /** ContextBounds     ::= ContextBound [`:` ContextBounds]
      *                      | `{` ContextBound {`,` ContextBound} `}`
@@ -3290,6 +3296,7 @@ object Parsers {
       }
       CaseDef(pat, EmptyTree, atSpan(accept(ARROW)) {
         val t = rejectWildcardType(typ())
+        in.observeOutdented()
         if in.token == SEMI then in.nextToken()
         newLinesOptWhenFollowedBy(CASE)
         t
@@ -3937,15 +3944,7 @@ object Parsers {
           in.languageImportContext = in.languageImportContext.importContext(imp, NoSymbol)
           for case ImportSelector(id @ Ident(imported), EmptyTree, _) <- selectors do
             if Feature.handleGlobalLanguageImport(prefix, imported) && !outermost then
-              val desc =
-                if ctx.mode.is(Mode.Interactive) then
-                  "not allowed in the REPL"
-                else "only allowed at the toplevel"
-              val hint =
-                if ctx.mode.is(Mode.Interactive) then
-                  f"\nTo use this language feature, include the flag `-language:$prefix.$imported` when starting the REPL"
-                else ""
-              syntaxError(em"this language import is $desc$hint", id.span)
+              syntaxError(em"this language import is only allowed at the toplevel", id.span)
             if allSourceVersionNames.contains(imported) && prefix.isEmpty then
               if !outermost then
                 syntaxError(em"source version import is only allowed at the toplevel", id.span)
@@ -4743,11 +4742,19 @@ object Parsers {
         constrApp() :: withConstrApps()
       else Nil
 
+    /** UseRef            ::=  CaptureRef [‘initially’] */
+    def useRef(): UseRef =
+      val ref = captureRef()
+      if isIdent(nme.initially) then
+        atSpan(in.skipToken()):
+          UseRef(ref, initially = true)
+      else
+        UseRef(ref, initially = false)
+
     /** Template          ::=  InheritClauses [TemplateBody]
      *  InheritClauses    ::=  [‘extends’ ConstrApps]
      *                         [‘derives’ QualId {‘,’ QualId}]
-     *                         [‘uses’ CaptureRef {‘,’ CaptureRef}]
-     *                         [‘uses_init’ CaptureRef {‘,’ CaptureRef}]
+     *                         [‘uses’ UseRef {‘,’ UseRef}]
      */
     def template(constr: DefDef, isEnum: Boolean = false): Template = {
       val parents =
@@ -4769,22 +4776,11 @@ object Parsers {
           commaSeparated(() => convertToTypeId(qualId()))
         else Nil
       newLinesOptWhenFollowedBy(nme.uses)
-      var classUses =
+      val derivedAndUses =
         if isIdent(nme.uses) then
           in.nextToken()
-          concreteCapsType(commaSeparated(captureRef)) :: Nil
-        else Nil
-      newLinesOptWhenFollowedBy(nme.uses_init)
-      var constructorUses =
-        if isIdent(nme.uses_init)then
-          in.nextToken()
-          concreteCapsType(commaSeparated(captureRef)) :: Nil
-        else Nil
-      if classUses.isEmpty && constructorUses.nonEmpty then
-        classUses = concreteCapsType(Nil) :: Nil
-      if constructorUses.isEmpty && classUses.nonEmpty then
-        constructorUses = concreteCapsType(Nil) :: Nil
-      val derivedAndUses = derived ++ classUses ++ constructorUses
+          derived ++ commaSeparated(useRef)
+        else derived
       possibleTemplateStart()
       if isEnum then
         val (self, stats) = withinEnum(templateBody(parents))
@@ -4797,7 +4793,7 @@ object Parsers {
      */
     def templateOpt(constr: DefDef): Template =
       newLinesOptWhenFollowedBy(nme.derives)
-      if in.token == EXTENDS || isIdent(nme.derives) || isIdent(nme.uses) || isIdent(nme.uses_init) then
+      if in.token == EXTENDS || isIdent(nme.derives) || isIdent(nme.uses) then
         template(constr)
       else
         possibleTemplateStart()
@@ -5023,7 +5019,7 @@ object Parsers {
       while
         var empty = false
         if (in.token == IMPORT)
-          stats ++= importClause()
+          stats ++= importClause(outermost = outermost && ctx.mode.is(Mode.Interactive))
         else if (isExprIntro)
           stats += expr(Location.InBlock)
         else if in.token == IMPLICIT && !in.inModifierPosition() then
