@@ -40,6 +40,14 @@ class DeclarationSpec extends AnyFlatSpec with Matchers:
     decl.params should contain allOf ("x", "y")
   }
 
+  it should "parse def params when a param type contains nested parentheses" in {
+    val chunk = "inline def map[F[_]](f: [t] => t => F[t]): Map[NamedTuple[N, V], F] = ???"
+    val decl = Declaration.parse(chunk)
+    decl.kind should be(DeclKind.Def)
+    decl.name should be("map")
+    decl.params should be(List("f"))
+  }
+
   it should "handle implicit params" in {
     val chunk = "def foo(x: Int)(implicit ctx: Context): Unit = ???"
     val decl = Declaration.parse(chunk)

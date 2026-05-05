@@ -142,6 +142,26 @@ class IntegrationSpec extends AnyFlatSpec with Matchers:
     }
   }
 
+  it should "insert missing @param for polymorphic function-typed parameter" in {
+    val content = """package test
+                    |
+                    |/** The named tuple consisting of all element values of this tuple mapped by
+                    | *  the polymorphic mapping function `f`.
+                    | */
+                    |inline def map[F[_]](f: [t] => t => F[t]): Map[String, F] = ???
+                    |""".stripMargin
+
+    withTempFile(content) { path =>
+      val checkResult = ScaladocChecker.checkFile(path)
+      val issues = checkResult.results.flatMap(_.issues)
+      issues should contain(Issue.MissingParam(List("f")))
+
+      val fixResult = Fixer.fixFile(path, checkResult.results)
+      fixResult.newContent shouldBe defined
+      fixResult.newContent.get should include("@param f TODO FILL IN")
+    }
+  }
+
   it should "validate class parameters" in {
     val content = """package test
                     |

@@ -20,13 +20,20 @@ object Declaration:
   private val DeclStartPattern: Regex =
     """(?:@[\w\(\)\s,."]+\s*)*(?:private|protected|final|override|inline|implicit|given|export|opaque|sealed|abstract|lazy|case\s+)*\s*(class|trait|object|def|val|var)\b""".r
 
-  /** Regex to parse a def declaration. */
+  /** Regex to parse a def declaration.
+   *
+   *  Supports one level of nested `[]` in type params (e.g. `F[_]`) and
+   *  one level of nested `()` in parameter types (e.g. `(Int, Int) => Int`).
+   */
   private val DefPattern: Regex =
-    """def\s+([^\s\(\[:\=]+)\s*(?:\[([^\]]*)\])?\s*((?:\([^)]*\))*)\s*(?::\s*([^=\{]+))?""".r
+    """def\s+([^\s\(\[:\=]+)\s*(?:\[((?:[^\[\]]|\[[^\[\]]*\])*)\])?\s*((?:\((?:[^()]|\([^()]*\))*\))*)\s*(?::\s*([^=\{]+))?""".r
 
-  /** Regex to parse a class/trait declaration. */
+  /** Regex to parse a class/trait declaration.
+   *
+   *  Uses the same nested-bracket / nested-parenthesis handling as defs.
+   */
   private val ClassPattern: Regex =
-    """(class|trait)\s+([^\s\(\[]+)\s*(?:\[([^\]]*)\])?\s*((?:\([^)]*\))?)""".r
+    """(class|trait)\s+([^\s\(\[]+)\s*(?:\[((?:[^\[\]]|\[[^\[\]]*\])*)\])?\s*((?:\((?:[^()]|\([^()]*\))*\))?)""".r
 
   /** Regex to parse an object declaration. */
   private val ObjectPattern: Regex =
