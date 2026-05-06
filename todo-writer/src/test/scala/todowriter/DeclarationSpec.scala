@@ -163,3 +163,11 @@ class DeclarationSpec extends AnyFlatSpec with Matchers:
     decl.name should be("Foo")
     decl.params should contain allOf ("_i0", "_iN")
   }
+
+  it should "parse annotated parameters" in {
+    val chunk = "@inline def locally[T](@DeprecatedName(\"x\") x: T): T = x"
+    val decl = Declaration.parse(chunk)
+    decl.kind should be(DeclKind.Def)
+    decl.name should be("locally")
+    decl.params should be(List("x"))
+  }

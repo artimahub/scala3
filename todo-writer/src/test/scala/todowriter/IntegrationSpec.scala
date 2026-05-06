@@ -230,3 +230,23 @@ class IntegrationSpec extends AnyFlatSpec with Matchers:
       }
     }
   }
+
+  it should "insert missing @param for annotated parameters" in {
+    val content = """package test
+                    |
+                    |object Foo:
+                    |  /** Local identity method. */
+                    |  @inline def locally[T](@DeprecatedName("x") x: T): T = x
+                    |""".stripMargin
+
+    withTempFile(content) { path =>
+      val checkResult = ScaladocChecker.checkFile(path)
+      val fixResult = Fixer.fixFile(path, checkResult.results)
+
+      fixResult.blocksFixed should be(1)
+      fixResult.newContent shouldBe defined
+
+      val newContent = fixResult.newContent.get
+      newContent should include("@param x TODO FILL IN")
+    }
+  }
