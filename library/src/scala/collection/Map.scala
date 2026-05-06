@@ -48,17 +48,12 @@ trait Map[K, +V]
    *  to unexpected results if `ordering.equiv(k1, k2)` (used for lookup in `TreeMap`) is different from `k1 == k2`
    *  (used for lookup in `HashMap`).
    *
+   *  ```scala sc:compile
+   *   import scala.collection.immutable._
+   *   val ord: Ordering[String] = _ compareToIgnoreCase _
+   *   val result1 = TreeMap("A" -> 1)(using ord) == HashMap("a" -> 1) // false
+   *   val result2 = HashMap("a" -> 1) == TreeMap("A" -> 1)(using ord) // true
    *  ```
-   *   scala> import scala.collection.immutable._
-   *   scala> val ord: Ordering[String] = _ compareToIgnoreCase _
-   *
-   *   scala> TreeMap("A" -> 1)(ord) == HashMap("a" -> 1)
-   *   val res0: Boolean = false
-   *
-   *   scala> HashMap("a" -> 1) == TreeMap("A" -> 1)(ord)
-   *   val res1: Boolean = true
-   *  ```
-   *
    *
    *  @param o The map to which this map is compared
    *  @return `true` if the two maps are equal according to the description

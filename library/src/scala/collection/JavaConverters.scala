@@ -55,8 +55,10 @@ import scala.language.implicitConversions
  *  ```
  *  In all cases, converting from a source type to a target type and back
  *  again will return the original source object. For example:
- *  ```
+    ```scala sc-hidden sc-name:import-java-converters
  *    import scala.collection.JavaConverters._
+ *  ```
+ *  ```scala sc-compile-with:import-java-converters
  *
  *    val source = new scala.collection.mutable.ListBuffer[Int]
  *    val target: java.util.List[Int] = source.asJava
@@ -64,18 +66,15 @@ import scala.language.implicitConversions
  *    assert(source eq other)
  *  ```
  *  Alternatively, the conversion methods have descriptive names and can be invoked explicitly.
- *  ```
- *    scala> val vs = java.util.Arrays.asList("hi", "bye")
- *    vs: java.util.List[String] = [hi, bye]
- *
- *    scala> val ss = asScalaIterator(vs.iterator)
- *    ss: Iterator[String] = <iterator>
- *
- *    scala> .toList
- *    res0: List[String] = List(hi, bye)
- *
- *    scala> val ss = asScalaBuffer(vs)
- *    ss: scala.collection.mutable.Buffer[String] = Buffer(hi, bye)
+ *  ```scala sc-compile-with:import-java-converters
+ *    val vs = java.util.Arrays.asList("hi", "bye")
+ *    // vs: java.util.List[String] = [hi, bye]
+ *    val ss = asScalaIterator(vs.iterator)
+ *    // ss: Iterator[String] = <iterator>
+ *    ss.toList
+ *    // res0: List[String] = List(hi, bye)
+ *    val ss2 = asScalaBuffer(vs)
+ *    // ss2: scala.collection.mutable.Buffer[String] = Buffer(hi, bye)
  *  ```
  */
 @deprecated("Use `scala.jdk.CollectionConverters` instead", "2.13.0")

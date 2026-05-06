@@ -507,7 +507,7 @@ final class ArrayOps[A](private val xs: Array[A]) extends AnyVal {
    *  @param f    the 'split function' mapping the elements of this array to an [[scala.util.Either]]
    *
    *  @return     a pair of arrays: the first one made of those values returned by `f` that were wrapped in [[scala.util.Left]],
-   *              and the second one made of those wrapped in [[scala.util.Right]]. 
+   *              and the second one made of those wrapped in [[scala.util.Right]].
    */
   def partitionMap[A1: ClassTag, A2: ClassTag](f: A => Either[A1, A2]): (Array[A1], Array[A2]) = {
     val res1 = ArrayBuilder.make[A1]
@@ -1032,7 +1032,7 @@ final class ArrayOps[A](private val xs: Array[A]) extends AnyVal {
   }
 
   /** Finds the first element of the array for which the given partial function is defined, and applies the
-   *  partial function to it. 
+   *  partial function to it.
    */
   def collectFirst[B](@deprecatedName("f","2.13.9") pf: PartialFunction[A, B]^): Option[B] = {
     val fallback: Any => Any = ArrayOps.fallback
@@ -1623,7 +1623,7 @@ final class ArrayOps[A](private val xs: Array[A]) extends AnyVal {
    *  the order of each `x` element is also arbitrary.
    *
    *  @return   An Iterator which traverses the n-element combinations of this array
-   *  @example ```
+   *  @example ```scala sc:compile
    *    Array('a', 'b', 'b', 'b', 'c').combinations(2).map(runtime.ScalaRunTime.stringOf).foreach(println)
    *    // Array(a, b)
    *    // Array(a, c)

@@ -41,7 +41,7 @@ import caps.unsafe.untrackedCaptures
  *
  *  Consider this example for safe and unsafe use:
  *
- *  ```
+ *  ```scala sc:compile
  *  def f[A](it: Iterator[A]) = {
  *   if (it.hasNext) {            // Safe to reuse "it" after "hasNext"
  *     it.next()                  // Safe to reuse "it" after "next"

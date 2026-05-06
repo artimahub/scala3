@@ -31,12 +31,12 @@ import IterableOnce.elemsToCopyToArray
  *
  *  Note: `IterableOnce` does not extend [[IterableOnceOps]]. This is different than the general
  *  design of the collections library, which uses the following pattern:
- *  ```
- *   trait Seq extends Iterable with SeqOps
- *   trait SeqOps extends IterableOps
+ *  ```scala sc:compile
+ *   transparent trait SeqOps[+A, +CC[_], +C] extends Any
+ *   trait Seq[+A] extends Iterable[A] with SeqOps[A, Seq, Seq[A]]
  *
- *   trait IndexedSeq extends Seq with IndexedSeqOps
- *   trait IndexedSeqOps extends SeqOps
+ *   transparent trait IndexedSeqOps[+A, +CC[_], +C] extends Any with SeqOps[A, CC, C]
+ *   trait IndexedSeq[+A] extends Seq[A] with IndexedSeqOps[A, IndexedSeq, IndexedSeq[A]]
  *  ```
  *
  *  The goal is to provide a minimal interface without any sequential operations. This allows
@@ -383,12 +383,9 @@ transparent trait IterableOnceOps[+A, +CC[_], +C] extends Any { this: IterableOn
    *
    *  Example:
    *
-   *  ```
-   *      scala> List(1, 2, 3, 100, 4).takeWhile(n => n < 10)
-   *      val res0: List[Int] = List(1, 2, 3)
-   *
-   *      scala> List(1, 2, 3, 100, 4).takeWhile(n => n == 0)
-   *      val res1: List[Int] = List()
+   *  ```scala sc:compile
+   *      List(1, 2, 3, 100, 4).takeWhile(n => n < 10) // List(1, 2, 3)
+   *      List(1, 2, 3, 100, 4).takeWhile(n => n == 0) // List()
    *  ```
    *
    *  Use [[span]] to obtain both the prefix and suffix.
@@ -418,12 +415,9 @@ transparent trait IterableOnceOps[+A, +CC[_], +C] extends Any { this: IterableOn
    *
    *  Example:
    *
-   *  ```
-   *      scala> List(1, 2, 3, 100, 4).dropWhile(n => n < 10)
-   *      val res0: List[Int] = List(100, 4)
-   *
-   *      scala> List(1, 2, 3, 100, 4).dropWhile(n => n == 0)
-   *      val res1: List[Int] = List(1, 2, 3, 100, 4)
+   *  ```scala sc:compile
+   *      List(1, 2, 3, 100, 4).dropWhile(n => n < 10) // List(100, 4)
+   *      List(1, 2, 3, 100, 4).dropWhile(n => n == 0) // List(1, 2, 3, 100, 4)
    *  ```
    *
    *  Use [[span]] to obtain both the prefix and suffix.
@@ -467,19 +461,19 @@ transparent trait IterableOnceOps[+A, +CC[_], +C] extends Any { this: IterableOn
    *
    *    For example:
    *
-   *    ```
+   *    ```scala sc:compile
    *      def getWords(lines: Seq[String]): Seq[String] = lines.flatMap(line => line.split("\\W+"))
    *    ```
    *
    *    The type of the resulting collection is guided by the static type of this $coll. This might
    *    cause unexpected results sometimes. For example:
    *
-   *    ```
+   *    ```scala sc:compile
    *      // lettersOf will return a Seq[Char] of likely repeated letters, instead of a Set
    *      def lettersOf(words: Seq[String]) = words.flatMap(word => word.toSet)
    *
-   *      // lettersOf will return a Set[Char], not a Seq
-   *      def lettersOf(words: Seq[String]) = words.toSet.flatMap(word => word.toSeq)
+   *      // lettersOf2 will return a Set[Char], not a Seq
+   *      def lettersOf2(words: Seq[String]) = words.toSet.flatMap(word => word.toSeq)
    *
    *      // xs will be an Iterable[Int]
    *      val xs = Map("a" -> List(11, 111), "b" -> List(22, 222)).flatMap(_._2)
@@ -501,7 +495,7 @@ transparent trait IterableOnceOps[+A, +CC[_], +C] extends Any { this: IterableOn
    *    The resulting collection's type will be guided by the
    *    type of $coll. For example:
    *
-   *    ```
+   *    ```scala sc:compile
    *    val xs = List(
    *               Set(1, 2, 3),
    *               Set(1, 2, 3)
@@ -1372,15 +1366,10 @@ transparent trait IterableOnceOps[+A, +CC[_], +C] extends Any { this: IterableOn
    *
    *  Example:
    *
-   *  ```
-   *      scala> val a = List(1,2,3,4)
-   *      a: List[Int] = List(1, 2, 3, 4)
-   *
-   *      scala> val b = new StringBuilder()
-   *      b: StringBuilder =
-   *
-   *      scala> a.addString(b , "List(" , ", " , ")")
-   *      res5: StringBuilder = List(1, 2, 3, 4)
+   *  ```scala sc:compile
+   *      val a = List(1,2,3,4) // List(1, 2, 3, 4)
+   *      val b = new StringBuilder()
+   *      a.addString(b , "List(" , ", " , ")") // List(1, 2, 3, 4)
    *  ```
    *
    *  @param  b    the string builder to which elements are appended.
@@ -1410,15 +1399,10 @@ transparent trait IterableOnceOps[+A, +CC[_], +C] extends Any { this: IterableOn
    *
    *  Example:
    *
-   *  ```
-   *      scala> val a = List(1,2,3,4)
-   *      a: List[Int] = List(1, 2, 3, 4)
-   *
-   *      scala> val b = new StringBuilder()
-   *      b: StringBuilder =
-   *
-   *      scala> a.addString(b, ", ")
-   *      res0: StringBuilder = 1, 2, 3, 4
+   *  ```scala sc:compile
+   *      val a = List(1,2,3,4) // List(1, 2, 3, 4)
+   *      val b = new StringBuilder()
+   *      a.addString(b, ", ") // 1, 2, 3, 4
    *  ```
    *
    *  @param  b    the string builder to which elements are appended.
@@ -1433,15 +1417,10 @@ transparent trait IterableOnceOps[+A, +CC[_], +C] extends Any { this: IterableOn
    *
    *  Example:
    *
-   *  ```
-   *      scala> val a = List(1,2,3,4)
-   *      a: List[Int] = List(1, 2, 3, 4)
-   *
-   *      scala> val b = new StringBuilder()
-   *      b: StringBuilder =
-   *
-   *      scala> val h = a.addString(b)
-   *      h: StringBuilder = 1234
+   *  ```scala sc:compile
+   *      val a = List(1,2,3,4) // List(1, 2, 3, 4)
+   *      val b = new StringBuilder()
+   *      val h = a.addString(b) // 1234
    *  ```
    *
    *  @param  b    the string builder to which elements are appended.
@@ -1452,7 +1431,13 @@ transparent trait IterableOnceOps[+A, +CC[_], +C] extends Any { this: IterableOn
   /** Given a collection factory `factory`, converts this $coll to the appropriate
    *  representation for the current element type `A`. Example uses:
    *
+   *  ```scala sc-name:import-and-xs sc-hidden
+   *  import scala.collection.mutable.ArrayBuffer
+   *  import scala.collection.immutable.BitSet
+   *  val xs: Iterable[Int] = Seq(1, 2, 3, 4, 5)
    *  ```
+   *
+   *  ```scala sc-compile-with:import-and-xs
    *      xs.to(List)
    *      xs.to(ArrayBuffer)
    *      xs.to(BitSet) // for xs: Iterable[Int]

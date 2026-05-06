@@ -28,7 +28,7 @@ class PostProcessor(val frontendAccess: PostProcessorFrontendAccess,
   private val inliner             = new Inliner(frontendAccess, backendUtils, callGraph, ts, bTypesFromClassfile, byteCodeRepository, heuristics, closureOptimizer)
   private val localOpt            = new LocalOpt(backendUtils, frontendAccess, callGraph, inliner, ts, bTypesFromClassfile)
   val classfileWriters            = new ClassfileWriters(frontendAccess)
-  val classfileWriter             = classfileWriters.ClassfileWriter()
+  val classfileWriter             = classfileWriters.ClassfileWriter(frontendAccess.compilerSettings.mainClass)
 
 
   private type ClassnamePosition = (String, SourcePosition)
@@ -49,7 +49,7 @@ class PostProcessor(val frontendAccess: PostProcessorFrontendAccess,
         case e: java.lang.RuntimeException if e.getMessage != null && e.getMessage.contains("too large!") =>
           report.error(em"Could not write class $internalName because it exceeds JVM code size limits. ${e.getMessage}")
           null
-        case ex: Throwable =>
+        case ex: Exception =>
           if frontendAccess.compilerSettings.debug then ex.printStackTrace()
           report.error(em"Error while emitting $internalName\n${ex.getMessage}")
           null

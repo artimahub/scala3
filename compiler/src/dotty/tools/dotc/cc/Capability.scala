@@ -1241,7 +1241,7 @@ object Capabilities:
 
   abstract class CapMap(using Context) extends BiTypeMap:
     override def mapOver(t: Type): Type = t match
-      case t @ FunctionOrMethod(args, res) if variance > 0 && !t.isAliasFun =>
+      case t @ FunctionOrMethod(_, _) if variance > 0 && !t.isAliasFun =>
         t // `t` should be mapped in this case by a different call to `toResult`. See [[toResultInResults]].
       case t: (LazyRef | TypeVar) =>
         mapConserveSuper(t)

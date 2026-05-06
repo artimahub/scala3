@@ -785,38 +785,28 @@ final class StringOps(private val s: String) extends AnyVal { self =>
    *  The behaviour follows, and is implemented in terms of <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html#split(java.lang.String)">String.split(re: String)</a>
    *
    *
-   *  @example ```
-   *  "a.b".split('.') //returns Array("a", "b")
-   *
-   *  //splitting the empty string always returns the array with a single
-   *  //empty string
-   *  "".split('.') //returns Array("")
-   *
-   *  //only trailing empty substrings are removed
-   *  "a.".split('.') //returns Array("a")
-   *  ".a.".split('.') //returns Array("", "a")
-   *  "..a..".split('.') //returns Array("", "", "a")
-   *
-   *  //all parts are empty and trailing
-   *  ".".split('.') //returns Array()
-   *  "..".split('.') //returns Array()
-   *
-   *  //surrogate pairs
+   *  @example ```scala sc:compile
+   *  "a.b".split('.') // Array("a", "b")
+   *  // splitting the empty string always returns the array with a single empty string
+   *  "".split('.') // Array("")
+   *  "a.".split('.') // Array("a")
+   *  ".a.".split('.') // Array("", "a")
+   *  "..a..".split('.') // Array("", "", "a")
+   *  // all parts are empty and trailing
+   *  ".".split('.') // Array()
+   *  "..".split('.') // Array()
+   *  // surrogate pairs
    *  val high = 0xD852.toChar
    *  val low = 0xDF62.toChar
    *  val highstring = high.toString
    *  val lowstring = low.toString
-   *
-   *  //well-formed surrogate pairs are not split
+   *  // well-formed surrogate pairs are not split
    *  val highlow = highstring + lowstring
-   *  highlow.split(high) //returns Array(highlow)
-   *
-   *  //bare surrogate characters are split
+   *  highlow.split(high) // Array(highlow)
+   *  // bare surrogate characters are split
    *  val bare = "_" + highstring + "_"
-   *  bare.split(high) //returns Array("_", "_")
-   *
+   *  bare.split(high) // Array("_", "_")
    *  ```
-   *
    *  @param separator the character used as a delimiter
    */
   def split(separator: Char): Array[String] = s.split(escape(separator))
@@ -1606,7 +1596,7 @@ final class StringOps(private val s: String) extends AnyVal { self =>
   /** Iterates over distinct permutations of elements.
    *
    *  @return   An Iterator which traverses the distinct permutations of this string.
-   *  @example ```
+   *  @example ```scala sc:compile
    *    "abb".permutations.foreach(println)
    *    // abb
    *    // bab

@@ -5,8 +5,6 @@ package core
 import java.io.{IOException, File}
 import java.nio.channels.ClosedByInterruptException
 
-import scala.util.control.NonFatal
-
 import dotty.tools.dotc.classpath.{ ClassPathFactory, PackageNameUtils }
 import dotty.tools.dotc.classpath.FileUtils.{hasTastyExtension, hasBetastyExtension}
 import dotty.tools.io.{ ClassPath, ClassRepresentation, AbstractFile, NoAbstractFile }
@@ -437,16 +435,14 @@ abstract class SymbolLoader extends LazyType { self =>
       report.informTime("loaded " + description, start)
     }
     catch {
-      case ex: InterruptedException =>
-        throw ex
       case ex: ClosedByInterruptException =>
         throw new InterruptedException
       case ex: IOException =>
         signalError(ex)
-      case NonFatal(ex: TypeError) =>
+      case ex: TypeError =>
         println(s"exception caught when loading $root: ${ex.toMessage}")
         throw ex
-      case NonFatal(ex) =>
+      case ex: Exception =>
         println(s"exception caught when loading $root: $ex")
         throw ex
     }

@@ -46,17 +46,12 @@ trait Set[A]
    *  to unexpected results if `ordering.equiv(e1, e2)` (used for lookup in `TreeSet`) is different from `e1 == e2`
    *  (used for lookup in `HashSet`).
    *
+   *  ```scala sc:compile
+   *   import scala.collection.immutable._
+   *   val ord: Ordering[String] = _ compareToIgnoreCase _
+   *   val result1 = TreeSet("A")(using ord) == HashSet("a") // false
+   *   val result2 = HashSet("a") == TreeSet("A")(using ord) // true
    *  ```
-   *   scala> import scala.collection.immutable._
-   *   scala> val ord: Ordering[String] = _ compareToIgnoreCase _
-   *
-   *   scala> TreeSet("A")(ord) == HashSet("a")
-   *   val res0: Boolean = false
-   *
-   *   scala> HashSet("a") == TreeSet("A")(ord)
-   *   val res1: Boolean = true
-   *  ```
-   *
    *
    *  @param that The set to which this set is compared
    *  @return `true` if the two sets are equal according to the description

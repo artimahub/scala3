@@ -26,7 +26,10 @@ import caps.unsafe.untrackedCaptures
  *  framework in their implementation.
  *
  *  Example usage,
+ *  ```scala sc-name:import-buildfrom sc-hidden
+ *    import scala.collection.BuildFrom
  *  ```
+ *  ```scala sc-compile-with:import-buildfrom
  *    extension [Repr, I <: IsIterableOnce[Repr]](coll: Repr)(using it: I) {
  *      final def filterMap[B, That](f: it.A => Option[B])(using bf: BuildFrom[Repr, B, That]): That = {
  *        val b = bf.newBuilder(coll)

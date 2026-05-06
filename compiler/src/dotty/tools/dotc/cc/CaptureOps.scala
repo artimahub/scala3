@@ -502,8 +502,8 @@ extension (tp: Type)
     case tp: MethodType =>
       tp.derivedLambdaType(paramInfos = argTypes, resType = resType)
     case tp: PolyType =>
-      assert(argTypes.isEmpty)
-      tp.derivedLambdaType(resType = resType)
+      assert(argTypes.forall(_.isInstanceOf[TypeBounds]))
+      tp.derivedLambdaType(paramInfos = argTypes.asInstanceOf[List[TypeBounds]], resType = resType)
     case _ =>
       tp
 
@@ -903,12 +903,16 @@ class PathSelectionProto(val selector: Symbol, val pt: Type, val tree: Tree) ext
  *   argument if CC is enabled (we need to do that to keep by-name status).
  */
 class CleanupRetains(using Context) extends TypeMap:
+  var retainsFound: Boolean = false
   def apply(tp: Type): Type = tp match
     case tp @ AnnotatedType(parent, annot: RetainingAnnotation) =>
       if Feature.ccEnabled then
+        retainsFound = true
         if annot.symbol == defn.RetainsCapAnnot then tp
         else AnnotatedType(this(parent), RetainingAnnotation(annot.symbol.asClass, defn.NothingType))
       else this(parent)
+    case tp @ AnnotatedType(parent, annot) if annot.symbol == defn.DeclaredAnnot =>
+      tp
     case _ => mapOver(tp)
 
 /** A base class for extractors that match annotated types with a specific
@@ -953,14 +957,13 @@ end OnlyCapability
 
 /** An extractor for all kinds of function types as well as method and poly types.
  *  It includes aliases of function types such as `=>`. TODO: Can we do without?
- *  @return  1st half: The argument types or empty if this is a type function
+ *  @return  1st half: The argument types or type bounds if this is a type function
  *           2nd half: The result type
  */
 object FunctionOrMethod:
   def unapply(tp: Type)(using Context): Option[(List[Type], Type)] = tp match
     case defn.FunctionOf(args, res, isContextual) => Some((args, res))
-    case mt: MethodType => Some((mt.paramInfos, mt.resType))
-    case mt: PolyType => Some((Nil, mt.resType))
+    case mt: MethodOrPoly => Some((mt.paramInfos, mt.resType))
     case defn.RefinedFunctionOf(rinfo) => unapply(rinfo)
     case _ => None
 

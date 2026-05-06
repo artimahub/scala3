@@ -34,7 +34,7 @@ import scala.runtime.AbstractFunction2
  *  consider a * [[scala.collection.immutable.SeqMap]], which does not need to
  *  have an ordering supplied.
  *
- *  @example ```
+ *  @example ```scala sc:compile
  *  import scala.collection.immutable.TreeMap
  *
  *  // Make a TreeMap via the companion object factory

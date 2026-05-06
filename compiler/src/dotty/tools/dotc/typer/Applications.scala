@@ -38,7 +38,6 @@ import Denotations.SingleDenotation
 import annotation.threadUnsafe
 
 import scala.annotation.tailrec
-import scala.util.control.NonFatal
 
 object Applications {
   import tpd.*
@@ -486,7 +485,7 @@ object Applications {
       // it's crucial that the type tree is not copied directly as argument to
       // `cpy$default$1`. If it was, the variable `X'` would already be interpolated
       // when typing the default argument, which is too early.
-      spliceMeth(meth, fn).appliedToTypeTrees(targs.map(targ => TypeTree(targ.tpe).withSpan(targ.span)))
+      spliceMeth(meth, fn).appliedToTypeTrees(targs.map(targ => TypeTree(targ.tpe, inferred = true).withSpan(targ.span)))
     case _ => meth
   }
 

@@ -955,6 +955,14 @@ trait BCodeBodyBuilder(val primitives: ScalaPrimitives)(using ctx: Context) exte
      * Int/String values to use as keys, and a code block. The exception is the "default" case
      * clause which doesn't list any key (there is exactly one of these per match).
      */
+    private def emitThrowMatchError(): Unit =
+      bc.jmethod.visitTypeInsn(asm.Opcodes.NEW, "scala/MatchError")
+      bc.jmethod.visitInsn(asm.Opcodes.DUP)
+      bc.jmethod.visitInsn(asm.Opcodes.ACONST_NULL)
+      bc.jmethod.visitMethodInsn(asm.Opcodes.INVOKESPECIAL,
+        "scala/MatchError", "<init>", "(Ljava/lang/Object;)V", false)
+      bc.jmethod.visitInsn(asm.Opcodes.ATHROW)
+
     private def genMatchTo(tree: Match, expectedType: BType, dest: LoadDestination): BType = tree match {
       case Match(selector, cases) =>
       lineNumber(tree)
@@ -1008,6 +1016,10 @@ trait BCodeBodyBuilder(val primitives: ScalaPrimitives)(using ctx: Context) exte
           }
         }
 
+        val hasDefault = default != null
+        if !hasDefault then
+          default = new asm.Label
+
         bc.emitSWITCH(mkArrayReverse(flatKeys), mkArrayL(targets.reverse), default, MIN_SWITCH_DENSITY)
 
         // emit switch-blocks.
@@ -1016,6 +1028,10 @@ trait BCodeBodyBuilder(val primitives: ScalaPrimitives)(using ctx: Context) exte
           markProgramPoint(caseLabel)
           genLoadTo(caseBody, generatedType, postMatchDest)
         }
+
+        if !hasDefault then
+          markProgramPoint(default)
+          emitThrowMatchError()
       } else {
 
         /* Since the JVM doesn't have a way to switch on a string, we  switch
@@ -1078,6 +1094,11 @@ trait BCodeBodyBuilder(val primitives: ScalaPrimitives)(using ctx: Context) exte
           targets  ::= switchBlockPoint
         }
 
+        val hasDefault = default != null
+        if !hasDefault then
+          default = new asm.Label
+          indirectBlocks ::= (default, null)
+
         // Push the hashCode of the string (or `0` it is `null`) onto the stack and switch on it
         genLoadIfTo(
           If(
@@ -1115,7 +1136,10 @@ trait BCodeBodyBuilder(val primitives: ScalaPrimitives)(using ctx: Context) exte
         // emit blocks for common patterns
         for ((caseLabel, caseBody) <- indirectBlocks.reverse) {
           markProgramPoint(caseLabel)
-          genLoadTo(caseBody, generatedType, postMatchDest)
+          if caseBody == null then
+            emitThrowMatchError()
+          else
+            genLoadTo(caseBody, generatedType, postMatchDest)
         }
       }
 

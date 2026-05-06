@@ -352,10 +352,10 @@ object GenericSignatures {
               // we need to special cases for polymorphic value classes:
               // `Foo[X]` erases to `X` except that primitives use their boxed type,
               // and `Bar[X]` for `class Bar[A](x: Array[A]) extends AnyVal` erases like the definition-site `Array[A]`.
-              // The end-to-end binary compatibility is checked by tests/run/i8001
-              // There is a more targeted test for generic signatures at tests/run/i24276
+              // The end-to-end binary compatibility is checked by i8001
+              // There are more targeted tests for generic signatures at i24276 and t6344
               val compatibleUnderlying =
-                if seenUnderlying.isPrimitiveValueType then defn.boxedType(seenUnderlying)
+                if seenUnderlying.isPrimitiveValueType && !underlying.isPrimitiveValueType then defn.boxedType(seenUnderlying)
                 else if underlying.derivesFrom(defn.ArrayClass) then erasure(underlying)
                 else seenUnderlying
               jsig(compatibleUnderlying, toplevel = toplevel)
@@ -510,7 +510,31 @@ object GenericSignatures {
   }
 
   private object RefOrAppliedType {
-    def unapply(tp: Type)(using Context): Option[(Symbol, Type, List[Type])] = tp match {
+    private enum ResolvedAppliedType:
+      case Resolved(t: Type)
+      case NotResolved
+      case Bail
+    // In the special case where we see a type parameter applied to type parameters,
+    // such as `K[X, Y]` given `[X, Y, K <: Iterable[(X, Y)]]`, we must find its bound
+    // and instantiate it, otherwise in our example we end up with `Iterable[X, Y]` which is nonsensical.
+    private def resolveAppliedType(a: AppliedType)(using Context): ResolvedAppliedType =
+      a.tycon match
+        case TypeParamRef(binder, paramNum) =>
+          binder.paramInfos(paramNum).hi match
+            case hkt @ HKTypeLambda(_, _) =>
+              val instantiated = hkt.instantiate(a.args).dealias
+              // However, since Java doesn't have a way to refer to HKTs in generic signatures,
+              // we must trade precision for termination by only resolving one level,
+              // otherwise we end up in infinite loops,
+              // e.g., in `X[A] <: Thing[X[A]]` or `X[A] <: X[Thing[A]]` we keep resolving `X`.
+              // In that case we must completely give up on the genericity, i.e.,
+              // in `X[A] <: Y[X[Z[A]]]` it would not be correct to use `Y[A]` as a type signature! 
+              if instantiated.existsPart(_ == a.tycon) then ResolvedAppliedType.Bail
+              else ResolvedAppliedType.Resolved(instantiated)
+            case _ => ResolvedAppliedType.NotResolved
+        case _ => ResolvedAppliedType.NotResolved
+
+    def unapply(tp: Type)(using Context): Option[(Symbol, Type, List[Type])] = tp match
       case TypeParamRef(_, _) =>
         Some((tp.typeSymbol, tp, Nil))
       case TermParamRef(_, _) =>
@@ -518,11 +542,13 @@ object GenericSignatures {
       case TypeRef(pre, _) if !tp.typeSymbol.isAliasType =>
         val sym = tp.typeSymbol
         Some((sym, pre, Nil))
-      case AppliedType(pre, args) =>
-        Some((pre.typeSymbol, pre, args))
+      case a @ AppliedType(pre, args) =>
+        resolveAppliedType(a) match
+          case ResolvedAppliedType.Resolved(resolved) => unapply(resolved)
+          case ResolvedAppliedType.NotResolved => Some((pre.typeSymbol, pre, args))
+          case ResolvedAppliedType.Bail => None
       case _ =>
         None
-    }
   }
 
   private def needsJavaSig(tp: Type, throwsArgs: List[Type])(using Context): Boolean = !ctx.settings.XnoGenericSig.value && {

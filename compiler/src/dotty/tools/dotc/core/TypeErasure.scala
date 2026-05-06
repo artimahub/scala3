@@ -933,8 +933,7 @@ class TypeErasure(sourceLanguage: SourceLanguage, semiEraseVCs: Boolean, isConst
       try erasureFn(sourceLanguage, semiEraseVCs = false, isConstructor, isSymbol, inSigName)(elemtp) match
         case _: WildcardType => WildcardType
         case elem => JavaArrayType(elem)
-      catch case ex: Throwable =>
-        handleRecursive("erase array type", tp.show, ex)
+      catch case ex: Throwable => handleRecursive("erase array type", tp.show, ex)
   }
 
   private def erasePair(tp: Type)(using Context): Type = {
@@ -946,7 +945,7 @@ class TypeErasure(sourceLanguage: SourceLanguage, semiEraseVCs: Boolean, isConst
   }
 
   /** The erasure of a symbol's info. This is different from `apply` in the way `ExprType`s and
-   *  `PolyType`s are treated. `eraseInfo` maps them them to method types, whereas `apply` maps them
+   *  `PolyType`s are treated. `eraseInfo` maps them to method types, whereas `apply` maps them
    *  to the underlying type.
    */
   def eraseInfo(tp: Type, sym: Symbol)(using Context): Type =

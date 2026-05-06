@@ -83,7 +83,7 @@ transparent trait SeqOps[+A, +CC[_], +C] extends Any
   override def view: SeqView[A]^{this} = new SeqView.Id[A](this)
 
   /** Gets the element at the specified index. This operation is provided for convenience in `Seq`. It should
-   *  not be assumed to be efficient unless you have an `IndexedSeq`. 
+   *  not be assumed to be efficient unless you have an `IndexedSeq`.
    */
   @throws[IndexOutOfBoundsException]
   def apply(i: Int): A
@@ -96,15 +96,10 @@ transparent trait SeqOps[+A, +CC[_], +C] extends Any
    *  Also, the original $coll is not modified, so you will want to capture the result.
    *
    *    Example:
-   *    ```
-   *      scala> val x = List(1)
-   *      x: List[Int] = List(1)
-   *
-   *      scala> val y = 2 +: x
-   *      y: List[Int] = List(2, 1)
-   *
-   *      scala> println(x)
-   *      List(1)
+   *    ```scala sc:compile
+   *      val x = List(1)
+   *      val y = 2 +: x
+   *      // x is still List(1), y is List(2, 1)
    *    ```
    *
    *  @tparam B      the element type of the returned $coll.
@@ -127,17 +122,11 @@ transparent trait SeqOps[+A, +CC[_], +C] extends Any
    *  $willNotTerminateInf
    *
    *  Example:
-   *  ```
-   *    scala> val a = List(1)
-   *    a: List[Int] = List(1)
-   *
-   *    scala> val b = a :+ 2
-   *    b: List[Int] = List(1, 2)
-   *
-   *    scala> println(a)
-   *    List(1)
-   *  ```
-   *
+   *  ```scala sc:compile
+   *    val a = List(1)
+   *    val b = a :+ 2
+   *    // a is still List(1), b is List(1, 2)
+   *  ```   *
    *  @tparam B      the element type of the returned $coll.
    *  @param  elem   the appended element
    *  @return a new $coll consisting of
@@ -537,7 +526,7 @@ transparent trait SeqOps[+A, +CC[_], +C] extends Any
    *  $willForceEvaluation
    *
    *  @return   An Iterator which traverses the distinct permutations of this $coll.
-   *  @example ```
+   *  @example ```scala sc:compile
    *    Seq('a', 'b', 'b').permutations.foreach(println)
    *    // List(a, b, b)
    *    // List(b, a, b)
@@ -574,7 +563,7 @@ transparent trait SeqOps[+A, +CC[_], +C] extends Any
    *  $willForceEvaluation
    *
    *  @return   An Iterator which traverses the n-element combinations of this $coll.
-   *  @example ```
+   *  @example ```scala sc:compile
    *    Seq('a', 'b', 'b', 'b', 'c').combinations(2).foreach(println)
    *    // List(a, b)
    *    // List(a, c)
@@ -752,9 +741,9 @@ transparent trait SeqOps[+A, +CC[_], +C] extends Any
    *              the desired ordering.
    *  @return     a $coll consisting of the elements of this $coll
    *              sorted according to the comparison function `lt`.
-   *  @example ```
-   *    List("Steve", "Bobby", "Tom", "John", "Bob").sortWith((x, y) => x.take(3).compareTo(y.take(3)) < 0) =
-   *    List("Bobby", "Bob", "John", "Steve", "Tom")
+   *  @example ```scala sc:compile
+   *    List("Steve", "Bobby", "Tom", "John", "Bob").sortWith((x, y) => x.take(3).compareTo(y.take(3)) < 0)
+   *    // List("Bobby", "Bob", "John", "Steve", "Tom")
    *  ```
    */
   def sortWith(lt: (A, A) => Boolean): C^{this} = sorted(using Ordering.fromLessThan(lt))
@@ -777,11 +766,11 @@ transparent trait SeqOps[+A, +CC[_], +C] extends Any
    *           sorted according to the ordering where `x < y` if
    *           `ord.lt(f(x), f(y))`.
    *
-   *  @example ```
+   *  @example ```scala sc:compile
    *    val words = "The quick brown fox jumped over the lazy dog".split(' ')
    *    // this works because scala.Ordering will implicitly provide an Ordering[Tuple2[Int, Char]]
-   *    words.sortBy(x => (x.length, x.head))
-   *    res0: Array[String] = Array(The, dog, fox, the, lazy, over, brown, quick, jumped)
+   *    val sorted = words.sortBy(x => (x.length, x.head))
+   *    // sorted: Array[String] = Array(The, dog, fox, the, lazy, over, brown, quick, jumped)
    *  ```
    */
   def sortBy[B](f: A => B)(implicit ord: Ordering[B]): C^{this} = sorted(using ord.on(f))
