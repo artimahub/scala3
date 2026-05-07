@@ -70,21 +70,53 @@ object Declaration:
   private def parseDef(chunk: String): Declaration =
     // Normalize chunk: join lines, collapse whitespace
     val normalized = chunk.linesIterator.mkString(" ").replaceAll("\\s+", " ")
+    val defIdx = normalized.indexOf("def ")
+    if defIdx < 0 then Declaration(DeclKind.Def, "", Nil, Nil, None)
+    else
+      var i = defIdx + 4
+      while i < normalized.length && normalized(i).isWhitespace do i += 1
 
-    DefPattern.findFirstMatchIn(normalized) match
-      case Some(m) =>
-        val name = m.group(1)
-        val tparamsStr = Option(m.group(2)).getOrElse("")
-        val paramsStr = Option(m.group(3)).getOrElse("")
-        val returnTypeStr = Option(m.group(4)).map(_.trim)
+      val nameStart = i
+      while i < normalized.length &&
+          (normalized(i).isLetterOrDigit || normalized(i) == '_' || normalized(i) == '$') do i += 1
+      val name = normalized.substring(nameStart, i)
 
-        val tparams = parseTypeParams(tparamsStr)
-        val params = parseParams(paramsStr)
-        val returnType = returnTypeStr.map(cleanReturnType)
+      while i < normalized.length && normalized(i).isWhitespace do i += 1
 
-        Declaration(DeclKind.Def, name, tparams, params, returnType)
-      case None =>
-        Declaration(DeclKind.Def, "", Nil, Nil, None)
+      val tparamsStr =
+        if i < normalized.length && normalized(i) == '[' then
+          val end = findBalancedEnd(normalized, i, '[', ']')
+          if end > i then
+            val inside = normalized.substring(i + 1, end)
+            i = end + 1
+            while i < normalized.length && normalized(i).isWhitespace do i += 1
+            inside
+          else ""
+        else ""
+
+      val paramsSb = new StringBuilder
+      var keepReadingParams = true
+      while keepReadingParams do
+        while i < normalized.length && normalized(i).isWhitespace do i += 1
+        if i < normalized.length && normalized(i) == '(' then
+          val end = findBalancedEnd(normalized, i, '(', ')')
+          if end > i then
+            paramsSb.append(normalized.substring(i, end + 1))
+            i = end + 1
+          else keepReadingParams = false
+        else keepReadingParams = false
+
+      while i < normalized.length && normalized(i).isWhitespace do i += 1
+      val returnTypeStr =
+        if i < normalized.length && normalized(i) == ':' then
+          Some(normalized.substring(i + 1).trim)
+        else None
+
+      val tparams = parseTypeParams(tparamsStr)
+      val params = parseParams(paramsSb.toString)
+      val returnType = returnTypeStr.map(cleanReturnType)
+
+      Declaration(DeclKind.Def, name, tparams, params, returnType)
 
   private def parseClass(chunk: String, kind: DeclKind): Declaration =
     val normalized = chunk.linesIterator.mkString(" ").replaceAll("\\s+", " ")
@@ -133,9 +165,7 @@ object Declaration:
   private def parseParams(str: String): List[String] =
     if str.trim.isEmpty then Nil
     else
-      // Find all parenthesis groups
-      val groupPattern = """\(([^)]*)\)""".r
-      val groups = groupPattern.findAllMatchIn(str).map(_.group(1)).toList
+      val groups = collectParamGroups(str)
 
       groups.flatMap { group =>
         splitByCommasTopLevel(group).flatMap { param =>
@@ -143,11 +173,70 @@ object Declaration:
         }
       }
 
+  /** Collect top-level (...) parameter groups while tolerating nested parens in annotations/types. */
+  private def collectParamGroups(str: String): List[String] =
+    val groups = collection.mutable.ListBuffer[String]()
+    var i = 0
+    while i < str.length do
+      if str(i) == '(' then
+        val start = i + 1
+        var depth = 1
+        var inString = false
+        var quoteChar = '\u0000'
+        var escaped = false
+        i += 1
+        while i < str.length && depth > 0 do
+          val ch = str(i)
+          if inString then
+            if escaped then escaped = false
+            else if ch == '\\' then escaped = true
+            else if ch == quoteChar then inString = false
+          else
+            if ch == '"' || ch == '\'' then
+              inString = true
+              quoteChar = ch
+            else if ch == '(' then depth += 1
+            else if ch == ')' then depth -= 1
+          i += 1
+        if depth == 0 then
+          groups += str.substring(start, i - 1)
+        else
+          i = str.length
+      else i += 1
+    groups.toList
+
+  /** Find the matching closing delimiter for a balanced section starting at `start`. */
+  private def findBalancedEnd(str: String, start: Int, open: Char, close: Char): Int =
+    if start < 0 || start >= str.length || str(start) != open then -1
+    else
+      var i = start
+      var depth = 0
+      var inString = false
+      var quoteChar = '\u0000'
+      var escaped = false
+      while i < str.length do
+        val ch = str(i)
+        if inString then
+          if escaped then escaped = false
+          else if ch == '\\' then escaped = true
+          else if ch == quoteChar then inString = false
+        else
+          if ch == '"' || ch == '\'' then
+            inString = true
+            quoteChar = ch
+          else if ch == open then depth += 1
+          else if ch == close then
+            depth -= 1
+            if depth == 0 then return i
+        i += 1
+      -1
+
   /** Extract parameter name from a param declaration like "x: Int" or "implicit ev: Eq[T]". */
   private def extractParamName(param: String): Option[String] =
     if param.isEmpty then None
     else
       var trimmed = param.trim
+      trimmed = dropLeadingAnnotations(trimmed)
       // Handle implicit/using/given keywords
       if trimmed.startsWith("implicit ") then trimmed = trimmed.drop(9).trim
       else if trimmed.startsWith("using ") then trimmed = trimmed.drop(6).trim
@@ -156,6 +245,7 @@ object Declaration:
       // Handle val/var modifiers (for class constructor params)
       if trimmed.startsWith("val ") then trimmed = trimmed.drop(4).trim
       else if trimmed.startsWith("var ") then trimmed = trimmed.drop(4).trim
+      trimmed = dropLeadingAnnotations(trimmed)
 
       // Handle override/private/protected modifiers
       if trimmed.startsWith("override ") then trimmed = trimmed.drop(9).trim
@@ -165,6 +255,7 @@ object Declaration:
       // Check for val/var again after modifiers
       if trimmed.startsWith("val ") then trimmed = trimmed.drop(4).trim
       else if trimmed.startsWith("var ") then trimmed = trimmed.drop(4).trim
+      trimmed = dropLeadingAnnotations(trimmed)
 
       // Unnamed contextual parameters like `(using Context)` have no identifier,
       // so they should not produce an @param tag.
@@ -174,6 +265,50 @@ object Declaration:
         val name = trimmed.substring(0, colonIdx).trim
 
         if name.nonEmpty && (name.head.isLetter || name.head == '_') then Some(name) else None
+
+  /** Remove leading parameter annotations, including annotation arguments. */
+  private def dropLeadingAnnotations(str: String): String =
+    var remaining = str.trim
+    var changed = true
+    while changed && remaining.startsWith("@") do
+      val end = leadingAnnotationEnd(remaining)
+      if end > 0 then
+        remaining = remaining.substring(end).trim
+      else
+        changed = false
+    remaining
+
+  /** Find the end index (exclusive) of a leading annotation, or -1 if invalid. */
+  private def leadingAnnotationEnd(str: String): Int =
+    if str.isEmpty || str.head != '@' then -1
+    else
+      var i = 1
+      while i < str.length && (str(i).isLetterOrDigit || str(i) == '_' || str(i) == '.') do i += 1
+      while i < str.length && str(i).isWhitespace do i += 1
+
+      if i < str.length && str(i) == '(' then
+        var depth = 0
+        var inString = false
+        var quoteChar = '\u0000'
+        var escaped = false
+
+        while i < str.length do
+          val ch = str(i)
+          if inString then
+            if escaped then escaped = false
+            else if ch == '\\' then escaped = true
+            else if ch == quoteChar then inString = false
+          else
+            if ch == '"' || ch == '\'' then
+              inString = true
+              quoteChar = ch
+            else if ch == '(' then depth += 1
+            else if ch == ')' then
+              depth -= 1
+              if depth == 0 then return i + 1
+          i += 1
+        -1
+      else i
 
   /** Split a string by commas, but ignore commas inside brackets/parentheses. */
   private def splitByCommasTopLevel(str: String): List[String] =
