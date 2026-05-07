@@ -250,3 +250,27 @@ class IntegrationSpec extends AnyFlatSpec with Matchers:
       }
     }
   }
+
+  it should "skip unnamed using parameters when inserting missing param tags" in {
+    val content = """package test
+                    |
+                    |/** A method.
+                    | *
+                    | *  More details.
+                    | */
+                    |def foo(x: Int)(using Context): String = ???
+                    |""".stripMargin
+
+    withTempFile(content) { path =>
+      val checkResult = ScaladocChecker.checkFile(path)
+      val fixResult = Fixer.fixFile(path, checkResult.results)
+
+      fixResult.blocksFixed should be(1)
+      fixResult.newContent shouldBe defined
+
+      val newContent = fixResult.newContent.get
+      newContent should include("@param x TODO FILL IN")
+      newContent should not include "@param Context TODO FILL IN"
+      newContent should include("@return TODO FILL IN")
+    }
+  }

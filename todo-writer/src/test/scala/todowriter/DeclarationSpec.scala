@@ -60,6 +60,12 @@ class DeclarationSpec extends AnyFlatSpec with Matchers:
     decl.params should contain allOf ("x", "ctx")
   }
 
+  it should "skip unnamed using params" in {
+    val chunk = "def foo(x: Int)(using Context): Unit = ???"
+    val decl = Declaration.parse(chunk)
+    decl.params should be(List("x"))
+  }
+
   it should "parse trait" in {
     val chunk = "trait Foo[A, B]"
     val decl = Declaration.parse(chunk)

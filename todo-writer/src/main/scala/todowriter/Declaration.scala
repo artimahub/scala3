@@ -166,13 +166,14 @@ object Declaration:
       if trimmed.startsWith("val ") then trimmed = trimmed.drop(4).trim
       else if trimmed.startsWith("var ") then trimmed = trimmed.drop(4).trim
 
-      // Extract name before ':'
+      // Unnamed contextual parameters like `(using Context)` have no identifier,
+      // so they should not produce an @param tag.
       val colonIdx = trimmed.indexOf(':')
-      val name =
-        if colonIdx > 0 then trimmed.substring(0, colonIdx).trim
-        else trimmed.takeWhile(c => c.isLetterOrDigit || c == '_')
+      if colonIdx < 0 then None
+      else
+        val name = trimmed.substring(0, colonIdx).trim
 
-      if name.nonEmpty && (name.head.isLetter || name.head == '_') then Some(name) else None
+        if name.nonEmpty && (name.head.isLetter || name.head == '_') then Some(name) else None
 
   /** Split a string by commas, but ignore commas inside brackets/parentheses. */
   private def splitByCommasTopLevel(str: String): List[String] =
