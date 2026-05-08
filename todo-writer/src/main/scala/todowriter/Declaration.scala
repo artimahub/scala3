@@ -30,10 +30,11 @@ object Declaration:
 
   /** Regex to parse a class/trait declaration.
    *
-   *  Uses the same nested-bracket / nested-parenthesis handling as defs.
+   *  Uses the same nested-bracket / nested-parenthesis handling as defs,
+   *  including multiple constructor parameter lists.
    */
   private val ClassPattern: Regex =
-    """(class|trait)\s+([^\s\(\[]+)\s*(?:\[((?:[^\[\]]|\[[^\[\]]*\])*)\])?\s*((?:\((?:[^()]|\([^()]*\))*\))?)""".r
+    """(class|trait)\s+([^\s\(\[]+)\s*(?:\[((?:[^\[\]]|\[[^\[\]]*\])*)\])?\s*((?:\((?:[^()]|\([^()]*\))*\))*)""".r
 
   /** Regex to parse an object declaration. */
   private val ObjectPattern: Regex =

@@ -54,6 +54,14 @@ class DeclarationSpec extends AnyFlatSpec with Matchers:
     decl.params should contain allOf ("x", "ctx")
   }
 
+  it should "parse class params across multiple parameter lists including implicit val" in {
+    val chunk = "class BufferedSource(inputStream: InputStream, bufferSize: Int)(implicit val codec: Codec) extends Source"
+    val decl = Declaration.parse(chunk)
+    decl.kind should be(DeclKind.Class)
+    decl.name should be("BufferedSource")
+    decl.params should be(List("inputStream", "bufferSize", "codec"))
+  }
+
   it should "handle using params" in {
     val chunk = "def foo(x: Int)(using ctx: Context): Unit = ???"
     val decl = Declaration.parse(chunk)
