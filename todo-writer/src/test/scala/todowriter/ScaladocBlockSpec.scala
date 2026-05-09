@@ -34,6 +34,15 @@ class ScaladocBlockSpec extends AnyFlatSpec with Matchers:
     blocks.head.hasReturn should be(true)
   }
 
+  it should "extract parameter name from @param lines with modifiers" in {
+    val text = """/** A class.
+                 | *  @param private[immutable] val len1 the number of elements in prefix1
+                 | */""".stripMargin
+    val blocks = ScaladocBlock.findAll(text)
+    blocks should have size 1
+    blocks.head.params should be(List("len1"))
+  }
+
   it should "handle empty scaladoc" in {
     val text = """/** */"""
     val blocks = ScaladocBlock.findAll(text)

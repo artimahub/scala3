@@ -193,3 +193,11 @@ class DeclarationSpec extends AnyFlatSpec with Matchers:
     decl.name should be("locally")
     decl.params should be(List("x"))
   }
+
+  it should "parse qualified private val constructor parameter names" in {
+    val chunk = "class Foo(private[immutable] val len1: Int)"
+    val decl = Declaration.parse(chunk)
+    decl.kind should be(DeclKind.Class)
+    decl.name should be("Foo")
+    decl.params should be(List("len1"))
+  }

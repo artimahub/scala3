@@ -18,11 +18,15 @@ object ScaladocBlock:
   /** Regex to match Scaladoc blocks /** ... */ */
   val ScaladocPattern: Regex = """(?s)/\*\*(?<inner>.*?)\*/""".r
 
-  /** Regex to extract tags from Scaladoc content.
-   *  Matches lines like: * @param name description
-   *  or @param name description (without leading *)
+  /** Regex to extract @param names, allowing Scala-style modifiers before the actual name.
+   *  Example: @param private[immutable] val len1 description
    */
-  private val TagPattern: Regex = """(?:^\s*\*?\s*)?@(\w+)\s+(\w+)?""".r
+  private val ParamTagPattern: Regex =
+    """@param\s+(?:(?:(?:private|protected)(?:\[[^\]]+\])?|val|var|using|implicit|inline|erased|lazy|final|override|open|transparent)\s+)*(`[^`]+`|[A-Za-z_][A-Za-z0-9_]*)""".r
+
+  /** Regex to extract @tparam name. */
+  private val TparamTagPattern: Regex =
+    """@tparam\s+(`[^`]+`|[A-Za-z_][A-Za-z0-9_]*)""".r
 
   /** Find all Scaladoc blocks in the given text. */
   def findAll(text: String): List[ScaladocBlock] =
@@ -68,16 +72,14 @@ object ScaladocBlock:
 
     // Process line by line to handle multi-line scaladoc
     for line <- inner.linesIterator do
-      // Look for @tag patterns
-      val tagMatches = """@(\w+)(?:\s+(\w+))?""".r.findAllMatchIn(line)
-      for m <- tagMatches do
-        val tag = m.group(1)
-        val name = Option(m.group(2)).getOrElse("")
-        tag match
-          case "param"  => if name.nonEmpty then params += name
-          case "tparam" => if name.nonEmpty then tparams += name
-          case "return" => hasReturn = true
-          case _        => // ignore other tags
+      for m <- ParamTagPattern.findAllMatchIn(line) do
+        params += m.group(1)
+
+      for m <- TparamTagPattern.findAllMatchIn(line) do
+        tparams += m.group(1)
+
+      if line.contains("@return") then
+        hasReturn = true
 
     ExtractedTags(params.toList, tparams.toList, hasReturn)
 

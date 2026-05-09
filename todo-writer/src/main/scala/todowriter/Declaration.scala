@@ -248,10 +248,8 @@ object Declaration:
       else if trimmed.startsWith("var ") then trimmed = trimmed.drop(4).trim
       trimmed = dropLeadingAnnotations(trimmed)
 
-      // Handle override/private/protected modifiers
-      if trimmed.startsWith("override ") then trimmed = trimmed.drop(9).trim
-      if trimmed.startsWith("private ") then trimmed = trimmed.drop(8).trim
-      else if trimmed.startsWith("protected ") then trimmed = trimmed.drop(10).trim
+      // Handle access/override modifiers (including qualified private/protected, e.g. private[pkg])
+      trimmed = dropLeadingModifiers(trimmed)
 
       // Check for val/var again after modifiers
       if trimmed.startsWith("val ") then trimmed = trimmed.drop(4).trim
@@ -266,6 +264,50 @@ object Declaration:
         val name = trimmed.substring(0, colonIdx).trim
 
         if name.nonEmpty && (name.head.isLetter || name.head == '_') then Some(name) else None
+
+  /** Remove leading modifiers from a parameter declaration head. */
+  private def dropLeadingModifiers(str: String): String =
+    var remaining = str.trim
+    var changed = true
+
+    while changed do
+      changed = false
+
+      if remaining.startsWith("override ") then
+        remaining = remaining.drop(9).trim
+        changed = true
+      else if remaining.startsWith("inline ") then
+        remaining = remaining.drop(7).trim
+        changed = true
+      else if remaining.startsWith("final ") then
+        remaining = remaining.drop(6).trim
+        changed = true
+
+      if remaining.startsWith("private") then
+        val rest = remaining.drop(7)
+        if rest.startsWith("[") then
+          val close = rest.indexOf(']')
+          if close >= 0 then
+            remaining = rest.substring(close + 1).trim
+            changed = true
+        else if rest.headOption.exists(_.isWhitespace) then
+          remaining = rest.trim
+          changed = true
+
+      if remaining.startsWith("protected") then
+        val rest = remaining.drop(9)
+        if rest.startsWith("[") then
+          val close = rest.indexOf(']')
+          if close >= 0 then
+            remaining = rest.substring(close + 1).trim
+            changed = true
+        else if rest.headOption.exists(_.isWhitespace) then
+          remaining = rest.trim
+          changed = true
+
+      remaining = dropLeadingAnnotations(remaining)
+
+    remaining
 
   /** Remove leading parameter annotations, including annotation arguments. */
   private def dropLeadingAnnotations(str: String): String =

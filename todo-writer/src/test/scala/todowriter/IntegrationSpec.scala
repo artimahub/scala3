@@ -294,3 +294,22 @@ class IntegrationSpec extends AnyFlatSpec with Matchers:
       newContent should include("@param x TODO FILL IN")
     }
   }
+
+  it should "not add duplicate @param when existing tag uses visibility modifiers" in {
+    val content = """package test
+                    |
+                    |/** A class.
+                    | *  @param private[immutable] val len1 the number of elements in prefix1
+                    | */
+                    |class Foo(private[immutable] val len1: Int)
+                    |""".stripMargin
+
+    withTempFile(content) { path =>
+      val checkResult = ScaladocChecker.checkFile(path)
+      checkResult.hasIssues should be(false)
+
+      val fixResult = Fixer.fixFile(path, checkResult.results)
+      fixResult.blocksFixed should be(0)
+      fixResult.newContent shouldBe None
+    }
+  }
