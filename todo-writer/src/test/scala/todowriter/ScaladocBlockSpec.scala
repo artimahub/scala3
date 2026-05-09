@@ -43,6 +43,15 @@ class ScaladocBlockSpec extends AnyFlatSpec with Matchers:
     blocks.head.params should be(List("len1"))
   }
 
+  it should "normalize backticked @param names" in {
+    val text = """/** A method.
+                 | *  @param `type` the input value
+                 | */""".stripMargin
+    val blocks = ScaladocBlock.findAll(text)
+    blocks should have size 1
+    blocks.head.params should be(List("type"))
+  }
+
   it should "handle empty scaladoc" in {
     val text = """/** */"""
     val blocks = ScaladocBlock.findAll(text)

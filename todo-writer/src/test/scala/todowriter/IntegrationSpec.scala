@@ -313,3 +313,42 @@ class IntegrationSpec extends AnyFlatSpec with Matchers:
       fixResult.newContent shouldBe None
     }
   }
+
+  it should "accept backticked @param name for backticked parameter" in {
+    val content = """package test
+                    |
+                    |/** A method.
+                    | *  @param `type` the input value
+                    | *  @return the output value
+                    | */
+                    |def foo(`type`: Int): Int = `type`
+                    |""".stripMargin
+
+    withTempFile(content) { path =>
+      val checkResult = ScaladocChecker.checkFile(path)
+      checkResult.hasIssues should be(false)
+
+      val fixResult = Fixer.fixFile(path, checkResult.results)
+      fixResult.blocksFixed should be(0)
+      fixResult.newContent shouldBe None
+    }
+  }
+
+  it should "not add duplicate @param when existing tag uses protected qualifier" in {
+    val content = """package test
+                    |
+                    |/** A class.
+                    | *  @param protected[collection] val len1 the number of elements in prefix1
+                    | */
+                    |class Foo(protected[collection] val len1: Int)
+                    |""".stripMargin
+
+    withTempFile(content) { path =>
+      val checkResult = ScaladocChecker.checkFile(path)
+      checkResult.hasIssues should be(false)
+
+      val fixResult = Fixer.fixFile(path, checkResult.results)
+      fixResult.blocksFixed should be(0)
+      fixResult.newContent shouldBe None
+    }
+  }

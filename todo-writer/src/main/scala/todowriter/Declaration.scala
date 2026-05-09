@@ -262,8 +262,9 @@ object Declaration:
       if colonIdx < 0 then None
       else
         val name = trimmed.substring(0, colonIdx).trim
+        val normalized = normalizeIdentifierName(name)
 
-        if name.nonEmpty && (name.head.isLetter || name.head == '_') then Some(name) else None
+        if normalized.nonEmpty && (normalized.head.isLetter || normalized.head == '_') then Some(normalized) else None
 
   /** Remove leading modifiers from a parameter declaration head. */
   private def dropLeadingModifiers(str: String): String =
@@ -308,6 +309,12 @@ object Declaration:
       remaining = dropLeadingAnnotations(remaining)
 
     remaining
+
+  /** Normalize identifier spellings used in docs/signatures (e.g. `type` -> type). */
+  private def normalizeIdentifierName(name: String): String =
+    if name.length >= 2 && name.head == '`' && name.last == '`' then
+      name.substring(1, name.length - 1)
+    else name
 
   /** Remove leading parameter annotations, including annotation arguments. */
   private def dropLeadingAnnotations(str: String): String =

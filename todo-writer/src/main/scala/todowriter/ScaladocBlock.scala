@@ -73,15 +73,20 @@ object ScaladocBlock:
     // Process line by line to handle multi-line scaladoc
     for line <- inner.linesIterator do
       for m <- ParamTagPattern.findAllMatchIn(line) do
-        params += m.group(1)
+        params += normalizeDocTagName(m.group(1))
 
       for m <- TparamTagPattern.findAllMatchIn(line) do
-        tparams += m.group(1)
+        tparams += normalizeDocTagName(m.group(1))
 
       if line.contains("@return") then
         hasReturn = true
 
     ExtractedTags(params.toList, tparams.toList, hasReturn)
+
+  private def normalizeDocTagName(name: String): String =
+    if name.length >= 2 && name.head == '`' && name.last == '`' then
+      name.substring(1, name.length - 1)
+    else name
 
   /** Determine if the Scaladoc has only a single paragraph of descriptive content.
    *
