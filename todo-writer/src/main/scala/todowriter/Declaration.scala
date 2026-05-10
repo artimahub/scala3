@@ -283,6 +283,18 @@ object Declaration:
       else if remaining.startsWith("final ") then
         remaining = remaining.drop(6).trim
         changed = true
+      else if remaining.startsWith("erased ") then
+        remaining = remaining.drop(7).trim
+        changed = true
+      else if remaining.startsWith("lazy ") then
+        remaining = remaining.drop(5).trim
+        changed = true
+      else if remaining.startsWith("open ") then
+        remaining = remaining.drop(5).trim
+        changed = true
+      else if remaining.startsWith("transparent ") then
+        remaining = remaining.drop(12).trim
+        changed = true
 
       if remaining.startsWith("private") then
         val rest = remaining.drop(7)

@@ -22,11 +22,15 @@ object ScaladocBlock:
    *  Example: @param private[immutable] val len1 description
    */
   private val ParamTagPattern: Regex =
-    """@param\s+(?:(?:(?:private|protected)(?:\[[^\]]+\])?|val|var|using|implicit|inline|erased|lazy|final|override|open|transparent)\s+)*(`[^`]+`|[A-Za-z_][A-Za-z0-9_]*)""".r
+    """^@param\s+(?:(?:(?:private|protected)(?:\[[^\]]+\])?|val|var|using|implicit|inline|erased|lazy|final|override|open|transparent)\s+)*(`[^`]+`|[A-Za-z_][A-Za-z0-9_]*)""".r
 
   /** Regex to extract @tparam name. */
   private val TparamTagPattern: Regex =
-    """@tparam\s+(`[^`]+`|[A-Za-z_][A-Za-z0-9_]*)""".r
+    """^@tparam\s+(`[^`]+`|[A-Za-z_][A-Za-z0-9_]*)""".r
+
+  /** Regex to detect a real @return tag line. */
+  private val ReturnTagPattern: Regex =
+    """^@return(?:\s|$)""".r
 
   /** Find all Scaladoc blocks in the given text. */
   def findAll(text: String): List[ScaladocBlock] =
@@ -72,13 +76,18 @@ object ScaladocBlock:
 
     // Process line by line to handle multi-line scaladoc
     for line <- inner.linesIterator do
-      for m <- ParamTagPattern.findAllMatchIn(line) do
+      val trimmed = line.trim
+      val content = if trimmed.startsWith("*") then trimmed.drop(1).trim else trimmed
+
+      ParamTagPattern.findFirstMatchIn(content).foreach { m =>
         params += normalizeDocTagName(m.group(1))
+      }
 
-      for m <- TparamTagPattern.findAllMatchIn(line) do
+      TparamTagPattern.findFirstMatchIn(content).foreach { m =>
         tparams += normalizeDocTagName(m.group(1))
+      }
 
-      if line.contains("@return") then
+      if ReturnTagPattern.findFirstIn(content).nonEmpty then
         hasReturn = true
 
     ExtractedTags(params.toList, tparams.toList, hasReturn)

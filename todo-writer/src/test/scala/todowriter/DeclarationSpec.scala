@@ -210,6 +210,22 @@ class DeclarationSpec extends AnyFlatSpec with Matchers:
     decl.params should be(List("len1"))
   }
 
+  it should "parse erased parameter names" in {
+    val chunk = "def foo(erased x: Int): Int = 0"
+    val decl = Declaration.parse(chunk)
+    decl.kind should be(DeclKind.Def)
+    decl.name should be("foo")
+    decl.params should be(List("x"))
+  }
+
+  it should "parse annotated qualified private val constructor parameter names" in {
+    val chunk = "class Foo(@ann private[immutable] val len1: Int)"
+    val decl = Declaration.parse(chunk)
+    decl.kind should be(DeclKind.Class)
+    decl.name should be("Foo")
+    decl.params should be(List("len1"))
+  }
+
   it should "parse backticked parameter names" in {
     val chunk = "def foo(`type`: Int): Int = `type`"
     val decl = Declaration.parse(chunk)

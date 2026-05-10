@@ -352,3 +352,55 @@ class IntegrationSpec extends AnyFlatSpec with Matchers:
       fixResult.newContent shouldBe None
     }
   }
+
+  it should "not treat @return mention in prose as return tag" in {
+    val content = """package test
+                    |
+                    |/** A method.
+                    | *
+                    | *  See @return docs in another method.
+                    | */
+                    |def foo(x: Int): Int = x
+                    |""".stripMargin
+
+    withTempFile(content) { path =>
+      val checkResult = ScaladocChecker.checkFile(path)
+      val issues = checkResult.results.flatMap(_.issues)
+      issues should contain(Issue.MissingParam(List("x")))
+      issues should contain(Issue.MissingReturn)
+    }
+  }
+
+  it should "not treat @param mention in continuation text as a new param tag" in {
+    val content = """package test
+                    |
+                    |/** A method.
+                    | *  @param x the x value
+                    | *    mention @param y in prose
+                    | *  @return the output value
+                    | */
+                    |def foo(x: Int): Int = x
+                    |""".stripMargin
+
+    withTempFile(content) { path =>
+      val checkResult = ScaladocChecker.checkFile(path)
+      val issues = checkResult.results.flatMap(_.issues)
+      issues should be(empty)
+    }
+  }
+
+  it should "accept @param for erased parameters" in {
+    val content = """package test
+                    |
+                    |/** A method.
+                    | *  @param x the input value
+                    | *  @return the output value
+                    | */
+                    |def foo(erased x: Int): Int = 0
+                    |""".stripMargin
+
+    withTempFile(content) { path =>
+      val checkResult = ScaladocChecker.checkFile(path)
+      checkResult.hasIssues should be(false)
+    }
+  }

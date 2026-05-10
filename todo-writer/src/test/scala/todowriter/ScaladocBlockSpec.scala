@@ -25,6 +25,15 @@ class ScaladocBlockSpec extends AnyFlatSpec with Matchers:
     blocks.head.tparams should be(List("A", "B"))
   }
 
+  it should "normalize backticked @tparam names" in {
+    val text = """/** A generic method.
+                 | *  @tparam `A` the first type
+                 | */""".stripMargin
+    val blocks = ScaladocBlock.findAll(text)
+    blocks should have size 1
+    blocks.head.tparams should be(List("A"))
+  }
+
   it should "extract @return tag" in {
     val text = """/** Returns something.
                  | *  @return the result
@@ -41,6 +50,25 @@ class ScaladocBlockSpec extends AnyFlatSpec with Matchers:
     val blocks = ScaladocBlock.findAll(text)
     blocks should have size 1
     blocks.head.params should be(List("len1"))
+  }
+
+  it should "not extract @param from continuation text" in {
+    val text = """/** A method.
+                 | *  @param x the x value
+                 | *    mention @param y in prose
+                 | */""".stripMargin
+    val blocks = ScaladocBlock.findAll(text)
+    blocks should have size 1
+    blocks.head.params should be(List("x"))
+  }
+
+  it should "not treat @return mention in prose as return tag" in {
+    val text = """/** A method.
+                 | *  See @return docs in another method.
+                 | */""".stripMargin
+    val blocks = ScaladocBlock.findAll(text)
+    blocks should have size 1
+    blocks.head.hasReturn should be(false)
   }
 
   it should "normalize backticked @param names" in {
