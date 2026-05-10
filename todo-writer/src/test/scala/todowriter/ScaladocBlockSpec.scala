@@ -71,6 +71,30 @@ class ScaladocBlockSpec extends AnyFlatSpec with Matchers:
     blocks.head.hasReturn should be(false)
   }
 
+  it should "extract duplicate @param names" in {
+    val text = """/** A method.
+                 | *  @param x the x value
+                 | *  @param x the x value again
+                 | */""".stripMargin
+    val blocks = ScaladocBlock.findAll(text)
+    blocks should have size 1
+    blocks.head.params should be(List("x", "x"))
+  }
+
+  it should "ignore unknown tags like @see and @example" in {
+    val text = """/** A method.
+                 | *  @param x the x value
+                 | *  @see [[SomeClass]]
+                 | *  @example println("hello")
+                 | *  @note This is important
+                 | *  @return the result
+                 | */""".stripMargin
+    val blocks = ScaladocBlock.findAll(text)
+    blocks should have size 1
+    blocks.head.params should be(List("x"))
+    blocks.head.hasReturn should be(true)
+  }
+
   it should "normalize backticked @param names" in {
     val text = """/** A method.
                  | *  @param `type` the input value

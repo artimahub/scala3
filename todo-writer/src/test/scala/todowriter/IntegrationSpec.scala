@@ -404,3 +404,38 @@ class IntegrationSpec extends AnyFlatSpec with Matchers:
       checkResult.hasIssues should be(false)
     }
   }
+
+  it should "detect duplicate @param tags" in {
+    val content = """package test
+                    |
+                    |/** A method.
+                    | *  @param x the x value
+                    | *  @param x the x value again
+                    | */
+                    |def foo(x: Int): Int = x
+                    |""".stripMargin
+
+    withTempFile(content) { path =>
+      val checkResult = ScaladocChecker.checkFile(path)
+      val issues = checkResult.results.flatMap(_.issues)
+      issues should contain(Issue.UnknownParam(List("x")))
+    }
+  }
+
+  it should "handle unknown tags without confusing signature parsing" in {
+    val content = """package test
+                    |
+                    |/** A method.
+                    | *  @param x the x value
+                    | *  @see [[SomeClass]]
+                    | *  @example code here
+                    | *  @return the result
+                    | */
+                    |def foo(x: Int): Int = x
+                    |""".stripMargin
+
+    withTempFile(content) { path =>
+      val checkResult = ScaladocChecker.checkFile(path)
+      checkResult.hasIssues should be(false)
+    }
+  }
