@@ -334,6 +334,36 @@ class WikidocToMarkdownSpec extends AnyFlatSpec with Matchers:
     leadingSpacesAfterStar(origMarkerLine) should be (leadingSpacesAfterStar(migMarkerLine))
   }
 
+  it should "expand single-line triple-brace scaladoc code into a multi-line fenced block" in {
+    val inner =
+      """
+       *  {{{ 3 | x1 | holeContents0 | T0 }}}
+       """.stripMargin
+
+    val migrated = WikidocToMarkdown.migrateScaladocInner(inner)
+
+    migrated should include("*  ```\n")
+    migrated should include("*  3 | x1 | holeContents0 | T0\n")
+    migrated should include("*  ```")
+    migrated should not include("*  ``` 3 | x1 | holeContents0 | T0 ```")
+  }
+
+  it should "expand triple-brace code with trailing content (like PickleQuotes.scala) into multi-line fenced block" in {
+    val inner =
+      """
+       *  {{{ 3 | x1 | holeContents0 | T0 }}} // hole
+       """.stripMargin
+
+    val migrated = WikidocToMarkdown.migrateScaladocInner(inner)
+
+    // Should expand to multi-line fenced block with trailing comment on the closing fence line
+    migrated should include("*  ```\n")
+    migrated should include("*  3 | x1 | holeContents0 | T0\n")
+    migrated should include("*  ``` // hole")
+    migrated should not include("{{{")
+    migrated should not include("}}}")
+  }
+
   it should "preserve alignment for trailing tag lines (group) without adding extra indentation" in {
     val source =
       """|  /**

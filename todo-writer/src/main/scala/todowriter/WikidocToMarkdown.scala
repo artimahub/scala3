@@ -85,25 +85,36 @@ object WikidocToMarkdown:
         // preserve code block content verbatim
         out += raw
       else
+        val braceStart = trimmed.indexOf("{{{")
+        val braceEnd = trimmed.indexOf("}}}", braceStart)
+        if braceStart >= 0 && braceEnd > braceStart then
+          // Extract content between braces and any trailing content
+          val inner = trimmed.substring(braceStart + 3, braceEnd).trim
+          val after = trimmed.substring(braceEnd + 3)
+          // Emit as multi-line fenced block
+          out += s"${lead}```"
+          if inner.nonEmpty then out += s"$lead$inner"
+          out += s"${lead}```$after"
+        else
         // apply inline conversions only outside code fences
-        var l = raw
-        // Convert {{{ to ``` when it appears inline (e.g., @example {{{)
-        if l.contains("{{{") then
-          l = l.replace("{{{", "```")
-        if l.contains("}}}") then
-          l = l.replace("}}}", "```")
-        // heading conversions (check more specific patterns first)
-        l = l match
-          case Heading3(indent, text) => s"$indent### $text"
-          case Heading2(indent, text) => s"$indent## $text"
-          case Heading1(indent, text) => s"$indent# $text"
-          case _ => l
-        // wikilinks conversion
-        l = WikiLink.replaceAllIn(l, m => Matcher.quoteReplacement(convertWikiLink(m.group(1))))
-        // bold and italic (single-line only at this point)
-        l = Bold.replaceAllIn(l, m => Matcher.quoteReplacement(s"**${m.group(1)}**"))
-        l = Italic.replaceAllIn(l, m => Matcher.quoteReplacement(s"*${m.group(1)}*"))
-        out += l
+          var l = raw
+          // Convert {{{ to ``` when it appears inline (e.g., @example {{{)
+          if l.contains("{{{") then
+            l = l.replace("{{{", "```")
+          if l.contains("}}}") then
+            l = l.replace("}}}", "```")
+          // heading conversions (check more specific patterns first)
+          l = l match
+            case Heading3(indent, text) => s"$indent### $text"
+            case Heading2(indent, text) => s"$indent## $text"
+            case Heading1(indent, text) => s"$indent# $text"
+            case _ => l
+          // wikilinks conversion
+          l = WikiLink.replaceAllIn(l, m => Matcher.quoteReplacement(convertWikiLink(m.group(1))))
+          // bold and italic (single-line only at this point)
+          l = Bold.replaceAllIn(l, m => Matcher.quoteReplacement(s"**${m.group(1)}**"))
+          l = Italic.replaceAllIn(l, m => Matcher.quoteReplacement(s"*${m.group(1)}*"))
+          out += l
 
     out.mkString("\n")
 
@@ -169,7 +180,24 @@ object WikidocToMarkdown:
       val cleanedArr = cleaned.split("\n", -1).toArray
       val normalizedForMigrate = cleanedArr.map { ln =>
         val t = ln.trim
-        if t == "{{{" || t == "}}}" then
+        val braceStart = t.indexOf("{{{")
+        val braceEnd = t.indexOf("}}}", braceStart)
+        if braceStart >= 0 && braceEnd > braceStart then
+          // Handle lines with triple-brace code blocks
+          val lead = ln.takeWhile(_.isWhitespace)
+          val inner = t.substring(braceStart + 3, braceEnd).trim
+          val after = t.substring(braceEnd + 3).trim
+          // Only expand to multi-line if there's no trailing non-whitespace content after }}}
+          // Otherwise, keep it on one line and convert inline
+          if after.isEmpty then
+            if inner.isEmpty then
+              s"$lead```\n$lead```"
+            else
+              s"$lead```\n$lead$inner\n$lead```"
+          else
+            // Inline conversion: keep on one line but convert markers
+            s"$lead{{{ $inner }}} $after"
+        else if t == "{{{" || t == "}}}" then
           val lead = ln.takeWhile(_.isWhitespace)
           s"$lead```"
         else if t.endsWith("{{{") then
