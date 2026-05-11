@@ -294,3 +294,42 @@ class IntegrationSpec extends AnyFlatSpec with Matchers:
       newContent should include("@param x TODO FILL IN")
     }
   }
+
+  it should "detect missing @param for private scoped class constructor params" in {
+    val content = """package test
+                    |
+                    |/** Stepper for object arrays.
+                    | */
+                    |private[collection] class ObjectArrayStepper[A <: Object | Null](underlying: Array[A], _i0: Int, _iN: Int)
+                    |""".stripMargin
+
+    withTempFile(content) { path =>
+      val result = ScaladocChecker.checkFile(path)
+      result.hasIssues should be(true)
+      val issues = result.results.flatMap(_.issues)
+      issues should contain(Issue.MissingParam(List("underlying", "_i0", "_iN")))
+    }
+  }
+
+  it should "detect and fix undocumented private-scoped class with constructor params" in {
+    // ObjectArrayStepper has NO Scaladoc at all — the tool should detect this
+    // and generate stub Scaladoc with @param and @tparam placeholders.
+    val content =
+      """private[collection] class ObjectArrayStepper[A <: Object | Null](underlying: Array[A], _i0: Int, _iN: Int)
+        |  extends SomeBase[A](_i0, _iN)
+        |""".stripMargin
+
+    withTempFile(content) { path =>
+      val result = ScaladocChecker.checkFile(path)
+      // No existing Scaladoc block, so no check results at all currently — this is the bug
+      result.hasIssues should be(true)  // FAILS: hasIssues is false because no Scaladoc exists
+
+      val fixResult = Fixer.fixFile(path, result.results)
+      fixResult.newContent shouldBe defined
+      val newContent = fixResult.newContent.get
+      newContent should include("@tparam A TODO FILL IN")
+      newContent should include("@param underlying TODO FILL IN")
+      newContent should include("@param _i0 TODO FILL IN")
+      newContent should include("@param _iN TODO FILL IN")
+    }
+  }

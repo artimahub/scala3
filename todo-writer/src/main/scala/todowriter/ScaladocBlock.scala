@@ -2,7 +2,13 @@ package todowriter
 
 import scala.util.matching.Regex
 
-/** Represents a parsed Scaladoc comment block. */
+/** Represents a parsed Scaladoc comment block.
+ *
+ *  When `synthetic` is true the block represents a declaration that has no
+ *  Scaladoc at all. In that case `startIndex == endIndex` is the byte offset
+ *  of the first character of the declaration line, and `content` is empty.
+ *  The Fixer will insert a brand-new Scaladoc stub at that position.
+ */
 case class ScaladocBlock(
     content: String,
     startIndex: Int,
@@ -11,7 +17,8 @@ case class ScaladocBlock(
     params: List[String],
     tparams: List[String],
     hasReturn: Boolean,
-    isOneLiner: Boolean
+    isOneLiner: Boolean,
+    synthetic: Boolean = false
 )
 
 object ScaladocBlock:
