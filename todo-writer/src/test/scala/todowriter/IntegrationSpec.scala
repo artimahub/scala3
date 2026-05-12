@@ -195,6 +195,108 @@ class IntegrationSpec extends AnyFlatSpec with Matchers:
     }
   }
 
+  it should "detect missing tparams for transparent traits with higher-kinded and F-bounded params" in {
+    val content = """package test
+                    |
+                    |/** Base trait for immutable set operations.
+                    | */
+                    |transparent trait SetOps[A, +CC[X], +C <: SetOps[A, CC, C]]
+                    |  extends collection.SetOps[A, CC, C]
+                    |""".stripMargin
+
+    withTempFile(content) { path =>
+      val result = ScaladocChecker.checkFile(path)
+      val issues = result.results.flatMap(_.issues)
+      issues should contain(Issue.MissingTparam(List("A", "CC", "C")))
+
+      val fixResult = Fixer.fixFile(path, result.results)
+      fixResult.newContent shouldBe defined
+      val newContent = fixResult.newContent.get
+      newContent should include("@tparam A TODO FILL IN")
+      newContent should include("@tparam CC TODO FILL IN")
+      newContent should include("@tparam C TODO FILL IN")
+    }
+  }
+
+  it should "insert only the missing trailing tparam for SetOps-like scaladoc" in {
+    val content = """package test
+                    |
+                    |/** Base trait for immutable set operations
+                    | *
+                    | *  @tparam A the element type of the set
+                    | *  @tparam CC the type constructor for the resulting set
+                    | */
+                    |transparent trait SetOps[A, +CC[X], +C <: SetOps[A, CC, C]]
+                    |  extends collection.SetOps[A, CC, C]
+                    |""".stripMargin
+
+    withTempFile(content) { path =>
+      val result = ScaladocChecker.checkFile(path)
+      val issues = result.results.flatMap(_.issues)
+      issues should contain(Issue.MissingTparam(List("C")))
+
+      val fixResult = Fixer.fixFile(path, result.results)
+      fixResult.newContent shouldBe defined
+      val newContent = fixResult.newContent.get
+      newContent should include("@tparam A the element type of the set")
+      newContent should include("@tparam CC the type constructor for the resulting set")
+      newContent should include("@tparam C TODO FILL IN")
+    }
+  }
+
+  it should "detect missing tparams for defs with higher-kinded type param bounds" in {
+    val content = """package test
+                    |
+                    |object Ordering:
+                    |  trait ExtraImplicits {
+                    |    /** Not in the standard scope due to the potential for divergence.
+                    |     */
+                    |    implicit def seqOrdering[CC[X] <: scala.collection.Seq[X], T](implicit ord: Ordering[T]): Ordering[CC[T]] = ???
+                    |  }
+                    |""".stripMargin
+
+    withTempFile(content) { path =>
+      val result = ScaladocChecker.checkFile(path)
+      val issues = result.results.flatMap(_.issues)
+      issues should contain(Issue.MissingTparam(List("CC", "T")))
+
+      val fixResult = Fixer.fixFile(path, result.results)
+      fixResult.newContent shouldBe defined
+      val newContent = fixResult.newContent.get
+      newContent should include("@tparam CC TODO FILL IN")
+      newContent should include("@tparam T TODO FILL IN")
+    }
+  }
+
+  it should "insert only the missing trailing tparam for seqOrdering-like scaladoc" in {
+    val content = """package test
+                    |
+                    |object Ordering:
+                    |  trait ExtraImplicits {
+                    |    /** Not in the standard scope due to the potential for divergence:
+                    |     *  For instance `implicitly[Ordering[Any]]` diverges in its presence.
+                    |     *
+                    |     *  @tparam CC the higher-kinded type constructor for the sequence type, bounded by `scala.collection.Seq`
+                    |     */
+                    |    implicit def seqOrdering[CC[X] <: scala.collection.Seq[X], T](implicit ord: Ordering[T]): Ordering[CC[T]] = ???
+                    |  }
+                    |""".stripMargin
+
+    withTempFile(content) { path =>
+      val result = ScaladocChecker.checkFile(path)
+      val issues = result.results.flatMap(_.issues)
+      issues should contain(Issue.MissingTparam(List("T")))
+      issues should contain(Issue.MissingParam(List("ord")))
+
+      val fixResult = Fixer.fixFile(path, result.results)
+      fixResult.newContent shouldBe defined
+      val newContent = fixResult.newContent.get
+      newContent should include("@tparam CC the higher-kinded type constructor for the sequence type, bounded by `scala.collection.Seq`")
+      newContent should include("@tparam T TODO FILL IN")
+      newContent should include("@param ord TODO FILL IN")
+    }
+  }
+
   it should "handle multiple declarations in one file" in {
     val content = """package test
                     |
@@ -331,5 +433,149 @@ class IntegrationSpec extends AnyFlatSpec with Matchers:
       newContent should include("@param underlying TODO FILL IN")
       newContent should include("@param _i0 TODO FILL IN")
       newContent should include("@param _iN TODO FILL IN")
+    }
+  }
+  it should "not add duplicate @param when existing tag uses visibility modifiers" in {
+    val content = """package test
+                    |
+                    |/** A class.
+                    | *  @param private[immutable] val len1 the number of elements in prefix1
+                    | */
+                    |class Foo(private[immutable] val len1: Int)
+                    |""".stripMargin
+
+    withTempFile(content) { path =>
+      val checkResult = ScaladocChecker.checkFile(path)
+      checkResult.hasIssues should be(false)
+
+      val fixResult = Fixer.fixFile(path, checkResult.results)
+      fixResult.blocksFixed should be(0)
+      fixResult.newContent shouldBe None
+    }
+  }
+
+  it should "accept backticked @param name for backticked parameter" in {
+    val content = """package test
+                    |
+                    |/** A method.
+                    | *  @param `type` the input value
+                    | *  @return the output value
+                    | */
+                    |def foo(`type`: Int): Int = `type`
+                    |""".stripMargin
+
+    withTempFile(content) { path =>
+      val checkResult = ScaladocChecker.checkFile(path)
+      checkResult.hasIssues should be(false)
+
+      val fixResult = Fixer.fixFile(path, checkResult.results)
+      fixResult.blocksFixed should be(0)
+      fixResult.newContent shouldBe None
+    }
+  }
+
+  it should "not add duplicate @param when existing tag uses protected qualifier" in {
+    val content = """package test
+                    |
+                    |/** A class.
+                    | *  @param protected[collection] val len1 the number of elements in prefix1
+                    | */
+                    |class Foo(protected[collection] val len1: Int)
+                    |""".stripMargin
+
+    withTempFile(content) { path =>
+      val checkResult = ScaladocChecker.checkFile(path)
+      checkResult.hasIssues should be(false)
+
+      val fixResult = Fixer.fixFile(path, checkResult.results)
+      fixResult.blocksFixed should be(0)
+      fixResult.newContent shouldBe None
+    }
+  }
+
+  it should "not treat @return mention in prose as return tag" in {
+    val content = """package test
+                    |
+                    |/** A method.
+                    | *
+                    | *  See @return docs in another method.
+                    | */
+                    |def foo(x: Int): Int = x
+                    |""".stripMargin
+
+    withTempFile(content) { path =>
+      val checkResult = ScaladocChecker.checkFile(path)
+      val issues = checkResult.results.flatMap(_.issues)
+      issues should contain(Issue.MissingParam(List("x")))
+      issues should contain(Issue.MissingReturn)
+    }
+  }
+
+  it should "not treat @param mention in continuation text as a new param tag" in {
+    val content = """package test
+                    |
+                    |/** A method.
+                    | *  @param x the x value
+                    | *    mention @param y in prose
+                    | *  @return the output value
+                    | */
+                    |def foo(x: Int): Int = x
+                    |""".stripMargin
+
+    withTempFile(content) { path =>
+      val checkResult = ScaladocChecker.checkFile(path)
+      val issues = checkResult.results.flatMap(_.issues)
+      issues should be(empty)
+    }
+  }
+
+  it should "accept @param for erased parameters" in {
+    val content = """package test
+                    |
+                    |/** A method.
+                    | *  @param x the input value
+                    | *  @return the output value
+                    | */
+                    |def foo(erased x: Int): Int = 0
+                    |""".stripMargin
+
+    withTempFile(content) { path =>
+      val checkResult = ScaladocChecker.checkFile(path)
+      checkResult.hasIssues should be(false)
+    }
+  }
+
+  it should "detect duplicate @param tags" in {
+    val content = """package test
+                    |
+                    |/** A method.
+                    | *  @param x the x value
+                    | *  @param x the x value again
+                    | */
+                    |def foo(x: Int): Int = x
+                    |""".stripMargin
+
+    withTempFile(content) { path =>
+      val checkResult = ScaladocChecker.checkFile(path)
+      val issues = checkResult.results.flatMap(_.issues)
+      issues should contain(Issue.UnknownParam(List("x")))
+    }
+  }
+
+  it should "handle unknown tags without confusing signature parsing" in {
+    val content = """package test
+                    |
+                    |/** A method.
+                    | *  @param x the x value
+                    | *  @see [[SomeClass]]
+                    | *  @example code here
+                    | *  @return the result
+                    | */
+                    |def foo(x: Int): Int = x
+                    |""".stripMargin
+
+    withTempFile(content) { path =>
+      val checkResult = ScaladocChecker.checkFile(path)
+      checkResult.hasIssues should be(false)
     }
   }
