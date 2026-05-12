@@ -65,7 +65,13 @@ object ScaladocChecker:
     if decl.kind == DeclKind.Def || decl.kind == DeclKind.Class || decl.kind == DeclKind.Trait then
       // Check @param
       val missingParams = decl.params.filterNot(block.params.contains)
-      val unknownParams = block.params.filterNot(decl.params.contains)
+      
+      // Detect unknown params, including duplicates
+      val declParamCounts = decl.params.groupBy(identity).view.mapValues(_.size).toMap.withDefaultValue(0)
+      val blockParamCounts = block.params.groupBy(identity).view.mapValues(_.size).toMap
+      val unknownParams = blockParamCounts.collect { case (param, count) if declParamCounts(param) < count =>
+        param
+      }.toList.distinct
 
       if missingParams.nonEmpty then
         issues += Issue.MissingParam(missingParams)
@@ -74,7 +80,13 @@ object ScaladocChecker:
 
       // Check @tparam
       val missingTparams = decl.tparams.filterNot(block.tparams.contains)
-      val unknownTparams = block.tparams.filterNot(decl.tparams.contains)
+      
+      // Detect unknown tparams, including duplicates
+      val declTparamCounts = decl.tparams.groupBy(identity).view.mapValues(_.size).toMap.withDefaultValue(0)
+      val blockTparamCounts = block.tparams.groupBy(identity).view.mapValues(_.size).toMap
+      val unknownTparams = blockTparamCounts.collect { case (tparam, count) if declTparamCounts(tparam) < count =>
+        tparam
+      }.toList.distinct
 
       if missingTparams.nonEmpty then
         issues += Issue.MissingTparam(missingTparams)

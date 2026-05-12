@@ -396,3 +396,148 @@ class IntegrationSpec extends AnyFlatSpec with Matchers:
       newContent should include("@param x TODO FILL IN")
     }
   }
+
+  it should "not add duplicate @param when existing tag uses visibility modifiers" in {
+    val content = """package test
+                    |
+                    |/** A class.
+                    | *  @param private[immutable] val len1 the number of elements in prefix1
+                    | */
+                    |class Foo(private[immutable] val len1: Int)
+                    |""".stripMargin
+
+    withTempFile(content) { path =>
+      val checkResult = ScaladocChecker.checkFile(path)
+      checkResult.hasIssues should be(false)
+
+      val fixResult = Fixer.fixFile(path, checkResult.results)
+      fixResult.blocksFixed should be(0)
+      fixResult.newContent shouldBe None
+    }
+  }
+
+  it should "accept backticked @param name for backticked parameter" in {
+    val content = """package test
+                    |
+                    |/** A method.
+                    | *  @param `type` the input value
+                    | *  @return the output value
+                    | */
+                    |def foo(`type`: Int): Int = `type`
+                    |""".stripMargin
+
+    withTempFile(content) { path =>
+      val checkResult = ScaladocChecker.checkFile(path)
+      checkResult.hasIssues should be(false)
+
+      val fixResult = Fixer.fixFile(path, checkResult.results)
+      fixResult.blocksFixed should be(0)
+      fixResult.newContent shouldBe None
+    }
+  }
+
+  it should "not add duplicate @param when existing tag uses protected qualifier" in {
+    val content = """package test
+                    |
+                    |/** A class.
+                    | *  @param protected[collection] val len1 the number of elements in prefix1
+                    | */
+                    |class Foo(protected[collection] val len1: Int)
+                    |""".stripMargin
+
+    withTempFile(content) { path =>
+      val checkResult = ScaladocChecker.checkFile(path)
+      checkResult.hasIssues should be(false)
+
+      val fixResult = Fixer.fixFile(path, checkResult.results)
+      fixResult.blocksFixed should be(0)
+      fixResult.newContent shouldBe None
+    }
+  }
+
+  it should "not treat @return mention in prose as return tag" in {
+    val content = """package test
+                    |
+                    |/** A method.
+                    | *
+                    | *  See @return docs in another method.
+                    | */
+                    |def foo(x: Int): Int = x
+                    |""".stripMargin
+
+    withTempFile(content) { path =>
+      val checkResult = ScaladocChecker.checkFile(path)
+      val issues = checkResult.results.flatMap(_.issues)
+      issues should contain(Issue.MissingParam(List("x")))
+      issues should contain(Issue.MissingReturn)
+    }
+  }
+
+  it should "not treat @param mention in continuation text as a new param tag" in {
+    val content = """package test
+                    |
+                    |/** A method.
+                    | *  @param x the x value
+                    | *    mention @param y in prose
+                    | *  @return the output value
+                    | */
+                    |def foo(x: Int): Int = x
+                    |""".stripMargin
+
+    withTempFile(content) { path =>
+      val checkResult = ScaladocChecker.checkFile(path)
+      val issues = checkResult.results.flatMap(_.issues)
+      issues should be(empty)
+    }
+  }
+
+  it should "accept @param for erased parameters" in {
+    val content = """package test
+                    |
+                    |/** A method.
+                    | *  @param x the input value
+                    | *  @return the output value
+                    | */
+                    |def foo(erased x: Int): Int = 0
+                    |""".stripMargin
+
+    withTempFile(content) { path =>
+      val checkResult = ScaladocChecker.checkFile(path)
+      checkResult.hasIssues should be(false)
+    }
+  }
+
+  it should "detect duplicate @param tags" in {
+    val content = """package test
+                    |
+                    |/** A method.
+                    | *  @param x the x value
+                    | *  @param x the x value again
+                    | */
+                    |def foo(x: Int): Int = x
+                    |""".stripMargin
+
+    withTempFile(content) { path =>
+      val checkResult = ScaladocChecker.checkFile(path)
+      val issues = checkResult.results.flatMap(_.issues)
+      issues should contain(Issue.UnknownParam(List("x")))
+    }
+  }
+
+  it should "handle unknown tags without confusing signature parsing" in {
+    val content = """package test
+                    |
+                    |/** A method.
+                    | *  @param x the x value
+                    | *  @see [[SomeClass]]
+                    | *  @example code here
+                    | *  @return the result
+                    | */
+                    |def foo(x: Int): Int = x
+                    |""".stripMargin
+
+    withTempFile(content) { path =>
+      val checkResult = ScaladocChecker.checkFile(path)
+      checkResult.hasIssues should be(false)
+    }
+  }

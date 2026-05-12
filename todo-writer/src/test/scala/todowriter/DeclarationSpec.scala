@@ -194,6 +194,46 @@ class DeclarationSpec extends AnyFlatSpec with Matchers:
     decl.params should be(List("x"))
   }
 
+  it should "parse qualified private val constructor parameter names" in {
+    val chunk = "class Foo(private[immutable] val len1: Int)"
+    val decl = Declaration.parse(chunk)
+    decl.kind should be(DeclKind.Class)
+    decl.name should be("Foo")
+    decl.params should be(List("len1"))
+  }
+
+  it should "parse qualified protected val constructor parameter names" in {
+    val chunk = "class Foo(protected[collection] val len1: Int)"
+    val decl = Declaration.parse(chunk)
+    decl.kind should be(DeclKind.Class)
+    decl.name should be("Foo")
+    decl.params should be(List("len1"))
+  }
+
+  it should "parse erased parameter names" in {
+    val chunk = "def foo(erased x: Int): Int = 0"
+    val decl = Declaration.parse(chunk)
+    decl.kind should be(DeclKind.Def)
+    decl.name should be("foo")
+    decl.params should be(List("x"))
+  }
+
+  it should "parse annotated qualified private val constructor parameter names" in {
+    val chunk = "class Foo(@ann private[immutable] val len1: Int)"
+    val decl = Declaration.parse(chunk)
+    decl.kind should be(DeclKind.Class)
+    decl.name should be("Foo")
+    decl.params should be(List("len1"))
+  }
+
+  it should "parse backticked parameter names" in {
+    val chunk = "def foo(`type`: Int): Int = `type`"
+    val decl = Declaration.parse(chunk)
+    decl.kind should be(DeclKind.Def)
+    decl.name should be("foo")
+    decl.params should be(List("type"))
+  }
+
   it should "parse transparent traits with F-bounded type params" in {
     val chunk =
       "transparent trait SetOps[A, +CC[X], +C <: SetOps[A, CC, C]] extends collection.SetOps[A, CC, C]"
