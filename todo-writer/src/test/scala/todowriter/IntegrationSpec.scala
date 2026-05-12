@@ -195,6 +195,108 @@ class IntegrationSpec extends AnyFlatSpec with Matchers:
     }
   }
 
+  it should "detect missing tparams for transparent traits with higher-kinded and F-bounded params" in {
+    val content = """package test
+                    |
+                    |/** Base trait for immutable set operations.
+                    | */
+                    |transparent trait SetOps[A, +CC[X], +C <: SetOps[A, CC, C]]
+                    |  extends collection.SetOps[A, CC, C]
+                    |""".stripMargin
+
+    withTempFile(content) { path =>
+      val result = ScaladocChecker.checkFile(path)
+      val issues = result.results.flatMap(_.issues)
+      issues should contain(Issue.MissingTparam(List("A", "CC", "C")))
+
+      val fixResult = Fixer.fixFile(path, result.results)
+      fixResult.newContent shouldBe defined
+      val newContent = fixResult.newContent.get
+      newContent should include("@tparam A TODO FILL IN")
+      newContent should include("@tparam CC TODO FILL IN")
+      newContent should include("@tparam C TODO FILL IN")
+    }
+  }
+
+  it should "insert only the missing trailing tparam for SetOps-like scaladoc" in {
+    val content = """package test
+                    |
+                    |/** Base trait for immutable set operations
+                    | *
+                    | *  @tparam A the element type of the set
+                    | *  @tparam CC the type constructor for the resulting set
+                    | */
+                    |transparent trait SetOps[A, +CC[X], +C <: SetOps[A, CC, C]]
+                    |  extends collection.SetOps[A, CC, C]
+                    |""".stripMargin
+
+    withTempFile(content) { path =>
+      val result = ScaladocChecker.checkFile(path)
+      val issues = result.results.flatMap(_.issues)
+      issues should contain(Issue.MissingTparam(List("C")))
+
+      val fixResult = Fixer.fixFile(path, result.results)
+      fixResult.newContent shouldBe defined
+      val newContent = fixResult.newContent.get
+      newContent should include("@tparam A the element type of the set")
+      newContent should include("@tparam CC the type constructor for the resulting set")
+      newContent should include("@tparam C TODO FILL IN")
+    }
+  }
+
+  it should "detect missing tparams for defs with higher-kinded type param bounds" in {
+    val content = """package test
+                    |
+                    |object Ordering:
+                    |  trait ExtraImplicits {
+                    |    /** Not in the standard scope due to the potential for divergence.
+                    |     */
+                    |    implicit def seqOrdering[CC[X] <: scala.collection.Seq[X], T](implicit ord: Ordering[T]): Ordering[CC[T]] = ???
+                    |  }
+                    |""".stripMargin
+
+    withTempFile(content) { path =>
+      val result = ScaladocChecker.checkFile(path)
+      val issues = result.results.flatMap(_.issues)
+      issues should contain(Issue.MissingTparam(List("CC", "T")))
+
+      val fixResult = Fixer.fixFile(path, result.results)
+      fixResult.newContent shouldBe defined
+      val newContent = fixResult.newContent.get
+      newContent should include("@tparam CC TODO FILL IN")
+      newContent should include("@tparam T TODO FILL IN")
+    }
+  }
+
+  it should "insert only the missing trailing tparam for seqOrdering-like scaladoc" in {
+    val content = """package test
+                    |
+                    |object Ordering:
+                    |  trait ExtraImplicits {
+                    |    /** Not in the standard scope due to the potential for divergence:
+                    |     *  For instance `implicitly[Ordering[Any]]` diverges in its presence.
+                    |     *
+                    |     *  @tparam CC the higher-kinded type constructor for the sequence type, bounded by `scala.collection.Seq`
+                    |     */
+                    |    implicit def seqOrdering[CC[X] <: scala.collection.Seq[X], T](implicit ord: Ordering[T]): Ordering[CC[T]] = ???
+                    |  }
+                    |""".stripMargin
+
+    withTempFile(content) { path =>
+      val result = ScaladocChecker.checkFile(path)
+      val issues = result.results.flatMap(_.issues)
+      issues should contain(Issue.MissingTparam(List("T")))
+      issues should contain(Issue.MissingParam(List("ord")))
+
+      val fixResult = Fixer.fixFile(path, result.results)
+      fixResult.newContent shouldBe defined
+      val newContent = fixResult.newContent.get
+      newContent should include("@tparam CC the higher-kinded type constructor for the sequence type, bounded by `scala.collection.Seq`")
+      newContent should include("@tparam T TODO FILL IN")
+      newContent should include("@param ord TODO FILL IN")
+    }
+  }
+
   it should "handle multiple declarations in one file" in {
     val content = """package test
                     |
