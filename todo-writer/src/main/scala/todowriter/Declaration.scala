@@ -20,6 +20,24 @@ object Declaration:
   private val DeclStartPattern: Regex =
     """(?:@[\w\(\)\s,."]+\s*)*(?:private|protected|final|override|inline|implicit|given|export|opaque|sealed|abstract|lazy|case\s+)*\s*(class|trait|object|def|val|var)\b""".r
 
+  /** Check whether the next nonblank chunk starts with a declaration. */
+  def startsWithDeclaration(chunk: String): Boolean =
+    DeclStartPattern.findPrefixMatchOf(chunk.trim).nonEmpty
+
+  /** Check whether a line could be the start of a declaration prefix.
+   *
+   *  This accepts standalone annotations and modifier-only lines so that
+   *  multi-line declarations can still be scanned, but rejects ordinary code
+   *  expressions inside method bodies.
+   */
+  private def startsDeclarationPrefix(line: String): Boolean =
+    val trimmed = line.trim
+    startsWithDeclaration(trimmed) ||
+    trimmed.startsWith("@") ||
+    trimmed.matches(
+      """(?:private(?:\[[^\]]+\])?|protected(?:\[[^\]]+\])?|final|override|inline|implicit|given|export|opaque|sealed|abstract|lazy|case)\b.*"""
+    )
+
   /** Regex to parse a def declaration.
    *
    *  Supports one level of nested `[]` in type params (e.g. `F[_]`) and
@@ -353,17 +371,24 @@ object Declaration:
     var lineCount = 0
     val maxLines = 40
 
-    for line <- lines if !done && lineCount < maxLines do
-      lineCount += 1
-      if lineCount == 1 && line.trim.isEmpty then
-        // Skip leading blank line
-        ()
-      else
-        chunkLines += line
-        val trimmed = line.trim
-        // Stop when we see opening brace, equals sign, or end of signature
-        if trimmed.contains("{") || trimmed.contains("=") ||
-           trimmed.endsWith(")") || trimmed.endsWith(":") then
-          done = true
+    val firstNonBlank = lines.iterator.dropWhile(_.trim.isEmpty).take(1).toList.headOption.map(_.trim)
+    if firstNonBlank.exists(line => line.startsWith("package ") || line.startsWith("import ")) then
+      firstNonBlank.get
+    else if firstNonBlank.forall(line => !startsDeclarationPrefix(line)) then
+      firstNonBlank.getOrElse("")
+    else
 
-    chunkLines.mkString("\n")
+      for line <- lines if !done && lineCount < maxLines do
+        lineCount += 1
+        if lineCount == 1 && line.trim.isEmpty then
+          // Skip leading blank line
+          ()
+        else
+          chunkLines += line
+          val trimmed = line.trim
+          // Stop when we see opening brace, equals sign, or end of signature
+          if trimmed.contains("{") || trimmed.contains("=") ||
+             trimmed.endsWith(")") || trimmed.endsWith(":") then
+            done = true
+
+      chunkLines.mkString("\n")

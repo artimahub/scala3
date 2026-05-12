@@ -31,19 +31,22 @@ object Fixer:
   /** Apply fixes to text and return (newText, numberOfBlocksFixed).
    *
    *  insertTodo: when true, insert TODO tags for missing signature tags.
-   *              when false, only adjust scaladoc asterisk alignment.
+   *              when false, only normalize scaladoc formatting.
    */
   def applyFixes(text: String, results: List[CheckResult]): (String, Int) =
     applyFixes(text, results, true)
   
   def applyFixes(text: String, results: List[CheckResult], insertTodo: Boolean): (String, Int) =
     // Choose which results to process:
-    // - when inserting TODOs, only process results that actually need fixes
-    // - when only aligning (skip-todo), process any result that reported issues OR
-    //   any multi-line scaladoc that would be changed by formatting (alignment-only).
+    // - when inserting TODOs, process any result that needs normalization or has
+    //   missing signature tags
+    // - when only normalizing formatting (skip-todo), process blocks that are
+    //   Scaladoc already or plain block comments eligible for normalization
     val sortedResults =
       if insertTodo then
-        results.filter(needsFix).sortBy(_.scaladoc.startIndex)(Ordering[Int].reverse)
+        results
+          .filter(result => needsFix(result) || needsNormalization(text, result.scaladoc))
+          .sortBy(_.scaladoc.startIndex)(Ordering[Int].reverse)
       else
         results
           .filter { r =>
@@ -51,9 +54,10 @@ object Fixer:
             val originalBlockText =
               if block.startIndex >= 0 && block.endIndex <= text.length then text.substring(block.startIndex, block.endIndex)
               else ""
+            val canFormat = isScaladocComment(text, block) || needsNormalization(text, block)
             // Skip single-line blocks when not inserting todos.
             val isSingleLine = !originalBlockText.contains('\n')
-            r.issues.nonEmpty || (!isSingleLine && buildFixedBlock(text, block, Nil, Nil, false) != originalBlockText)
+            canFormat && !isSingleLine && buildFixedBlock(text, block, Nil, Nil, false) != originalBlockText
           }
           .sortBy(_.scaladoc.startIndex)(Ordering[Int].reverse)
     var currentText = text
@@ -68,6 +72,9 @@ object Fixer:
       val missingParams = issues.collect { case Issue.MissingParam(names) => names }.flatten
       val missingTparams = issues.collect { case Issue.MissingTparam(names) => names }.flatten
       val needsReturn = issues.contains(Issue.MissingReturn)
+      val isScaladoc = isScaladocComment(currentText, block)
+      val shouldNormalize = needsNormalization(currentText, block)
+      val canFormat = isScaladoc || shouldNormalize
  
       // Decide what to insert: either the actual missing tags, or none when only aligning
       val (tparamsToInsert, paramsToInsert, returnToInsert) =
@@ -97,12 +104,14 @@ object Fixer:
   
       // Only proceed if there is something to change:
       // - insertion of missing tags (when insertTodo = true), or
-      // - explicit issues present, or
-      // - in skip-todo mode, the formatted block differs from the original (alignment-only).
+      // - normalization of a plain block comment opener, or
+      // - in skip-todo mode, the formatted block differs from the original
+      //   and the block is eligible for formatting/normalization.
       val shouldApply =
         !shouldSkip && (
           (tparamsToInsert.nonEmpty || paramsToInsert.nonEmpty || returnToInsert) ||
-            (!insertTodo && (issues.nonEmpty || newBlockPreview != originalBlockText))
+            shouldNormalize ||
+            (!insertTodo && canFormat && newBlockPreview != originalBlockText)
         )
   
       if shouldApply then
@@ -138,6 +147,27 @@ object Fixer:
           fixCount += 1
 
     (currentText, fixCount)
+
+  /** Determine whether the original block comment opener needs normalization.
+   *
+   *  A plain block comment (/* ... */) should be normalized to scaladoc (/** ... */)
+   *  only if it is immediately followed by a declaration. This avoids rewriting
+   *  license headers and other non-doc comments.
+   */
+  private def needsNormalization(text: String, block: ScaladocBlock): Boolean =
+    // Check if the block starts with /* (not /**)
+    if block.startIndex + 2 >= text.length || text.startsWith("/**", block.startIndex) then
+      false
+    else
+      // It's a plain block comment. Normalize only when the next nonblank chunk
+      // itself starts a declaration; do not scan past package/import headers.
+      val tail = text.substring(block.endIndex)
+      val nextChunk = tail.linesIterator.dropWhile(_.trim.isEmpty).mkString("\n")
+      Declaration.startsWithDeclaration(nextChunk)
+
+  /** Check whether a block already starts as Scaladoc. */
+  private def isScaladocComment(text: String, block: ScaladocBlock): Boolean =
+    block.startIndex + 2 < text.length && text.startsWith("/**", block.startIndex)
 
   /** Check if a result needs fixing (has issues that require insertion). */
   private def needsFix(result: CheckResult): Boolean =

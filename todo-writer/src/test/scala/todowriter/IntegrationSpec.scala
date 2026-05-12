@@ -142,6 +142,185 @@ class IntegrationSpec extends AnyFlatSpec with Matchers:
     }
   }
 
+  it should "rewrite block comments before declarations as scaladoc" in {
+    val content = """package test
+                    |
+                    |/* A method.
+                    | *
+                    | *  More details.
+                    | */
+                    |def foo(x: Int): String = ???
+                    |""".stripMargin
+
+    withTempFile(content) { path =>
+      val checkResult = ScaladocChecker.checkFile(path)
+      val fixResult = Fixer.fixFile(path, checkResult.results)
+
+      fixResult.blocksFixed should be(1)
+      fixResult.newContent shouldBe defined
+
+      val newContent = fixResult.newContent.get
+      newContent should include("/** A method.")
+      newContent should include("@param x TODO FILL IN")
+      newContent should include("@return TODO FILL IN")
+    }
+  }
+
+  it should "not rewrite block comments before package declarations" in {
+    val content = """/*
+                    | * Copyright (c) Example
+                    | */
+                    |package test
+                    |
+                    |def foo(x: Int): String = ???
+                    |""".stripMargin
+
+    withTempFile(content) { path =>
+      val checkResult = ScaladocChecker.checkFile(path)
+      val fixResult = Fixer.fixFile(path, checkResult.results)
+
+      fixResult.blocksFixed should be(0)
+      fixResult.newContent shouldBe empty
+    }
+  }
+
+  it should "not rewrite a license header before package scala" in {
+    val content = """/* Scala (https://www.scala-lang.org)
+                    | *
+                    | * Copyright EPFL and Lightbend, Inc. dba Akka
+                    | *
+                    | * Licensed under Apache License 2.0
+                    | */
+                    |
+                    |package scala
+                    |
+                    |final abstract class Foo private extends AnyVal
+                    |""".stripMargin
+
+    withTempFile(content) { path =>
+      val checkResult = ScaladocChecker.checkFile(path)
+      checkResult.results should have size 1
+      checkResult.results.head.declaration.kind should be(DeclKind.Unknown)
+      checkResult.results.head.issues shouldBe empty
+
+      val fixResult = Fixer.fixFile(path, checkResult.results)
+      fixResult.blocksFixed should be(0)
+      fixResult.newContent shouldBe empty
+    }
+  }
+
+  it should "not rewrite a license header before package and imports in skip-todo mode" in {
+    val content = """/* Scala (https://www.scala-lang.org)
+                    | *
+                    | * Copyright EPFL and Lightbend, Inc. dba Akka
+                    | */
+                    |
+                    |package scala
+                    |
+                    |import scala.language.`2.13`
+                    |
+                    |object Foo
+                    |""".stripMargin
+
+    withTempFile(content) { path =>
+      val checkResult = ScaladocChecker.checkFile(path)
+      val fixResult = Fixer.fixFile(path, checkResult.results, insertTodo = false)
+
+      fixResult.blocksFixed should be(0)
+      fixResult.newContent shouldBe empty
+    }
+  }
+
+  it should "not rewrite a license header with generated code comment in skip-todo mode (Function10 pattern)" in {
+    val content = """/*
+                    | * Scala (https://www.scala-lang.org)
+                    | *
+                    | * Copyright EPFL and Lightbend, Inc. dba Akka
+                    | *
+                    | * Licensed under Apache License 2.0
+                    | * (http://www.apache.org/licenses/LICENSE-2.0).
+                    | *
+                    | * See the NOTICE file distributed with this work for
+                    | * additional information regarding copyright ownership.
+                    | */
+                    |
+                    |// GENERATED CODE: DO NOT EDIT. See scala.Function0 for timestamp.
+                    |
+                    |package scala
+                    |
+                    |import scala.language.`2.13`
+                    |
+                    |/** A function of 10 parameters. */
+                    |trait Function10[-T1, -T2, -T3, -T4, -T5, -T6, -T7, -T8, -T9, -T10, +R] extends AnyRef {
+                    |  def apply(v1: T1, v2: T2, v3: T3, v4: T4, v5: T5, v6: T6, v7: T7, v8: T8, v9: T9, v10: T10): R
+                    |}
+                    |""".stripMargin
+
+    withTempFile(content) { path =>
+      val checkResult = ScaladocChecker.checkFile(path)
+      val fixResult = Fixer.fixFile(path, checkResult.results, insertTodo = false)
+
+      // Should not modify the plain /* */ license header even though Function10 trait has missing @tparam issues
+      fixResult.blocksFixed should be(0)
+      fixResult.newContent shouldBe empty
+    }
+  }
+
+  it should "normalize plain block comments before declarations in skip-todo mode" in {
+    val content = """package test
+                    |
+                    |/* A function doc.
+                    | * More details.
+                    | */
+                    |def foo(x: Int): Int = x
+                    |""".stripMargin
+
+    withTempFile(content) { path =>
+      val checkResult = ScaladocChecker.checkFile(path)
+      val fixResult = Fixer.fixFile(path, checkResult.results, insertTodo = false)
+
+      fixResult.blocksFixed should be(1)
+      val updated = fixResult.newContent.getOrElse(fail("Expected updated content"))
+      updated should include("/** A function doc.")
+      updated should include("def foo(x: Int): Int = x")
+      updated should not include "@param"
+      updated should not include "@return"
+    }
+  }
+
+  it should "not normalize inline block comments inside method bodies" in {
+    val content = """package scala.concurrent.impl
+                    |
+                    |final class PromiseLike {
+                    |  override final def toString: String =
+                    |    if (true) "Future(done)"
+                    |    else /* if (state.isInstanceOf[Callbacks[T]]) */ "Future(<not completed>)"
+                    |
+                    |  override final def value: Option[String] =
+                    |    if (true) Some("done")
+                    |    else /* if (state.isInstanceOf[Callbacks[T]]) */ null
+                    |
+                    |  override final def completeWith(other: String): this.type = {
+                    |    if (other ne this) {
+                    |      if (true) "done"
+                    |      else /* if(state.isInstanceOf[Try[T]]) */ false
+                    |    }
+                    |    this
+                    |  }
+                    |}
+                    |""".stripMargin
+
+    withTempFile(content) { path =>
+      val checkResult = ScaladocChecker.checkFile(path)
+
+      val insertFix = Fixer.fixFile(path, checkResult.results)
+      insertFix.newContent shouldBe empty
+
+      val skipFix = Fixer.fixFile(path, checkResult.results, insertTodo = false)
+      skipFix.newContent shouldBe empty
+    }
+  }
+
   it should "insert missing @param for polymorphic function-typed parameter" in {
     val content = """package test
                     |

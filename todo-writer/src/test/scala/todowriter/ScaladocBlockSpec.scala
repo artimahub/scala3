@@ -155,3 +155,21 @@ class ScaladocBlockSpec extends AnyFlatSpec with Matchers:
     blocks should have size 1
     blocks.head.content.trim should be("Real scaladoc.")
   }
+
+  it should "not match inline plain block comments inside code" in {
+    val text = """def foo(x: Int): Int = 0/*Seek*/ + x"""
+    val blocks = ScaladocBlock.findAll(text)
+    blocks shouldBe empty
+  }
+
+  it should "not match standalone commented-out code blocks" in {
+    val text = """/*
+                 |private def oldImpl(x: Int): Int = {
+                 |  x + 1
+                 |}
+                 |*/
+                 |def foo(x: Int): Int = x
+                 |""".stripMargin
+    val blocks = ScaladocBlock.findAll(text)
+    blocks shouldBe empty
+  }

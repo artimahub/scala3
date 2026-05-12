@@ -11,12 +11,12 @@ case class ScaladocBlock(
     params: List[String],
     tparams: List[String],
     hasReturn: Boolean,
-    isOneLiner: Boolean
+  isOneLiner: Boolean
 )
 
 object ScaladocBlock:
-  /** Regex to match Scaladoc blocks /** ... */ */
-  val ScaladocPattern: Regex = """(?s)/\*\*(?<inner>.*?)\*/""".r
+  /** Regex to match doc comments written as /* ... */ or /** ... */. */
+  val ScaladocPattern: Regex = """(?s)/\*(?<docStar>\*?)(?<inner>.*?)\*/""".r
 
   /** Regex to extract tags from Scaladoc content.
    *  Matches lines like: * @param name description
@@ -27,6 +27,7 @@ object ScaladocBlock:
   /** Find all Scaladoc blocks in the given text. */
   def findAll(text: String): List[ScaladocBlock] =
     ScaladocPattern.findAllMatchIn(text).flatMap { m =>
+      val isScaladoc = m.group("docStar").nonEmpty
       val inner = m.group("inner")
       val startIndex = m.start
       val endIndex = m.end
@@ -35,9 +36,15 @@ object ScaladocBlock:
       // Find the start of the line containing the /**
       val lineStart = text.lastIndexOf('\n', startIndex) + 1
       val lineBeforeMatch = text.substring(lineStart, startIndex)
+      val lineEnd =
+        val idx = text.indexOf('\n', endIndex)
+        if idx >= 0 then idx else text.length
+      val lineAfterMatch = text.substring(endIndex, lineEnd)
 
       // If there's a // before the /** on the same line, skip this match
       if lineBeforeMatch.contains("//") then
+        None
+      else if !isScaladoc && !isStandaloneDocCandidate(lineBeforeMatch, lineAfterMatch, inner) then
         None
       else
         val lineNumber = text.substring(0, startIndex).count(_ == '\n') + 1
@@ -54,6 +61,51 @@ object ScaladocBlock:
           isOneLiner = oneLiner
         ))
     }.toList
+
+  /** Plain /* ... */ comments are candidates for normalization only when they
+   *  look like standalone documentation rather than inline code comments or
+   *  commented-out code blocks.
+   */
+  private def isStandaloneDocCandidate(lineBeforeMatch: String, lineAfterMatch: String, inner: String): Boolean =
+    lineBeforeMatch.trim.isEmpty && lineAfterMatch.trim.isEmpty && isLikelyDocComment(inner)
+
+  /** Heuristic for distinguishing doc-shaped plain block comments from code.
+   *
+   *  Accepts:
+   *  - single-line prose comments like `/* A method. */`
+   *  - multi-line comments whose continuation lines use leading `*`
+   *
+   *  Rejects:
+   *  - inline code comments like `0/*Seek*/`
+   *  - commented-out code blocks without doc-style `*` prefixes
+   */
+  private def isLikelyDocComment(inner: String): Boolean =
+    val lines = inner.linesIterator.toList
+    if lines.size <= 1 then
+      val text = inner.trim
+      text.nonEmpty && !looksLikeCode(text)
+    else
+      val nonBlankLines = lines.map(normalizeDocLine).filter(_.nonEmpty)
+      nonBlankLines.nonEmpty &&
+      !looksLikeCode(nonBlankLines.head) &&
+      lines.drop(1).forall { line =>
+        val trimmed = line.trim
+        val normalized = normalizeDocLine(line)
+        trimmed.isEmpty || trimmed.startsWith("*") && (normalized.isEmpty || !looksLikeCode(normalized))
+      }
+
+  private def normalizeDocLine(line: String): String =
+    val trimmed = line.trim
+    if trimmed.startsWith("*") then trimmed.stripPrefix("*").trim else trimmed
+
+  private def looksLikeCode(text: String): Boolean =
+    val trimmed = text.trim
+    trimmed.isEmpty ||
+    trimmed.contains("=>") ||
+    trimmed.contains("{") ||
+    trimmed.contains("}") ||
+    trimmed.contains(";") ||
+    trimmed.matches(""".*\b(def|val|var|class|trait|object|if|else|while|for|match|case|return|private|protected|override|final)\b.*""")
 
   private case class ExtractedTags(
       params: List[String],
