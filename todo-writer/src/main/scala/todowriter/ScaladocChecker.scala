@@ -55,9 +55,91 @@ object ScaladocChecker:
       CheckResult(block, decl, issues)
     }
 
-    FileResult(path.toString, results)
+    val undocumentedResults = findUndocumentedResults(text, blocks)
 
-  /** Validate a Scaladoc block against its declaration. */
+    FileResult(path.toString, results ++ undocumentedResults)
+
+  /** Find declarations with no preceding Scaladoc block and return synthetic CheckResults. */
+  private def findUndocumentedResults(text: String, existingBlocks: List[ScaladocBlock]): List[CheckResult] =
+    // Compute covered declaration line-starts from existing Scaladoc blocks.
+    val coveredLineStarts: Set[Int] = existingBlocks.flatMap { block =>
+      firstNonBlankLineStart(text, block.endIndex)
+    }.toSet
+
+    val undocResults = collection.mutable.ListBuffer[CheckResult]()
+    val textLen = text.length
+    var pos = 0
+    while pos < textLen do
+      val lineStart = pos
+      val lineEnd   = text.indexOf('\n', pos)
+      val lineContent =
+        if lineEnd >= 0 then text.substring(pos, lineEnd)
+        else text.substring(pos)
+      pos = if lineEnd >= 0 then lineEnd + 1 else textLen
+
+      if !coveredLineStarts.contains(lineStart) then
+        val trimmed = lineContent.trim
+        if trimmed.nonEmpty && !trimmed.startsWith("//") &&
+           !trimmed.startsWith("*") && !trimmed.startsWith("/*") then
+          val chunk = Declaration.getDeclarationAfter(text, lineStart)
+          val decl  = Declaration.parse(chunk)
+          if (decl.kind == DeclKind.Def || decl.kind == DeclKind.Class || decl.kind == DeclKind.Trait) &&
+             decl.name.nonEmpty &&
+             declKeywordOnLine(trimmed, decl.kind) then
+            val missingParams  = decl.params
+            val missingTparams = decl.tparams
+            val needsReturn =
+              decl.kind == DeclKind.Def &&
+              decl.returnType.exists(r => !r.trim.startsWith("Unit"))
+            val issues = collection.mutable.ListBuffer[Issue]()
+            if missingParams.nonEmpty  then issues += Issue.MissingParam(missingParams)
+            if missingTparams.nonEmpty then issues += Issue.MissingTparam(missingTparams)
+            if needsReturn             then issues += Issue.MissingReturn
+            if issues.nonEmpty then
+              val lineNumber = text.substring(0, lineStart).count(_ == '\n') + 1
+              val syntheticBlock = ScaladocBlock(
+                content    = "",
+                startIndex = lineStart,
+                endIndex   = lineStart,
+                lineNumber = lineNumber,
+                params     = Nil,
+                tparams    = Nil,
+                hasReturn  = false,
+                isOneLiner = false,
+                synthetic  = true
+              )
+              undocResults += CheckResult(syntheticBlock, decl, issues.toList)
+    undocResults.toList
+
+  /** Return the byte offset of the first non-blank line that begins after `fromIndex`. */
+  private def firstNonBlankLineStart(text: String, fromIndex: Int): Option[Int] =
+    val textLen = text.length
+    var pos     = fromIndex
+    while pos < textLen && text(pos) != '\n' do pos += 1
+    if pos < textLen then pos += 1
+    var result: Option[Int] = None
+    while pos < textLen && result.isEmpty do
+      val lineStart = pos
+      val lineEnd   = text.indexOf('\n', pos)
+      val lineContent =
+        if lineEnd >= 0 then text.substring(pos, lineEnd) else text.substring(pos)
+      if lineContent.trim.nonEmpty then result = Some(lineStart)
+      else pos = if lineEnd >= 0 then lineEnd + 1 else textLen
+    result
+
+  /** Check that the declaration keyword for `kind` actually appears on the trimmed line. */
+  private def declKeywordOnLine(trimmed: String, kind: DeclKind): Boolean =
+    val keyword = kind match
+      case DeclKind.Def   => "def "
+      case DeclKind.Class => "class "
+      case DeclKind.Trait => "trait "
+      case _              => return false
+    val stripped = trimmed
+      .replaceAll("""(?:@[\w\(\)\s,."]+\s*)*""", "")
+      .replaceAll("""(?:private\[[^\]]*\]|protected\[[^\]]*\]|private|protected|final|override|inline|implicit|given|export|opaque|sealed|abstract|lazy|case)\s+""", "")
+      .trim
+    stripped.startsWith(keyword) || stripped.startsWith("case " + keyword)
+
   def validate(block: ScaladocBlock, decl: Declaration): List[Issue] =
     val issues = collection.mutable.ListBuffer[Issue]()
 
@@ -65,7 +147,13 @@ object ScaladocChecker:
     if decl.kind == DeclKind.Def || decl.kind == DeclKind.Class || decl.kind == DeclKind.Trait then
       // Check @param
       val missingParams = decl.params.filterNot(block.params.contains)
-      val unknownParams = block.params.filterNot(decl.params.contains)
+      
+      // Detect unknown params, including duplicates
+      val declParamCounts = decl.params.groupBy(identity).view.mapValues(_.size).toMap.withDefaultValue(0)
+      val blockParamCounts = block.params.groupBy(identity).view.mapValues(_.size).toMap
+      val unknownParams = blockParamCounts.collect { case (param, count) if declParamCounts(param) < count =>
+        param
+      }.toList.distinct
 
       if missingParams.nonEmpty then
         issues += Issue.MissingParam(missingParams)
@@ -74,7 +162,13 @@ object ScaladocChecker:
 
       // Check @tparam
       val missingTparams = decl.tparams.filterNot(block.tparams.contains)
-      val unknownTparams = block.tparams.filterNot(decl.tparams.contains)
+      
+      // Detect unknown tparams, including duplicates
+      val declTparamCounts = decl.tparams.groupBy(identity).view.mapValues(_.size).toMap.withDefaultValue(0)
+      val blockTparamCounts = block.tparams.groupBy(identity).view.mapValues(_.size).toMap
+      val unknownTparams = blockTparamCounts.collect { case (tparam, count) if declTparamCounts(tparam) < count =>
+        tparam
+      }.toList.distinct
 
       if missingTparams.nonEmpty then
         issues += Issue.MissingTparam(missingTparams)

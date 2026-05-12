@@ -193,3 +193,62 @@ class DeclarationSpec extends AnyFlatSpec with Matchers:
     decl.name should be("locally")
     decl.params should be(List("x"))
   }
+
+  it should "parse qualified private val constructor parameter names" in {
+    val chunk = "class Foo(private[immutable] val len1: Int)"
+    val decl = Declaration.parse(chunk)
+    decl.kind should be(DeclKind.Class)
+    decl.name should be("Foo")
+    decl.params should be(List("len1"))
+  }
+
+  it should "parse qualified protected val constructor parameter names" in {
+    val chunk = "class Foo(protected[collection] val len1: Int)"
+    val decl = Declaration.parse(chunk)
+    decl.kind should be(DeclKind.Class)
+    decl.name should be("Foo")
+    decl.params should be(List("len1"))
+  }
+
+  it should "parse erased parameter names" in {
+    val chunk = "def foo(erased x: Int): Int = 0"
+    val decl = Declaration.parse(chunk)
+    decl.kind should be(DeclKind.Def)
+    decl.name should be("foo")
+    decl.params should be(List("x"))
+  }
+
+  it should "parse annotated qualified private val constructor parameter names" in {
+    val chunk = "class Foo(@ann private[immutable] val len1: Int)"
+    val decl = Declaration.parse(chunk)
+    decl.kind should be(DeclKind.Class)
+    decl.name should be("Foo")
+    decl.params should be(List("len1"))
+  }
+
+  it should "parse backticked parameter names" in {
+    val chunk = "def foo(`type`: Int): Int = `type`"
+    val decl = Declaration.parse(chunk)
+    decl.kind should be(DeclKind.Def)
+    decl.name should be("foo")
+    decl.params should be(List("type"))
+  }
+
+  it should "parse transparent traits with F-bounded type params" in {
+    val chunk =
+      "transparent trait SetOps[A, +CC[X], +C <: SetOps[A, CC, C]] extends collection.SetOps[A, CC, C]"
+    val decl = Declaration.parse(chunk)
+    decl.kind should be(DeclKind.Trait)
+    decl.name should be("SetOps")
+    decl.tparams should be(List("A", "CC", "C"))
+  }
+
+  it should "parse defs with higher-kinded type param bounds" in {
+    val chunk =
+      "implicit def seqOrdering[CC[X] <: scala.collection.Seq[X], T](implicit ord: Ordering[T]): Ordering[CC[T]] = ???"
+    val decl = Declaration.parse(chunk)
+    decl.kind should be(DeclKind.Def)
+    decl.name should be("seqOrdering")
+    decl.tparams should be(List("CC", "T"))
+    decl.params should be(List("ord"))
+  }

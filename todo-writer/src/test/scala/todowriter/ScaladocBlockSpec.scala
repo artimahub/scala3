@@ -25,6 +25,15 @@ class ScaladocBlockSpec extends AnyFlatSpec with Matchers:
     blocks.head.tparams should be(List("A", "B"))
   }
 
+  it should "normalize backticked @tparam names" in {
+    val text = """/** A generic method.
+                 | *  @tparam `A` the first type
+                 | */""".stripMargin
+    val blocks = ScaladocBlock.findAll(text)
+    blocks should have size 1
+    blocks.head.tparams should be(List("A"))
+  }
+
   it should "extract @return tag" in {
     val text = """/** Returns something.
                  | *  @return the result
@@ -32,6 +41,67 @@ class ScaladocBlockSpec extends AnyFlatSpec with Matchers:
     val blocks = ScaladocBlock.findAll(text)
     blocks should have size 1
     blocks.head.hasReturn should be(true)
+  }
+
+  it should "extract parameter name from @param lines with modifiers" in {
+    val text = """/** A class.
+                 | *  @param private[immutable] val len1 the number of elements in prefix1
+                 | */""".stripMargin
+    val blocks = ScaladocBlock.findAll(text)
+    blocks should have size 1
+    blocks.head.params should be(List("len1"))
+  }
+
+  it should "not extract @param from continuation text" in {
+    val text = """/** A method.
+                 | *  @param x the x value
+                 | *    mention @param y in prose
+                 | */""".stripMargin
+    val blocks = ScaladocBlock.findAll(text)
+    blocks should have size 1
+    blocks.head.params should be(List("x"))
+  }
+
+  it should "not treat @return mention in prose as return tag" in {
+    val text = """/** A method.
+                 | *  See @return docs in another method.
+                 | */""".stripMargin
+    val blocks = ScaladocBlock.findAll(text)
+    blocks should have size 1
+    blocks.head.hasReturn should be(false)
+  }
+
+  it should "extract duplicate @param names" in {
+    val text = """/** A method.
+                 | *  @param x the x value
+                 | *  @param x the x value again
+                 | */""".stripMargin
+    val blocks = ScaladocBlock.findAll(text)
+    blocks should have size 1
+    blocks.head.params should be(List("x", "x"))
+  }
+
+  it should "ignore unknown tags like @see and @example" in {
+    val text = """/** A method.
+                 | *  @param x the x value
+                 | *  @see [[SomeClass]]
+                 | *  @example println("hello")
+                 | *  @note This is important
+                 | *  @return the result
+                 | */""".stripMargin
+    val blocks = ScaladocBlock.findAll(text)
+    blocks should have size 1
+    blocks.head.params should be(List("x"))
+    blocks.head.hasReturn should be(true)
+  }
+
+  it should "normalize backticked @param names" in {
+    val text = """/** A method.
+                 | *  @param `type` the input value
+                 | */""".stripMargin
+    val blocks = ScaladocBlock.findAll(text)
+    blocks should have size 1
+    blocks.head.params should be(List("type"))
   }
 
   it should "handle empty scaladoc" in {
