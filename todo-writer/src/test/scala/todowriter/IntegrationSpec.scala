@@ -435,6 +435,34 @@ class IntegrationSpec extends AnyFlatSpec with Matchers:
       newContent should include("@param _iN TODO FILL IN")
     }
   }
+  it should "skip undocumented declarations when skipUndocumented = true" in {
+    // One method has a Scaladoc block missing @param; another method has no Scaladoc at all.
+    // With skipUndocumented = true, only the documented-but-missing-tag method should be reported.
+    val content = """package test
+                    |
+                    |/** A documented method missing @param. */
+                    |def documented(x: Int): String = ???
+                    |
+                    |def undocumented(y: Int): String = ???
+                    |""".stripMargin
+
+    withTempFile(content) { path =>
+      val withUndoc = ScaladocChecker.checkFile(path)
+      withUndoc.results.flatMap(_.issues) should contain allOf (
+        Issue.MissingParam(List("x")),
+        Issue.MissingParam(List("y")),
+        Issue.MissingReturn
+      )
+
+      val withoutUndoc = ScaladocChecker.checkFile(path, skipUndocumented = true)
+      val issues = withoutUndoc.results.flatMap(_.issues)
+      issues should contain(Issue.MissingParam(List("x")))
+      issues should not contain Issue.MissingParam(List("y"))
+      // The @return tag on the undocumented method also should not be reported.
+      withoutUndoc.results.count(_.scaladoc.synthetic) should be(0)
+    }
+  }
+
   it should "not add duplicate @param when existing tag uses visibility modifiers" in {
     val content = """package test
                     |

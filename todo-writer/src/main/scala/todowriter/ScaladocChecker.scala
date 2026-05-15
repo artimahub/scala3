@@ -43,8 +43,13 @@ object ScaladocChecker:
         .filter(p => Files.isRegularFile(p) && p.toString.endsWith(".scala"))
         .toList
 
-  /** Check a single file and return results. */
-  def checkFile(path: Path): FileResult =
+  /** Check a single file and return results.
+   *
+   *  When `skipUndocumented` is true, declarations that have no preceding
+   *  Scaladoc block are not detected and not reported. Declarations that do
+   *  have a Scaladoc block are still validated as usual.
+   */
+  def checkFile(path: Path, skipUndocumented: Boolean = false): FileResult =
     val text = Files.readString(path)
     val blocks = ScaladocBlock.findAll(text)
 
@@ -55,7 +60,9 @@ object ScaladocChecker:
       CheckResult(block, decl, issues)
     }
 
-    val undocumentedResults = findUndocumentedResults(text, blocks)
+    val undocumentedResults =
+      if skipUndocumented then Nil
+      else findUndocumentedResults(text, blocks)
 
     FileResult(path.toString, results ++ undocumentedResults)
 
@@ -192,9 +199,13 @@ object ScaladocChecker:
 
     issues.toList
 
-  /** Check all files under a directory and return results. */
-  def checkDirectory(root: Path): List[FileResult] =
-    findScalaFiles(root).map(checkFile)
+  /** Check all files under a directory and return results.
+   *
+   *  When `skipUndocumented` is true, declarations with no preceding Scaladoc
+   *  block are not detected and not reported.
+   */
+  def checkDirectory(root: Path, skipUndocumented: Boolean = false): List[FileResult] =
+    findScalaFiles(root).map(checkFile(_, skipUndocumented))
 
   /** Generate summary statistics from file results. */
   def summarize(results: List[FileResult]): Summary =

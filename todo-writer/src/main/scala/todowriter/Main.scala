@@ -10,6 +10,7 @@ object Main:
       json: Boolean = false,
       help: Boolean = false,
       skipTodo: Boolean = false,
+      skipUndocumented: Boolean = false,
       migrateMarkdown: Boolean = false
   )
 
@@ -31,7 +32,7 @@ object Main:
           System.err.println(s"Error: folder not found: $folder")
           System.exit(2)
  
-        run(folder, config.fix, config.json, config.skipTodo, config.migrateMarkdown)
+        run(folder, config.fix, config.json, config.skipTodo, config.skipUndocumented, config.migrateMarkdown)
 
   private def parseArgs(args: List[String]): Config =
     args match
@@ -40,6 +41,7 @@ object Main:
       case "--dry" :: rest => parseArgs(rest).copy(fix = true)
       case "--json" :: rest => parseArgs(rest).copy(json = true)
       case "--skip-todo" :: rest => parseArgs(rest).copy(skipTodo = true)
+      case "--skip-undocumented" :: rest => parseArgs(rest).copy(skipUndocumented = true)
       case "--migrate-markdown" :: rest => parseArgs(rest).copy(migrateMarkdown = true)
       case arg :: rest if arg.startsWith("-") =>
         System.err.println(s"Unknown option: $arg")
@@ -59,6 +61,7 @@ object Main:
               |  --dry               Dry run (do not write changes to files)
               |  --migrate-markdown  Migrate Wikidoc-style scaladoc to Markdown (applies in-place unless --dry)
               |  --skip-todo         Do not insert TODO placeholders for missing tags when fixing
+              |  --skip-undocumented Do not report or fix declarations that have no Scaladoc block at all
               |  --json              Output results as JSON
               |  --help              Show this help message
               |
@@ -68,12 +71,12 @@ object Main:
               |  2                   Error (folder not found, etc.)
               |""".stripMargin)
 
-  private def run(folder: Path, dry: Boolean, json: Boolean, skipTodo: Boolean, migrateMarkdown: Boolean): Unit =
+  private def run(folder: Path, dry: Boolean, json: Boolean, skipTodo: Boolean, skipUndocumented: Boolean, migrateMarkdown: Boolean): Unit =
     // Perform optional migration before checking so subsequent checks see migrated content.
     if migrateMarkdown then
       performMigration(folder, dry)
- 
-    val results = ScaladocChecker.checkDirectory(folder)
+
+    val results = ScaladocChecker.checkDirectory(folder, skipUndocumented)
     val summary = ScaladocChecker.summarize(results)
  
     if json then
