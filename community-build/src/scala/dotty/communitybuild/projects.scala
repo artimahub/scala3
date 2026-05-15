@@ -117,12 +117,14 @@ final case class SbtCommunityProject(
     val sbtProps = Option(System.getProperty("sbt.ivy.home")) match
       case Some(ivyHome) => List(s"-Dsbt.ivy.home=$ivyHome")
       case _ => Nil
-    extraSbtArgs ++ sbtProps ++ List("-sbt-version", "1.12.9", "-Dsbt.supershell=false", s"--addPluginSbtFile=$sbtPluginFilePath")
+    extraSbtArgs ++ sbtProps ++ List("-sbt-version", "1.12.1", "-Dsbt.supershell=false", s"--addPluginSbtFile=$sbtPluginFilePath")
 
 object SbtCommunityProject:
   def scalacOptions = List(
     "-Xcheck-macros",
     "-Wsafe-init",
+    "-Yexplicit-nulls",
+    "-language:unsafeNulls",
   )
 
 object projects:
@@ -769,7 +771,6 @@ def allProjects = List(
   projects.libretto,
   projects.jacksonModuleScala,
   projects.specs2,
-  projects.coop,
   projects.spire,
   projects.http4s,
   projects.parboiled2,
