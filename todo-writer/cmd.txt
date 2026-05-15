@@ -13,3 +13,10 @@ You can also combine with --migrate-markdown if you want to convert Wikidoc synt
   sbt "run ../library --skip-todo --migrate-markdown"
   sbt "run ../library-js --skip-todo --migrate-markdown"
   sbt "run ../library-aux --skip-todo --migrate-markdown"
+
+You can also use --skip-undocumented to keep it from adding anything for items that have no documentation at all.
+For example:
+
+sbt 'run ../library --skip-undocumented --dry'
+
+
