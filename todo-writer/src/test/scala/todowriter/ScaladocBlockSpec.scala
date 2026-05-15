@@ -213,6 +213,22 @@ class ScaladocBlockSpec extends AnyFlatSpec with Matchers:
     blocks should have size 0
   }
 
+  it should "not match Scaladoc markers inside string literals" in {
+    val text = """object Comment {
+                 |  def render(): Unit = {
+                 |    out.append("/**")
+                 |    out.append("*/")
+                 |  }
+                 |}
+                 |
+                 |/** Real scaladoc. */
+                 |def foo(): Unit = ()""".stripMargin
+
+    val blocks = ScaladocBlock.findAll(text)
+    blocks should have size 1
+    blocks.head.content.trim should be("Real scaladoc.")
+  }
+
   it should "match real Scaladoc but not commented-out Scaladoc" in {
     val text = """/** Real scaladoc. */
                  |def foo(): Unit = ()

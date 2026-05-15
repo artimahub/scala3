@@ -735,6 +735,30 @@ class FixerSpec extends AnyFlatSpec with Matchers:
     }
   }
 
+  it should "preserve the declaration after a scaladoc stub is inserted" in {
+    val content = """package test
+                    |
+                    |object Comment {
+                    |  /** A `Comment` contains the unformatted docstring.
+                    |   *
+                    |   * It keeps the source span and the cooked expansion.
+                    |   */
+                    |  def apply(span: Int, raw: String): String = raw
+                    |  private def parseUsecases(expandedComment: String, span: Int): List[String] = Nil
+                    |}""".stripMargin
+
+    withTempFile(content) { path =>
+      val check = ScaladocChecker.checkFile(path)
+      val fix = Fixer.fixFile(path, check.results, insertTodo = true)
+      fix.newContent shouldBe defined
+
+      val newContent = fix.newContent.get
+      newContent should include("def apply(span: Int, raw: String): String = raw")
+      newContent should include("private def parseUsecases(expandedComment: String, span: Int): List[String] = Nil")
+      newContent should not include "/** \""
+    }
+  }
+
   // Tests merged from AsteriskAlignmentSpec
 
   it should "promote simple text to the /** line (previously tested asterisk alignment)" in {
