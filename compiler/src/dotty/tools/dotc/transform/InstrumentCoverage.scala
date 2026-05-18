@@ -48,6 +48,8 @@ object LiftCoverage extends LiftImpure:
     arg match
       case arg if isUnsafeAssumeSeparate(arg) => true
       case a: tpd.Apply => a.symbol.is(Erased) // don't lift erased applications, but lift all others
+      case tpd.Block((meth: tpd.DefDef) :: Nil, closure: tpd.Closure)
+          if meth.symbol == closure.meth.symbol && closure.env.forall(noLiftArg) => true
       case tpd.Block(stats, expr) => stats.forall(noLiftArg) && noLiftArg(expr)
       case tpd.Inlined(_, bindings, expr) => noLiftArg(expr)
       case tpd.Typed(expr, _) => noLiftArg(expr)
@@ -80,10 +82,15 @@ object LiftCoverage extends LiftImpure:
   override protected def liftedExprType(expr: tpd.Tree)(using Context): Type =
     val dealiased = expr.tpe.dealias
     val deskolemized = dealiased.deskolemized
-    deskolemized.widenTermRefExpr.normalized.simplified match
+    val valueType = dealiased match
+      case ref: TermRef if ref.prefix.exists && ref.underlying.isInstanceOf[ExprType] =>
+        ref.prefix.memberInfo(ref.symbol).widenExpr
+      case _ =>
+        dealiased
+    valueType.widenTermRefExpr.normalized.simplified match
       case _: ConstantType => deskolemized
       case _ if dealiased.isInstanceOf[SingletonType] && dealiased.isStable => dealiased
-      case _ if dealiased.existsPart(_.typeSymbol == defn.TypeBox_CAP) => dealiased
+      case _ if valueType.existsPart(_.typeSymbol == defn.TypeBox_CAP) => valueType
       case _ => super.liftedExprType(expr)
 
   def liftForCoverage(defs: mutable.ListBuffer[tpd.Tree], tree: tpd.Apply)(using Context) =
