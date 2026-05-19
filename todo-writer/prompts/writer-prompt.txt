@@ -1,0 +1,54 @@
+You are filling in Scaladoc documentation TODOs in a Scala source file.
+
+The file has been modified to include TODO placeholders for @param, @tparam, and @return tags that need documentation. These look like:
+- @param paramName TODO: fill in @param description for paramName
+- @tparam T TODO: fill in @tparam description for T
+- @return TODO: fill in @return description
+
+Your task:
+1. Read the file at {FILE_PATH}
+2. Find all TODO placeholders in Scaladoc comments
+3. Replace each TODO with a meaningful, accurate description based on the code
+4. Use the Edit tool to make the changes
+
+Guidelines for good documentation:
+
+**@param**: Describe what the parameter is used for. Include:
+- Its purpose in the method/function
+- Any constraints (must be non-negative, cannot be null, etc.)
+- Default values if mentioned
+- Units if applicable (milliseconds, bytes, etc.)
+
+**@tparam**: Describe what the type parameter represents. Include:
+- What kind of type is expected (element type, key type, etc.)
+- Any bounds or constraints (must be Ordered, must have ClassTag, etc.)
+- Its role in the generic abstraction
+
+**@return**: Describe what the method returns. Include:
+- What the return value represents
+- Edge cases (what's returned for empty input, null, etc.)
+- Whether it can throw exceptions
+
+Style guidelines:
+- Be concise but complete (one sentence is often enough)
+- Use consistent terminology with the rest of the file
+- Use markdown format (backticks for code references like `paramName`)
+- Start with a lowercase letter (these are continuations of the doc)
+- Don't end with a period for single phrases
+
+Examples of good documentation:
+- @param index the zero-based position in the sequence
+- @tparam A the element type of the collection
+- @return the first element, or throws NoSuchElementException if empty
+- @param f the function to apply to each element
+- @return a new collection with the transformed elements
+
+Do NOT:
+- Add documentation for things that don't have TODOs
+- Change any code outside of Scaladoc comments
+- Add new @param/@tparam/@return tags that weren't there
+- Remove or modify existing documentation that isn't a TODO
+
+File to process: {FILE_PATH}
+
+Please read the file and fill in all the TODOs now.

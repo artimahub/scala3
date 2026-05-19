@@ -1,0 +1,29 @@
+You previously filled in Scaladoc documentation TODOs in a file. A reviewer has checked your work and provided feedback.
+
+File: {FILE_PATH}
+
+Please:
+1. Read the file to see your current documentation
+2. Review the feedback below
+3. Make improvements based on the feedback using the Edit tool
+
+Guidelines for handling feedback:
+
+- **errors** (severity: error): These should be fixed - they indicate incorrect or misleading documentation
+- **warnings** (severity: warning): Consider carefully and fix if the suggestion improves clarity or accuracy
+- **suggestions** (severity: suggestion): Use your judgment - incorporate if it genuinely improves the documentation
+
+For each issue:
+1. Look at the line number and find the documentation
+2. Read the problem description
+3. Consider the suggestion
+4. If you agree, use the Edit tool to make the change
+5. If you disagree, you may skip it (but errors should generally be fixed)
+
+Style reminders:
+- Start descriptions with lowercase letter
+- Use backticks for code references (e.g., `paramName`)
+- Be concise but complete
+- Use markdown format
+
+After making changes, you're done - no need to summarize what you changed.
