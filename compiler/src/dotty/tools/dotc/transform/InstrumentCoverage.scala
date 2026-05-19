@@ -48,6 +48,8 @@ object LiftCoverage extends LiftImpure:
     arg match
       case arg if isUnsafeAssumeSeparate(arg) => true
       case a: tpd.Apply => a.symbol.is(Erased) // don't lift erased applications, but lift all others
+      case tpd.Block((meth: tpd.DefDef) :: Nil, closure: tpd.Closure)
+          if meth.symbol == closure.meth.symbol && closure.env.forall(noLiftArg) => true
       case tpd.Block(stats, expr) => stats.forall(noLiftArg) && noLiftArg(expr)
       case tpd.Inlined(_, bindings, expr) => noLiftArg(expr)
       case tpd.Typed(expr, _) => noLiftArg(expr)
@@ -73,14 +75,22 @@ object LiftCoverage extends LiftImpure:
     if liftingArgs then noLiftArg(expr)
     else isUnsafeAssumeSeparate(expr) || super.noLift(expr)
 
-  /** Preserve singleton precision for lifted coverage temps when the underlying value is a
-   *  compile-time constant (same notion ConstFold uses), so constant re-folding after lifting
-   *  still matches the original inferred singleton type. Everything else uses the base widen.
+  /** Preserve precision for lifted coverage temps when widening would break later checks:
+   *  compile-time constants and stable singleton types need their singleton precision,
+   *  and capture-converted types need their local TypeBox#CAP references.
    */
   override protected def liftedExprType(expr: tpd.Tree)(using Context): Type =
-    val dealiased = expr.tpe.dealias.deskolemized
-    dealiased.widenTermRefExpr.normalized.simplified match
-      case _: ConstantType => dealiased
+    val dealiased = expr.tpe.dealias
+    val deskolemized = dealiased.deskolemized
+    val valueType = dealiased match
+      case ref: TermRef if ref.prefix.exists && ref.underlying.isInstanceOf[ExprType] =>
+        ref.prefix.memberInfo(ref.symbol).widenExpr
+      case _ =>
+        dealiased
+    valueType.widenTermRefExpr.normalized.simplified match
+      case _: ConstantType => deskolemized
+      case _ if dealiased.isInstanceOf[SingletonType] && dealiased.isStable => dealiased
+      case _ if valueType.existsPart(_.typeSymbol == defn.TypeBox_CAP) => valueType
       case _ => super.liftedExprType(expr)
 
   def liftForCoverage(defs: mutable.ListBuffer[tpd.Tree], tree: tpd.Apply)(using Context) =
@@ -750,14 +760,16 @@ class InstrumentCoverage extends MacroTransform with IdentityDenotTransformer:
 
     /** Check if an Apply can be instrumented. Prevents this phase from generating incorrect code. */
     private def canInstrumentApply(tree: Apply)(using Context): Boolean =
-      def isSecondaryCtorDelegateCall: Boolean = tree.fun match
+      def isSecondaryCtorDelegateCall(fun: Tree): Boolean = fun match
         case Select(This(_), nme.CONSTRUCTOR) => true
+        case Apply(fn, _)                     => isSecondaryCtorDelegateCall(fn)
+        case TypeApply(fn, _)                 => isSecondaryCtorDelegateCall(fn)
         case _                                => false
 
       val sym = tree.symbol
       !sym.isOneOf(ExcludeMethodFlags)
       && !isCompilerIntrinsicMethod(sym)
-      && !(sym.isClassConstructor && isSecondaryCtorDelegateCall)
+      && !(sym.isClassConstructor && isSecondaryCtorDelegateCall(tree.fun))
       && !sym.name.is(DefaultGetterName) // https://github.com/scala/scala3/issues/20255
       && (tree.typeOpt match
         case AppliedType(tycon: NamedType, _) =>
