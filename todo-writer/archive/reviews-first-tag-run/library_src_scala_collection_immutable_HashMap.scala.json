@@ -1,0 +1,83 @@
+I see — the method creates and returns a new array. Saying "the source array to insert into" is slightly misleading since it implies mutation. However, the method-level doc already says "Inserts element `elem` into array `as`" which has the same slight inaccuracy, so the param doc is consistent with the existing method doc. This is a minor point.
+
+Now let me also verify if the new `shift` description is inconsistent with the pre-existing one at line 568.
+
+The pre-existing doc at line 568: `@param shift the shift of the node (distanceFromRoot * BitPartitionSize)`
+The new docs: `@param shift the current depth in the trie, measured in bit partitions from the root`
+
+Since `shift = distanceFromRoot * BitPartitionSize`, shift is actually measured in **bits**, not in "bit partitions". Saying "measured in bit partitions" is inaccurate. The shift value at depth 0 is 0, at depth 1 is 5, at depth 2 is 10, etc. (with BitPartitionSize=5). So it's the depth *multiplied by* bit partition size, not the depth in bit partitions.
+
+Now I have all the information I need to produce the review.
+
+```json
+{
+  "overall_quality": "good",
+  "issues": [
+    {
+      "line": 620,
+      "tag_type": "@param",
+      "tag_name": "shift",
+      "severity": "warning",
+      "current_text": "the current depth in the trie, measured in bit partitions from the root",
+      "problem": "The `shift` parameter is not the depth measured in bit partitions. It is `distanceFromRoot * BitPartitionSize`, i.e. measured in bits. The pre-existing documentation at line 568 correctly describes it as `the shift of the node (distanceFromRoot * BitPartitionSize)`. Saying 'measured in bit partitions' is inaccurate — at depth 1 the shift is 5, not 1.",
+      "suggestion": "the bit-level offset into the hash code, equal to `depth * BitPartitionSize`"
+    },
+    {
+      "line": 631,
+      "tag_type": "@param",
+      "tag_name": "shift",
+      "severity": "warning",
+      "current_text": "the current depth in the trie, measured in bit partitions from the root",
+      "problem": "Same inaccuracy as above — shift is measured in bits, not bit partitions.",
+      "suggestion": "the bit-level offset into the hash code, equal to `depth * BitPartitionSize`"
+    },
+    {
+      "line": 815,
+      "tag_type": "@param",
+      "tag_name": "shift",
+      "severity": "warning",
+      "current_text": "the current depth in the trie, measured in bit partitions from the root",
+      "problem": "Same inaccuracy — shift is the bit offset, not the depth in bit partitions.",
+      "suggestion": "the bit-level offset into the hash code, equal to `depth * BitPartitionSize`"
+    },
+    {
+      "line": 2342,
+      "tag_type": "@param",
+      "tag_name": "shift",
+      "severity": "warning",
+      "current_text": "the current depth in the trie, measured in bit partitions from the root",
+      "problem": "Same inaccuracy — shift is the bit offset, not the depth in bit partitions.",
+      "suggestion": "the bit-level offset into the hash code, equal to `depth * BitPartitionSize`"
+    },
+    {
+      "line": 2289,
+      "tag_type": "@param",
+      "tag_name": "as",
+      "severity": "suggestion",
+      "current_text": "the source array to insert into",
+      "problem": "Slightly misleading — suggests in-place mutation, but the method actually creates and returns a new array. However, this is consistent with the existing method-level doc ('Inserts element...into array') so it is acceptable.",
+      "suggestion": "the source array from which to create a new array with `elem` inserted"
+    },
+    {
+      "line": 566,
+      "tag_type": "@param",
+      "tag_name": "originalHash",
+      "severity": "suggestion",
+      "current_text": "the original hash of `key`",
+      "problem": "Other newly documented occurrences of `originalHash` include the clarification `(via key.##)`, but this one does not. Consistency would be improved by adding it.",
+      "suggestion": "the original hash code of `key` (via `key.##`)"
+    },
+    {
+      "line": 2199,
+      "tag_type": "@tparam",
+      "tag_name": "K",
+      "severity": "suggestion",
+      "current_text": "the key type of the HashMap being modified",
+      "problem": "This is the type parameter of `MapNodeRemoveAllSetNodeIterator`, not directly of a HashMap. The class is parameterized by `K` which is the key type shared by the HashMap and HashSet involved. Minor semantic imprecision.",
+      "suggestion": "the key type"
+    }
+  ],
+  "general_feedback": "The documentation is well-written overall with clear, accurate descriptions. The main recurring issue is the description of the `shift` parameter as 'the current depth in the trie, measured in bit partitions from the root', which is inaccurate. The `shift` value is actually `depth * BitPartitionSize` (i.e., measured in bits, not in bit partitions), as correctly described in the pre-existing documentation at line 568. All four new occurrences of this description should be corrected for accuracy and consistency. The remaining issues are minor stylistic suggestions.",
+  "requires_changes": true
+}
+```

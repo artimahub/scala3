@@ -1,0 +1,54 @@
+```json
+{
+  "overall_quality": "good",
+  "issues": [
+    {
+      "line": 11,
+      "tag_type": "@param",
+      "tag_name": "Type",
+      "severity": "warning",
+      "current_text": "the type evidence for `T`, used for staging",
+      "problem": "Scaladoc @param tags for `using` (implicit) parameters conventionally use the parameter name, not the type name. The parameter is an anonymous `using` parameter of type `Type[T]`, so documenting it as `@param Type` is non-standard and may not render correctly in Scaladoc.",
+      "suggestion": "Consider removing this tag or clarifying it is a using/context parameter, e.g., document it inline in the method description instead: \"Requires a given `Type[T]` instance for staging.\""
+    },
+    {
+      "line": 12,
+      "tag_type": "@param",
+      "tag_name": "Quotes",
+      "severity": "warning",
+      "current_text": "the reflection context providing access to the quote infrastructure",
+      "problem": "Same issue as `@param Type` — `Quotes` is an anonymous `using` parameter (type name, not parameter name). Scaladoc `@param` tags reference parameter names, not types, so this may not render as intended.",
+      "suggestion": "Consider removing this tag or documenting it inline: \"Requires a given `Quotes` instance for access to the reflection API.\""
+    },
+    {
+      "line": 16,
+      "tag_type": null,
+      "tag_name": null,
+      "severity": "suggestion",
+      "current_text": "Maps sub-expressions an expression `e` with a type `T`.",
+      "problem": "The existing summary sentence (not part of this diff, but worth noting) has a grammatical issue: \"Maps sub-expressions an expression\" should be \"Maps the sub-expressions of an expression\". This pre-dates the current changes.",
+      "suggestion": "Maps the sub-expressions of an expression `e` with type `T`."
+    },
+    {
+      "line": 20,
+      "tag_type": "@param",
+      "tag_name": "Type",
+      "severity": "warning",
+      "current_text": "the type evidence for `T`, used for staging",
+      "problem": "Same issue as line 11 — `@param Type` uses the type name rather than a parameter name for an anonymous using parameter.",
+      "suggestion": "Consider removing or documenting inline."
+    },
+    {
+      "line": 21,
+      "tag_type": "@param",
+      "tag_name": "Quotes",
+      "severity": "warning",
+      "current_text": "the reflection context providing access to the quote infrastructure",
+      "problem": "Same issue as line 12 — `@param Quotes` uses the type name for an anonymous using parameter.",
+      "suggestion": "Consider removing or documenting inline."
+    }
+  ],
+  "general_feedback": "The core @param and @tparam descriptions for `T` and `e` are accurate, clear, and well-written. The main concern is that both methods document anonymous `using` parameters via `@param Type` and `@param Quotes`, using the type name rather than a parameter name. Since these are unnamed context parameters, standard Scaladoc `@param` tags may not resolve correctly and could produce warnings or render incorrectly. The descriptions themselves are accurate — `Type[T]` is indeed type evidence for staging and `Quotes` does provide access to the reflection/quote infrastructure — but the tagging mechanism is questionable. Consider either removing these tags (since they are well-known context parameters in the macro API) or incorporating the information into the method summary.",
+  "requires_changes": false
+}
+```

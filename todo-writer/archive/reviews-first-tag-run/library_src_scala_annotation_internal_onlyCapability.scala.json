@@ -1,0 +1,18 @@
+```json
+{
+  "overall_quality": "good",
+  "issues": [
+    {
+      "line": 7,
+      "tag_type": "@tparam",
+      "tag_name": "T",
+      "severity": "suggestion",
+      "current_text": "the capability type that `c` is restricted to via `c.only[T]`",
+      "problem": "The description references `c` and `c.only[T]` which are already explained in the class-level doc. It could be slightly more precise by clarifying that `T` represents the specific capability facet being selected.",
+      "suggestion": "the specific capability type to which `c` is restricted"
+    }
+  ],
+  "general_feedback": "The @tparam documentation is accurate and follows Scaladoc conventions: it starts with a lowercase letter, uses backticks for code references (`c`, `c.only[T]`), and ties in well with the class-level description. The reference to `c.only[T]` provides helpful context by connecting to the syntax described in the class doc. Only a minor simplification could be considered to reduce redundancy with the class-level description.",
+  "requires_changes": false
+}
+```

@@ -1,0 +1,27 @@
+```json
+{
+  "overall_quality": "good",
+  "issues": [
+    {
+      "line": 11,
+      "tag_type": "@tparam",
+      "tag_name": "L",
+      "severity": "suggestion",
+      "current_text": "the lower bound of the wildcard type being captured",
+      "problem": "Could mention the contravariant position of L to help readers understand the variance annotation `-L`.",
+      "suggestion": "the lower bound of the wildcard type argument (contravariant)"
+    },
+    {
+      "line": 12,
+      "tag_type": "@tparam",
+      "tag_name": "U",
+      "severity": "suggestion",
+      "current_text": "the upper bound of the wildcard type being captured",
+      "problem": "Could mention the covariant position of U to help readers understand the variance annotation `+U`.",
+      "suggestion": "the upper bound of the wildcard type argument (covariant)"
+    }
+  ],
+  "general_feedback": "The documentation correctly describes both type parameters as bounds of the wildcard type, which aligns with the class-level Scaladoc explaining capture conversion of `C[_ >: L <: U]`. The descriptions are accurate, concise, and follow Scaladoc conventions (lowercase start, no trailing period). Minor suggestions to mention variance are purely optional since the variance is already visible in the signature and explained in the class-level doc.",
+  "requires_changes": false
+}
+```

@@ -1,0 +1,27 @@
+```json
+{
+  "overall_quality": "good",
+  "issues": [
+    {
+      "line": 65,
+      "tag_type": "@return",
+      "tag_name": "",
+      "severity": "warning",
+      "current_text": "",
+      "problem": "The `toJava` method is missing a `@return` tag. While the method name and surrounding prose make the return value clear, a `@return` tag would be consistent with the `toScala` method which has one.",
+      "suggestion": "@return a Java `java.time.Duration` representing the same length of time"
+    },
+    {
+      "line": 33,
+      "tag_type": "@return",
+      "tag_name": "",
+      "severity": "suggestion",
+      "current_text": "a Scala `FiniteDuration` with the same length, using seconds or nanoseconds as the time unit",
+      "problem": "The description is accurate and clear. Minor stylistic note: it could mention that a zero-length duration also returns `Duration.Zero` (which is a `FiniteDuration`), but this is a very minor edge case already implied.",
+      "suggestion": "a Scala `FiniteDuration` with the same length, using seconds or nanoseconds as the time unit"
+    }
+  ],
+  "general_feedback": "The documentation is accurate and clearly written. The `@param` tags correctly identify the types being converted using backtick-quoted type names. The `@return` for `toScala` accurately describes the unit selection behavior. The main gap is that `toJava` lacks a `@return` tag, which creates a minor inconsistency with `toScala`. The existing text is concise and follows Scaladoc conventions (lowercase start, backtick code references).",
+  "requires_changes": false
+}
+```

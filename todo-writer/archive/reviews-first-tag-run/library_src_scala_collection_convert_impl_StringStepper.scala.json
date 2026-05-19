@@ -1,0 +1,48 @@
+Now let me review the documentation carefully.
+
+For `CharStringStepper`:
+- `@param underlying the \`String\` to step through` — Accurate, clear, concise. The class doc already says "chars packed into `Int`" so the param doesn't need to repeat that. However, the class has two other constructor parameters `_i0` and `_iN` that are not documented — though since the class is `private[collection]` and those params have leading underscores suggesting they're internal, this may be acceptable.
+
+For `CodePointStringStepper`:
+- `@param underlying the \`String\` to step through by code point` — Accurate and clear.
+- `@param i0 the starting index (inclusive) into the string` — The parameter is named `i0` in the Scaladoc but it's actually a `private var` constructor parameter. This is valid Scaladoc. The description is accurate.
+- `@param iN the ending index (exclusive) into the string` — Same situation, accurate description.
+
+One notable issue: `CharStringStepper` has `_i0` and `_iN` parameters that are not documented, while `CodePointStringStepper`'s `i0` and `iN` are documented. This is inconsistent, though `_i0` and `_iN` are passed to the parent `IndexedStepperBase` and the leading underscore convention suggests they're implementation details.
+
+```json
+{
+  "overall_quality": "good",
+  "issues": [
+    {
+      "line": 26,
+      "tag_type": "@param",
+      "tag_name": "underlying",
+      "severity": "suggestion",
+      "current_text": "the `String` to step through",
+      "problem": "The class has two other constructor parameters `_i0` and `_iN` that are undocumented, creating an inconsistency with `CodePointStringStepper` where analogous parameters are documented. However, the leading underscore convention and the fact that they are simply forwarded to the superclass make this acceptable.",
+      "suggestion": "No change needed for `underlying` itself; optionally add `@param _i0` and `@param _iN` for completeness, but this is not required since they are internal delegation parameters."
+    },
+    {
+      "line": 40,
+      "tag_type": "@param",
+      "tag_name": "i0",
+      "severity": "suggestion",
+      "current_text": "the starting index (inclusive) into the string",
+      "problem": "Could clarify that this is a char index (UTF-16 code unit offset), not a code point index, since the class deals with code points but indexes by char position.",
+      "suggestion": "the starting char index (inclusive) into the string"
+    },
+    {
+      "line": 41,
+      "tag_type": "@param",
+      "tag_name": "iN",
+      "severity": "suggestion",
+      "current_text": "the ending index (exclusive) into the string",
+      "problem": "Same as `i0` — could clarify this is a char index, not a code point index.",
+      "suggestion": "the ending char index (exclusive) into the string"
+    }
+  ],
+  "general_feedback": "The documentation is clear, accurate, and concise. The filled-in descriptions correctly describe the parameters and follow Scaladoc conventions (lowercase start, backtick-quoted code references, consistent style). The only minor suggestions are about clarifying that `i0`/`iN` are char-level (UTF-16) indices rather than code point indices, which matters since the class operates on code points. Overall this is solid work.",
+  "requires_changes": false
+}
+```

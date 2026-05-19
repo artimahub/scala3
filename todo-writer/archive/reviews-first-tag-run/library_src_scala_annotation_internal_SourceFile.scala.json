@@ -1,0 +1,36 @@
+```json
+{
+  "overall_quality": "needs_work",
+  "issues": [
+    {
+      "line": 9,
+      "tag_type": "@param",
+      "tag_name": "aliased",
+      "severity": "error",
+      "current_text": "A TermRef pointing to the aliased field.",
+      "problem": "The parameter `aliased` does not exist on the `SourceFile` class. This documentation appears to be copied from a different annotation (likely `Scala2Unpickled` or similar). The class only has one parameter: `path: String`.",
+      "suggestion": "Remove this @param tag entirely, as there is no `aliased` parameter on `SourceFile`."
+    },
+    {
+      "line": 7,
+      "tag_type": "@param",
+      "tag_name": "path",
+      "severity": "warning",
+      "current_text": "the path of the source file in which the annotated definition appears",
+      "problem": "The class-level Scaladoc says 'An annotation to record a Scala2 pickled alias' which is incorrect for `SourceFile`. This annotation records the source file path, not a pickled alias. While the class-level doc wasn't part of this change, the new @param documentation is inconsistent with the (incorrect) class description.",
+      "suggestion": "the path of the source file in which the annotated definition appears"
+    },
+    {
+      "line": 10,
+      "tag_type": "@param",
+      "tag_name": "path",
+      "severity": "suggestion",
+      "current_text": "the path of the source file in which the annotated definition appears",
+      "problem": "The description is accurate and clear for the `path` parameter itself. No change needed for this specific tag text.",
+      "suggestion": "the path of the source file in which the annotated definition appears"
+    }
+  ],
+  "general_feedback": "The newly written `@param path` documentation is clear and accurate. However, there is a pre-existing `@param aliased` tag that refers to a parameter that does not exist on the `SourceFile` class — the class only has `path: String`. Additionally, the class-level Scaladoc description ('An annotation to record a Scala2 pickled alias') is incorrect for `SourceFile` and appears to have been copied from another annotation. These pre-existing issues should be fixed to avoid confusion.",
+  "requires_changes": true
+}
+```

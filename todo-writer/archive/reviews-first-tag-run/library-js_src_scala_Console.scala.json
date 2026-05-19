@@ -1,0 +1,18 @@
+```json
+{
+  "overall_quality": "good",
+  "issues": [
+    {
+      "line": 237,
+      "tag_type": "@param",
+      "tag_name": "reader",
+      "severity": "suggestion",
+      "current_text": "the new input source",
+      "problem": "Slightly inconsistent with the surrounding style. The other `withIn` overload uses 'the new input stream.' and the `withOut`/`withErr` methods use 'the new output stream.' / 'the new error stream.' This one says 'input source' instead of 'input reader' or 'input stream', which is less specific about the type.",
+      "suggestion": "the new input reader"
+    }
+  ],
+  "general_feedback": "The documentation fills in all the TODO placeholders correctly. The `@tparam T` descriptions are consistent across all six methods and accurately describe T as the return type of `thunk`. The `@param reader` description is accurate but could be slightly more consistent with the naming pattern used in sibling methods. Overall this is clean, accurate documentation.",
+  "requires_changes": false
+}
+```

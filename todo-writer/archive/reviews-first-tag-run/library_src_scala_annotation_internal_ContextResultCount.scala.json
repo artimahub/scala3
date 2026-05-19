@@ -1,0 +1,8 @@
+```json
+{
+  "overall_quality": "excellent",
+  "issues": [],
+  "general_feedback": "Documentation is clear, accurate, and complete. The @param description for `n` correctly describes it as the count of nested context closures in the method's right-hand side, which is consistent with the class-level Scaladoc. It starts with a lowercase letter and is appropriately concise.",
+  "requires_changes": false
+}
+```

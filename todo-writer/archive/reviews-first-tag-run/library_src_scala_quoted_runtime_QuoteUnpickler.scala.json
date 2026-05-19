@@ -1,0 +1,45 @@
+```json
+{
+  "overall_quality": "good",
+  "issues": [
+    {
+      "line": 19,
+      "tag_type": "@param",
+      "tag_name": "termHole",
+      "severity": "warning",
+      "current_text": "(missing)",
+      "problem": "The `termHole` parameter on `unpickleExpr` is not documented, even though `typeHole` and `pickled` are. This parameter is present in the method signature but has no `@param` tag.",
+      "suggestion": "@param termHole a function that resolves term splice nodes by index, with captured arguments and a `Quotes` context"
+    },
+    {
+      "line": 42,
+      "tag_type": "@param",
+      "tag_name": "termHole",
+      "severity": "warning",
+      "current_text": "(missing)",
+      "problem": "The `termHole` parameter on `unpickleType` is not documented, even though `typeHole` and `pickled` are. This parameter is present in the method signature but has no `@param` tag.",
+      "suggestion": "@param termHole a function that resolves term splice nodes by index, with captured arguments and a `Quotes` context"
+    },
+    {
+      "line": 52,
+      "tag_type": "@return",
+      "tag_name": "",
+      "severity": "suggestion",
+      "current_text": "the unpickled `Type[T]` representation",
+      "problem": "The `@return` tag is only present on `unpickleTypeV2` but not on the other three methods. For consistency, either add `@return` tags to all methods or remove this one. Since the return types are self-explanatory from the method signatures (`Expr[T]` / `Type[T]`), omitting them everywhere would be fine.",
+      "suggestion": "Remove the `@return` tag for consistency, or add matching `@return` tags to the other three methods"
+    },
+    {
+      "line": 38,
+      "tag_type": "@tparam",
+      "tag_name": "T",
+      "severity": "suggestion",
+      "current_text": "the kind-polymorphic type being unpickled",
+      "problem": "\"kind-polymorphic\" is technically accurate (given `T <: AnyKind`) but may be unclear to readers unfamiliar with kind polymorphism. Consider briefly clarifying what this means.",
+      "suggestion": "the type being unpickled, which may be of any kind (e.g., `*`, `* => *`)"
+    }
+  ],
+  "general_feedback": "The documentation is a solid improvement over the TODO placeholders. Descriptions are accurate, consistently styled (lowercase start, backticks for code references), and appropriately concise. The main issue is that `termHole` is undocumented on both `unpickleExpr` and `unpickleType` while their other parameters are documented, which is a completeness gap. The `@return` tag is used inconsistently (only on one of four methods).",
+  "requires_changes": true
+}
+```
