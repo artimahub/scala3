@@ -64,14 +64,11 @@ class IntegrationSpec extends AnyFlatSpec with Matchers:
     }
   }
 
-  it should "detect missing return" in {
+  it should "detect missing return when method has @param" in {
     val content = """package test
                     |
-                    |/** A method that returns something.
-                    | *
-                    | *  This is a longer description.
-                    | */
-                    |def foo(): String = ???
+                    |/** A method that returns something. */
+                    |def foo(x: Int): String = ???
                     |""".stripMargin
 
     withTempFile(content) { path =>
@@ -82,7 +79,7 @@ class IntegrationSpec extends AnyFlatSpec with Matchers:
     }
   }
 
-  it should "not require @return for one-liner" in {
+  it should "not require @return when method has no @param/@tparam/@throws" in {
     val content = """package test
                     |
                     |/** Returns the count. */
@@ -97,7 +94,6 @@ class IntegrationSpec extends AnyFlatSpec with Matchers:
   }
 
   it should "apply fixes correctly" in {
-    // Note: "A method." is a one-liner, so @return should NOT be added
     val content = """package test
                     |
                     |/** A method.
@@ -114,8 +110,8 @@ class IntegrationSpec extends AnyFlatSpec with Matchers:
 
       val newContent = fixResult.newContent.get
       newContent should include("@param x TODO FILL IN")
-      // @return should NOT be added because it's a one-liner
-      newContent should not include "@return TODO FILL IN"
+      // @return is added because there is a @param
+      newContent should include("@return TODO FILL IN")
     }
   }
 
@@ -314,15 +310,15 @@ class IntegrationSpec extends AnyFlatSpec with Matchers:
       val result = ScaladocChecker.checkFile(path)
       result.results should have size 2
 
-      // First method: one-liner, has param
+      // First method: has @param x but Unit return, so no @return
       val firstIssues = result.results(0).issues
       firstIssues should contain(Issue.MissingParam(List("x")))
-      firstIssues should not contain Issue.MissingReturn // Unit return
+      firstIssues should not contain Issue.MissingReturn
 
-      // Second method: multi-line, has param, needs return
+      // Second method: has @param y and non-Unit return, so @return is added
       val secondIssues = result.results(1).issues
       secondIssues should contain(Issue.MissingParam(List("y")))
-      secondIssues should contain(Issue.MissingReturn) // Not one-liner
+      secondIssues should contain(Issue.MissingReturn)
     }
   }
 

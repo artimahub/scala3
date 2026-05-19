@@ -122,49 +122,32 @@ class ScaladocBlockSpec extends AnyFlatSpec with Matchers:
     blocks.head.hasReturn should be(false)
   }
 
-  it should "handle single-line scaladoc" in {
-    val text = """/** Returns the count. */"""
-    val blocks = ScaladocBlock.findAll(text)
-    blocks should have size 1
-    blocks.head.isOneLiner should be(true)
-  }
-
-  it should "detect one-liner (single line of descriptive content)" in {
-    val text = """/** Returns the current count. */"""
-    val blocks = ScaladocBlock.findAll(text)
-    blocks should have size 1
-    blocks.head.isOneLiner should be(true)
-  }
-
-  it should "detect one-liner even with @param tags present" in {
-    val text = """/** Gets the value for the given key.
-                 | *
-                 | *  @param key the lookup key
+  it should "detect @throws tag (with exception type after space)" in {
+    val text = """/** A method.
+                 | *  @throws IllegalArgumentException if bad input
                  | */""".stripMargin
     val blocks = ScaladocBlock.findAll(text)
     blocks should have size 1
-    blocks.head.isOneLiner should be(true)
+    blocks.head.hasThrows should be(true)
   }
 
-  it should "detect one-liner when sentence spans multiple physical lines" in {
-    val text = """/** Returns a two-dimensional array that contains the results of some element
-                 | *  computation a number of times.
-                 | *
-                 | *  @param n1 the number of elements
+  it should "detect @throws tag (with bracketed exception type)" in {
+    val text = """/** A method.
+                 | *  @throws[IllegalArgumentException] if bad input
                  | */""".stripMargin
     val blocks = ScaladocBlock.findAll(text)
     blocks should have size 1
-    blocks.head.isOneLiner should be(true)
+    blocks.head.hasThrows should be(true)
   }
 
-  it should "not consider multiple paragraphs as one-liner" in {
-    val text = """/** Computes the result.
-                 | *
-                 | *  This method performs complex calculation.
+  it should "report hasThrows = false when no @throws tag present" in {
+    val text = """/** A method.
+                 | *  @param x the input
+                 | *  @return the result
                  | */""".stripMargin
     val blocks = ScaladocBlock.findAll(text)
     blocks should have size 1
-    blocks.head.isOneLiner should be(false)
+    blocks.head.hasThrows should be(false)
   }
 
   it should "find multiple scaladoc blocks" in {

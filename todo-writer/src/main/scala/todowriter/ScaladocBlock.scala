@@ -17,7 +17,7 @@ case class ScaladocBlock(
     params: List[String],
     tparams: List[String],
     hasReturn: Boolean,
-    isOneLiner: Boolean,
+    hasThrows: Boolean,
     synthetic: Boolean = false
 )
 
@@ -39,6 +39,10 @@ object ScaladocBlock:
   private val ReturnTagPattern: Regex =
     """^@return(?:\s|$)""".r
 
+  /** Regex to detect a real @throws tag line. Matches `@throws X`, `@throws[X] desc`, or `@throws` alone. */
+  private val ThrowsTagPattern: Regex =
+    """^@throws(?:\s|\[|$)""".r
+
   /** Find all Scaladoc blocks in the given text. */
   def findAll(text: String): List[ScaladocBlock] =
     ScaladocPattern.findAllMatchIn(text).flatMap { m =>
@@ -52,7 +56,6 @@ object ScaladocBlock:
       else
         val lineNumber = text.substring(0, startIndex).count(_ == '\n') + 1
         val tags = extractTags(inner)
-        val oneLiner = isOneLinerContent(inner)
         Some(ScaladocBlock(
           content = inner,
           startIndex = startIndex,
@@ -61,7 +64,7 @@ object ScaladocBlock:
           params = tags.params,
           tparams = tags.tparams,
           hasReturn = tags.hasReturn,
-          isOneLiner = oneLiner
+          hasThrows = tags.hasThrows
         ))
     }.toList
 
@@ -114,13 +117,15 @@ object ScaladocBlock:
   private case class ExtractedTags(
       params: List[String],
       tparams: List[String],
-      hasReturn: Boolean
+      hasReturn: Boolean,
+      hasThrows: Boolean
   )
 
   private def extractTags(inner: String): ExtractedTags =
     val params = collection.mutable.ListBuffer[String]()
     val tparams = collection.mutable.ListBuffer[String]()
     var hasReturn = false
+    var hasThrows = false
 
     // Process line by line to handle multi-line scaladoc
     for line <- inner.linesIterator do
@@ -138,63 +143,12 @@ object ScaladocBlock:
       if ReturnTagPattern.findFirstIn(content).nonEmpty then
         hasReturn = true
 
-    ExtractedTags(params.toList, tparams.toList, hasReturn)
+      if ThrowsTagPattern.findFirstIn(content).nonEmpty then
+        hasThrows = true
+
+    ExtractedTags(params.toList, tparams.toList, hasReturn, hasThrows)
 
   private def normalizeDocTagName(name: String): String =
     if name.length >= 2 && name.head == '`' && name.last == '`' then
       name.substring(1, name.length - 1)
     else name
-
-  /** Determine if the Scaladoc has only a single paragraph of descriptive content.
-   *
-   *  A "one-liner" (really "one-sentencer") is a Scaladoc where the descriptive
-   *  text (ignoring tags) forms a single paragraph without blank line separators.
-   *  The text may span multiple physical lines.
-   *
-   *  Examples of one-liners:
-   *  - /** Returns the count. */
-   *  - /** Returns a two-dimensional array that contains\n *  the results. */
-   *  - /** Gets the value.\n *\n *  @param key the key\n */ (blank before tags is OK)
-   *
-   *  Examples of NOT one-liners (blank line separates paragraphs):
-   *  - /** Computes result.\n *\n *  This is complex.\n */
-   */
-  private def isOneLinerContent(inner: String): Boolean =
-    val lines = inner.linesIterator.toList
-
-    // Track state: have we seen content? have we seen a blank after content?
-    var foundContent = false
-    var foundBlankAfterContent = false
-    var isMultipleParagraphs = false
-
-    val iter = lines.iterator
-    while iter.hasNext && !isMultipleParagraphs do
-      val line = iter.next()
-      val trimmed = line.trim
-      val afterStar = if trimmed.startsWith("*") then trimmed.drop(1).trim else trimmed
-
-      val isTag = afterStar.startsWith("@")
-      val isBlank = afterStar.isEmpty
-
-      if isTag then
-        // Entering tag section - stop checking (done with loop)
-        ()
-      else if isBlank then
-        // Blank line - if we've seen content, mark it
-        if foundContent then
-          foundBlankAfterContent = true
-      else
-        // Content line
-        if foundBlankAfterContent then
-          // We have content after a blank line that came after content
-          // This means multiple paragraphs = NOT a one-liner
-          isMultipleParagraphs = true
-        else
-          foundContent = true
-
-    // If we get here, either:
-    // - No content at all (only tags) -> treat as one-liner
-    // - Content with no blank lines between -> one-liner
-    // - Content followed by blank then tags -> one-liner (blank before tags is OK)
-    // - Multiple paragraphs -> NOT a one-liner
-    !isMultipleParagraphs

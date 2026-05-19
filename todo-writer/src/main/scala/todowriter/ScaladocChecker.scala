@@ -166,9 +166,13 @@ object ScaladocChecker:
              declKeywordOnLine(trimmed, decl.kind) then
             val missingParams  = decl.params
             val missingTparams = decl.tparams
+            // Add @return only when there is at least one @param or @tparam --
+            // otherwise assume the return is covered in the prose description.
+            // (For undocumented declarations there is no existing @throws to check.)
             val needsReturn =
               decl.kind == DeclKind.Def &&
-              decl.returnType.exists(r => !r.trim.startsWith("Unit"))
+              decl.returnType.exists(r => !r.trim.startsWith("Unit")) &&
+              (missingParams.nonEmpty || missingTparams.nonEmpty)
             val issues = collection.mutable.ListBuffer[Issue]()
             if missingParams.nonEmpty  then issues += Issue.MissingParam(missingParams)
             if missingTparams.nonEmpty then issues += Issue.MissingTparam(missingTparams)
@@ -183,7 +187,7 @@ object ScaladocChecker:
                 params     = Nil,
                 tparams    = Nil,
                 hasReturn  = false,
-                isOneLiner = false,
+                hasThrows  = false,
                 synthetic  = true
               )
               undocResults += CheckResult(syntheticBlock, decl, issues.toList)
@@ -261,8 +265,14 @@ object ScaladocChecker:
           if block.hasReturn then
             issues += Issue.UnnecessaryReturn
         case Some(ret) =>
-          // Non-Unit return type - should have @return (unless one-liner)
-          if !block.hasReturn && !block.isOneLiner then
+          // Non-Unit return type. Add @return only when the method has at
+          // least one other signature tag (@param, @tparam, or @throws),
+          // counting both existing tags and ones we are about to insert as
+          // TODO FILL IN placeholders. With no other signature tags, the
+          // return is assumed to be covered in the prose description.
+          val hasOtherSignatureTags =
+            decl.params.nonEmpty || decl.tparams.nonEmpty || block.hasThrows
+          if !block.hasReturn && hasOtherSignatureTags then
             issues += Issue.MissingReturn
         case None =>
           // Unknown return type - skip validation

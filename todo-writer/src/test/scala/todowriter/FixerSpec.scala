@@ -394,56 +394,61 @@ class FixerSpec extends AnyFlatSpec with Matchers:
     blankStarLines should be(1)
   }
 
-  it should "NOT insert @return for one-liner scaladoc" in {
+  it should "NOT insert @return when decl has no @param/@tparam and block has no @throws" in {
     val text = "/** Returns the count. */"
     val block = ScaladocBlock.findAll(text).head
-    block.isOneLiner should be(true)
 
-    // If this is a one-liner, the checker shouldn't produce MissingReturn
-    // So we verify that the validation logic is correct
     val decl = Declaration(DeclKind.Def, "count", Nil, Nil, Some("Int"))
     val issues = ScaladocChecker.validate(block, decl)
     issues should not contain Issue.MissingReturn
   }
 
-  it should "NOT insert @return for one-liner with @param tags" in {
+  it should "insert @return when decl has at least one @param" in {
     val text = """/** Gets the value for the given key.
                  | *
                  | *  @param key the lookup key
                  | */""".stripMargin
     val block = ScaladocBlock.findAll(text).head
-    block.isOneLiner should be(true)
 
     val decl = Declaration(DeclKind.Def, "get", Nil, List("key"), Some("Option[Int]"))
     val issues = ScaladocChecker.validate(block, decl)
-    issues should not contain Issue.MissingReturn
+    issues should contain(Issue.MissingReturn)
   }
 
-  it should "NOT insert @return for sentence spanning multiple lines" in {
-    val text = """/** Returns a two-dimensional array that contains the results of some element
-                 | *  computation a number of times.
+  it should "insert @return when decl has @tparam (even without @param)" in {
+    val text = """/** Wraps a value of type T.
                  | *
-                 | *  @param n1 the number of elements
+                 | *  @tparam T the wrapped type
                  | */""".stripMargin
     val block = ScaladocBlock.findAll(text).head
-    block.isOneLiner should be(true)
 
-    val decl = Declaration(DeclKind.Def, "fill", List("T"), List("n1"), Some("Array[Array[T]]"))
+    val decl = Declaration(DeclKind.Def, "wrap", List("T"), Nil, Some("Wrapper[T]"))
     val issues = ScaladocChecker.validate(block, decl)
-    issues should not contain Issue.MissingReturn
+    issues should contain(Issue.MissingReturn)
   }
 
-  it should "insert @return for multiple paragraphs" in {
+  it should "insert @return when block has @throws even if decl has no params" in {
+    val text = """/** Reads from the source.
+                 | *
+                 | *  @throws IOException if the source is unreadable
+                 | */""".stripMargin
+    val block = ScaladocBlock.findAll(text).head
+
+    val decl = Declaration(DeclKind.Def, "read", Nil, Nil, Some("String"))
+    val issues = ScaladocChecker.validate(block, decl)
+    issues should contain(Issue.MissingReturn)
+  }
+
+  it should "NOT insert @return for multi-paragraph doc when no other signature tags" in {
     val text = """/** Computes the result.
                  | *
                  | *  This method performs complex calculation.
                  | */""".stripMargin
     val block = ScaladocBlock.findAll(text).head
-    block.isOneLiner should be(false)
 
     val decl = Declaration(DeclKind.Def, "compute", Nil, Nil, Some("Int"))
     val issues = ScaladocChecker.validate(block, decl)
-    issues should contain(Issue.MissingReturn)
+    issues should not contain Issue.MissingReturn
   }
 
   it should "preserve multi-line @return content" in {

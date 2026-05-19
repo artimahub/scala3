@@ -9,9 +9,9 @@ class ScaladocCheckerSpec extends AnyFlatSpec with Matchers:
       params: List[String] = Nil,
       tparams: List[String] = Nil,
       hasReturn: Boolean = false,
-      isOneLiner: Boolean = false
+      hasThrows: Boolean = false
   ): ScaladocBlock =
-    ScaladocBlock("", 0, 0, 1, params, tparams, hasReturn, isOneLiner)
+    ScaladocBlock("", 0, 0, 1, params, tparams, hasReturn, hasThrows)
 
   private def makeDecl(
       kind: DeclKind = DeclKind.Def,
@@ -49,8 +49,22 @@ class ScaladocCheckerSpec extends AnyFlatSpec with Matchers:
     issues should contain(Issue.UnknownTparam(List("C")))
   }
 
-  it should "detect missing @return for non-Unit" in {
-    val block = makeBlock(isOneLiner = false)
+  it should "detect missing @return for non-Unit when decl has @param" in {
+    val block = makeBlock()
+    val decl = makeDecl(params = List("x"), returnType = Some("String"))
+    val issues = ScaladocChecker.validate(block, decl)
+    issues should contain(Issue.MissingReturn)
+  }
+
+  it should "detect missing @return for non-Unit when decl has @tparam" in {
+    val block = makeBlock()
+    val decl = makeDecl(tparams = List("A"), returnType = Some("String"))
+    val issues = ScaladocChecker.validate(block, decl)
+    issues should contain(Issue.MissingReturn)
+  }
+
+  it should "detect missing @return for non-Unit when block already has @throws" in {
+    val block = makeBlock(hasThrows = true)
     val decl = makeDecl(returnType = Some("String"))
     val issues = ScaladocChecker.validate(block, decl)
     issues should contain(Issue.MissingReturn)
@@ -67,8 +81,7 @@ class ScaladocCheckerSpec extends AnyFlatSpec with Matchers:
     val block = makeBlock(
       params = List("x"),
       tparams = List("A"),
-      hasReturn = true,
-      isOneLiner = false
+      hasReturn = true
     )
     val decl = makeDecl(
       params = List("x"),
@@ -93,8 +106,8 @@ class ScaladocCheckerSpec extends AnyFlatSpec with Matchers:
     issues.collect { case Issue.MissingReturn => Issue.MissingReturn } should be(empty)
   }
 
-  it should "NOT require @return for one-liner scaladoc" in {
-    val block = makeBlock(isOneLiner = true)
+  it should "NOT require @return when decl has no @param/@tparam and block has no @throws" in {
+    val block = makeBlock()
     val decl = makeDecl(returnType = Some("String"))
     val issues = ScaladocChecker.validate(block, decl)
     issues should not contain Issue.MissingReturn
