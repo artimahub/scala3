@@ -17,14 +17,14 @@ SOURCE_BRANCH=${SOURCE_BRANCH:-"feature-create-cleanup-param-tparam-return-todos
 COMMIT_MSG_PATTERN="Todo-writer added TODOs for @param, @tparam, and @return tags."
 DRY_RUN=${DRY_RUN:-false}
 
-# Directories. The script lives in todo-writer/scripts/; reviews, log, and
-# prompts live one level up in todo-writer/.
+# Directories. The script and its prompts live in todo-writer/scripts/;
+# reviews and the log file live one level up in todo-writer/.
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TODO_WRITER_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 REPO_ROOT=$(git rev-parse --show-toplevel)
 REVIEWS_DIR="$TODO_WRITER_DIR/reviews"
 LOG_FILE="$TODO_WRITER_DIR/fill-todos.log"
-PROMPTS_DIR="$TODO_WRITER_DIR/prompts"
+PROMPTS_DIR="$SCRIPT_DIR/prompts"
 
 # Create reviews directory if it doesn't exist (prompts must already exist).
 mkdir -p "$REVIEWS_DIR"
