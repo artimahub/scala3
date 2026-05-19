@@ -266,11 +266,14 @@ object ScaladocChecker:
         case Some(ret) if ret.trim.startsWith("Unit") =>
           // Unit return type - should NOT have @return
           if block.hasReturn then
-            issues += Issue.UnnecessaryReturn
+            issues += Issue.UnnecessaryReturn(ret.trim)
         case Some(ret) if ret.trim.startsWith("Nothing") =>
           // Nothing return type - the method never returns normally, so do
-          // not require @return (and do not flag an existing one).
-          ()
+          // not require @return. Flag any pre-existing @return as
+          // unnecessary, leaving the actual tag alone for the user to
+          // remove if they wish.
+          if block.hasReturn then
+            issues += Issue.UnnecessaryReturn(ret.trim)
         case Some(ret) =>
           // Return type that may carry a value. Add @return only when the
           // method has at least one other signature tag (@param, @tparam,

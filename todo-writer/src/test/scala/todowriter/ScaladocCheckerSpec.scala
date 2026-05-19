@@ -74,7 +74,14 @@ class ScaladocCheckerSpec extends AnyFlatSpec with Matchers:
     val block = makeBlock(hasReturn = true)
     val decl = makeDecl(returnType = Some("Unit"))
     val issues = ScaladocChecker.validate(block, decl)
-    issues should contain(Issue.UnnecessaryReturn)
+    issues should contain(Issue.UnnecessaryReturn("Unit"))
+  }
+
+  it should "detect unnecessary @return for Nothing" in {
+    val block = makeBlock(hasReturn = true)
+    val decl = makeDecl(returnType = Some("Nothing"))
+    val issues = ScaladocChecker.validate(block, decl)
+    issues should contain(Issue.UnnecessaryReturn("Nothing"))
   }
 
   it should "pass when all tags present" in {
