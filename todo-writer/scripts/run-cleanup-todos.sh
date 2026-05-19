@@ -49,15 +49,15 @@ run "../library/src/scala/collection"           "PR #4  collection core — reve
 # typeConstraints). Revert those before committing the root-files PRs.
 run "../library/src/scala" "PRs #5, #6, #12 root files — revert PR #11's dirs and root files before committing"
 
+# Parallel trees: library-js mirrors much of library/'s structure (concurrent,
+# runtime, util, collection, math, reflect, plus root files); library-aux has
+# only a handful of root files. PR #11 also touches a few library-js files
+# (Console, Enumeration, reflect/ClassTag, reflect/Manifest) -- those are
+# covered by revert-pr11-files.sh.
+run "../library-js/src/scala"  "library-js (whole tree)"
+run "../library-aux/src/scala" "library-aux (root files only)"
+
 echo
 echo "Done. Reminder: PR #11 (annotation/reflect/misc, #25381) is still open."
-echo "Before committing, revert any changes under:"
-echo "  library/src/scala/annotation"
-echo "  library/src/scala/reflect"
-echo "  library/src/scala/caps"
-echo "  library/src/scala/deriving"
-echo "and these root files:"
-echo "  CanEqual Console Conversion Enumeration Equals NamedTuple"
-echo "  NotImplementedError PartialFunction ScalaReflectionException"
-echo "  StringContext Symbol UninitializedFieldError specialized throws"
-echo "  typeConstraints"
+echo "Run scripts/revert-pr11-files.sh to undo touches to any file in PR #11,"
+echo "across library/, library-js/, and library-aux/, before committing."

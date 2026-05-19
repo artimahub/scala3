@@ -23,12 +23,12 @@ if ! git rev-parse --verify --quiet "$PR11_BRANCH" >/dev/null; then
     exit 1
 fi
 
-# Only revert library/src/scala/ paths -- library-js/ is not touched by
-# run-cleanup-todos.sh, so its PR #11 files do not need reverting.
-FILES=$(git diff --name-only "main...$PR11_BRANCH" | grep '^library/src/scala/' || true)
+# run-cleanup-todos.sh now touches library/, library-js/, and library-aux/,
+# so revert PR #11's footprint across all three trees.
+FILES=$(git diff --name-only "main...$PR11_BRANCH" | grep -E '^(library|library-js|library-aux)/' || true)
 
 if [ -z "$FILES" ]; then
-    echo "No library/src/scala/ files found in $PR11_BRANCH (vs main). Nothing to revert."
+    echo "No matching files found in $PR11_BRANCH (vs main). Nothing to revert."
     exit 0
 fi
 
