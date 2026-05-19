@@ -46,13 +46,8 @@ object ScaladocBlock:
       val startIndex = m.start
       val endIndex = m.end
 
-      // Check if the /** is inside a // line comment
-      // Find the start of the line containing the /**
-      val lineStart = text.lastIndexOf('\n', startIndex) + 1
-      val lineBeforeMatch = text.substring(lineStart, startIndex)
-
-      // If there's a // before the /** on the same line, skip this match
-      if lineBeforeMatch.contains("//") then
+      // Skip matches that occur inside strings or comments.
+      if isInsideStringOrComment(text, startIndex) then
         None
       else
         val lineNumber = text.substring(0, startIndex).count(_ == '\n') + 1
@@ -69,6 +64,52 @@ object ScaladocBlock:
           isOneLiner = oneLiner
         ))
     }.toList
+
+  private def isInsideStringOrComment(text: String, index: Int): Boolean =
+    var i = 0
+    var inLineComment = false
+    var inBlockComment = false
+    var inString = false
+    var inTripleString = false
+    var inChar = false
+    var escaped = false
+
+    while i < index do
+      val ch = text.charAt(i)
+      if inLineComment then
+        if ch == '\n' then inLineComment = false
+      else if inString then
+        if escaped then escaped = false
+        else if ch == '\\' then escaped = true
+        else if ch == '"' then inString = false
+      else if inTripleString then
+        if ch == '"' && i + 2 < index && text.charAt(i + 1) == '"' && text.charAt(i + 2) == '"' then
+          inTripleString = false
+          i += 2
+      else if inChar then
+        if escaped then escaped = false
+        else if ch == '\\' then escaped = true
+        else if ch == '\'' then inChar = false
+      else if inBlockComment then
+        if ch == '*' && i + 1 < index && text.charAt(i + 1) == '/' then
+          inBlockComment = false
+          i += 1
+      else
+        if ch == '/' && i + 1 < index && text.charAt(i + 1) == '/' then
+          inLineComment = true
+          i += 1
+        else if ch == '/' && i + 1 < index && text.charAt(i + 1) == '*' then
+          inBlockComment = true
+          i += 1
+        else if ch == '"' && i + 2 < index && text.charAt(i + 1) == '"' && text.charAt(i + 2) == '"' then
+          inTripleString = true
+          i += 2
+        else if ch == '"' then inString = true
+        else if ch == '\'' then inChar = true
+
+      i += 1
+
+    inLineComment || inBlockComment || inString || inTripleString || inChar
 
   private case class ExtractedTags(
       params: List[String],
