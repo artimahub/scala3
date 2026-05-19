@@ -13,20 +13,21 @@ set -e
 # Configuration (can be overridden via environment variables)
 PAUSE_SECONDS=${PAUSE_SECONDS:-60}
 MAX_FILES=${MAX_FILES:-10}
-SOURCE_BRANCH=${SOURCE_BRANCH:-"feature-create-param-tparam-return-todos"}
+SOURCE_BRANCH=${SOURCE_BRANCH:-"feature-create-cleanup-param-tparam-return-todos"}
 COMMIT_MSG_PATTERN="Todo-writer added TODOs for @param, @tparam, and @return tags."
 DRY_RUN=${DRY_RUN:-false}
 
-# Directories
+# Directories. The script lives in todo-writer/scripts/; reviews, log, and
+# prompts live one level up in todo-writer/.
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+TODO_WRITER_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 REPO_ROOT=$(git rev-parse --show-toplevel)
-REVIEWS_DIR="$SCRIPT_DIR/reviews"
-LOG_FILE="$SCRIPT_DIR/fill-todos.log"
-PROMPTS_DIR="$SCRIPT_DIR/prompts"
+REVIEWS_DIR="$TODO_WRITER_DIR/reviews"
+LOG_FILE="$TODO_WRITER_DIR/fill-todos.log"
+PROMPTS_DIR="$TODO_WRITER_DIR/prompts"
 
-# Create directories if they don't exist
+# Create reviews directory if it doesn't exist (prompts must already exist).
 mkdir -p "$REVIEWS_DIR"
-mkdir -p "$PROMPTS_DIR"
 
 # =============================================================================
 # Logging
