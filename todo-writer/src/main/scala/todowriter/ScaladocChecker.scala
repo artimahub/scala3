@@ -171,7 +171,10 @@ object ScaladocChecker:
             // (For undocumented declarations there is no existing @throws to check.)
             val needsReturn =
               decl.kind == DeclKind.Def &&
-              decl.returnType.exists(r => !r.trim.startsWith("Unit")) &&
+              decl.returnType.exists { r =>
+                val t = r.trim
+                !t.startsWith("Unit") && !t.startsWith("Nothing")
+              } &&
               (missingParams.nonEmpty || missingTparams.nonEmpty)
             val issues = collection.mutable.ListBuffer[Issue]()
             if missingParams.nonEmpty  then issues += Issue.MissingParam(missingParams)
@@ -264,12 +267,16 @@ object ScaladocChecker:
           // Unit return type - should NOT have @return
           if block.hasReturn then
             issues += Issue.UnnecessaryReturn
+        case Some(ret) if ret.trim.startsWith("Nothing") =>
+          // Nothing return type - the method never returns normally, so do
+          // not require @return (and do not flag an existing one).
+          ()
         case Some(ret) =>
-          // Non-Unit return type. Add @return only when the method has at
-          // least one other signature tag (@param, @tparam, or @throws),
-          // counting both existing tags and ones we are about to insert as
-          // TODO FILL IN placeholders. With no other signature tags, the
-          // return is assumed to be covered in the prose description.
+          // Return type that may carry a value. Add @return only when the
+          // method has at least one other signature tag (@param, @tparam,
+          // or @throws), counting both existing tags and ones we are about
+          // to insert as TODO FILL IN placeholders. With no other signature
+          // tags, the return is assumed to be covered in the prose.
           val hasOtherSignatureTags =
             decl.params.nonEmpty || decl.tparams.nonEmpty || block.hasThrows
           if !block.hasReturn && hasOtherSignatureTags then

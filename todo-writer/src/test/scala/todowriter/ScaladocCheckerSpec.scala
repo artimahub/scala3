@@ -113,6 +113,13 @@ class ScaladocCheckerSpec extends AnyFlatSpec with Matchers:
     issues should not contain Issue.MissingReturn
   }
 
+  it should "NOT require @return when return type is Nothing even if decl has @param" in {
+    val block = makeBlock()
+    val decl = makeDecl(params = List("x"), returnType = Some("Nothing"))
+    val issues = ScaladocChecker.validate(block, decl)
+    issues should not contain Issue.MissingReturn
+  }
+
   it should "validate @param for class" in {
     val block = makeBlock()
     val decl = makeDecl(kind = DeclKind.Class, params = List("x"))
