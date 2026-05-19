@@ -1,4 +1,4 @@
-You previously filled in Scaladoc documentation TODOs in a file. A reviewer has checked your work and provided feedback.
+You previously filled in `TODO FILL IN` placeholders in @param/@tparam/@return Scaladoc tags in a file. A reviewer has checked your work and provided feedback.
 
 File: {FILE_PATH}
 

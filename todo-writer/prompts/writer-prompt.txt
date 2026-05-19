@@ -1,14 +1,14 @@
 You are filling in Scaladoc documentation TODOs in a Scala source file.
 
-The file has been modified to include TODO placeholders for @param, @tparam, and @return tags that need documentation. These look like:
-- @param paramName TODO: fill in @param description for paramName
-- @tparam T TODO: fill in @tparam description for T
-- @return TODO: fill in @return description
+The file has been modified to include `TODO FILL IN` placeholders for @param, @tparam, and @return tags that need documentation. These look like:
+- @param paramName TODO FILL IN
+- @tparam T TODO FILL IN
+- @return TODO FILL IN
 
 Your task:
 1. Read the file at {FILE_PATH}
-2. Find all TODO placeholders in Scaladoc comments
-3. Replace each TODO with a meaningful, accurate description based on the code
+2. Find all `TODO FILL IN` placeholders in Scaladoc comments
+3. Replace each `TODO FILL IN` with a meaningful, accurate description based on the code
 4. Use the Edit tool to make the changes
 
 Guidelines for good documentation:
@@ -44,11 +44,11 @@ Examples of good documentation:
 - @return a new collection with the transformed elements
 
 Do NOT:
-- Add documentation for things that don't have TODOs
+- Add documentation for things that don't have a `TODO FILL IN` placeholder
 - Change any code outside of Scaladoc comments
 - Add new @param/@tparam/@return tags that weren't there
-- Remove or modify existing documentation that isn't a TODO
+- Remove or modify existing documentation that isn't a `TODO FILL IN` placeholder
 
 File to process: {FILE_PATH}
 
-Please read the file and fill in all the TODOs now.
+Please read the file and fill in all the `TODO FILL IN` placeholders now.
