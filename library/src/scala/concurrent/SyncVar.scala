@@ -39,6 +39,7 @@ class SyncVar[A] {
    *  It never returns negative results.
    *
    *  @param timeout the maximum time to wait, in milliseconds
+   *  @return the elapsed wait time in milliseconds, or `0` if `timeout <= 0` or the elapsed time was negative
    */
   private def waitMeasuringElapsed(timeout: Long): Long = if (timeout <= 0) 0 else {
     val start = System.nanoTime()
