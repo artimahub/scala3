@@ -14,6 +14,7 @@ trait ToExpr[T] {
   /** Lift a value into an expression containing the construction of that value.
    *
    *  @param x the value to lift into a quoted expression
+   *  @return an `Expr[T]` whose evaluation produces a copy of `x`
    */
   def apply(x: T)(using Quotes): Expr[T]
 
