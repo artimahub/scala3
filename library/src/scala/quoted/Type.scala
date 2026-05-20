@@ -19,6 +19,7 @@ object Type:
   /** Shows a source code like representation of this type without syntax highlight.
    *
    *  @tparam T the type or type constructor to show
+   *  @return a source-code-like `String` representation of the type `T`, without syntax highlighting
    */
   def show[T <: AnyKind](using Type[T])(using Quotes): String =
     import quotes.reflect.*
