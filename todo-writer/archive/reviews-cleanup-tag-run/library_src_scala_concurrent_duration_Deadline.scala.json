@@ -1,0 +1,6 @@
+{
+  "overall_quality": "excellent",
+  "issues": [],
+  "general_feedback": "The added @return for `compare` is accurate, clear, and follows the standard Ordered/Ordering contract. It uses lowercase, backticks for the code reference, and is appropriately concise.",
+  "requires_changes": false
+}

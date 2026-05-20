@@ -1,0 +1,6 @@
+{
+  "overall_quality": "excellent",
+  "issues": [],
+  "general_feedback": "The two filled-in @return descriptions accurately describe the behavior of `apply` and `unapply`. The `apply` return is concise and correct, and the `unapply` return helpfully clarifies both branches of the Option, including the garbage-collection condition. Style follows surrounding conventions (lowercase start, backticks for code references).",
+  "requires_changes": false
+}

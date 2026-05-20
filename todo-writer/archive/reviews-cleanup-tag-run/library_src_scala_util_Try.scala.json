@@ -1,0 +1,52 @@
+{
+  "overall_quality": "good",
+  "issues": [
+    {
+      "line": 129,
+      "tag_type": "@return",
+      "tag_name": "collect",
+      "severity": "suggestion",
+      "current_text": "a `Success` containing the result of `pf` applied to the value if `pf` is defined at it, a `Failure` with a `NoSuchElementException` if `pf` is not defined at the value, or this `Failure` unchanged",
+      "problem": "Inconsistent with sibling @return tags for `flatMap`, `map`, and `transform` which explicitly note that non-fatal exceptions thrown by the function are caught and returned as a `Failure`. The implementation at lines 312-319 does catch such exceptions.",
+      "suggestion": "a `Success` containing the result of `pf` applied to the value if `pf` is defined at it, a `Failure` with a `NoSuchElementException` if `pf` is not defined at the value, or this `Failure` unchanged; any non-fatal exception thrown by `pf` is caught and returned as a `Failure`"
+    },
+    {
+      "line": 136,
+      "tag_type": "@return",
+      "tag_name": "filter",
+      "severity": "suggestion",
+      "current_text": "this `Try` if it is a `Success` whose value satisfies `p`, a `Failure` with a `NoSuchElementException` if the value does not satisfy `p`, or this `Failure` unchanged",
+      "problem": "Inconsistent with sibling @return tags that explicitly note exception catching. The implementation at lines 320-323 catches non-fatal exceptions thrown by `p` and wraps them in a `Failure`.",
+      "suggestion": "this `Try` if it is a `Success` whose value satisfies `p`, a `Failure` with a `NoSuchElementException` if the value does not satisfy `p`, or this `Failure` unchanged; any non-fatal exception thrown by `p` is caught and returned as a `Failure`"
+    },
+    {
+      "line": 177,
+      "tag_type": "@return",
+      "tag_name": "recoverWith",
+      "severity": "suggestion",
+      "current_text": "the `Try` produced by applying `pf` to the exception if this is a `Failure` and `pf` is defined for it, this `Failure` unchanged if `pf` is not defined for the exception, or this `Success` unchanged",
+      "problem": "Inconsistent with sibling @return tags that explicitly note exception catching. The implementation at lines 285-291 catches non-fatal exceptions thrown by `pf`.",
+      "suggestion": "the `Try` produced by applying `pf` to the exception if this is a `Failure` and `pf` is defined for it, this `Failure` unchanged if `pf` is not defined for the exception, or this `Success` unchanged; any non-fatal exception thrown by `pf` is caught and returned as a `Failure`"
+    },
+    {
+      "line": 186,
+      "tag_type": "@return",
+      "tag_name": "recover",
+      "severity": "suggestion",
+      "current_text": "a `Success` wrapping the result of applying `pf` to the exception if this is a `Failure` and `pf` is defined for it, this `Failure` unchanged if `pf` is not defined for the exception, or this `Success` unchanged",
+      "problem": "Inconsistent with sibling @return tags that explicitly note exception catching. The implementation at lines 278-284 catches non-fatal exceptions thrown by `pf`.",
+      "suggestion": "a `Success` wrapping the result of applying `pf` to the exception if this is a `Failure` and `pf` is defined for it, this `Failure` unchanged if `pf` is not defined for the exception, or this `Success` unchanged; any non-fatal exception thrown by `pf` is caught and returned as a `Failure`"
+    },
+    {
+      "line": 93,
+      "tag_type": "@return",
+      "tag_name": "orElse",
+      "severity": "suggestion",
+      "current_text": "this `Try` if it is a `Success`, otherwise `default`, or a `Failure` wrapping any non-fatal exception thrown while evaluating `default`",
+      "problem": "The phrasing \"otherwise `default`, or a `Failure` wrapping...\" is slightly awkward — it could be read as three separate cases. A clearer construction makes the relationship more explicit.",
+      "suggestion": "this `Try` if it is a `Success`, otherwise `default`; any non-fatal exception thrown while evaluating `default` is caught and returned as a `Failure`"
+    }
+  ],
+  "general_feedback": "The filled-in @return descriptions are accurate and align with the implementations in `Success` and `Failure`. They consistently start with lowercase, use backticks for code references, and cover the relevant cases. The main weakness is inconsistency: some descriptions (`flatMap`, `map`, `transform`) explicitly mention that non-fatal exceptions are caught, while others (`collect`, `filter`, `recover`, `recoverWith`) omit that detail even though their implementations do catch. While the class-level note covers this generally, normalizing this within the file would improve readability. No factual errors were found.",
+  "requires_changes": false
+}

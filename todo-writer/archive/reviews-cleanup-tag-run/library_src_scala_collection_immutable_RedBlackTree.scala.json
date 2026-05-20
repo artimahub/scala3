@@ -1,0 +1,63 @@
+```json
+{
+  "overall_quality": "acceptable",
+  "issues": [
+    {
+      "line": 80,
+      "tag_type": "@return",
+      "tag_name": "mutableBalanceLeft",
+      "severity": "warning",
+      "current_text": "a rebalanced tree with `newLeft` installed as the left child, possibly mutating `tree` or `newLeft` in place",
+      "problem": "The phrase 'with `newLeft` installed as the left child' is misleading: when `newLeft` is red with a red child, the rebalancing rotation produces a tree rooted at `newLeft` (or even at `newLeft.right`), so `newLeft` is no longer the left child of the result. The text is only true for the simple non-rotating case.",
+      "suggestion": "a rebalanced tree containing all entries of `tree` with `newLeft` replacing the original left subtree, possibly mutating `tree` or `newLeft` in place"
+    },
+    {
+      "line": 131,
+      "tag_type": "@return",
+      "tag_name": "mutableBalanceRight",
+      "severity": "warning",
+      "current_text": "a rebalanced tree with `newRight` installed as the right child, possibly mutating `tree` or `newRight` in place",
+      "problem": "Same issue as `mutableBalanceLeft`: after the red-red rebalancing rotations the result may be rooted at `newRight` (or `newRight.left`), so `newRight` is not necessarily the right child of the returned tree.",
+      "suggestion": "a rebalanced tree containing all entries of `tree` with `newRight` replacing the original right subtree, possibly mutating `tree` or `newRight` in place"
+    },
+    {
+      "line": 377,
+      "tag_type": "@return",
+      "tag_name": "balanceLeft",
+      "severity": "warning",
+      "current_text": "a new rebalanced immutable tree with `newLeft` as the left child, or `tree` itself when nothing changed",
+      "problem": "The 'with `newLeft` as the left child' wording does not hold under the rotating cases (where the result is rooted at `newLeft` or at `newLeft.right`). Also, `tree` is only returned in the trivial `tree.left eq newLeft` case — this is not really 'nothing changed' so much as 'no replacement requested'.",
+      "suggestion": "a rebalanced immutable tree containing all entries of `tree` with `newLeft` replacing the original left subtree, or `tree` itself when `newLeft` is already its left child"
+    },
+    {
+      "line": 425,
+      "tag_type": "@return",
+      "tag_name": "balanceRight",
+      "severity": "warning",
+      "current_text": "a new rebalanced immutable tree with `newRight` as the right child, or `tree` itself when nothing changed",
+      "problem": "Same as `balanceLeft`: after the rebalancing rotations `newRight` is not necessarily the right child of the result.",
+      "suggestion": "a rebalanced immutable tree containing all entries of `tree` with `newRight` replacing the original right subtree, or `tree` itself when `newRight` is already its right child"
+    },
+    {
+      "line": 1166,
+      "tag_type": "@return",
+      "tag_name": "append",
+      "severity": "warning",
+      "current_text": "a tree containing all entries of `tl` followed by all entries of `tr`, preserving the red-black invariants, or `null` if both inputs are `null`",
+      "problem": "`append` does not fully preserve the red-black invariants: the result may have a red root (callers blacken it afterwards). It also preserves the common black height of the inputs, which is the precondition. The phrasing overstates what the function guarantees.",
+      "suggestion": "a tree containing all entries of `tl` followed by all entries of `tr`, with the same black height as the inputs (the root may be red, so callers typically blacken it), or `null` if both inputs are `null`"
+    },
+    {
+      "line": 1211,
+      "tag_type": "@return",
+      "tag_name": "rank",
+      "severity": "error",
+      "current_text": "the rank of `t` (twice its black height for black nodes, `2*bh - 1` for red nodes), or `0` when `t` is `null`",
+      "problem": "The black-node branch is mis-described. The code returns `2*(bh-1)` for black nodes, not `2*bh`. Combined with the `@param bh the black height of `t`` doc, the @return text is self-contradictory and misleads readers about the formula.",
+      "suggestion": "the rank of `t`: `2*(bh - 1)` for black nodes and `2*bh - 1` for red nodes, or `0` when `t` is `null`"
+    }
+  ],
+  "general_feedback": "The newly filled-in @return descriptions are generally clear and well written, and several of them (minAfter, maxBefore, startFrom, fromOrderedKeys/Entries, RedTree) are accurate and helpful. The main concerns are: (1) the balance / mutableBalance return docs overclaim that `newLeft`/`newRight` is the resulting left/right child, which is not true under the rotating cases — these should describe the result as containing the entries with the subtree replaced; (2) `append`'s claim of 'preserving the red-black invariants' is too strong, since the result may have a red root and is later blackened by callers; (3) `rank`'s black-node case is described as 'twice its black height' but the code computes `2*(bh - 1)`, which is a factual inconsistency given the @param wording. Fixing these (especially `rank`) will make the documentation accurate.",
+  "requires_changes": true
+}
+```

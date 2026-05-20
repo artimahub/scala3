@@ -1,0 +1,6 @@
+{
+  "overall_quality": "excellent",
+  "issues": [],
+  "general_feedback": "The @return description accurately describes what `apply` returns — an `IterableOnce[A]` view of the input `coll`. It is concise, uses backticks for code references, starts with a lowercase letter, and is consistent in style and terminology with the @param description directly above it.",
+  "requires_changes": false
+}

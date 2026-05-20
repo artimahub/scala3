@@ -1,0 +1,6 @@
+{
+  "overall_quality": "excellent",
+  "issues": [],
+  "general_feedback": "The single added @return description for `filterInPlace` is accurate (the method returns `this.type` after in-place removal), clear, concise, references the predicate `p` in backticks, and is consistent with the style of the surrounding @param documentation.",
+  "requires_changes": false
+}

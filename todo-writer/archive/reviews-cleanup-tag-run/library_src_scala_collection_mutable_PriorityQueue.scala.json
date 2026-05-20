@@ -1,0 +1,6 @@
+{
+  "overall_quality": "excellent",
+  "issues": [],
+  "general_feedback": "The single added @return on dequeueAll at line 269 is accurate (the method returns an immutable.Seq containing all elements in priority order), clear, concise, and consistent with surrounding Scaladoc style. The existing @tparam A1 on the same method is also accurate.",
+  "requires_changes": false
+}

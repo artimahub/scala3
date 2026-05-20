@@ -1,0 +1,6 @@
+{
+  "overall_quality": "excellent",
+  "issues": [],
+  "general_feedback": "The added @return description for the Int overload of `isJavaAtLeast` is accurate, clear, and consistent in style with the String overload's @return tag directly above. It correctly describes the boolean result and mirrors the surrounding documentation conventions.",
+  "requires_changes": false
+}

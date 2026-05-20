@@ -1,0 +1,6 @@
+{
+  "overall_quality": "excellent",
+  "issues": [],
+  "general_feedback": "The two newly filled-in @return tags accurately describe the behavior of `map` and `flatMap`. `map`'s return doc correctly states that the new tailcalling computation produces `f` applied to the result of this computation, which matches the implementation `flatMap(a => Call(() => Done(f(a))))`. `flatMap`'s return doc correctly describes a tailcalling computation that runs this computation and then continues with `f` applied to its result. Both descriptions start with lowercase letters, use backticks for code references, and are consistent in style with the surrounding @param and @tparam documentation. They are concise, clear, and complete.",
+  "requires_changes": false
+}

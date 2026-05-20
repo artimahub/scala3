@@ -1,0 +1,34 @@
+{
+  "overall_quality": "good",
+  "issues": [
+    {
+      "line": 187,
+      "tag_type": "@return",
+      "tag_name": "",
+      "severity": "suggestion",
+      "current_text": "a `LazyList` of the process's standard output lines, which throws an exception on a non-zero exit code",
+      "problem": "The phrasing 'which throws an exception on a non-zero exit code' is slightly ambiguous — it sounds like the `LazyList` itself throws on a non-zero code, but per the method's own description it actually provides all lines up to termination first, then throws. Could be clearer.",
+      "suggestion": "a `LazyList` of the process's standard output lines that throws an exception after yielding all lines if the exit code is non-zero"
+    },
+    {
+      "line": 198,
+      "tag_type": "@return",
+      "tag_name": "",
+      "severity": "suggestion",
+      "current_text": "a `LazyList` of the process's standard output lines, which throws an exception on a non-zero exit code",
+      "problem": "Same ambiguity as line 187 — the LazyList yields lines first, then throws on termination if the exit code is non-zero.",
+      "suggestion": "a `LazyList` of the process's standard output lines that throws an exception after yielding all lines if the exit code is non-zero"
+    },
+    {
+      "line": 213,
+      "tag_type": "@return",
+      "tag_name": "",
+      "severity": "suggestion",
+      "current_text": "a `LazyList` of the process's standard output lines, which throws an exception on a non-zero exit code",
+      "problem": "Same ambiguity as line 187 — wording could better reflect that all lines are provided before the exception is thrown.",
+      "suggestion": "a `LazyList` of the process's standard output lines that throws an exception after yielding all lines if the exit code is non-zero"
+    }
+  ],
+  "general_feedback": "The three filled-in @return descriptions are accurate, concise, and consistent with each other and with the surrounding Scaladoc style (lowercase start, backticks around `LazyList`). The only minor nit is that the relative-clause wording ('which throws an exception on a non-zero exit code') could more precisely convey the documented behavior that all lines are emitted before the exception is thrown at termination. Overall the documentation is solid and the TODO placeholders have been filled in appropriately.",
+  "requires_changes": false
+}

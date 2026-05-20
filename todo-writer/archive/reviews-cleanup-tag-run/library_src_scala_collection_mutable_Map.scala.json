@@ -1,0 +1,6 @@
+{
+  "overall_quality": "excellent",
+  "issues": [],
+  "general_feedback": "The single filled-in @return tag for `filterInPlace` accurately describes the returned value (`this.type`, i.e. the map itself), matches the style of the analogous `mapValuesInPlace` documentation just below, and is appropriately concise. Indentation/alignment is consistent with the @param tag above it.",
+  "requires_changes": false
+}

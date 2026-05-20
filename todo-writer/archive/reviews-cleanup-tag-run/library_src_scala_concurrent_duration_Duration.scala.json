@@ -1,0 +1,25 @@
+{
+  "overall_quality": "good",
+  "issues": [
+    {
+      "line": 313,
+      "tag_type": "@return",
+      "tag_name": "create(s: String)",
+      "severity": "suggestion",
+      "current_text": "the duration represented by the string, possibly infinite",
+      "problem": "The Java factory `create(String)` delegates to `apply(String)`, which can also return `Duration.Undefined` (when the input is `\"Duration.Undefined\"`). The companion `apply(String)` description includes 'possibly infinite or undefined', so for consistency this should too. However, the surrounding class doc here omits the Undefined designator in its description, so this is a minor inconsistency rather than an outright error.",
+      "suggestion": "the duration represented by the string, possibly infinite or undefined"
+    },
+    {
+      "line": 711,
+      "tag_type": "@return",
+      "tag_name": "div(divisor: Long)",
+      "severity": "suggestion",
+      "current_text": "this duration divided by the given divisor",
+      "problem": "Same `/` (Long) method on line 713 has no @return tag at all, while `div(Long)` does. This is an inconsistency between the operator and its Java alias rather than an issue with the newly written text itself; the new text is accurate.",
+      "suggestion": "Optionally also add a matching @return on the `/` (Long) operator at line 713 for symmetry: `this duration divided by the given divisor`."
+    }
+  ],
+  "general_feedback": "The filled-in @return descriptions are accurate, concise, and follow the lowercase-start convention consistent with surrounding documentation. They correctly describe the return values, use backticks for code identifiers, and mention edge cases (e.g., 'possibly infinite or undefined') where relevant. The only minor issue is that `create(s: String)`'s @return drops 'or undefined' which `apply(s: String)` includes — though this matches the slightly less-complete class-level description for `create(String)`. No factual errors found.",
+  "requires_changes": false
+}

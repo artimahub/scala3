@@ -1,0 +1,6 @@
+{
+  "overall_quality": "excellent",
+  "issues": [],
+  "general_feedback": "The single added @return description for `withBlockContext` accurately describes what the method returns and follows the existing style in the file (lowercase start, backticks around `body`, parallel structure with the `@return the result of executing `thunk`` on `blockOn` and `@return the value produced by applying `f`` on `usingBlockContext`).",
+  "requires_changes": false
+}
