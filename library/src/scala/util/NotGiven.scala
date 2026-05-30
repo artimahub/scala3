@@ -21,7 +21,7 @@ import language.experimental.captureChecking
  *  `default`, `amb1` and `amb2` methods below. Due to the way these two methods are
  *  defined, `NotGiven` is also usable from Scala 2.
  *
- *  In Dotty, ambiguity is a global error, and therefore cannot be used to implement negation.
+ *  In Scala 3, ambiguity is a global error, and therefore cannot be used to implement negation.
  *  Instead, `NotGiven` is treated natively in implicit search.
  *
  *  @tparam T the type for which no implicit instance should be available
