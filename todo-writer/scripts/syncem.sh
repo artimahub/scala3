@@ -33,6 +33,9 @@ do
   echo "==== Working on branch $i ===="
   echo
   "$(dirname "$0")/sync-branch.sh" $i
-  git switch delme-soon-branch
+  # Switch back to the branch that owns these scripts so the next iteration
+  # can still find sync-branch.sh (delme-soon-branch and the cleanup branches
+  # do not contain todo-writer/).
+  git switch feature-todo-writer
 done
 
