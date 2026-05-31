@@ -1059,14 +1059,7 @@ object RefChecks {
           case Nil =>
             report.error(OverridesNothing(member), member.srcPos)
           case ms =>
-            // getClass in primitive value classes is defined in the standard library as:
-            //     override def getClass(): Class[Int] = ???
-            // However, it's not actually an override in Dotty because our Any#getClass
-            // is polymorphic (see `Definitions#Any_getClass`), so since we can't change
-            // the standard library, we need to drop the override flag without reporting
-            // an error.
-            if (!(member.name == nme.getClass_ && clazz.isPrimitiveValueClass))
-              report.error(OverridesNothingButNameExists(member, ms), member.srcPos)
+            report.error(OverridesNothingButNameExists(member, ms), member.srcPos)
         }
         member.resetFlag(Override)
         member.resetFlag(AbsOverride)
@@ -1392,7 +1385,7 @@ object RefChecks {
     val baseIndent = new String(content.slice(lineStart, span.end).takeWhile(c => c == ' ' || c == '\t'))
     val indent = baseIndent + "  "
 
-    val formattedMethods = methods.map(m => s"$indent$m").mkString(System.lineSeparator())
+    val formattedMethods = methods.map(m => s"$indent$m").mkString("\n")
 
     val isBracelessSyntax = untypedTree match
       case untpd.TypeDef(_, tmpl: untpd.Template) =>
@@ -1407,11 +1400,11 @@ object RefChecks {
       val bodyIsEmpty = bodyBetweenBraces.forall(_.isWhitespace)
       val bodyContainsNewLine = bodyBetweenBraces.exists(isLineBreakChar)
 
-      val prefix = if (bodyContainsNewLine) "" else System.lineSeparator()
+      val prefix = if (bodyContainsNewLine) "" else "\n"
       val patchText =
         prefix +
         formattedMethods +
-        System.lineSeparator()
+        "\n"
 
       val patch = ActionPatch(insertBeforeBrace, patchText)
       List(CodeAction("Add missing methods", None, List(patch)))
@@ -1423,7 +1416,7 @@ object RefChecks {
         case _ =>
           untypedTree.sourcePos.withSpan(Span(untypedTree.span.end))
 
-      val patchText = System.lineSeparator() + formattedMethods
+      val patchText = "\n" + formattedMethods
 
       val patch = ActionPatch(insertAfterLastDef, patchText)
       List(CodeAction("Add missing methods", None, List(patch)))
@@ -1432,8 +1425,8 @@ object RefChecks {
       val insertAfterHeader = untypedTree.sourcePos.withSpan(Span(untypedTree.span.end))
 
       val patchText =
-        " {" + System.lineSeparator() +
-        formattedMethods + System.lineSeparator() +
+        " {\n" +
+        formattedMethods + "\n" +
         "}"
 
       val patch = ActionPatch(insertAfterHeader, patchText)
