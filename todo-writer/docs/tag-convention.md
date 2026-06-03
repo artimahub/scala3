@@ -47,6 +47,8 @@ When `todo-writer` inserts missing signature tags (with `TODO FILL IN` placehold
 1. Adjacent to existing signature tags if any exist, maintaining the canonical order
 2. If no signature tags exist, inserted at the end of the Scaladoc comment (before the closing `*/`)
 
+Blank lines inside the signature section do not create a new insertion boundary. If a comment has multiple `@param` batches separated by a blank line, `@return` still belongs after the last `@param` in the signature section.
+
 ### Examples
 
 #### Example 1: Reordering signature tags
