@@ -26,7 +26,8 @@
 #   MAIN_REF              baseline ref (default: origin/main)
 #   CLAUDE_BIN            claude executable (default: claude)
 #   MODEL                 model passed to claude (default: claude's default)
-#   PAUSE_SECONDS         pause between files (default: 3)
+#   PAUSE_SECONDS         pause before each Claude call (default: 30)
+#   BRANCH_PAUSE_SECONDS  pause between branches (default: 60)
 #   MAX_BRANCHES          process at most N branches (default: 0 = all)
 #   MAX_FILES_PER_BRANCH  process at most N files per branch (default: 0 = all)
 #   SKIP_EXISTING         skip a work-branch that already exists (default: true)
@@ -52,7 +53,8 @@ WORK_SUFFIX=${WORK_SUFFIX:--rm-redundant-return}
 MAIN_REF=${MAIN_REF:-origin/main}
 CLAUDE_BIN=${CLAUDE_BIN:-claude}
 MODEL=${MODEL:-}
-PAUSE_SECONDS=${PAUSE_SECONDS:-3}
+PAUSE_SECONDS=${PAUSE_SECONDS:-30}
+BRANCH_PAUSE_SECONDS=${BRANCH_PAUSE_SECONDS:-60}
 MAX_BRANCHES=${MAX_BRANCHES:-0}
 MAX_FILES_PER_BRANCH=${MAX_FILES_PER_BRANCH:-0}
 SKIP_EXISTING=${SKIP_EXISTING:-true}
@@ -155,6 +157,13 @@ process_file() {
     local -a claude_args=(--dangerously-skip-permissions -p "$prompt" --allowedTools Edit,Read,Bash)
     [ -n "$MODEL" ] && claude_args+=(--model "$MODEL")
 
+    # Throttle: pause before each real Claude call (skipped for files with no
+    # work and for dry runs, which both return before reaching this point).
+    if [ "$PAUSE_SECONDS" -gt 0 ]; then
+        log "    pausing ${PAUSE_SECONDS}s before Claude call..."
+        sleep "$PAUSE_SECONDS"
+    fi
+
     "$CLAUDE_BIN" "${claude_args[@]}" > "$claude_log" 2>&1 \
         || log_error "    claude exited non-zero on $file (see $claude_log)"
 
@@ -223,7 +232,6 @@ process_branch() {
         log "  file: $file"
         process_file "$file"
         n=$((n + 1))
-        [ "$PAUSE_SECONDS" -gt 0 ] && sleep "$PAUSE_SECONDS"
     done
 
     rm -f "$BRANCH_SHAS"
@@ -243,6 +251,11 @@ for branch in $BRANCHES; do
     if [ "$MAX_BRANCHES" -gt 0 ] && [ "$bn" -ge "$MAX_BRANCHES" ]; then
         log "Reached MAX_BRANCHES=$MAX_BRANCHES; stopping."
         break
+    fi
+    # Pause between branches (not before the first, not during dry runs).
+    if [ "$bn" -gt 0 ] && [ "$DRY_RUN" != "true" ] && [ "$BRANCH_PAUSE_SECONDS" -gt 0 ]; then
+        log "Pausing ${BRANCH_PAUSE_SECONDS}s before next branch..."
+        sleep "$BRANCH_PAUSE_SECONDS"
     fi
     process_branch "$branch"
     bn=$((bn + 1))
