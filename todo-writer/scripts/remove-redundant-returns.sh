@@ -192,16 +192,22 @@ process_branch() {
         log_error "origin/$branch does not exist; skipping"
         return 0
     fi
-    if git rev-parse --verify --quiet "$work" >/dev/null; then
-        if [ "$SKIP_EXISTING" = "true" ]; then
-            log "work-branch $work already exists; skipping (SKIP_EXISTING=true)"
-            return 0
+
+    if [ "$DRY_RUN" = "true" ]; then
+        # Dry run: do not create or check out the work-branch; just report.
+        CLEANUP_TIP="$(git rev-parse "origin/$branch")"
+    else
+        if git rev-parse --verify --quiet "$work" >/dev/null; then
+            if [ "$SKIP_EXISTING" = "true" ]; then
+                log "work-branch $work already exists; skipping (SKIP_EXISTING=true)"
+                return 0
+            fi
+            git branch -D "$work" >/dev/null
         fi
-        git branch -D "$work" >/dev/null
+        git checkout --quiet -B "$work" "origin/$branch" || { log_error "checkout -B $work failed"; return 0; }
+        CLEANUP_TIP="$(git rev-parse HEAD)"
     fi
 
-    git checkout --quiet -B "$work" "origin/$branch" || { log_error "checkout -B $work failed"; return 0; }
-    CLEANUP_TIP="$(git rev-parse HEAD)"
     BRANCH_SHAS="$(mktemp)"
     git rev-list "$MAIN_REF..origin/$branch" > "$BRANCH_SHAS"
 
@@ -223,7 +229,7 @@ process_branch() {
     rm -f "$BRANCH_SHAS"
     log "Branch $work: $BRANCH_REMOVALS total removal commit(s) across $n file(s)"
     printf '%-55s %s removals\n' "$work" "$BRANCH_REMOVALS" >> "$SUMMARY"
-    CREATED_BRANCHES+=("$work")
+    [ "$DRY_RUN" = "true" ] || CREATED_BRANCHES+=("$work")
 }
 
 # ---- main -------------------------------------------------------------------
