@@ -1,0 +1,60 @@
+You are cleaning up Scaladoc in a SINGLE Scala source file. Your ONLY job is to
+remove `@return` tags that are CLEARLY redundant with the method's main
+description, following the Scala documentation guideline:
+
+  "If the documentation of a method is a one line description of what that method
+   returns, do not repeat it with an @return annotation."
+
+FILE: {FILE_PATH}
+
+Consider ONLY the following `@return` tags, which were added by the cleanup
+commit. Do NOT touch any other `@return`, and do NOT touch `@param`, `@tparam`,
+`@throws`, the prose description, code, imports, or anything else in the file.
+
+ADDED @return TAGS (line: text):
+{ADDED_RETURNS}
+
+For EACH listed `@return` tag, work from the BOTTOM of the file to the TOP so the
+line numbers above are unaffected as you edit:
+
+1. Read the enclosing Scaladoc comment and the declaration it documents. Use Read
+   with a NARROW line range around the tag (about 15 lines above it through the
+   declaration just below) so you do not load the whole file.
+
+2. Decide whether the `@return` is CLEARLY redundant: the prose description (the
+   text before the tags) already states what the method returns, and the
+   `@return` only restates it in different words, adding no new information.
+
+3. Be CONSERVATIVE. Remove ONLY clear-cut echoes. KEEP the `@return` if it is at
+   all arguable, for example if it:
+   - mentions edge cases, sentinels, units, bounds, or guarantees not already in
+     the description (e.g. "None if absent", "-1 if not found", empty vs nonempty,
+     "a NEW collection", thrown-on-negative, etc.),
+   - is the only place the RETURNED VALUE is described (the prose describes what
+     the method DOES or HOW it works, not what it returns),
+   - belongs to a multi-line or non-trivial description where the one-line rule
+     does not apply.
+   When in doubt, KEEP it.
+
+When (and only when) you decide a tag is clearly redundant, remove it:
+   - Delete the entire `@return` tag line, including any continuation lines that
+     belong to that same tag.
+   - If removing it leaves an ORPHANED blank comment line (a line that is just
+     ` *`, which had separated the description from the now-removed tag, and there
+     are no remaining tags after it), delete that blank line too.
+   - Do NOT change indentation, spacing, or any other line.
+   - Immediately commit THAT SINGLE removal by itself, before moving on:
+       git add {FILE_PATH}
+       git commit -m "Remove redundant @return in <name>" -m "Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>"
+     where <name> is the method/val/def being documented. Exactly ONE removal per
+     commit. NEVER combine two removals into one commit.
+
+Hard rules:
+- NEVER edit anything other than removing a redundant `@return` tag (and its
+  orphaned blank line).
+- NEVER modify `@param`, `@tparam`, `@throws`, descriptions, code, or any other
+  file.
+- The ONLY git commands you may run are `git add` and `git commit`. NEVER push,
+  amend, reset, checkout, rebase, or branch.
+- If none of the listed tags are clearly redundant, make NO changes and NO
+  commits. That is a perfectly good outcome.
