@@ -17,6 +17,9 @@ scaladoc-tags-function-tuple-product
 
 F="
 scaladoc-tags-sys-concurrent-runtime-cleanup
+"
+
+F_OTHERS="
 scaladoc-tags-collection-mutable-cleanup
 scaladoc-tags-collection-immutable-cleanup
 scaladoc-tags-collection-core-cleanup
