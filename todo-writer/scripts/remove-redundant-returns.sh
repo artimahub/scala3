@@ -110,7 +110,7 @@ added_returns_for_file() {
 verify_commit() {
     local sha="$1" file="$2"
     local changed patch adds dels nret line
-    changed="$(git show --no-patch --name-only --format= "$sha" | sed '/^[[:space:]]*$/d')"
+    changed="$(git diff-tree --no-commit-id --name-only -r "$sha")"
     [ "$changed" = "$file" ] || return 1
     patch="$(git show --format= --unified=0 "$sha" -- "$file")"
     adds="$(printf '%s\n' "$patch" | grep -E '^\+' | grep -vE '^\+\+\+')"
