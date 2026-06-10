@@ -36,7 +36,15 @@ line numbers above are unaffected as you edit:
      does not apply.
    When in doubt, KEEP it.
 
-When (and only when) you decide a tag is clearly redundant, remove it:
+4. FINAL GATE -- the "Returns" rule: Even if steps 2-3 judged the `@return`
+   redundant, ONLY remove it when the main prose description (the words before any
+   tags) BEGINS with the word "Returns". If the description starts with any other
+   word (for example "Constructs", "Creates", "Computes", "Gets", "A", "This",
+   etc.), KEEP the `@return`, even though it looked redundant. The very first word
+   of the description must be exactly "Returns".
+
+When a tag passes BOTH the redundancy judgment (steps 2-3) AND the "Returns" gate
+(step 4), remove it:
    - Delete the entire `@return` tag line, including any continuation lines that
      belong to that same tag.
    - If removing it leaves an ORPHANED blank comment line (a line that is just
@@ -56,5 +64,8 @@ Hard rules:
   file.
 - The ONLY git commands you may run are `git add` and `git commit`. NEVER push,
   amend, reset, checkout, rebase, or branch.
-- If none of the listed tags are clearly redundant, make NO changes and NO
-  commits. That is a perfectly good outcome.
+- NEVER remove an `@return` unless the main description of its entity begins with
+  the word "Returns". This gate applies on top of the redundancy judgment.
+- If none of the listed tags are clearly redundant (or none have a description
+  that begins with "Returns"), make NO changes and NO commits. That is a perfectly
+  good outcome.
