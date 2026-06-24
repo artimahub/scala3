@@ -13,7 +13,8 @@ object Main:
       skipUndocumented: Boolean = false,
       migrateMarkdown: Boolean = false,
       listBrokenLink: Boolean = false,
-      externalMappingsFile: Option[Path] = None
+    rewriteCommentToScaladoc: Boolean = false,
+    externalMappingsFile: Option[Path] = None
   )
 
   def main(args: Array[String]): Unit =
@@ -41,6 +42,7 @@ object Main:
           config.skipTodo,
           config.skipUndocumented,
           config.migrateMarkdown,
+          config.rewriteCommentToScaladoc,
           config.listBrokenLink,
           config.externalMappingsFile
         )
@@ -54,6 +56,7 @@ object Main:
       case "--skip-todo" :: rest => parseArgs(rest).copy(skipTodo = true)
       case "--skip-undocumented" :: rest => parseArgs(rest).copy(skipUndocumented = true)
       case "--migrate-markdown" :: rest => parseArgs(rest).copy(migrateMarkdown = true)
+      case "--rewrite-comment-to-scaladoc" :: rest => parseArgs(rest).copy(rewriteCommentToScaladoc = true)
       case "--list-broken-link" :: rest => parseArgs(rest).copy(listBrokenLink = true)
       case "--external-mappings" :: file :: rest => parseArgs(rest).copy(externalMappingsFile = Some(Paths.get(file)))
       case arg :: rest if arg.startsWith("-") =>
@@ -68,11 +71,14 @@ object Main:
               |Usage: todo-writer <folder> [options]
               |
               |Arguments:
-              |  folder              Root folder to scan for .scala files
+              |  folder                      Root folder to scan for .scala files
               |
               |Options:
               |  --dry               Dry run (do not write changes to files)
               |  --migrate-markdown  Migrate Wikidoc-style scaladoc to Markdown (applies in-place unless --dry)
+              |  --rewrite-comment-to-scaladoc
+              |                      Convert block comments (/* ... */) to scaladoc (/** ... */)
+              |                      when they appear before type declarations or member definitions
               |  --skip-todo         Do not insert TODO placeholders for missing tags when fixing
               |  --skip-undocumented Do not report or fix declarations that have no Scaladoc block at all
               |  --list-broken-link  Check Scaladoc for broken HTTP/HTTPS links and list them
@@ -109,7 +115,7 @@ object Main:
               |  2                   Error (folder not found, etc.)
               |""".stripMargin)
 
-  private def run(folder: Path, dry: Boolean, json: Boolean, skipTodo: Boolean, skipUndocumented: Boolean, migrateMarkdown: Boolean, listBrokenLink: Boolean, externalMappingsFile: Option[Path]): Unit =
+  private def run(folder: Path, dry: Boolean, json: Boolean, skipTodo: Boolean, skipUndocumented: Boolean, migrateMarkdown: Boolean, rewriteCommentToScaladoc: Boolean, listBrokenLink: Boolean, externalMappingsFile: Option[Path]): Unit =
     // Load external mappings if provided
     val externalMappings = externalMappingsFile match
       case Some(file) =>
@@ -129,6 +135,9 @@ object Main:
     // Perform optional migration before checking so subsequent checks see migrated content.
     if migrateMarkdown then
       performMigration(folder, dry)
+
+    if rewriteCommentToScaladoc then
+      performCommentRewrite(folder, dry)
 
     // If the user requested link checking, perform that pass and exit.
     if listBrokenLink then
@@ -250,6 +259,31 @@ object Main:
           Files.writeString(path, sb.toString)
           println(s"Migrated: $path")
     if changed == 0 then println("No files migrated.") else println(s"Migrated $changed file(s).")
+
+  /** Perform block comment -> scaladoc conversion across .scala files in the folder.
+   *
+   *  Scans each .scala file for block comments (/* ... */) that appear before
+   *  type declarations (class, trait, type) or member definitions (def, val, var)
+   *  and converts them to scaladoc comments (/** ... */). When dry is true, changes
+   *  are only reported and not written.
+   */
+  private def performCommentRewrite(folder: Path, dry: Boolean): Unit =
+    import java.nio.file.{Files => JFiles}
+    import scala.jdk.CollectionConverters._
+    val scalaFiles = JFiles.walk(folder).filter(p => p.toString.endsWith(".scala")).iterator().asScala.toList
+    var changed = 0
+    for path <- scalaFiles do
+      CommentToScaladoc.convertFile(path) match
+        case Some(newContent) =>
+          changed += 1
+          if dry then
+            println(s"[dry] Would rewrite comments in: $path")
+          else
+            Files.writeString(path, newContent)
+            println(s"Rewrote comments in: $path")
+        case None =>
+          ()
+    if changed == 0 then println("No files had comments to rewrite.") else println(s"Rewrote comments in $changed file(s).")
 
   private def escapeJson(s: String): String =
     s.flatMap {
