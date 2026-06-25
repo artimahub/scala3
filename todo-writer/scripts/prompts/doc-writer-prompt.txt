@@ -47,7 +47,8 @@ TAGS:
 - @return: first decide whether to KEEP or DROP it, using the project's redundant-@return
   rule (same as remove-redundant-returns):
   * DROP it (delete the whole `@return TODO FILL IN` line) ONLY when BOTH hold:
-    (a) the description you wrote BEGINS with the word "Returns", AND
+    (a) the comment's description (the prose before the tags) BEGINS with the word
+        "Returns" — whether that description already existed or you just wrote it, AND
     (b) that description already fully states what is returned, so an @return would only
         restate it and add no edge case, sentinel, unit, bound, or guarantee.
     The very first word of the description must be exactly "Returns". If it begins with any
