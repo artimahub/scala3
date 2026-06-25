@@ -68,6 +68,34 @@ object Declaration:
       case DeclKind.Var     => parseValVar(trimmed, DeclKind.Var)
       case DeclKind.Unknown => Declaration(DeclKind.Unknown, "", Nil, Nil, None)
 
+  /** Returns true if the declaration text has a `private` access modifier.
+   *
+   *  Handles qualified forms like `private[pkg]` and `private[this]`, and
+   *  tolerates leading annotations and other modifiers (e.g. `final private`,
+   *  `@inline private`). `protected` is NOT treated as private, since protected
+   *  members are part of the documented (Scaladoc) API surface.
+   */
+  def isPrivate(chunk: String): Boolean =
+    // Strip non-access modifiers that may precede `private` (NOT `protected`).
+    val leadingModifiers =
+      List("final ", "override ", "inline ", "erased ", "lazy ", "open ",
+           "transparent ", "sealed ", "abstract ", "implicit ", "case ")
+    var remaining = chunk.linesIterator.mkString(" ").trim
+    var changed = true
+    while changed do
+      changed = false
+      remaining = dropLeadingAnnotations(remaining)
+      if remaining.startsWith("private") then
+        val rest = remaining.drop(7)
+        if rest.startsWith("[") || rest.headOption.forall(_.isWhitespace) then
+          return true
+      leadingModifiers.find(remaining.startsWith) match
+        case Some(m) =>
+          remaining = remaining.drop(m.length).trim
+          changed = true
+        case None => ()
+    false
+
   private def parseDef(chunk: String): Declaration =
     // Normalize chunk: join lines, collapse whitespace
     val normalized = chunk.linesIterator.mkString(" ").replaceAll("\\s+", " ")

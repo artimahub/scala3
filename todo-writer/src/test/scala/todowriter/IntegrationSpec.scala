@@ -409,9 +409,9 @@ class IntegrationSpec extends AnyFlatSpec with Matchers:
     }
   }
 
-  it should "detect and fix undocumented private-scoped class with constructor params" in {
-    // ObjectArrayStepper has NO Scaladoc at all — the tool should detect this
-    // and generate stub Scaladoc with @param and @tparam placeholders.
+  it should "not synthesize docs for an undocumented private-scoped class" in {
+    // ObjectArrayStepper has NO Scaladoc at all, but it is package-private, so it
+    // is not part of the documented (Scaladoc) API surface and should be skipped.
     val content =
       """private[collection] class ObjectArrayStepper[A <: Object | Null](underlying: Array[A], _i0: Int, _iN: Int)
         |  extends SomeBase[A](_i0, _iN)
@@ -419,16 +419,28 @@ class IntegrationSpec extends AnyFlatSpec with Matchers:
 
     withTempFile(content) { path =>
       val result = ScaladocChecker.checkFile(path)
-      // No existing Scaladoc block, so no check results at all currently — this is the bug
-      result.hasIssues should be(true)  // FAILS: hasIssues is false because no Scaladoc exists
+      result.hasIssues should be(false)
+      result.results.count(_.scaladoc.synthetic) should be(0)
+    }
+  }
 
-      val fixResult = Fixer.fixFile(path, result.results)
-      fixResult.newContent shouldBe defined
-      val newContent = fixResult.newContent.get
-      newContent should include("@tparam A TODO FILL IN")
-      newContent should include("@param underlying TODO FILL IN")
-      newContent should include("@param _i0 TODO FILL IN")
-      newContent should include("@param _iN TODO FILL IN")
+  it should "not synthesize docs for undocumented private methods but still flag public ones" in {
+    val content =
+      """package test
+        |
+        |private def spaces(n: Int) = " ".repeat(n)
+        |
+        |def withReset(f: Int => Int): Int = f(0)
+        |
+        |protected def visible(x: Int): Int = x
+        |""".stripMargin
+
+    withTempFile(content) { path =>
+      val result = ScaladocChecker.checkFile(path)
+      val synthNames = result.results.filter(_.scaladoc.synthetic).map(_.declaration.name)
+      synthNames should not contain "spaces"     // private -> skipped
+      synthNames should contain("withReset")      // public -> flagged
+      synthNames should contain("visible")        // protected -> still flagged
     }
   }
   it should "skip undocumented declarations when skipUndocumented = true" in {

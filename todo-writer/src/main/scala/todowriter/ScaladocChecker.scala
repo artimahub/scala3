@@ -163,7 +163,10 @@ object ScaladocChecker:
           val decl  = Declaration.parse(chunk)
           if (decl.kind == DeclKind.Def || decl.kind == DeclKind.Class || decl.kind == DeclKind.Trait) &&
              decl.name.nonEmpty &&
-             declKeywordOnLine(trimmed, decl.kind) then
+             declKeywordOnLine(trimmed, decl.kind) &&
+             // Do not synthesize docs for private declarations: they are not part
+             // of the documented (Scaladoc) API surface. (protected is kept.)
+             !Declaration.isPrivate(chunk) then
             val missingParams  = decl.params
             val missingTparams = decl.tparams
             // Add @return only when there is at least one @param or @tparam --
