@@ -7,16 +7,22 @@ was just written/changed. Judge ONLY documentation that appears as added/changed
 diff. Read the file at {FILE_PATH} for context, but do NOT flag pre-existing documentation
 that is not part of the diff.
 
+Apply the official Scala style guide (https://docs.scala-lang.org/style/scaladoc.html).
 For each declaration whose documentation was just filled in (i.e. appears in the diff),
 check:
 - FIRST SENTENCE: does the description's first sentence stand alone as an API-index
   summary? It must be meaningful read by itself, not a fragment or a restatement of the
   signature.
+- VOICE: declarative, third person, present tense (what it DOES, not "should"). NO
+  self-reference — flag descriptions that begin with "This class/trait/object/method ...".
 - ALTITUDE: not redundant with the signature, not padded, not cryptically terse. One
   good sentence is ideal for simple members.
-- CONVENTIONS: backticks for code refs; tag continuations (`@param`, `@tparam`,
-  `@return`) start lowercase with no trailing period for single phrases; description
-  sentences are full sentences. `[[...]]` links used where they would genuinely help.
+- @return NOT REDUNDANT: if the first sentence already states what the method returns,
+  the @return must add specificity rather than merely repeat it.
+- CONVENTIONS: backticks for code refs; prefer wiki-style `[[...]]` links and markdown
+  over HTML (flag any HTML tags); tag continuations (`@param`, `@tparam`, `@return`)
+  start lowercase with no trailing period for single phrases; description sentences are
+  full sentences.
 - CONSISTENCY: matches the voice and altitude of nearby Scaladoc in the same file.
 
 For each declaration you assess, decide:
