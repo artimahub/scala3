@@ -16,18 +16,23 @@ echo "Syncing branch '$BRANCH' with main..."
 # Make sure we have latest main
 git fetch origin main
 
-# Switch to the target branch and get the commit to cherry-pick
+# Switch to the target branch and record its tip. We replay every commit the
+# branch has above main, not just HEAD, so branches with more than one commit
+# (e.g. a cleanup commit plus a separate redundant-@return removal commit) keep
+# all of their commits after the sync.
 git checkout "$BRANCH"
-COMMIT_HASH=$(git rev-parse HEAD)
-echo "Commit to cherry-pick: $COMMIT_HASH"
+ORIG_TIP=$(git rev-parse HEAD)
+echo "Branch tip to replay onto main: $ORIG_TIP"
+echo "Commits to cherry-pick (oldest first):"
+git log --oneline --reverse origin/main..$ORIG_TIP | sed 's/^/  /'
 
 # Reset the branch to main
 git reset --hard origin/main
 echo "Reset '$BRANCH' to origin/main"
 
-# Cherry-pick the commit
-git cherry-pick "$COMMIT_HASH"
-echo "Cherry-picked commit $COMMIT_HASH"
+# Cherry-pick every commit the branch had above main, oldest first.
+git cherry-pick origin/main..$ORIG_TIP
+echo "Cherry-picked $(git rev-list --count origin/main..HEAD) commit(s) onto origin/main"
 
 # Print the push command for manual execution
 echo ""
