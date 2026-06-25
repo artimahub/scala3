@@ -44,10 +44,20 @@ TAGS:
 - @param: purpose of the parameter; constraints (non-negative, non-null), units
   (ms, bytes), defaults — only what is true per the code.
 - @tparam: what the type parameter represents and any bounds.
-- @return: summarize what the value represents and notable edge cases. The style guide
-  says not to repeat the description: if the first sentence already states what the
-  method returns, the @return should ADD specificity (edge cases, units, what happens on
-  empty/null) rather than restate it. (You cannot remove the tag here; make it non-redundant.)
+- @return: first decide whether to KEEP or DROP it, using the project's redundant-@return
+  rule (same as remove-redundant-returns):
+  * DROP it (delete the whole `@return TODO FILL IN` line) ONLY when BOTH hold:
+    (a) the description you wrote BEGINS with the word "Returns", AND
+    (b) that description already fully states what is returned, so an @return would only
+        restate it and add no edge case, sentinel, unit, bound, or guarantee.
+    The very first word of the description must be exactly "Returns". If it begins with any
+    other word ("Creates", "Computes", "Gets", "A", ...), KEEP the @return.
+    When you delete the tag, also delete an orphaned blank ` *` line if removing the tag
+    leaves one with no tags after it. Change no indentation otherwise.
+  * Otherwise KEEP it and fill it with specifics NOT already in the description — edge
+    cases ("`None` if absent", "-1 if not found"), units, or a NEW vs mutated collection.
+  * Be CONSERVATIVE: when in doubt, KEEP and fill. Drop only clear-cut echoes of a
+    "Returns ..." description.
 
 STYLE (per the Scala style guide):
 - Prefer wiki-style and markdown over HTML: use `[[scala.Option]]`-style links and
@@ -59,14 +69,16 @@ STYLE (per the Scala style guide):
 
 STRICT SCOPE — this is important:
 - Replace ONLY the literal `TODO FILL IN` text. Leave every other character of every
-  comment exactly as it is.
+  comment exactly as it is. (The ONE exception is dropping a redundant `@return TODO FILL
+  IN` line, and its orphaned blank ` *` line, per the @return rule above.)
 - If a pre-existing (non-TODO) comment looks WRONG or outdated, do NOT fix it and do NOT
   rewrite it. Leave it untouched. Reviewers will capture such issues separately. Your job
   is strictly to fill the placeholders, not to improve surrounding prose.
 
 Do NOT:
 - Touch anything that is not a `TODO FILL IN` placeholder (no rewording adjacent prose).
-- Add or remove @param/@tparam/@return tags.
+- Add any new tags, or remove `@param`/`@tparam` tags. (Dropping a redundant
+  `@return TODO FILL IN` per the @return rule above is the ONE allowed removal.)
 - Modify code outside Scaladoc comments.
 
 Fill in all `TODO FILL IN` placeholders in {FILE_PATH} now.

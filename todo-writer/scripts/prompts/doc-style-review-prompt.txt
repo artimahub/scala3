@@ -17,8 +17,11 @@ check:
   self-reference — flag descriptions that begin with "This class/trait/object/method ...".
 - ALTITUDE: not redundant with the signature, not padded, not cryptically terse. One
   good sentence is ideal for simple members.
-- @return NOT REDUNDANT: if the first sentence already states what the method returns,
-  the @return must add specificity rather than merely repeat it.
+- @return REDUNDANCY RULE: an @return is dropped only when the description BEGINS with
+  the word "Returns" and already fully states the return. Flag (a) a KEPT @return that
+  merely echoes a "Returns ..." description with no added edge case/unit/bound (it should
+  have been dropped), and (b) a DROPPED @return whose description does NOT begin with
+  "Returns", or that omits an edge case the reader needs (it should have been kept).
 - CONVENTIONS: backticks for code refs; prefer wiki-style `[[...]]` links and markdown
   over HTML (flag any HTML tags); tag continuations (`@param`, `@tparam`, `@return`)
   start lowercase with no trailing period for single phrases; description sentences are
