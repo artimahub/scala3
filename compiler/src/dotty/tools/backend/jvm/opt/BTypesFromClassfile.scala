@@ -82,7 +82,7 @@ class BTypesFromClassfile(byteCodeRepository: BCodeRepository, bTypeLoader: BTyp
   private def computeClassInfoFromClassNode(classNode: ClassNode, moduleNode: Option[ModuleNode]): Either[OptimizerWarning, ClassInfo] = {
     val superClass = classNode.superName match {
       case null =>
-        assert(classNode.name == "java/lang/Object", s"class with missing super type: ${classNode.name}")
+        assert(classNode.name == ClassBType.javaLangObjectInternalName, s"class with missing super type: ${classNode.name}")
         Right(None)
       case superName =>
         classBTypeFromParsedClassfile(superName).map(Some.apply)
@@ -157,13 +157,14 @@ class BTypesFromClassfile(byteCodeRepository: BCodeRepository, bTypeLoader: BTyp
   }
 
   def loadInlineInfoFor(name: InternalName): InlineInfo =
-    byteCodeRepository.classNode(name) match {
+    if OptimizerUtils.isSCoverage(name) then InlineInfo.empty
+    else byteCodeRepository.classNode(name) match {
       case Right(classNode, moduleNode) =>
         inlineInfoFromClassfile(classNode, moduleNode)
       case Left(missingClass) =>
         InlineInfo.empty.copy(warning = Some(ClassNotFoundWhenBuildingInlineInfoFromSymbol(missingClass)))
     }
-  
+
   /**
    * Build the InlineInfo for a class. For Scala classes, the information is stored in the
    * ScalaInlineInfo attribute. If the attribute is missing, the InlineInfo is built using the

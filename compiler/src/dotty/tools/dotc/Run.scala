@@ -36,8 +36,8 @@ import scala.io.Codec
 import Run.Progress
 import scala.compiletime.uninitialized
 import dotty.tools.dotc.transform.MegaPhase
+import dotty.tools.dotc.transform.Pickler
 import dotty.tools.dotc.transform.Pickler.AsyncTastyHolder
-import dotty.tools.io.FileWriters
 import dotty.tools.dotc.util.chaining.*
 import java.util.{Timer, TimerTask}
 
@@ -69,7 +69,7 @@ extends ImplicitRunInfo, ConstraintRunInfo, cc.CaptureRunInfo {
 
   private var myUnits: List[CompilationUnit] = Nil
   private var myUnitsCached: List[CompilationUnit] = Nil
-  private var myFiles: Set[AbstractFile] = uninitialized
+  private var myFiles: Set[AbstractFile] = Set.empty
 
   // `@nowarn` annotations by source file, populated during typer
   private val mySuppressions: mutable.LinkedHashMap[SourceFile, ListBuffer[Suppression]] = mutable.LinkedHashMap.empty
@@ -301,11 +301,11 @@ extends ImplicitRunInfo, ConstraintRunInfo, cc.CaptureRunInfo {
     do
       import reporting.Diagnostic
       report match
-        case FileWriters.Report.Error(msg, pos) =>
+        case Pickler.Report.Error(msg, pos) =>
           ctx.reporter.report(Diagnostic.Error(msg(ctx), pos))
-        case FileWriters.Report.Warning(msg, pos) =>
+        case Pickler.Report.Warning(msg, pos) =>
           ctx.reporter.report(Diagnostic.Warning(msg(ctx), pos))
-        case FileWriters.Report.Log(msg) =>
+        case Pickler.Report.Log(msg) =>
           ctx.reporter.report(Diagnostic.Info(msg, NoSourcePosition))
 
   /** Will be set to true if any of the compiled compilation units contains

@@ -35,7 +35,7 @@ import dotty.tools.dotc.config.ScalaSettingsProperties
  *  @version 1.0
  *
  */
-trait BCodeHelpers(val bTypeLoader: BTypeLoader, val bTypes: WellKnownBTypes) extends BCodeIdiomatic {
+trait BCodeHelpers(val bTypeLoader: BTypeLoader) extends BCodeIdiomatic {
 
   // OK to cache because it won't change across Contexts
   private var cachedClassfileVersion: Int | Null = null
@@ -294,9 +294,12 @@ trait BCodeHelpers(val bTypeLoader: BTypeLoader, val bTypes: WellKnownBTypes) ex
       if (toDenot(annot.tree.tpe.typeSymbol).hasAnnotation(annotationRetentionAttr))
         retentionPolicyOf(annot) == annotationRetentionRuntimeAttr
       else {
-        // SI-8926: if the annotation class symbol doesn't have a @RetentionPolicy annotation, the
-        // annotation is emitted with visibility `RUNTIME`
-        // dotty bug: #389
+        // The Java parser now reads `@Retention` meta-annotations on `@interface` declarations,
+        // so this branch is only reached for Java annotations that genuinely declare no
+        // `@Retention`. The JLS defaults such annotations to `CLASS` retention; dotty instead
+        // currently emits them as `RUNTIME` visible, inherited from the SI-8926 default. This
+        // is existing behavior, not a guaranteed contract — aligning with the JLS would be a
+        // valid future change. See scala/scala3#389.
         true
       }
 
@@ -415,7 +418,7 @@ trait BCodeHelpers(val bTypeLoader: BTypeLoader, val bTypes: WellKnownBTypes) ex
         mirrorMethodName,
         mdesc,
         jgensig,
-        mkArrayS(thrownExceptions)
+        if thrownExceptions.isEmpty then null else thrownExceptions.toArray
       )
 
       emitAnnotations(mirrorMethod, others)
@@ -546,6 +549,7 @@ trait BCodeHelpers(val bTypeLoader: BTypeLoader, val bTypes: WellKnownBTypes) ex
 
   /* builder of mirror classes */
   class JMirrorBuilder extends JCommonBuilder {
+    private val EMPTY_STRING_ARRAY = Array.empty[String]
 
     /* Generate a mirror class for a top-level module. A mirror class is a class
      *  containing only static methods that forward to the corresponding method
@@ -570,11 +574,11 @@ trait BCodeHelpers(val bTypeLoader: BTypeLoader, val bTypes: WellKnownBTypes) ex
         bType.info.flags,
         mirrorName,
         null /* no java-generic-signature */,
-        bTypes.ObjectRef.internalName,
+        ClassBType.javaLangObjectInternalName,
         EMPTY_STRING_ARRAY
       )
 
-      if (BackendUtils.emitSource) {
+      if (emitSource) {
         mirrorClass.visitSource("" + ctx.compilationUnit.source.file.name, null /* SourceDebugExtension */)
       }
 
