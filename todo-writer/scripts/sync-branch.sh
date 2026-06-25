@@ -30,8 +30,15 @@ git log --oneline --reverse origin/main..$ORIG_TIP | sed 's/^/  /'
 git reset --hard origin/main
 echo "Reset '$BRANCH' to origin/main"
 
-# Cherry-pick every commit the branch had above main, oldest first.
-git cherry-pick origin/main..$ORIG_TIP
+# Cherry-pick every commit the branch had above main, oldest first, ONE AT A
+# TIME. A single range cherry-pick (git cherry-pick origin/main..tip) can stumble
+# after an intermediate commit that needs a 3-way auto-merge against newer main,
+# reporting phantom "local changes" on the next pick. Picking each commit in its
+# own invocation settles the index/worktree between picks and is robust.
+for commit in $(git rev-list --reverse origin/main..$ORIG_TIP); do
+    echo "  cherry-picking $(git rev-parse --short "$commit")..."
+    git cherry-pick "$commit"
+done
 echo "Cherry-picked $(git rev-list --count origin/main..HEAD) commit(s) onto origin/main"
 
 # Print the push command for manual execution
