@@ -11,6 +11,7 @@ object Main:
       help: Boolean = false,
       skipTodo: Boolean = false,
       skipUndocumented: Boolean = false,
+      onlyUndocumented: Boolean = false,
       migrateMarkdown: Boolean = false,
       listBrokenLink: Boolean = false,
       externalMappingsFile: Option[Path] = None
@@ -40,6 +41,7 @@ object Main:
           config.json,
           config.skipTodo,
           config.skipUndocumented,
+          config.onlyUndocumented,
           config.migrateMarkdown,
           config.listBrokenLink,
           config.externalMappingsFile
@@ -53,6 +55,7 @@ object Main:
       case "--json" :: rest => parseArgs(rest).copy(json = true)
       case "--skip-todo" :: rest => parseArgs(rest).copy(skipTodo = true)
       case "--skip-undocumented" :: rest => parseArgs(rest).copy(skipUndocumented = true)
+      case "--only-undocumented" :: rest => parseArgs(rest).copy(onlyUndocumented = true)
       case "--migrate-markdown" :: rest => parseArgs(rest).copy(migrateMarkdown = true)
       case "--list-broken-link" :: rest => parseArgs(rest).copy(listBrokenLink = true)
       case "--external-mappings" :: file :: rest => parseArgs(rest).copy(externalMappingsFile = Some(Paths.get(file)))
@@ -75,6 +78,8 @@ object Main:
               |  --migrate-markdown  Migrate Wikidoc-style scaladoc to Markdown (applies in-place unless --dry)
               |  --skip-todo         Do not insert TODO placeholders for missing tags when fixing
               |  --skip-undocumented Do not report or fix declarations that have no Scaladoc block at all
+              |  --only-undocumented Report and fix ONLY declarations that have no Scaladoc block at all
+              |                      (skips missing-tag issues in already-documented declarations)
               |  --list-broken-link  Check Scaladoc for broken HTTP/HTTPS links and list them
               |  --external-mappings <file>  Load external documentation mappings from file
               |  --json              Output results as JSON
@@ -109,7 +114,7 @@ object Main:
               |  2                   Error (folder not found, etc.)
               |""".stripMargin)
 
-  private def run(folder: Path, dry: Boolean, json: Boolean, skipTodo: Boolean, skipUndocumented: Boolean, migrateMarkdown: Boolean, listBrokenLink: Boolean, externalMappingsFile: Option[Path]): Unit =
+  private def run(folder: Path, dry: Boolean, json: Boolean, skipTodo: Boolean, skipUndocumented: Boolean, onlyUndocumented: Boolean, migrateMarkdown: Boolean, listBrokenLink: Boolean, externalMappingsFile: Option[Path]): Unit =
     // Load external mappings if provided
     val externalMappings = externalMappingsFile match
       case Some(file) =>
@@ -141,7 +146,14 @@ object Main:
           println(s"$path:$line -> $url => $err")
         System.exit(1)
 
-    val results = ScaladocChecker.checkDirectory(folder, skipUndocumented)
+    // When onlyUndocumented is set, undocumented detection must be on, and we
+    // keep only the synthetic (no-Scaladoc-block-at-all) results, dropping
+    // missing-tag issues found in already-documented declarations.
+    val rawResults = ScaladocChecker.checkDirectory(folder, skipUndocumented && !onlyUndocumented)
+    val results =
+      if onlyUndocumented then
+        rawResults.map(fr => fr.copy(results = fr.results.filter(_.scaladoc.synthetic)))
+      else rawResults
     val summary = ScaladocChecker.summarize(results)
 
     if json then
