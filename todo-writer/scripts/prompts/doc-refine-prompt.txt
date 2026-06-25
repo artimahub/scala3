@@ -1,0 +1,20 @@
+You are refining the Scaladoc you wrote for {FILE_PATH}, using feedback from two
+independent reviewers: an ACCURACY reviewer and a STYLE reviewer.
+
+Read the file at {FILE_PATH} again, then address the feedback below with the Edit tool.
+
+How to handle each point:
+- Accuracy blockers: fix them. The code is the source of truth — re-check the
+  implementation if needed.
+- Style blockers: fix them.
+- Nits: apply when they clearly improve the doc; otherwise you may leave them.
+- RIGHT OF REPLY: if you believe a reviewer point is wrong, you may keep your version,
+  but only if you are confident it is correct per the code. Do not silently ignore a
+  point — either fix it or be sure it is already right.
+- If a point is `needs_human` because the intended meaning is genuinely undeterminable
+  from the code, keep your best-guess wording and ensure an `@note NEEDS-HUMAN: <question>`
+  line remains in that comment so a human will see it.
+
+Change ONLY Scaladoc comments. Do not add or remove tags. Do not touch code.
+
+REVIEWER FEEDBACK (JSON):

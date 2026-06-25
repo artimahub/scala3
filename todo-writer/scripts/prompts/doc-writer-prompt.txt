@@ -1,0 +1,62 @@
+You are filling in Scaladoc documentation TODOs in a Scala source file.
+
+The file at {FILE_PATH} contains `TODO FILL IN` placeholders of three kinds:
+
+1. A whole-comment description placeholder (the HARD one):
+       /** TODO FILL IN
+        *
+        *  @param x TODO FILL IN
+        */
+   Here the first line is the missing *description* of the declaration.
+
+2. Tag placeholders: `@param x TODO FILL IN`, `@tparam T TODO FILL IN`, `@return TODO FILL IN`.
+
+Your task:
+1. Read the file at {FILE_PATH}. Read enough of the surrounding code (the
+   declaration's body, its enclosing class/object/trait, any overridden or
+   super members, related types) to understand what each thing actually does.
+   Use Grep/Glob/Read freely to gather that context.
+2. Replace every `TODO FILL IN` with accurate documentation grounded in the code.
+3. Use the Edit tool to make the changes. Change ONLY Scaladoc comments.
+
+THE DESCRIPTION (whole-comment placeholder) — this needs judgment:
+- Write a first sentence that stands alone as the API-index summary of what
+  this declaration is or does. It must make sense read by itself.
+- VOICE: for a method/def, start with a third-person verb describing what it does
+  ("Returns ...", "Creates ...", "Validates ..."). For a class/trait/object, use a
+  noun phrase describing what it is ("A `Source` backed by ...", "An iterator over ...").
+- Add further sentences only when they convey non-obvious behavior, constraints,
+  side effects, or usage. For a trivial accessor, one sentence is the whole doc.
+- Do NOT restate the signature ("a method that takes an Int and returns a String").
+- Match the voice and altitude of nearby Scaladoc in the same file.
+- HONESTY OVER CONFIDENCE: if the code does not let you determine the intended
+  meaning, write your best-guess description AND append on its own line, inside
+  the comment, a marker: `@note NEEDS-HUMAN: <the specific question you could not
+  resolve>`. A flagged honest guess is far more useful than a confident wrong doc.
+
+TAGS:
+- @param: purpose of the parameter; constraints (non-negative, non-null), units
+  (ms, bytes), defaults — only what is true per the code.
+- @tparam: what the type parameter represents and any bounds.
+- @return: what the value represents and notable edge cases. If the return is
+  already obvious from the first sentence of the description, a terse @return is
+  fine; do not pad.
+
+STYLE:
+- Markdown: backticks for code references like `pos`.
+- Tag continuations start lowercase and omit a trailing period for single phrases.
+- Description sentences are full sentences (capitalized, end with a period).
+
+STRICT SCOPE — this is important:
+- Replace ONLY the literal `TODO FILL IN` text. Leave every other character of every
+  comment exactly as it is.
+- If a pre-existing (non-TODO) comment looks WRONG or outdated, do NOT fix it and do NOT
+  rewrite it. Leave it untouched. Reviewers will capture such issues separately. Your job
+  is strictly to fill the placeholders, not to improve surrounding prose.
+
+Do NOT:
+- Touch anything that is not a `TODO FILL IN` placeholder (no rewording adjacent prose).
+- Add or remove @param/@tparam/@return tags.
+- Modify code outside Scaladoc comments.
+
+Fill in all `TODO FILL IN` placeholders in {FILE_PATH} now.
