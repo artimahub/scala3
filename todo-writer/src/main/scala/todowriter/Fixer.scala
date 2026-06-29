@@ -73,9 +73,13 @@ object Fixer:
       val (tparamsToInsert, paramsToInsert, returnToInsert) =
         if insertTodo then (missingTparams, missingParams, needsReturn) else (Nil, Nil, false)
 
+      // An undocumented declaration with no missing tags still needs a
+      // description-only stub (e.g. a no-arg method).
+      val needsDescription = issues.contains(Issue.MissingDescription)
+
       if block.synthetic then
         // Insert a brand-new Scaladoc stub before the declaration line.
-        if insertTodo && (tparamsToInsert.nonEmpty || paramsToInsert.nonEmpty || returnToInsert) then
+        if insertTodo && (needsDescription || tparamsToInsert.nonEmpty || paramsToInsert.nonEmpty || returnToInsert) then
           val newStub = buildNewScaladocStub(currentText, block.startIndex, tparamsToInsert, paramsToInsert, returnToInsert)
           currentText = currentText.substring(0, block.startIndex) + newStub + "\n" + currentText.substring(block.startIndex)
           fixCount += 1
@@ -160,23 +164,29 @@ object Fixer:
     val declLine = text.substring(declLineStart).takeWhile(_ != '\n')
     val ws = declLine.takeWhile(_.isWhitespace)
 
-    val lines = collection.mutable.ListBuffer[String]()
-    lines += s"$ws/** TODO FILL IN"
-    lines += s"$ws *"
-    for tp <- missingTparams do lines += s"$ws *  @tparam $tp TODO FILL IN"
-    for p <- missingParams do lines += s"$ws *  @param $p TODO FILL IN"
-    if needsReturn then lines += s"$ws *  @return TODO FILL IN"
-    lines += s"$ws */"
-    lines.mkString("\n")
+    val hasTags = missingTparams.nonEmpty || missingParams.nonEmpty || needsReturn
+    if !hasTags then
+      // Description-only stub for an undocumented declaration with no tags.
+      s"$ws/** TODO FILL IN */"
+    else
+      val lines = collection.mutable.ListBuffer[String]()
+      lines += s"$ws/** TODO FILL IN"
+      lines += s"$ws *"
+      for tp <- missingTparams do lines += s"$ws *  @tparam $tp TODO FILL IN"
+      for p <- missingParams do lines += s"$ws *  @param $p TODO FILL IN"
+      if needsReturn then lines += s"$ws *  @return TODO FILL IN"
+      lines += s"$ws */"
+      lines.mkString("\n")
 
 
   /** Check if a result needs fixing (has issues that require insertion). */
   private def needsFix(result: CheckResult): Boolean =
     result.issues.exists {
-      case Issue.MissingParam(_)  => true
-      case Issue.MissingTparam(_) => true
-      case Issue.MissingReturn    => true
-      case _                      => false
+      case Issue.MissingParam(_)   => true
+      case Issue.MissingTparam(_)  => true
+      case Issue.MissingReturn     => true
+      case Issue.MissingDescription => true
+      case _                       => false
     }
 
   /** Represents a single item in the Scaladoc content. */

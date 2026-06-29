@@ -8,6 +8,7 @@ enum Issue:
   case UnknownTparam(names: List[String])
   case MissingReturn
   case UnnecessaryReturn(returnType: String)
+  case MissingDescription
 
   def message: String = this match
     case MissingParam(names)        => s"Missing @param for: ${names.mkString(", ")}"
@@ -16,3 +17,4 @@ enum Issue:
     case UnknownTparam(names)       => s"@tparam refers to unknown type params: ${names.mkString(", ")}"
     case MissingReturn              => "Missing @return for non-Unit return type"
     case UnnecessaryReturn(retType) => s"@return present but return type is $retType"
+    case MissingDescription         => "Missing Scaladoc description for an undocumented declaration"

@@ -443,6 +443,28 @@ class IntegrationSpec extends AnyFlatSpec with Matchers:
       synthNames should contain("visible")        // protected -> still flagged
     }
   }
+  it should "synthesize a description-only stub for an undocumented no-arg method" in {
+    // `reader` has no params, no type params, and an inferred return type, so it
+    // has no missing tags. It is still public and undocumented, so it should get
+    // a description-only Scaladoc stub.
+    val content = """package test
+                    |
+                    |class Source {
+                    |  def reader() = new java.io.InputStreamReader(in)
+                    |}
+                    |""".stripMargin
+
+    withTempFile(content) { path =>
+      val result = ScaladocChecker.checkFile(path)
+      val readerResult = result.results.find(r => r.scaladoc.synthetic && r.declaration.name == "reader")
+      readerResult.map(_.issues) should be(Some(List(Issue.MissingDescription)))
+
+      val fixResult = Fixer.fixFile(path, result.results)
+      fixResult.newContent.get should include("/** TODO FILL IN */")
+      fixResult.newContent.get should include("def reader()")
+    }
+  }
+
   it should "skip undocumented declarations when skipUndocumented = true" in {
     // One method has a Scaladoc block missing @param; another method has no Scaladoc at all.
     // With skipUndocumented = true, only the documented-but-missing-tag method should be reported.

@@ -180,6 +180,11 @@ object ScaladocChecker:
               } &&
               (missingParams.nonEmpty || missingTparams.nonEmpty)
             val issues = collection.mutable.ListBuffer[Issue]()
+            // An undocumented declaration always needs at least a description
+            // placeholder, even when it has no @param/@tparam/@return tags (for
+            // example a no-arg method like `def reader()`). Without this, such
+            // declarations would get no Scaladoc stub at all.
+            issues += Issue.MissingDescription
             if missingParams.nonEmpty  then issues += Issue.MissingParam(missingParams)
             if missingTparams.nonEmpty then issues += Issue.MissingTparam(missingTparams)
             if needsReturn             then issues += Issue.MissingReturn
