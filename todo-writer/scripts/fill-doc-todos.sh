@@ -54,6 +54,19 @@ render() { sed "s|{FILE_PATH}|$1|g" "$2"; }
 # Extract the review JSON text from a raw model emission (strip ``` fences).
 clean_json() { sed -e 's/^```json//' -e 's/^```//' | sed '/^[[:space:]]*$/d'; }
 
+HOUSE_RULES_FILE="${HOUSE_RULES_FILE:-$TODO_WRITER_DIR/docs/house-rules.md}"
+
+# Emit accumulated, reviewer-derived house rules (if any) so the writer and the
+# style reviewer pick up conventions learned from earlier PRs. Appended after the
+# base prompt; it refines (does not replace) the rules baked into the prompt files.
+house_rules() {
+  if [ -s "$HOUSE_RULES_FILE" ]; then
+    echo
+    echo "=== LEARNED HOUSE RULES (from reviewer feedback on earlier PRs; apply these) ==="
+    cat "$HOUSE_RULES_FILE"
+  fi
+}
+
 # Default target list: io files that still contain the marker.
 if [ "$#" -gt 0 ]; then
     TARGETS=("$@")
@@ -99,7 +112,7 @@ for FILE in "${TARGETS[@]}"; do
 
     # ---- Writer: initial draft ---------------------------------------------
     log "  writer: drafting ($WRITER_MODEL)..."
-    render "$ABS" "$PROMPTS_DIR/doc-writer-prompt.txt" \
+    { render "$ABS" "$PROMPTS_DIR/doc-writer-prompt.txt"; house_rules; } \
         | claude --dangerously-skip-permissions -p --model "$WRITER_MODEL" \
             --allowedTools Edit,Read,Grep,Glob \
             > "$REVIEWS_DIR/${SAFE}.writer.log" 2>&1
@@ -132,7 +145,7 @@ for FILE in "${TARGETS[@]}"; do
         acc_pid=$!
 
         # Style review (Claude Sonnet) — background.
-        ( cat <(render "$ABS" "$PROMPTS_DIR/doc-style-review-prompt.txt") "$DIFF_BLOCK" \
+        ( cat <(render "$ABS" "$PROMPTS_DIR/doc-style-review-prompt.txt") <(house_rules) "$DIFF_BLOCK" \
             | claude --dangerously-skip-permissions -p --model "$STYLE_MODEL" \
                 --allowedTools Read,Grep,Glob --output-format json \
                 > "$WORK_DIR/${SAFE}.sty.raw" 2>"$REVIEWS_DIR/${SAFE}.style.log"
@@ -159,7 +172,7 @@ for FILE in "${TARGETS[@]}"; do
 
         # ---- Writer: refine using both reviews -----------------------------
         log "    refine: incorporating both reviews..."
-        { render "$ABS" "$PROMPTS_DIR/doc-refine-prompt.txt"
+        { render "$ABS" "$PROMPTS_DIR/doc-refine-prompt.txt"; house_rules
           echo "--- ACCURACY (Codex) ---"; cat "$final_acc"
           echo "--- STYLE ($STYLE_MODEL) ---"; cat "$final_sty"
         } | claude --dangerously-skip-permissions -p --model "$WRITER_MODEL" \

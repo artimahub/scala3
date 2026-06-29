@@ -24,10 +24,14 @@
 # (the "Undocumented batch"), with collection and the loose root files split
 # further because brand-new prose is heavier to review than tag-only additions.
 #
+# A single PR may combine several partitions: pass more than one name and they
+# are unioned into one generate+fill pass (used to keep small partitions together
+# as one reviewable, ~weekly PR while leaving the big collection partitions solo).
+#
 # Usage:
-#   ./run-missing-doc-todos.sh --list                 # show partitions
-#   ./run-missing-doc-todos.sh --plan <partition>     # preview target files, then revert (no AI)
-#   ./run-missing-doc-todos.sh <partition>            # generate + fill (leaves changes in tree)
+#   ./run-missing-doc-todos.sh --list                       # show partitions
+#   ./run-missing-doc-todos.sh --plan <partition> [more...] # preview target files, then revert (no AI)
+#   ./run-missing-doc-todos.sh <partition> [more...]        # generate + fill (leaves changes in tree)
 #
 # Env overrides (forwarded to fill-doc-todos.sh): MAX_ROUNDS, WRITER_MODEL, STYLE_MODEL
 # =============================================================================
@@ -106,14 +110,14 @@ partition_spec() {
     root-misc)   # all remaining loose root files (prior PR #11 root files + stragglers)
       GEN=("$L")
       KEEP=(":(glob)$L/*.scala"
-            ":(exclude):(glob)$L/Boolean.scala" ":(exclude):(glob)$L/Byte.scala"
-            ":(exclude):(glob)$L/Char.scala" ":(exclude):(glob)$L/Double.scala"
-            ":(exclude):(glob)$L/Float.scala" ":(exclude):(glob)$L/Int.scala"
-            ":(exclude):(glob)$L/Long.scala" ":(exclude):(glob)$L/Short.scala"
-            ":(exclude):(glob)$L/Array.scala" ":(exclude):(glob)$L/IArray.scala"
-            ":(exclude):(glob)$L/Option.scala" ":(exclude):(glob)$L/Predef.scala"
-            ":(exclude):(glob)$L/Function*.scala" ":(exclude):(glob)$L/Tuple*.scala"
-            ":(exclude):(glob)$L/Product*.scala") ;;
+            ":(exclude)$L/Boolean.scala" ":(exclude)$L/Byte.scala"
+            ":(exclude)$L/Char.scala" ":(exclude)$L/Double.scala"
+            ":(exclude)$L/Float.scala" ":(exclude)$L/Int.scala"
+            ":(exclude)$L/Long.scala" ":(exclude)$L/Short.scala"
+            ":(exclude)$L/Array.scala" ":(exclude)$L/IArray.scala"
+            ":(exclude)$L/Option.scala" ":(exclude)$L/Predef.scala"
+            ":(exclude,glob)$L/Function*.scala" ":(exclude,glob)$L/Tuple*.scala"
+            ":(exclude,glob)$L/Product*.scala") ;;
 
     library-js)
       GEN=("$LJS"); KEEP=("$LJS") ;;
@@ -142,31 +146,41 @@ list_partitions() {
   echo "Usage: $(basename "$0") [--list | --plan <partition> | <partition>]"
 }
 
-# Generate markers over the partition's GEN dirs, then revert anything outside KEEP.
-# Echoes the repo-relative target files (those still holding a marker) to stdout.
+# Generate markers for one or more partitions (unioned into a single PR), then
+# revert anything outside the combined keep set. Echoes the repo-relative target
+# files (those still holding a marker) to stdout.
+#
+# KEEP sets are evaluated PER partition and the resulting file lists unioned, so
+# one partition's ':(exclude)' pathspecs never suppress another partition's files.
 prepare_partition() {
-  local p="$1"
-  partition_spec "$p"
+  local gen_all=() changed="" p
+  for p in "$@"; do
+    partition_spec "$p"
+    gen_all+=("${GEN[@]}")
+  done
 
-  for d in "${GEN[@]}"; do
+  # Run todo-writer once per UNIQUE generate dir (combining two root partitions
+  # would otherwise scan library/src/scala twice).
+  local d
+  for d in $(printf '%s\n' "${gen_all[@]}" | sort -u); do
     echo ">>> todo-writer --only-undocumented on $d" >&2
     ( cd "$TODO_WRITER_DIR" && sbt -batch "run ../$d --only-undocumented" >&2 )
   done
 
-  # Files changed under the generate scope, and the subset we want to keep.
-  local changed keep
-  changed="$(git -C "$REPO_ROOT" diff --name-only -- "${GEN[@]}")"
-  keep="$(git -C "$REPO_ROOT" diff --name-only -- "${KEEP[@]}")"
+  # Now that markers exist, recompute changed + keep across the union.
+  changed="$(git -C "$REPO_ROOT" diff --name-only -- "${gen_all[@]}")"
+  local keep=""
+  for p in "$@"; do
+    partition_spec "$p"
+    keep+="$(git -C "$REPO_ROOT" diff --name-only -- "${KEEP[@]}")"$'\n'
+  done
+  keep="$(printf '%s' "$keep" | sort -u | grep .)"
 
-  # Revert changed files that are not in the keep set.
-  local revert
-  revert="$(comm -23 <(echo "$changed" | sort -u) <(echo "$keep" | sort -u) | grep -c . || true)"
-  if [ "${revert:-0}" -gt 0 ]; then
-    comm -23 <(echo "$changed" | sort -u) <(echo "$keep" | sort -u) \
-      | while read -r f; do [ -n "$f" ] && git -C "$REPO_ROOT" checkout -- "$f"; done
-  fi
+  # Revert changed files that are not in the combined keep set.
+  comm -23 <(echo "$changed" | sort -u | grep .) <(echo "$keep" | sort -u | grep .) \
+    | while read -r f; do [ -n "$f" ] && git -C "$REPO_ROOT" checkout -- "$f"; done
 
-  # Emit kept files that actually contain a marker (skip any that didn't change).
+  # Emit kept files that actually contain a marker.
   echo "$keep" | while read -r f; do
     [ -n "$f" ] && grep -q "$MARKER" "$REPO_ROOT/$f" 2>/dev/null && echo "$f"
   done
@@ -177,10 +191,11 @@ main() {
     ""|--list|-l|-h|--help)
       list_partitions; exit 0 ;;
     --plan)
-      [ $# -ge 2 ] || { echo "--plan needs a partition name" >&2; exit 2; }
-      mapfile -t targets < <(prepare_partition "$2")
+      shift
+      [ $# -ge 1 ] || { echo "--plan needs at least one partition name" >&2; exit 2; }
+      mapfile -t targets < <(prepare_partition "$@")
       echo
-      echo "Partition '$2': ${#targets[@]} file(s) with markers:"
+      echo "PR '$*': ${#targets[@]} file(s) with markers:"
       local total=0
       for f in "${targets[@]}"; do
         n=$(grep -cE '/\*\* '"$MARKER" "$REPO_ROOT/$f" 2>/dev/null || echo 0)
@@ -194,17 +209,16 @@ main() {
       for f in "${targets[@]}"; do git -C "$REPO_ROOT" checkout -- "$f"; done
       exit 0 ;;
     *)
-      local p="$1"
-      mapfile -t targets < <(prepare_partition "$p")
+      mapfile -t targets < <(prepare_partition "$@")
       if [ "${#targets[@]}" -eq 0 ]; then
-        echo "No markers generated for partition '$p' -- nothing to fill."
+        echo "No markers generated for '$*' -- nothing to fill."
         exit 0
       fi
-      echo ">>> filling ${#targets[@]} file(s) for partition '$p'"
+      echo ">>> filling ${#targets[@]} file(s) for PR '$*'"
       "$FILL" "${targets[@]}"
       echo
-      echo "Partition '$p' done. Review with: git -C $REPO_ROOT diff -- ${KEEP[0]} ..."
-      echo "Commit as one PR, then run the next partition."
+      echo "PR '$*' done. Review the working tree, then commit as one PR."
+      echo "Before the next PR, fold reviewer feedback into docs/house-rules.md."
       exit 0 ;;
   esac
 }
