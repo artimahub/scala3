@@ -14,7 +14,20 @@ package scala.ref
 
 import scala.language.`2.13`
 
+/** A wrapper class for `java.lang.ref.SoftReference`.
+ *  The new functionality is that results are `Option` values, instead of using
+ *  `null`, and that there is an extractor that maps the soft reference itself
+ *  into an `Option`.
+ *
+ *  @tparam T the covariant type of the softly referenced object, must be a subtype of `AnyRef`
+ *  @param value the object to be softly referenced
+ *  @param queue an optional reference queue with which the reference is registered, or `null` for no queue; the reference may be enqueued after the underlying soft reference is cleared
+ */
 class SoftReference[+T <: AnyRef](value : T, queue : ReferenceQueue[T] | Null) extends ReferenceWrapper[T] {
+  /** Creates a `SoftReference` pointing to `value` with no reference queue.
+   *
+   *  @param value the object to be softly referenced
+   */
   def this(value : T) = this(value, null)
 
   val underlying: java.lang.ref.SoftReference[? <: T] =
