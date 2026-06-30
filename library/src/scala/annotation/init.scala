@@ -33,6 +33,10 @@ object init:
    *  @param height the maximum height (depth of the abstract object tree) to which the argument value is widened
    */
   @experimental
+  /** Widens the abstract value of the annotated argument so that its height is below the specified `height`.
+   *
+   *  @param height the maximum height (depth of the abstract object tree) to which the argument value is widened
+   */
   final class widen(height: Int) extends StaticAnnotation
 
   /** Introduce a region context.
@@ -63,4 +67,10 @@ object init:
    *  @return the value `v` unchanged at runtime; at the checker level, mutable fields within this region receive distinct abstract representations
    */
   @experimental
+  /** Introduces a region context.
+   *
+   *  @tparam T the type of the value computed within the region
+   *  @param v the expression to evaluate within a fresh region context
+   *  @return the value `v` unchanged at runtime; at the checker level, mutable fields within this region receive distinct abstract representations
+   */
   def region[T](v: T): T = v
