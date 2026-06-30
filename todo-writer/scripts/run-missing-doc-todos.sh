@@ -186,6 +186,17 @@ prepare_partition() {
   done
 }
 
+# Format a duration in seconds as e.g. "1h 23m 45s".
+fmt_elapsed() {
+  local s=$1 h m
+  h=$((s / 3600)); m=$(((s % 3600) / 60)); s=$((s % 60))
+  local out=""
+  [ "$h" -gt 0 ] && out+="${h}h "
+  { [ "$h" -gt 0 ] || [ "$m" -gt 0 ]; } && out+="${m}m "
+  out+="${s}s"
+  echo "$out"
+}
+
 main() {
   case "${1:-}" in
     ""|--list|-l|-h|--help)
@@ -209,15 +220,18 @@ main() {
       for f in "${targets[@]}"; do git -C "$REPO_ROOT" checkout -- "$f"; done
       exit 0 ;;
     *)
+      local start_ts; start_ts=$(date '+%H:%M:%S')
+      SECONDS=0
       mapfile -t targets < <(prepare_partition "$@")
       if [ "${#targets[@]}" -eq 0 ]; then
         echo "No markers generated for '$*' -- nothing to fill."
         exit 0
       fi
-      echo ">>> filling ${#targets[@]} file(s) for PR '$*'"
+      echo ">>> filling ${#targets[@]} file(s) for PR '$*'  (started $start_ts)"
       "$FILL" "${targets[@]}"
       echo
-      echo "PR '$*' done. Review the working tree, then commit as one PR."
+      echo "PR '$*' done in $(fmt_elapsed "$SECONDS")  (started $start_ts, finished $(date '+%H:%M:%S'))."
+      echo "Review the working tree, then commit as one PR."
       echo "Before the next PR, fold reviewer feedback into docs/house-rules.md."
       exit 0 ;;
   esac
