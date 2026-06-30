@@ -48,4 +48,9 @@ import scala.annotation.meta._
  *  @see    [[scala.deprecatedName]]
  */
 @getter @setter @beanGetter @beanSetter
+/** An annotation that designates that inheriting from a class is deprecated.
+ *
+ *  @param message the message to print during compilation if the class was sub-classed
+ *  @param since a string identifying the first version in which inheritance was deprecated
+ */
 final class deprecatedInheritance(message: String = "", since: String = "") extends scala.annotation.ConstantAnnotation
