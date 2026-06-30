@@ -15,4 +15,7 @@ import language.experimental.captureChecking
  */
 @experimental
 @deprecated("To make a class a capability, let it derive from the `Capability` trait instead")
+/** Marks an annotated class as a capability, so that under capture checking any
+ *  instance of the class type is implicitly augmented with the universal capture set.
+ */
 final class capability extends StaticAnnotation

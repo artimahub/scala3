@@ -44,6 +44,11 @@ import scala.annotation.meta._
  */
 @param
 @deprecatedInheritance("Scheduled for being final in the future", "2.13.0")
+/** An annotation that designates that the name of a parameter is deprecated.
+ *
+ *  @param name  the deprecated parameter name; if omitted, using the canonical name is deprecated
+ *  @param since the library version in which the parameter name was deprecated
+ */
 class deprecatedName(name: String = "<none>", since: String = "") extends scala.annotation.StaticAnnotation {
   // at the time we remove these constructors, we should also change this from a StaticAnnotation to
   // a ConstantAnnotation; for now, the presence of auxiliary constructors blocks that change

@@ -55,6 +55,14 @@ object Platform {
     */
   @inline
   @deprecated("Use `java.lang.System#arraycopy` instead.", since = "2.13.0")
+  /** Copies `length` elements of array `src`, starting at position `srcPos`, to array `dest`, starting at position `destPos`.
+   *
+   *  @param src the non-null source array to copy from
+   *  @param srcPos the starting index in the source array
+   *  @param dest the non-null destination array to copy to
+   *  @param destPos the starting index in the destination array
+   *  @param length the number of elements to copy
+   */
   def arraycopy(src: AnyRef, srcPos: Int, dest: AnyRef, destPos: Int, length: Int): Unit = {
     System.arraycopy(src, srcPos, dest, destPos, length)
   }
@@ -84,6 +92,12 @@ object Platform {
    */
   @inline
   @deprecated("Use `java.lang.reflect.Array#newInstance` instead.", since = "2.13.0")
+  /** Creates a new array of the specified component type and given length.
+   *
+   *  @param elemClass the `Class` object of the component type of the array
+   *  @param length the length of the new array
+   *  @return an array of the given component type as an `AnyRef`
+   */
   def createArray(elemClass: Class[?], length: Int): AnyRef =
     java.lang.reflect.Array.newInstance(elemClass, length)
 
@@ -93,6 +107,10 @@ object Platform {
     */
   @inline
   @deprecated("Use `java.util.Arrays#fill` instead.", since = "2.13.0")
+  /** Assigns the value 0 to every element of the given array.
+   *
+   *  @param arr the non-null array whose elements are set to 0
+   */
   def arrayclear(arr: Array[Int]): Unit = { java.util.Arrays.fill(arr, 0) }
 
   /** Returns the `Class` object associated with the class or interface with the given string name using the current `ClassLoader`.
@@ -111,6 +129,10 @@ object Platform {
    */
   @inline
   @deprecated("Use `java.lang.Class#forName` instead.", since = "2.13.0")
+  /** Returns the `Class` object associated with the class or interface of the given name, loaded with the current `ClassLoader`.
+   *
+   *  @param name the fully qualified name of the desired class
+   */
   def getClassForName(name: String): Class[?] = java.lang.Class.forName(name)
 
   /** The default line separator.
@@ -129,6 +151,7 @@ object Platform {
     */
   @inline
   @deprecated("Use `java.lang.System#currentTimeMillis` instead.", since = "2.13.0")
+  /** Returns the current time in milliseconds, counted since 1 January 1970 UTC. */
   def currentTime: Long = System.currentTimeMillis()
 
   /** Runs the garbage collector.
@@ -139,10 +162,12 @@ object Platform {
    */
   @inline
   @deprecated("Use `java.lang.System#gc` instead.", since = "2.13.0")
+  /** Requests that the underlying JVM run the garbage collector. */
   def collectGarbage(): Unit = System.gc()
 
   /** The name of the default character set encoding as a string. */
   @inline
   @deprecated("Use `java.nio.charset.Charset.defaultCharset#name` instead.", since = "2.13.0")
+  /** Returns the name of the default charset of this Java virtual machine. */
   def defaultCharsetName: String = java.nio.charset.Charset.defaultCharset.name
 }

@@ -12,6 +12,11 @@ import language.experimental.captureChecking
  *  then a given instance of `TypeTest[S, T]` is summoned and used to perform the test.
  */
 @scala.annotation.implicitNotFound(msg = "No TypeTest available for [${S}, ${T}]")
+/** Contains the logic needed to know at runtime whether a value of type `S` is an instance of type `T`.
+ *
+ *  @tparam S the type of the value to be tested
+ *  @tparam T the type for which the value is tested
+ */
 trait TypeTest[-S, T] extends Serializable:
 
   /** A `TypeTest[S, T]` can serve as an extractor that matches if and only if a value of type `S` is

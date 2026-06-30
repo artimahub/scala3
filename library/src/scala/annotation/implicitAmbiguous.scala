@@ -42,4 +42,9 @@ import scala.language.`2.13`
  *  @param msg the error message template, with `\${Xi}` placeholders for type parameters
  */
 @meta.getter
+/** Customizes the error message emitted when an implicit search finds multiple
+ *  ambiguous values, where at least one of them is annotated `@implicitAmbiguous`.
+ *
+ *  @param msg the error message template, with `\${Xi}` placeholders for type parameters
+ */
 final class implicitAmbiguous(msg: String) extends scala.annotation.ConstantAnnotation

@@ -130,8 +130,20 @@ object Console extends AnsiColor {
   private val inVar  = new DynamicVariable[BufferedReader](
     new BufferedReader(new InputStreamReader(java.lang.System.in)))
 
+  /** Sets the default output stream returned by `out`, replacing it for the current thread.
+   *
+   *  @param out the new default output stream
+   */
   protected def setOutDirect(out: PrintStream): Unit  = outVar.value = out
+  /** Sets the default error stream returned by `err`, replacing it for the current thread.
+   *
+   *  @param err the new default error stream
+   */
   protected def setErrDirect(err: PrintStream): Unit  = errVar.value = err
+  /** Sets the default input reader returned by `in`, replacing it for the current thread.
+   *
+   *  @param in the new default input reader
+   */
   protected def setInDirect(in: BufferedReader): Unit = inVar.value = in
 
   /** The default output, can be overridden by `withOut`.

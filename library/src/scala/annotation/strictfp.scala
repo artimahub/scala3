@@ -19,4 +19,8 @@ import scala.language.`2.13`
  */
 @deprecatedInheritance("Scheduled for being final in the future", "2.13.0")
 @deprecated("As of JDK 17, all floating-point expressions are evaluated strictly and 'strictfp' is not required", "3.8.0")
+/** Causes the `strictfp` flag to be emitted on the annotated method or its
+ *  enclosing class, requesting strict, platform-independent floating-point
+ *  evaluation.
+ */
 class strictfp extends scala.annotation.StaticAnnotation

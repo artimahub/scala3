@@ -5,7 +5,12 @@ import language.experimental.captureChecking
 import annotation.implicitNotFound
 import scala.collection.{Seq, Set, Map}
 
-/** A marker trait indicating that values of type `L` can be compared to values of type `R`. */
+/** A marker trait indicating that values of type `L` can be compared for equality
+ *  with values of type `R` using `==` or `!=`.
+ *
+ *  @tparam L the left-hand comparison type
+ *  @tparam R the right-hand comparison type
+ */
 @implicitNotFound("Values of types ${L} and ${R} cannot be compared with == or !=")
 sealed trait CanEqual[-L, -R]
 

@@ -61,6 +61,11 @@ import scala.annotation.implicitNotFound
 // All of these methods are reimplemented unsafely in =:=.singleton to avoid any indirection.
 // They are here simply for reference as the "correct", safe implementations.
 @implicitNotFound(msg = "Cannot prove that ${From} <:< ${To}.")
+/** An instance of `From <:< To` witnesses that `From` is a subtype of `To`.
+ *
+ *  @tparam From a type which is proved a subtype of `To`
+ *  @tparam To a type which is proved a supertype of `From`
+ */
 sealed abstract class <:<[-From, +To] extends (From => To) with Serializable {
   /** Substitute `To` for `From` and `From` for `To` in the type `F[To, From]`, given that `F` is $contraCo.
    *  Essentially swaps `To` and `From` in `ftf`'s type.
@@ -116,6 +121,11 @@ sealed abstract class <:<[-From, +To] extends (From => To) with Serializable {
     substituteCo[Id](f)
   }
 
+  /** Returns a function that applies `r` and then coerces the resulting `From` to `To`.
+   *
+   *  @tparam C the argument type of `r`
+   *  @param r a function whose `From` results are coerced to `To`
+   */
   override def compose[C](r: C => From): C => To = {
     type G[+T] = C => T
     substituteCo[G](r)
@@ -129,6 +139,11 @@ sealed abstract class <:<[-From, +To] extends (From => To) with Serializable {
     type G[+T] = C <:< T
     substituteCo[G](r)
   }
+  /** Returns a function that coerces its `From` argument to `To` and then applies `r`.
+   *
+   *  @tparam C the result type of `r`
+   *  @param r a function applied to the coerced `To` value
+   */
   override def andThen[C](r: To => C): From => C = {
     type G[-T] = T => C
     substituteContra[G](r)
@@ -164,19 +179,78 @@ sealed abstract class <:<[-From, +To] extends (From => To) with Serializable {
 object <:< {
   // the only instance for <:< and =:=, used to avoid overhead
   private val singleton: =:=[Any, Any] = new =:=[Any,Any] {
+    /** Returns `ftf` unchanged, since `From` and `To` are both `Any`.
+     *
+     *  @tparam F a type constructor of two arguments
+     *  @param ftf the value to return
+     */
     override def substituteBoth[F[_, _]](ftf: F[Any, Any]) = ftf
+    /** Returns `ff` unchanged, since `From` and `To` are both `Any`.
+     *
+     *  @tparam F any type constructor
+     *  @param ff the value to return
+     */
     override def substituteCo    [F[_]](ff: F[Any]) = ff
+    /** Returns `ff` unchanged, since `From` and `To` are both `Any`.
+     *
+     *  @tparam F any type constructor
+     *  @param ff the value to return
+     */
     override def substituteContra[F[_]](ff: F[Any]) = ff
+    /** Returns `x` unchanged.
+     *
+     *  @param x the value to return
+     */
     override def apply(x: Any) = x
+    /** Returns this same evidence, since swapping `Any` with `Any` is a no-op. */
     override def flip: Any =:= Any = this
+    /** Returns `r` unchanged.
+     *
+     *  @tparam C the argument type of `r`
+     *  @param r the function to return
+     */
     override def compose[C](r: C =>  Any) = r
+    /** Returns `r` unchanged.
+     *
+     *  @tparam C the type proved to be a subtype of `Any`
+     *  @param r the evidence to return
+     */
     override def compose[C](r: C <:< Any) = r
+    /** Returns `r` unchanged.
+     *
+     *  @tparam C the type proved equal to `Any`
+     *  @param r the evidence to return
+     */
     override def compose[C](r: C =:= Any) = r
+    /** Returns `r` unchanged.
+     *
+     *  @tparam C the result type of `r`
+     *  @param r the function to return
+     */
     override def andThen[C](r: Any =>  C) = r
+    /** Returns `r` unchanged.
+     *
+     *  @tparam C the type proved to be a supertype of `Any`
+     *  @param r the evidence to return
+     */
     override def andThen[C](r: Any <:< C) = r
+    /** Returns `r` unchanged.
+     *
+     *  @tparam C the type proved equal to `Any`
+     *  @param r the evidence to return
+     */
     override def andThen[C](r: Any =:= C) = r
+    /** Returns this evidence lifted over `F`, as `F[Any] =:= F[Any]`.
+     *
+     *  @tparam F any type constructor to lift the evidence over
+     */
     override def liftCo    [F[_]] = asInstanceOf[F[Any] =:= F[Any]]
+    /** Returns this evidence lifted over `F`, as `F[Any] =:= F[Any]`.
+     *
+     *  @tparam F any type constructor to lift the evidence over
+     */
     override def liftContra[F[_]] = asInstanceOf[F[Any] =:= F[Any]]
+    /** Returns the string `"generalized constraint"`. */
     override def toString() = "generalized constraint"
   }
 
@@ -228,13 +302,36 @@ object <:< {
  */
 // Most of the notes on <:< above apply to =:= as well
 @implicitNotFound(msg = "Cannot prove that ${From} =:= ${To}.")
+/** An instance of `From =:= To` witnesses that the types `From` and `To` are equal.
+ *
+ *  @tparam From a type which is proved equal to `To`
+ *  @tparam To a type which is proved equal to `From`
+ */
 sealed abstract class =:=[From, To] extends (From <:< To) with Serializable {
+  /** Substitutes `From` for `To` and `To` for `From` in the type `F[To, From]`.
+   *
+   *  @tparam F a type constructor of two arguments
+   *  @param ftf a value whose type mentions `To` and `From`
+   *  @return `ftf`, but with a (potentially) different type
+   */
   override def substituteBoth[F[_, _]](ftf: F[To, From]): F[From, To]
+  /** Substitutes the `From` in the type `F[From]` for `To`.
+   *
+   *  @tparam F any type constructor
+   *  @param ff a value whose type mentions `From`
+   *  @return `ff`, but with a (potentially) different type
+   */
   override def substituteCo[F[_]](ff: F[From]): F[To] = {
     type G[_, T] = F[T]
     substituteBoth[G](ff)
   }
   // = substituteContra[({type G[T] = F[T] => F[To]})#G](identity)(ff)
+  /** Substitutes the `To` in the type `F[To]` for `From`.
+   *
+   *  @tparam F any type constructor
+   *  @param ft a value whose type mentions `To`
+   *  @return `ft`, but with a (potentially) different type
+   */
   override def substituteContra[F[_]](ft: F[To]): F[From] = {
     type G[T, _] = F[T]
     substituteBoth[G](ft)
@@ -271,6 +368,11 @@ sealed abstract class =:=[From, To] extends (From <:< To) with Serializable {
     substituteContra[G](r)
   }
 
+  /** Lifts this evidence over the type constructor `F`.
+   *
+   *  @tparam F any type constructor to lift the evidence over
+   *  @return evidence that `F[From] =:= F[To]`
+   */
   override def liftCo[F[_]]: F[From] =:= F[To] = {
     type G[T] = F[T] =:= F[To]
     substituteContra[G](implicitly[G[To]])

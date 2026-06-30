@@ -61,6 +61,10 @@ case class StringContext(parts: String*) {
   import StringContext.{checkLengths => scCheckLengths, glob, processEscapes, standardInterpolator => scStandardInterpolator}
 
   @deprecated("use same-named method on StringContext companion object", "2.13.0")
+  /** Checks that the number of `args` is one less than the number of `parts` in this `StringContext`.
+   *
+   *  @param args the interpolated argument values
+   */
   def checkLengths(args: scala.collection.Seq[Any]): Unit = scCheckLengths(args, parts)
 
   /** The simple string interpolator.
@@ -162,6 +166,12 @@ case class StringContext(parts: String*) {
   def raw(args: Any*): String = macro ??? // fasttracked to scala.tools.reflect.FastStringInterpolator::interpolateRaw
 
   @deprecated("Use the static method StringContext.standardInterpolator instead of the instance method", "2.13.0")
+  /** Interpolates `args` between the parts of this `StringContext`, applying `process` to each part.
+   *
+   *  @param process the transformation applied to each literal part before it is appended
+   *  @param args the values to be interpolated between the parts
+   *  @return the interpolated string
+   */
   def standardInterpolator(process: String => String, args: Seq[Any]): String = scStandardInterpolator(process, args, parts)
 
   /** The formatted string interpolator.
@@ -315,13 +325,30 @@ object StringContext {
     } index $index in "$str". Use \\\\ for literal \\."""
   )
 
+  /** An exception that is thrown if a string contains a malformed Unicode escape sequence (`\u`).
+   *
+   *  @param str the offending string
+   *  @param escapeStart the index in `str` of the first `u` of the Unicode escape sequence (the character following the backslash)
+   *  @param index the index in `str` at which the malformed input was detected, which may be `str.length` for a truncated escape
+   */
   protected[scala] class InvalidUnicodeEscapeException(str: String, val escapeStart: Int, val index: Int) extends IllegalArgumentException(
     s"""invalid unicode escape at index $index of $str"""
   )
 
   private def readUEscape(src: String, startindex: Int): (Char, Int) = {
     val len = src.length()
+    /** Skips any leading `u` characters of the escape and then reads the four hex-digit code unit.
+     *
+     *  @param uindex the index in `src` at which to look for a `u` character or the first hex digit
+     *  @return the decoded character paired with the number of characters consumed since `startindex`
+     */
     def loop(uindex: Int): (Char, Int) = {
+      /** Reads the four hex digits of the code unit, accumulating them into `codepoint`.
+       *
+       *  @param dindex the number of hex digits read so far (0 to 4)
+       *  @param codepoint the code point accumulated from the hex digits read so far
+       *  @return the decoded character paired with the number of characters consumed since `startindex`
+       */
       def loopCP(dindex: Int, codepoint: Int): (Char, Int) = {
         //supports BMP + surrogate escapes 
         //but only in four hex-digit code units (uxxxx)
@@ -373,6 +400,11 @@ object StringContext {
       case  i => replace(str, i)
     }
 
+  /** Expands Unicode escape sequences (`\u`) in `str`.
+   *
+   *  @param str a string that may contain Unicode escape sequences
+   *  @return the string with all Unicode escape sequences expanded
+   */
   protected[scala] def processUnicode(str: String): String =
     str.indexOf("\\u") match {
       case -1 => str
@@ -440,6 +472,11 @@ object StringContext {
     @tailrec def loop(i: Int, next: Int): String = {
       if (next >= 0) {
         //require(str(next) == '\\' && str(next + 1) == 'u')
+        /** Tests whether an odd number of consecutive backslashes immediately precede the `u` of the current escape.
+         *
+         *  @param ibackslash an index within the run of backslashes preceding the `u`, scanned leftward
+         *  @return `true` if the run contains an odd number of backslashes
+         */
         def oddBackslashes(ibackslash: Int): Boolean =
           if (ibackslash > 0 && str(ibackslash - 1) == '\\') oddBackslashes(ibackslash - 1)
           else ((next - ibackslash) % 2) == 0
@@ -462,6 +499,13 @@ object StringContext {
     loop(0, backslash)
   }
 
+  /** Interpolates `args` between `parts`, applying `process` to each part.
+   *
+   *  @param process the transformation applied to each literal part before it is appended
+   *  @param args the values to be interpolated between the parts
+   *  @param parts the literal parts of the interpolated string
+   *  @return the interpolated string
+   */
   def standardInterpolator(process: String => String, args: scala.collection.Seq[Any], parts: Seq[String]): String = {
     StringContext.checkLengths(args, parts)
     val pi = parts.iterator

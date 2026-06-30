@@ -16,4 +16,7 @@ import scala.language.`2.13`
 import scala.annotation.meta._
 
 @field
+/** Marks the annotated field as volatile, so that reads and writes of the
+ *  field are not cached or reordered and are always visible across threads.
+ */
 final class volatile extends scala.annotation.StaticAnnotation

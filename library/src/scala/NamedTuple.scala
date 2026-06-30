@@ -25,18 +25,37 @@ object NamedTuple:
     => (@unused eqV: CanEqual[V1, V2])
     => CanEqual[NamedTuple[N1, V1], NamedTuple[N2, V2]] = CanEqual.derived
 
+  /** Creates a named tuple with the names `N` from the value tuple `x`.
+   *
+   *  @tparam N the tuple of name types for the named tuple's fields
+   *  @tparam V the tuple of element value types
+   *  @param x the tuple of element values
+   *  @return the value tuple `x` viewed as a `NamedTuple[N, V]`
+   */
   def apply[N <: Tuple, V <: Tuple](x: V): NamedTuple[N, V] = x
 
+  /** Extracts the underlying value tuple from named tuple `x` so that named
+   *  tuples can be used in pattern matching.
+   *
+   *  @tparam N the tuple of name types for the named tuple's fields
+   *  @tparam V the tuple of element value types
+   *  @param x the named tuple to decompose
+   *  @return a `Some` containing the underlying value tuple; the extraction always succeeds
+   */
   def unapply[N <: Tuple, V <: Tuple](x: NamedTuple[N, V]): Some[V] = Some(x)
 
   /** A named tuple expression will desugar to a call to `build`. For instance,
    *  `(name = "Lyra", age = 23)` will desugar to `build[("name", "age")]()(("Lyra", 23))`.
    *
-   *  @tparam N the tuple of literal string types representing the field names
+   *  @tparam N the tuple of name types for the named tuple's fields
    */
   inline def build[N <: Tuple]()[V <: Tuple](x: V): NamedTuple[N, V] = x
 
   extension [V <: Tuple](x: V)
+    /** Returns this tuple viewed as a named tuple with the names `N`.
+     *
+     *  @tparam N the tuple of name types for the named tuple's fields
+     */
     inline def withNames[N <: Tuple]: NamedTuple[N, V] = x
 
   import NamedTupleDecomposition.{Names, DropNames}
@@ -144,6 +163,14 @@ object NamedTuple:
 
   /** The ordering instance for named tuples. */
   given namedTupleOrdering: [N <: Tuple, V <: Tuple] => (ord: Ordering[V]) => Ordering[NamedTuple[N, V]]:
+    /** Returns the result of comparing the underlying value tuples of `x` and
+     *  `y` using the ordering on the value tuple type.
+     *
+     *  @param x the first named tuple to compare
+     *  @param y the second named tuple to compare
+     *  @return a negative, zero, or positive integer when `x`'s values are
+     *          respectively less than, equal to, or greater than `y`'s values
+     */
     def compare(x: NamedTuple[N, V], y: NamedTuple[N, V]): Int =
       ord.compare(x.toTuple, y.toTuple)
 end NamedTuple
@@ -251,6 +278,20 @@ object NamedTupleDecomposition:
 
   @publicInBinary
   private[NamedTupleDecomposition]
+  /** Builds an immutable map pairing each name with the value at the same
+   *  position, preserving the order of fields. The names and values are zipped
+   *  positionally, so if the two tuples have different lengths the extra
+   *  elements of the longer tuple are dropped. Callers are expected to pass
+   *  string field names; the result is cast to a `SeqMap` keyed by `String`.
+   *
+   *  @tparam N the tuple of field name types (expected to be string names)
+   *  @tparam V the tuple of element value types
+   *  @param names the tuple of field names used as keys
+   *  @param values the tuple of element values, in the same order as `names`
+   *  @return a [[scala.collection.immutable.SeqMap]] from each name to its
+   *          corresponding value, in field order; if the tuples differ in
+   *          length, only the positions present in both are included
+   */
   def createSeqMap[N <: Tuple, V <: Tuple](names: N, values: V): SeqMap[String, Tuple.Union[V]] =
     SeqMap.newBuilder
       .addAll(names.productIterator.zip(values.productIterator))

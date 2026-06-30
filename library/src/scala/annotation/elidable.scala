@@ -102,6 +102,14 @@ import scala.language.`2.13`
  * ```
  */
 @deprecated(message = "@elidable is not supported by Scala 3", since = "3.8.0")
+/** Marks a method with the elision priority given by `level`.
+ *
+ *  This is a compatibility annotation that only records the priority as a
+ *  constant; the Scala 3 compiler does not elide calls to the annotated
+ *  method or its body based on it.
+ *
+ *  @param level the elision priority recorded for the annotated method
+ */
 final class elidable(final val level: Int) extends scala.annotation.ConstantAnnotation
 
 /** This useless appearing code was necessary to allow people to use

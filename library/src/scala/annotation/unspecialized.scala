@@ -19,4 +19,8 @@ import scala.language.`2.13`
  *  type parameters.
  */
 @deprecatedInheritance("Scheduled for being final in the future", "2.13.0")
+/** A method annotation that suppresses the generation of specialized variants
+ *  of the annotated method which would otherwise be derived from the enclosing
+ *  specialized type parameters.
+ */
 class unspecialized extends scala.annotation.StaticAnnotation
