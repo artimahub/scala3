@@ -14,6 +14,7 @@ package scala
 
 import scala.language.`2.13`
 
+@deprecatedInheritance("Scheduled for being final in the future", "2.13.0")
 /** Marker for native methods.
   *
   * ```
@@ -25,5 +26,4 @@ import scala.language.`2.13`
   *
   * A method marked @native must be a member of a class, not a trait (since 2.12).
   */
-@deprecatedInheritance("Scheduled for being final in the future", "2.13.0")
 class native extends scala.annotation.StaticAnnotation {}
