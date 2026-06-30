@@ -83,7 +83,8 @@ private[scala] abstract class UniquenessCache[K, V] {
    */
   protected def keyFromValue(v: V): Option[K]
 
-  /** Returns the cached value for `name`, constructing and caching it on first use.
+  /** Returns the cached value for `name`, constructing and caching it on a cache
+   *  miss, including when a previously cached value has been garbage-collected.
    *
    *  @param name the key to look up
    */
