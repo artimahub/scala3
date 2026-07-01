@@ -444,6 +444,25 @@ class IntegrationSpec extends AnyFlatSpec with Matchers:
     }
   }
 
+  it should "treat a declaration as documented when line comments sit between its comment and it" in {
+    // The doc comment is separated from the class by annotations AND `//` line
+    // comments (a commented-out @deprecated). It must still be recognized as
+    // documented -- no duplicate stub.
+    val content = """package test
+                    |
+                    |/** A documented trait. */
+                    |@nowarn("cat=deprecation")
+                    |// TODO undeprecated for now
+                    |// @deprecated("gone", "2.10.0")
+                    |trait Foo[T]
+                    |""".stripMargin
+
+    withTempFile(content) { path =>
+      val result = ScaladocChecker.checkFile(path)
+      result.results.count(_.scaladoc.synthetic) should be(0)
+    }
+  }
+
   it should "still synthesize docs for an undocumented annotated class" in {
     // No comment anywhere: the annotated class is genuinely undocumented.
     val content = """package test

@@ -254,14 +254,23 @@ object ScaladocChecker:
       val tokens = s.trim.split("""\s+""").filter(_.nonEmpty)
       tokens.nonEmpty && tokens.forall(_.startsWith("@"))
 
+  /** True if `line` is content that can appear between a Scaladoc comment and
+    *  the declaration it documents without breaking that association: an
+    *  annotation, a `//` line comment, or a single-line `/* ... */` block
+    *  comment (e.g. a commented-out declaration).
+    */
+  private def isSkippableBeforeDecl(line: String): Boolean =
+    val t = line.trim
+    isPureAnnotationLine(line) || t.startsWith("//") || (t.startsWith("/*") && t.endsWith("*/"))
+
   /** Byte offset of the declaration that a Scaladoc block ending at `fromIndex`
     *  documents: the first non-blank line after the comment, skipping any
-    *  pure-annotation lines that sit between the comment and the declaration.
+    *  annotation or comment lines that sit between the comment and the declaration.
     */
   private def firstDocumentedLineStart(text: String, fromIndex: Int): Option[Int] =
     var idx   = firstNonBlankLineStart(text, fromIndex)
     var guard = 0
-    while idx.isDefined && guard < 100 && isPureAnnotationLine(lineContentAt(text, idx.get)) do
+    while idx.isDefined && guard < 100 && isSkippableBeforeDecl(lineContentAt(text, idx.get)) do
       idx = firstNonBlankLineStart(text, idx.get)
       guard += 1
     idx
