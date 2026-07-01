@@ -50,11 +50,6 @@ package object reflect {
   @deprecated("use scala.reflect.ClassTag instead", "2.10.0")
   val ClassManifest = ClassManifestFactory
 
-  /** Returns the implicitly available `ClassTag` for type `T`.
-   *
-   *  @tparam T the type for which to retrieve the `ClassTag`
-   *  @param ctag the `ClassTag` found in implicit scope for `T`
-   */
   def classTag[T](implicit ctag: ClassTag[T]) = ctag
 
   /** Makes a java reflection object accessible, if it is not already

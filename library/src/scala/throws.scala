@@ -28,10 +28,5 @@ import scala.language.`2.13`
  *  @param cause a description of the condition under which the exception is thrown
  */
 final class throws[T <: Throwable](cause: String = "") extends scala.annotation.StaticAnnotation {
-  /** Constructs the annotation from the class of the exception that may be
-   *  thrown, leaving the cause description empty.
-   *
-   *  @param clazz the class of the exception that the annotated method may throw
-   */
   def this(clazz: Class[T]) = this("")
 }

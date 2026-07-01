@@ -23,14 +23,8 @@ import scala.language.`2.13`
  *  @param msg the error message describing which field was accessed before initialization
  */
 final case class UninitializedFieldError(msg: String) extends RuntimeException(msg) {
-  /** Creates an `UninitializedFieldError` whose message is the string
-   *  representation of the given object.
-   *
-   *  @param obj the value whose string representation becomes the error message
-   */
   def this(obj: Any) = this("" + obj)
 }
 
 object UninitializedFieldError extends scala.runtime.AbstractFunction1[String, UninitializedFieldError]:
-  /** Returns the string `"UninitializedFieldError"`. */
   override def toString(): String = "UninitializedFieldError"

@@ -26,6 +26,5 @@ import scala.language.`2.13`
  */
 @meta.getter @meta.setter
 class unused(message: String) extends StaticAnnotation {
-  /** Marks an element as unused with an empty message. */
   def this() = this("")
 }

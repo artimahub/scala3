@@ -29,6 +29,5 @@ import scala.language.`2.13`
  *  @param arg the default expression for the annotation parameter, stored as a syntax tree in the classfile
  */
 @meta.param class defaultArg(arg: Any) extends StaticAnnotation {
-  /** Creates a `defaultArg` whose default expression is `null`. */
   def this() = this(null)
 }

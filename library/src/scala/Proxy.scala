@@ -27,24 +27,15 @@ import scala.language.`2.13`
  */
 @deprecated("Explicitly override hashCode, equals and toString instead.", "2.13.0")
 trait Proxy extends Any {
-  /** The proxied object used by `hashCode`, `toString`, and `equals`. */
   def self: Any
 
-  /** Returns the hash code of `self`. */
   override def hashCode(): Int = self.hashCode
-  /** Tests whether `that` is equal to this proxy or to the proxied object
-   *  `self`.
-   *
-   *  @param that the object to compare against
-   *  @return `true` if `that` is this proxy, is `self`, or is equal to `self`; `false` if `that` is `null`
-   */
   override def equals(that: Any): Boolean = that match {
     case null  => false
     case _     =>
       val x = that.asInstanceOf[AnyRef]
       (x eq this.asInstanceOf[AnyRef]) || (x eq self.asInstanceOf[AnyRef]) || (x.equals(self))
   }
-  /** Returns the string representation of `self`. */
   override def toString() = "" + self
 }
 
@@ -54,7 +45,6 @@ object Proxy {
    */
   @deprecated("Explicitly override hashCode, equals and toString instead.", "2.13.0")
   trait Typed[T] extends Any with Proxy {
-    /** The proxied object, typed as `T`. */
     def self: T
   }
 }

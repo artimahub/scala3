@@ -21,8 +21,5 @@ import scala.language.`2.13`
  *  @param msg the error message describing which implementation is missing
  */
 final class NotImplementedError(msg: String) extends Error(msg) {
-  /** Constructs a `NotImplementedError` with the default message `"an
-   *  implementation is missing"`.
-   */
   def this() = this("an implementation is missing")
 }
