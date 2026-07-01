@@ -38,7 +38,8 @@ import scala.language.`2.13`
 
   */
 @deprecatedInheritance("Scheduled for being final in the future", "2.13.0")
-/** Configures whether a two-parameter generic type is printed using infix type syntax.
+/** Configures whether a two-parameter generic type is printed using infix type
+ *  syntax.
  *
  *  @param enabled when `true`, prints an otherwise non-infix two-parameter type using infix
  *                 syntax; when `false`, this annotation no longer requests infix printing, though

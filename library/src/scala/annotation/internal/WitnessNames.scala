@@ -54,8 +54,8 @@ import language.experimental.captureChecking
  */
 @experimental
 /** An annotation that marks a type definition as one that should get a context
- *  bound companion, recording the names of the witnesses generated for its context
- *  bounds.
+ *  bound companion, recording the names of the witnesses generated for its
+ *  context bounds.
  *
  *  @param names the names of the witnesses generated for the context bounds of the annotated type
  */

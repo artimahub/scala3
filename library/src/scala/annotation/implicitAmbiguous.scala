@@ -43,7 +43,8 @@ import scala.language.`2.13`
  */
 @meta.getter
 /** Customizes the error message emitted when an implicit search finds multiple
- *  ambiguous values, where at least one of them is annotated `@implicitAmbiguous`.
+ *  ambiguous values, where at least one of them is annotated
+ *  `@implicitAmbiguous`.
  *
  *  @param msg the error message template, with `\${Xi}` placeholders for type parameters
  */

@@ -31,8 +31,8 @@ import scala.annotation.meta._
  *                 after type checking
  */
 @getter @setter @beanGetter @beanSetter @companionClass @companionMethod
-/** An annotation that designates that the annotated definition must not be referenced
- *  after type checking (which includes macro expansion).
+/** An annotation that designates that the annotated definition must not be
+ *  referenced after type checking (which includes macro expansion).
  *
  *  @param message the error message to print during compilation if a reference remains
  *                 after type checking

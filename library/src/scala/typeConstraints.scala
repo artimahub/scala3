@@ -121,7 +121,8 @@ sealed abstract class <:<[-From, +To] extends (From => To) with Serializable {
     substituteCo[Id](f)
   }
 
-  /** Returns a function that applies `r` and then coerces the resulting `From` to `To`.
+  /** Returns a function that applies `r` and then coerces the resulting `From`
+   *  to `To`.
    *
    *  @tparam C the argument type of `r`
    *  @param r a function whose `From` results are coerced to `To`
@@ -139,7 +140,8 @@ sealed abstract class <:<[-From, +To] extends (From => To) with Serializable {
     type G[+T] = C <:< T
     substituteCo[G](r)
   }
-  /** Returns a function that coerces its `From` argument to `To` and then applies `r`.
+  /** Returns a function that coerces its `From` argument to `To` and then
+   *  applies `r`.
    *
    *  @tparam C the result type of `r`
    *  @param r a function applied to the coerced `To` value
@@ -303,7 +305,8 @@ object <:< {
  */
 // Most of the notes on <:< above apply to =:= as well
 @implicitNotFound(msg = "Cannot prove that ${From} =:= ${To}.")
-/** An instance of `From =:= To` witnesses that the types `From` and `To` are equal.
+/** An instance of `From =:= To` witnesses that the types `From` and `To` are
+ *  equal.
  *
  *  @tparam From a type which is proved equal to `To`
  *  @tparam To a type which is proved equal to `From`

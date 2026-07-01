@@ -16,7 +16,8 @@ import language.experimental.captureChecking
  *  @tparam Elems a union of singleton `.type` references representing the captured capabilities (e.g., `x.type | y.type | z.type`)
  */
 @experimental
-/** An annotation that records the set of references captured by a type under capture checking.
+/** An annotation that records the set of references captured by a type under
+ *  capture checking.
  *
  *  @tparam Elems a union of singleton `.type` references representing the captured capabilities (e.g., `x.type | y.type | z.type`)
  */

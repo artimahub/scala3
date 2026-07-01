@@ -19,9 +19,11 @@ import scala.language.`2.13`
  *  in classfiles.
  */
 @deprecated("Annotation classes need to be written in Java in order to be stored in classfiles in a Java-compatible manner", "2.13.0")
-/** A base trait for annotations that are stored as Java annotations in classfiles.
+/** A base trait for annotations that are stored as Java annotations in
+ *  classfiles.
  *
- *  Defining such annotations in Scala is deprecated, since they cannot be persisted in a
- *  Java-compatible manner; annotation classes intended for classfile storage must be written in Java.
+ *  Defining such annotations in Scala is deprecated, since they cannot be
+ *  persisted in a Java-compatible manner; annotation classes intended for
+ *  classfile storage must be written in Java.
  */
 trait ClassfileAnnotation extends ConstantAnnotation

@@ -80,24 +80,26 @@ trait ClassTag[T] extends ClassManifestDeprecatedApis[T] with Equals with Serial
     else None
 
   // case class accessories
-  /** Returns `true` when `x` may be compared for equality with this `ClassTag`, which
-   *  holds when `x` is itself a `ClassTag`.
+  /** Returns `true` when `x` may be compared for equality with this `ClassTag`,
+   *  which holds when `x` is itself a `ClassTag`.
    *
    *  @param x the value being tested for possible equality
    */
   override def canEqual(x: Any) = x.isInstanceOf[ClassTag[?]]
-  /** Returns `true` when `x` is a `ClassTag` wrapping the same `runtimeClass` as this one.
+  /** Returns `true` when `x` is a `ClassTag` wrapping the same `runtimeClass`
+   *  as this one.
    *
    *  @param x the value to compare with this `ClassTag`
    */
   override def equals(x: Any) = x.isInstanceOf[ClassTag[?]] && this.runtimeClass == x.asInstanceOf[ClassTag[?]].runtimeClass
   /** Returns a hash code derived from the wrapped `runtimeClass`. */
   override def hashCode() = runtimeClass.##
-  /** Returns a string representation of the wrapped runtime class, rendering array
-   *  classes as `Array[...]`.
+  /** Returns a string representation of the wrapped runtime class, rendering
+   *  array classes as `Array[...]`.
    */
   override def toString() = {
-    /** Renders a class name, formatting array classes recursively as `Array[<component>]`.
+    /** Renders a class name, formatting array classes recursively as
+     *  `Array[<component>]`.
      *
      *  @param clazz the class to render
      *  @return the formatted class name
@@ -135,7 +137,8 @@ object ClassTag {
 
   private val cacheDisabled = java.lang.Boolean.getBoolean("scala.reflect.classtag.cache.disable")
   private object cache extends ClassValueCompat[jWeakReference[ClassTag[?]]] {
-    /** Computes the value to cache for `runtimeClass`, a weak reference to its `ClassTag`.
+    /** Computes the value to cache for `runtimeClass`, a weak reference to its
+     *  `ClassTag`.
      *
      *  @param runtimeClass the class for which to compute a `ClassTag`
      *  @return a weak reference to the `ClassTag` for `runtimeClass`
@@ -143,8 +146,9 @@ object ClassTag {
     override def computeValue(runtimeClass: jClass[?]): jWeakReference[ClassTag[?]] =
       new jWeakReference(computeTag(runtimeClass))
 
-    /** Computes the `ClassTag` for `runtimeClass`, returning a predefined tag for primitive,
-     *  `Object`, `Nothing`, and `Null` classes, or a generic tag otherwise.
+    /** Computes the `ClassTag` for `runtimeClass`, returning a predefined tag
+     *  for primitive, `Object`, `Nothing`, and `Null` classes, or a generic tag
+     *  otherwise.
      *
      *  @param runtimeClass the runtime class to wrap
      *  @return the `ClassTag` representing `runtimeClass`
@@ -184,8 +188,8 @@ object ClassTag {
     }
   }
 
-  /** Returns the `ClassTag` for the type whose erased runtime class is `runtimeClass1`.
-   *  Results are cached unless caching is disabled via the
+  /** Returns the `ClassTag` for the type whose erased runtime class is
+   *  `runtimeClass1`. Results are cached unless caching is disabled via the
    *  `scala.reflect.classtag.cache.disable` system property.
    *
    *  @tparam T the type represented by the returned `ClassTag`
@@ -205,8 +209,8 @@ object ClassTag {
     }
   }
 
-  /** Extracts the runtime class wrapped by a `ClassTag`, allowing `ClassTag` values to be
-   *  used in pattern matches.
+  /** Extracts the runtime class wrapped by a `ClassTag`, allowing `ClassTag`
+   *  values to be used in pattern matches.
    *
    *  @tparam T the type represented by `ctag`
    *  @param ctag the `ClassTag` to extract from, which must be non-null

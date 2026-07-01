@@ -34,7 +34,8 @@ trait Proxy extends Any {
 
   /** Returns the hash code of `self`. */
   override def hashCode(): Int = self.hashCode
-  /** Tests whether `that` is equal to this proxy or to the proxied object `self`.
+  /** Tests whether `that` is equal to this proxy or to the proxied object
+   *  `self`.
    *
    *  @param that the object to compare against
    *  @return `true` if `that` is this proxy, is `self`, or is equal to `self`; `false` if `that` is `null`
@@ -54,7 +55,8 @@ object Proxy {
   /** A proxy which exposes the type it is proxying for via a type parameter.
    */
   @deprecated("Explicitly override hashCode, equals and toString instead.", "2.13.0")
-  /** A proxy that exposes the type of the proxied object through a type parameter.
+  /** A proxy that exposes the type of the proxied object through a type
+   *  parameter.
    *
    *  @tparam T the type of the proxied object `self`
    */

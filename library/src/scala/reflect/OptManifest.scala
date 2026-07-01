@@ -21,8 +21,9 @@ import scala.language.`2.13`
  */
 // TODO undeprecated until Scala reflection becomes non-experimental
 // @deprecated("This notion doesn't have a corresponding concept in 2.10, because scala.reflect.runtime.universe.TypeTag can capture arbitrary types. Use type tags instead of manifests, and there will be no need in opt manifests.", "2.10.0")
-/** A common supertype of [[scala.reflect.Manifest]] and the [[scala.reflect.NoManifest]]
- *  value, representing an optionally-available `Manifest` for a type.
+/** A common supertype of [[scala.reflect.Manifest]] and the
+ *  [[scala.reflect.NoManifest]] value, representing an optionally-available
+ *  `Manifest` for a type.
  *
  *  @tparam T the type for which manifest information is optionally provided
  */

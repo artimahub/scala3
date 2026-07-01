@@ -26,7 +26,8 @@ import scala.language.`2.13`
   * @see [[Serializable]]
   */
 @deprecatedInheritance("Scheduled for being final in the future", "2.13.0")
-/** Attaches a `serialVersionUID` field with the given value to the annotated serializable class.
+/** Attaches a `serialVersionUID` field with the given value to the annotated
+ *  serializable class.
  *
  *  @param value the `serialVersionUID` to assign to the annotated class
  */

@@ -33,9 +33,10 @@ object Selectable:
   @deprecated(
     "import scala.reflect.Selectable.reflectiveSelectable instead of scala.language.reflectiveCalls",
     since = "3.0")
-  /** Wraps a value in a [[scala.reflect.Selectable]] so that structural selections
-   *  are performed reflectively on it, enabled when `scala.language.reflectiveCalls`
-   *  is in scope. Provided for Scala 2 compatibility and cross-compilation.
+  /** Wraps a value in a [[scala.reflect.Selectable]] so that structural
+   *  selections are performed reflectively on it, enabled when
+   *  `scala.language.reflectiveCalls` is in scope. Provided for Scala 2
+   *  compatibility and cross-compilation.
    *
    *  @param x the value to wrap for reflection-based structural member access
    *  @return `x` wrapped in a `scala.reflect.Selectable`

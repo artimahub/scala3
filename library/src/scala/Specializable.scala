@@ -27,7 +27,8 @@ object Specializable {
   trait SpecializedGroup
 
   // Smuggle a list of types by way of a tuple upon which Group is parameterized.
-  /** A group of types encoded as the tuple type `T`, for use with the `@specialized` annotation.
+  /** A group of types encoded as the tuple type `T`, for use with the
+   *  `@specialized` annotation.
    *
    *  @tparam T a tuple type whose element types are the members of the group
    *  @param value a tuple whose element types make up the group; its value is never used

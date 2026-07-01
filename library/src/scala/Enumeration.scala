@@ -100,9 +100,10 @@ abstract class Enumeration (initial: Int) extends Serializable {
 
   /* Note that `readResolve` cannot be private, since otherwise
      the JVM does not invoke it when deserializing subclasses. */
-  /** Resolves a deserialized enumeration to its module singleton by looking up the `MODULE$`
-   *  field on the runtime class. This succeeds for the usual case of an enumeration defined as
-   *  an `object`; it does not return an instance for enumerations that are not compiled to a module.
+  /** Resolves a deserialized enumeration to its module singleton by looking up
+   *  the `MODULE$` field on the runtime class. This succeeds for the usual case
+   *  of an enumeration defined as an `object`; it does not return an instance
+   *  for enumerations that are not compiled to a module.
    */
   protected def readResolve(): AnyRef = thisenum.getClass.getField(MODULE_INSTANCE_NAME).get(null)
 
@@ -216,7 +217,8 @@ abstract class Enumeration (initial: Int) extends Serializable {
         getFields(clazz.getSuperclass, if (clazz.getDeclaredFields.isEmpty) acc else acc ++ clazz.getDeclaredFields)
     }
     val fields = getFields(getClass.getSuperclass, getClass.getDeclaredFields)
-    /** Tests whether the given method is the accessor of a `val` field with the same name and return type.
+    /** Tests whether the given method is the accessor of a `val` field with the
+     *  same name and return type.
      *
      *  @param m the candidate accessor method to test
      *  @return `true` if a field with the same name and type as `m` exists, `false` otherwise
@@ -265,7 +267,8 @@ abstract class Enumeration (initial: Int) extends Serializable {
       if (this.id < that.id) -1
       else if (this.id == that.id) 0
       else 1
-    /** Tests whether `other` is a value of the same enumeration with the same id.
+    /** Tests whether `other` is a value of the same enumeration with the same
+     *  id.
      *
      *  @param other the object to compare against
      *  @return `true` if `other` is a `Value` of the same enumeration with the same id, `false` otherwise
@@ -289,7 +292,8 @@ abstract class Enumeration (initial: Int) extends Serializable {
    *  identification behaviour.
    */
   @SerialVersionUID(0 - 3501153230598116017L)
-  /** A concrete enumeration value identified by the integer `i` and called `name`.
+  /** A concrete enumeration value identified by the integer `i` and called
+   *  `name`.
    *
    *  @param i the integer that identifies this value at run-time; must be unique amongst all values of the enumeration
    *  @param name a human-readable name for this value, or `null` to derive the name reflectively
@@ -300,8 +304,8 @@ abstract class Enumeration (initial: Int) extends Serializable {
      *  @param i the integer that identifies this value at run-time; must be unique amongst all values of the enumeration
      */
     def this(i: Int)       = this(i, nextNameOrNull)
-    /** Creates a value called `name`, identified by the next automatically assigned id
-     *  (the current `nextId`).
+    /** Creates a value called `name`, identified by the next automatically
+     *  assigned id (the current `nextId`).
      *
      *  @param name a human-readable name for this value, or `null` to derive the name reflectively
      */
@@ -319,17 +323,18 @@ abstract class Enumeration (initial: Int) extends Serializable {
     if (i < bottomId) bottomId = i
     /** Returns the integer id that identifies this value. */
     def id: Int = i
-    /** Returns the name of this value. When no explicit name was given, the name is
-     *  derived reflectively from the enclosing enumeration's fields, yielding a
-     *  placeholder string if none can be found.
+    /** Returns the name of this value. When no explicit name was given, the
+     *  name is derived reflectively from the enclosing enumeration's fields,
+     *  yielding a placeholder string if none can be found.
      */
     override def toString(): String =
       if (name != null) name
       else try thisenum.nameOf(i)
       catch { case _: NoSuchElementException => "<Invalid enum: no field for #" + i + ">" }
 
-    /** Resolves a deserialized value to the corresponding live value held by its enumeration,
-     *  or to this value if the enumeration's value map has not yet been initialized.
+    /** Resolves a deserialized value to the corresponding live value held by
+     *  its enumeration, or to this value if the enumeration's value map has not
+     *  yet been initialized.
      */
     protected def readResolve(): AnyRef = {
       val enumeration = thisenum.readResolve().asInstanceOf[Enumeration]
@@ -389,13 +394,15 @@ abstract class Enumeration (initial: Int) extends Serializable {
      *  @return `true` if `v` is a member of this set, `false` otherwise
      */
     def contains(v: Value): Boolean = nnIds contains (v.id - bottomId)
-    /** Creates a new set containing the values of this set plus the given value.
+    /** Creates a new set containing the values of this set plus the given
+     *  value.
      *
      *  @param value the value to add
      *  @return a new `ValueSet` containing `value` in addition to the values of this set
      */
     def incl (value: Value): ValueSet = new ValueSet(nnIds + (value.id - bottomId))
-    /** Creates a new set containing the values of this set except the given value.
+    /** Creates a new set containing the values of this set except the given
+     *  value.
      *
      *  @param value the value to remove
      *  @return a new `ValueSet` without `value`
@@ -405,7 +412,8 @@ abstract class Enumeration (initial: Int) extends Serializable {
      *  their ids.
      */
     def iterator: Iterator[Value] = nnIds.iterator map (id => thisenum.apply(bottomId + id))
-    /** Returns an iterator over the values of this set starting from the given value, in increasing order of their ids.
+    /** Returns an iterator over the values of this set starting from the given
+     *  value, in increasing order of their ids.
      *
      *  @param start the value marking the lower bound (inclusive) of the iteration when the enumeration's ids are non-negative
      *  @return an iterator over the values of this set from `start` onward, in increasing order of their ids
@@ -427,13 +435,15 @@ abstract class Enumeration (initial: Int) extends Serializable {
     /** Returns a builder for constructing a value set. */
     override protected def newSpecificBuilder = ValueSet.newBuilder
 
-    /** Builds a new value set by applying a function to every value of this set.
+    /** Builds a new value set by applying a function to every value of this
+     *  set.
      *
      *  @param f the function to apply to each value
      *  @return a new `ValueSet` holding the results of applying `f` to each value of this set
      */
     def map(f: Value => Value): ValueSet = fromSpecific(new View.Map(this, f))
-    /** Builds a new value set by applying a function to every value of this set and concatenating the results.
+    /** Builds a new value set by applying a function to every value of this set
+     *  and concatenating the results.
      *
      *  @param f the function to apply to each value, yielding zero or more values
      *  @return a new `ValueSet` holding the concatenated results of applying `f`
@@ -441,7 +451,8 @@ abstract class Enumeration (initial: Int) extends Serializable {
     def flatMap(f: Value => IterableOnce[Value]): ValueSet = fromSpecific(new View.FlatMap(this, f))
 
     // necessary for disambiguation:
-    /** Builds a new sorted set by applying a function to every value of this set.
+    /** Builds a new sorted set by applying a function to every value of this
+     *  set.
      *
      *  @tparam B the element type of the resulting sorted set
      *  @param f the function to apply to each value
@@ -450,7 +461,8 @@ abstract class Enumeration (initial: Int) extends Serializable {
      */
     override def map[B](f: Value => B)(implicit @implicitNotFound(ValueSet.ordMsg) ev: Ordering[B]): immutable.SortedSet[B] =
       super[SortedSet].map[B](f)
-    /** Builds a new sorted set by applying a function to every value of this set and concatenating the results.
+    /** Builds a new sorted set by applying a function to every value of this
+     *  set and concatenating the results.
      *
      *  @tparam B the element type of the resulting sorted set
      *  @param f the function to apply to each value, yielding zero or more elements
@@ -459,7 +471,8 @@ abstract class Enumeration (initial: Int) extends Serializable {
      */
     override def flatMap[B](f: Value => IterableOnce[B])(implicit @implicitNotFound(ValueSet.ordMsg) ev: Ordering[B]): immutable.SortedSet[B] =
       super[SortedSet].flatMap[B](f)
-    /** Builds a new sorted set of pairs by combining corresponding values of this set and `that`.
+    /** Builds a new sorted set of pairs by combining corresponding values of
+     *  this set and `that`.
      *
      *  @tparam B the element type of `that`
      *  @param that the collection to zip with this set
@@ -468,7 +481,8 @@ abstract class Enumeration (initial: Int) extends Serializable {
      */
     override def zip[B](that: IterableOnce[B])(implicit @implicitNotFound(ValueSet.zipOrdMsg) ev: Ordering[(Value, B)]): immutable.SortedSet[(Value, B)] =
       super[SortedSet].zip[B](that)
-    /** Builds a new sorted set by applying a partial function to the values on which it is defined.
+    /** Builds a new sorted set by applying a partial function to the values on
+     *  which it is defined.
      *
      *  @tparam B the element type of the resulting sorted set
      *  @param pf the partial function to apply to each value

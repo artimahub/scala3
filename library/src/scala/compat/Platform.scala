@@ -55,7 +55,8 @@ object Platform {
     */
   @inline
   @deprecated("Use `java.lang.System#arraycopy` instead.", since = "2.13.0")
-  /** Copies `length` elements of array `src`, starting at position `srcPos`, to array `dest`, starting at position `destPos`.
+  /** Copies `length` elements of array `src`, starting at position `srcPos`, to
+   *  array `dest`, starting at position `destPos`.
    *
    *  @param src the non-null source array to copy from
    *  @param srcPos the starting index in the source array
@@ -129,7 +130,8 @@ object Platform {
    */
   @inline
   @deprecated("Use `java.lang.Class#forName` instead.", since = "2.13.0")
-  /** Returns the `Class` object associated with the class or interface of the given name, loaded with the current `ClassLoader`.
+  /** Returns the `Class` object associated with the class or interface of the
+   *  given name, loaded with the current `ClassLoader`.
    *
    *  @param name the fully qualified name of the desired class
    */

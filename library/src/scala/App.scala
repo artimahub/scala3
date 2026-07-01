@@ -88,7 +88,8 @@ trait App extends DelayedInit {
    *  @param body the initialization code to be stored for later execution
    */
   @deprecated("the delayedInit mechanism will disappear", "2.11.0")
-  /** Stores the given initialization code so that it runs later when `main` is invoked.
+  /** Stores the given initialization code so that it runs later when `main` is
+   *  invoked.
    *
    *  @param body the initialization code to be stored for later execution
    */
