@@ -459,6 +459,28 @@ class IntegrationSpec extends AnyFlatSpec with Matchers:
     }
   }
 
+  it should "not synthesize docs for a local def nested inside a method body" in {
+    // `loop` is a local helper inside `replace`; it is not API and must not be
+    // flagged. `replace` itself (a member) still is.
+    val content = """package test
+                    |
+                    |object Escapes {
+                    |  def replace(str: String, first: Int): String = {
+                    |    def loop(i: Int, next: Int): String = {
+                    |      if (next >= 0) loop(i, next - 1) else str
+                    |    }
+                    |    loop(0, first)
+                    |  }
+                    |}
+                    |""".stripMargin
+
+    withTempFile(content) { path =>
+      val synth = ScaladocChecker.checkFile(path).results.filter(_.scaladoc.synthetic).map(_.declaration.name)
+      synth should contain("replace")     // member -> flagged
+      synth should not contain "loop"      // local def -> skipped
+    }
+  }
+
   it should "not synthesize docs for an undocumented private-scoped class" in {
     // ObjectArrayStepper has NO Scaladoc at all, but it is package-private, so it
     // is not part of the documented (Scaladoc) API surface and should be skipped.

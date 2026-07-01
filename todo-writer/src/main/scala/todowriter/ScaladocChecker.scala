@@ -171,7 +171,11 @@ object ScaladocChecker:
              declKeywordOnLine(trimmed, decl.kind) &&
              // Do not synthesize docs for private declarations: they are not part
              // of the documented (Scaladoc) API surface. (protected is kept.)
-             !Declaration.isPrivate(chunk) then
+             !Declaration.isPrivate(chunk) &&
+             // Do not synthesize docs for declarations nested inside a method or
+             // value body (local defs/classes such as a helper `def loop` inside
+             // a method): they are not part of the documented API surface.
+             !enclosedInTermMember(text, lineStart, lineContent.takeWhile(_.isWhitespace).length) then
             val missingParams  = decl.params
             val missingTparams = decl.tparams
             // Add @return only when there is at least one @param or @tparam --
@@ -261,6 +265,41 @@ object ScaladocChecker:
       idx = firstNonBlankLineStart(text, idx.get)
       guard += 1
     idx
+
+  private val TermMemberKeywords = Set("def", "val", "var", "given")
+  private val TemplateKeywords    = Set("class", "trait", "object", "enum", "package")
+
+  /** The leading declaration keyword of a trimmed source line, after stripping
+    *  annotations and modifiers, or None if the line does not begin a declaration.
+    */
+  private def declLeadingKeyword(trimmed: String): Option[String] =
+    val stripped = trimmed
+      .replaceAll("""(?:@[\w\(\)\s,."]+\s*)*""", "")
+      .replaceAll("""(?:private\[[^\]]*\]|protected\[[^\]]*\]|private|protected|final|override|inline|implicit|sealed|abstract|lazy|case|transparent|opaque|export)\s+""", "")
+      .trim
+    (TermMemberKeywords ++ TemplateKeywords).find(k =>
+      stripped == k || stripped.startsWith(k + " ") || stripped.startsWith(k + "["))
+
+  /** True if the declaration beginning at `declLineStart` is nested inside a term
+    *  member's body (a `def`/`val`/`var`/`given`), making it a local declaration
+    *  rather than part of the documented API. Determined by indentation: the
+    *  nearest less-indented declaration above it is a term member rather than a
+    *  template (`class`/`object`/`trait`/`enum`/`package`).
+    */
+  private def enclosedInTermMember(text: String, declLineStart: Int, declIndent: Int): Boolean =
+    val lines = text.substring(0, declLineStart).split("\n", -1)
+    var i = lines.length - 1
+    while i >= 0 do
+      val ln = lines(i)
+      val trimmed = ln.trim
+      if trimmed.nonEmpty && !trimmed.startsWith("*") && !trimmed.startsWith("//") && !trimmed.startsWith("/*") then
+        val indent = ln.takeWhile(_.isWhitespace).length
+        if indent < declIndent then
+          declLeadingKeyword(trimmed) match
+            case Some(kw) => return TermMemberKeywords.contains(kw)
+            case None     => () // shallower non-declaration line; keep scanning outward
+      i -= 1
+    false
 
   /** Check that the declaration keyword for `kind` actually appears on the trimmed line. */
   private def declKeywordOnLine(trimmed: String, kind: DeclKind): Boolean =
