@@ -95,10 +95,11 @@ abstract class Enumeration (initial: Int) extends Serializable {
 
   /* Note that `readResolve` cannot be private, since otherwise
      the JVM does not invoke it when deserializing subclasses. */
-  /** Resolves a deserialized enumeration to its module singleton by looking up
-   *  the `MODULE$` field on the runtime class. This succeeds for the usual case
-   *  of an enumeration defined as an `object`; it does not return an instance
-   *  for enumerations that are not compiled to a module.
+  /** Resolves a deserialized enumeration to its module singleton by
+   *  reflectively reading the `MODULE$` field on the runtime class. This
+   *  succeeds for the usual case of an enumeration defined as an `object`, and
+   *  throws a reflective exception when the runtime class has no such field
+   *  (for example, an enumeration not compiled to a module).
    */
   protected def readResolve(): AnyRef = thisenum.getClass.getField(MODULE_INSTANCE_NAME).get(null)
 
@@ -287,7 +288,7 @@ abstract class Enumeration (initial: Int) extends Serializable {
   protected class Val(i: Int, name: String | Null) extends Value with Serializable {
     /** Creates a value identified by the integer `i`.
      *
-     *  @param i the integer that identifies this value at run-time; must be unique amongst all values of the enumeration
+     *  @param i the integer that identifies this value at run-time; a duplicate id is rejected by an assertion when assertions are enabled
      */
     def this(i: Int)       = this(i, nextNameOrNull)
     /** Creates a value called `name`, identified by the next automatically
@@ -309,18 +310,20 @@ abstract class Enumeration (initial: Int) extends Serializable {
     if (i < bottomId) bottomId = i
     /** Returns the integer id that identifies this value. */
     def id: Int = i
-    /** Returns the name of this value. When no explicit name was given, the
-     *  name is derived reflectively from the enclosing enumeration's fields,
-     *  yielding a placeholder string if none can be found.
+    /** Returns the name of this value. An explicitly given name is returned as
+     *  is; otherwise the name is resolved reflectively from the enclosing
+     *  enumeration's fields, falling back to a placeholder string only when
+     *  that lookup throws `NoSuchElementException`.
      */
     override def toString(): String =
       if (name != null) name
       else try thisenum.nameOf(i)
       catch { case _: NoSuchElementException => "<Invalid enum: no field for #" + i + ">" }
 
-    /** Resolves a deserialized value to the corresponding live value held by
-     *  its enumeration, or to this value if the enumeration's value map has not
-     *  yet been initialized.
+    /** Resolves a deserialized value by looking up its id in the corresponding
+     *  live enumeration's value map. Returns this value if that map has not yet
+     *  been initialized, and throws `NoSuchElementException` if the enumeration
+     *  holds no value with this id.
      */
     protected def readResolve(): AnyRef = {
       val enumeration = thisenum.readResolve().asInstanceOf[Enumeration]
@@ -372,34 +375,40 @@ abstract class Enumeration (initial: Int) extends Serializable {
     override def knownSize: Int = nnIds.size
     /** Tests whether this set contains no values. */
     override def isEmpty: Boolean = nnIds.isEmpty
-    /** Tests whether the given value is a member of this set.
+    /** Tests whether this set contains a value with the same id as `v`. The
+     *  value's id, not its identity, determines membership, and the enclosing
+     *  enumeration is not checked.
      *
-     *  @param v the value to test for membership
-     *  @return `true` if `v` is a member of this set, `false` otherwise
+     *  @param v the value whose id is tested for membership
+     *  @return `true` if this set contains a value with `v`'s id, `false` otherwise
      */
     def contains(v: Value): Boolean = nnIds contains (v.id - bottomId)
-    /** Creates a new set containing the values of this set plus the given
-     *  value.
+    /** Creates a new set containing the values of this set plus the value with
+     *  `value`'s id in this enumeration. Values are tracked by id, so a value
+     *  from another enumeration is added by its id, not its identity.
      *
-     *  @param value the value to add
-     *  @return a new `ValueSet` containing `value` in addition to the values of this set
+     *  @param value the value whose id is added
+     *  @return a new `ValueSet` also containing the value with `value`'s id
      */
     def incl (value: Value): ValueSet = new ValueSet(nnIds + (value.id - bottomId))
-    /** Creates a new set containing the values of this set except the given
-     *  value.
+    /** Creates a new set containing the values of this set except the value
+     *  with `value`'s id. Values are tracked by id, so removal is by id rather
+     *  than identity.
      *
-     *  @param value the value to remove
-     *  @return a new `ValueSet` without `value`
+     *  @param value the value whose id is removed
+     *  @return a new `ValueSet` without the value with `value`'s id
      */
     def excl (value: Value): ValueSet = new ValueSet(nnIds - (value.id - bottomId))
     /** Returns an iterator over the values of this set in increasing order of
      *  their ids.
      */
     def iterator: Iterator[Value] = nnIds.iterator map (id => thisenum.apply(bottomId + id))
-    /** Returns an iterator over the values of this set starting from the given
-     *  value, in increasing order of their ids.
+    /** Returns an iterator over the values of this set at or after `start`, in
+     *  increasing order of their ids. `start`'s id is matched directly against
+     *  this set's internal zero-adjusted ids, so iteration begins at the
+     *  intended position only when the enumeration's `bottomId` is `0`.
      *
-     *  @param start the value marking the lower bound (inclusive) of the iteration when the enumeration's ids are non-negative
+     *  @param start the value from which to begin iterating
      *  @return an iterator over the values of this set from `start` onward, in increasing order of their ids
      */
     override def iteratorFrom(start: Value): Iterator[Value] = nnIds iteratorFrom start.id  map (id => thisenum.apply(bottomId + id))
