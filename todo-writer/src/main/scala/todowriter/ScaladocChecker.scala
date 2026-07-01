@@ -140,8 +140,13 @@ object ScaladocChecker:
   /** Find declarations with no preceding Scaladoc block and return synthetic CheckResults. */
   private def findUndocumentedResults(text: String, existingBlocks: List[ScaladocBlock]): List[CheckResult] =
     // Compute covered declaration line-starts from existing Scaladoc blocks.
+    // A comment documents the declaration that follows it, skipping any
+    // annotation lines in between (e.g. a comment placed before `@deprecated`
+    // still documents the annotated declaration) -- otherwise we would treat
+    // that declaration as undocumented and insert a duplicate stub after the
+    // annotation.
     val coveredLineStarts: Set[Int] = existingBlocks.flatMap { block =>
-      firstNonBlankLineStart(text, block.endIndex)
+      firstDocumentedLineStart(text, block.endIndex)
     }.toSet
 
     val undocResults = collection.mutable.ListBuffer[CheckResult]()
@@ -219,6 +224,32 @@ object ScaladocChecker:
       if lineContent.trim.nonEmpty then result = Some(lineStart)
       else pos = if lineEnd >= 0 then lineEnd + 1 else textLen
     result
+
+  /** The content of the line beginning at `start` (without its trailing newline). */
+  private def lineContentAt(text: String, start: Int): String =
+    val end = text.indexOf('\n', start)
+    if end >= 0 then text.substring(start, end) else text.substring(start)
+
+  /** True if `line` consists only of annotation(s) such as `@deprecated(...)`,
+    *  with no declaration or other content on it. Lines like `@deprecated def f`
+    *  are NOT pure-annotation lines (the declaration is on the same line).
+    */
+  private def isPureAnnotationLine(line: String): Boolean =
+    val trimmed = line.trim
+    trimmed.startsWith("@") &&
+      trimmed.replaceAll("""(?:@[\w\(\)\s,."]+\s*)*""", "").trim.isEmpty
+
+  /** Byte offset of the declaration that a Scaladoc block ending at `fromIndex`
+    *  documents: the first non-blank line after the comment, skipping any
+    *  pure-annotation lines that sit between the comment and the declaration.
+    */
+  private def firstDocumentedLineStart(text: String, fromIndex: Int): Option[Int] =
+    var idx   = firstNonBlankLineStart(text, fromIndex)
+    var guard = 0
+    while idx.isDefined && guard < 100 && isPureAnnotationLine(lineContentAt(text, idx.get)) do
+      idx = firstNonBlankLineStart(text, idx.get)
+      guard += 1
+    idx
 
   /** Check that the declaration keyword for `kind` actually appears on the trimmed line. */
   private def declKeywordOnLine(trimmed: String, kind: DeclKind): Boolean =

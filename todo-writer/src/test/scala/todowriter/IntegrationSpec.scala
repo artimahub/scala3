@@ -409,6 +409,38 @@ class IntegrationSpec extends AnyFlatSpec with Matchers:
     }
   }
 
+  it should "not synthesize a duplicate stub when the doc comment sits before an annotation" in {
+    // The class already has a Scaladoc comment, but it is placed BEFORE the
+    // @deprecated annotation rather than immediately above the declaration.
+    // It must still be recognized as documented -- no synthetic stub.
+    val content = """package test
+                    |
+                    |/** A documented class. */
+                    |@deprecated("gone", "2.13.0")
+                    |class Foo(x: Int)
+                    |""".stripMargin
+
+    withTempFile(content) { path =>
+      val result = ScaladocChecker.checkFile(path)
+      result.results.count(_.scaladoc.synthetic) should be(0)
+    }
+  }
+
+  it should "still synthesize docs for an undocumented annotated class" in {
+    // No comment anywhere: the annotated class is genuinely undocumented.
+    val content = """package test
+                    |
+                    |@deprecated("gone", "2.13.0")
+                    |class Bar(x: Int)
+                    |""".stripMargin
+
+    withTempFile(content) { path =>
+      val result = ScaladocChecker.checkFile(path)
+      val synth = result.results.filter(_.scaladoc.synthetic).map(_.declaration.name)
+      synth should contain("Bar")
+    }
+  }
+
   it should "not synthesize docs for an undocumented private-scoped class" in {
     // ObjectArrayStepper has NO Scaladoc at all, but it is package-private, so it
     // is not part of the documented (Scaladoc) API surface and should be skipped.
