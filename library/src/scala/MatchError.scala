@@ -23,7 +23,6 @@ final class MatchError(@transient obj: Any) extends RuntimeException {
    *  so defer it until getMessage is called or object is serialized
    */
   private lazy val objString: String = {
-    /** Returns a string of the form `"of class C"` naming the runtime class of `obj`. */
     def ofClass = "of class " + obj.getClass.getName
     if (obj == null) "null"
     else
@@ -39,6 +38,5 @@ final class MatchError(@transient obj: Any) extends RuntimeException {
     this
   }
 
-  /** Returns a message describing the value that failed to match any pattern. */
   override def getMessage(): String = objString
 }

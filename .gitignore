@@ -106,6 +106,3 @@ scaladoc/output/
 
 # only used in local development
 .enable_bsp_all_projects
-
-# todo-writer return-cleanup script runtime output (logs, summaries)
-todo-writer/return-cleanup/

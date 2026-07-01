@@ -14,7 +14,6 @@ import scala.quoted.*
  *  @syntax markdown
  */
 @experimental
-/** An annotation whose `transform` method rewrites the annotated definition and can add new definitions during compilation. */
 trait MacroAnnotation extends StaticAnnotation:
 
   /** Transforms the `tree` definition and adds new definitions

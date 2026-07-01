@@ -15,7 +15,7 @@ package scala
 import scala.language.`2.13`
 
 /**
- * An annotation requesting that the optimizer inline the annotated method, or the call at the annotated callsite.
+ * An annotation for methods that the optimizer should inline.
  *
  * Note that by default, the Scala optimizer is disabled and no callsites are inlined. See
  * `-opt:help` and [the overview document](https://docs.scala-lang.org/overviews/compiler-options/optimizer.html)

@@ -40,7 +40,6 @@ package object scala {
 
   // A dummy used by the specialization annotation.
   val AnyRef = new Specializable {
-    /** Returns the string `"object AnyRef"`. */
     override def toString() = "object AnyRef"
   }
 
@@ -92,21 +91,9 @@ package object scala {
   // This should be an alias to LazyList.#:: but we need to support Stream, too
   //val #:: = scala.collection.immutable.LazyList.#::
   object #:: {
-    /** Decomposes a non-empty [[scala.collection.immutable.LazyList]] into its head and tail.
-     *
-     *  @tparam A the element type of the lazy list
-     *  @param s the lazy list to deconstruct
-     *  @return a [[scala.Some]] containing the head and the remaining tail if `s` is non-empty, `None` otherwise
-     */
     def unapply[A](s: LazyList[A]): Option[(A, LazyList[A])] =
       if (s.nonEmpty) Some((s.head, s.tail)) else None
     @deprecated("Prefer LazyList instead", since = "2.13.0")
-    /** Decomposes a non-empty [[scala.collection.immutable.Stream]] into its head and tail.
-     *
-     *  @tparam A the element type of the stream
-     *  @param s the stream to deconstruct
-     *  @return a [[scala.Some]] containing the head and the remaining tail if `s` is non-empty, `None` otherwise
-     */
     def unapply[A](s: Stream[A]): Option[(A, Stream[A])] =
       if (s.nonEmpty) Some((s.head, s.tail)) else None
   }

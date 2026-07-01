@@ -276,19 +276,7 @@ trait PartialFunction[-A, +B] extends Function1[A, B] { self: PartialFunction[A,
  */
 object PartialFunction {
 
-  /** An extractor that applies a partial function to each element of a sequence,
-   *  succeeding only when the partial function is defined for every element.
-   *
-   *  @tparam A the argument type of the underlying partial function
-   *  @tparam B the result type of the underlying partial function
-   */
   final class ElementWiseExtractor[-A, +B] private[PartialFunction] (private val pf: PartialFunction[A, B]^) extends AnyVal { this: ElementWiseExtractor[A, B]^ =>
-    /** Extracts each element of `seq` by applying the underlying partial function.
-     *
-     *  @param seq the sequence whose elements are matched against the partial function
-     *  @return `Some` sequence of results if the partial function is defined for every
-     *          element of `seq`, `None` otherwise
-     */
     def unapplySeq(seq: Seq[A]): Option[Seq[B]] = {
       boundary:
         Some(seq.map:
@@ -307,54 +295,18 @@ object PartialFunction {
    */
   private class OrElse[-A, +B] (f1: PartialFunction[A, B]^, f2: PartialFunction[A, B]^)
     extends scala.runtime.AbstractPartialFunction[A, B] with Serializable {
-    /** Tests whether `x` is in the domain of either composed partial function.
-     *
-     *  @param x the value to test
-     */
     def isDefinedAt(x: A) = f1.isDefinedAt(x) || f2.isDefinedAt(x)
 
-    /** Applies `f1` to `x` where it is defined, otherwise applies `f2`.
-     *
-     *  @param x the function argument
-     *  @return the result of `f1(x)` if `f1` is defined at `x`, otherwise `f2(x)`
-     */
     override def apply(x: A): B = f1.applyOrElse(x, f2)
 
-    /** Applies `f1` to `x` where it is defined, otherwise `f2`, falling back to
-     *  `default` where neither is defined.
-     *
-     *  @tparam A1 the argument type of the fallback function (a subtype of `A`)
-     *  @tparam B1 the result type of the fallback function (a supertype of `B`)
-     *  @param x the function argument
-     *  @param default the fallback function applied when neither `f1` nor `f2` is defined at `x`
-     *  @return the result of the first of `f1` and `f2` that is defined at `x`,
-     *          or `default(x)` if neither is defined
-     */
     override def applyOrElse[A1 <: A, B1 >: B](x: A1, default: A1 => B1): B1 = {
       val z = f1.applyOrElse(x, checkFallback[B])
       if (!fallbackOccurred(z)) z else f2.applyOrElse(x, default)
     }
 
-    /** Composes this partial function with a further fallback partial function
-     *  applied where neither composed function is defined.
-     *
-     *  @tparam A1 the argument type of the fallback function
-     *  @tparam B1 the result type of the fallback function
-     *  @param that the fallback function
-     *  @return a partial function whose domain is the union of the domains of this
-     *          partial function and `that`
-     */
     override def orElse[A1 <: A, B1 >: B](that: PartialFunction[A1, B1]^): OrElse[A1, B1]^{this, that} =
       new OrElse[A1, B1] (f1, f2 orElse that)
 
-    /** Composes this partial function with a transformation function applied to the
-     *  results of each composed partial function.
-     *
-     *  @tparam C the result type of the transformation function
-     *  @param k the transformation function
-     *  @return a partial function with the domain of this partial function that maps
-     *          arguments `x` to `k(this(x))`
-     */
     override def andThen[C](k: B => C): OrElse[A, C]^{this, k} =
       new OrElse[A, C] (f1 andThen k, f2 andThen k)
   }
@@ -368,28 +320,10 @@ object PartialFunction {
    *  @param k the transformation function applied to results of `pf`
    */
   private class AndThen[-A, B, +C] (pf: PartialFunction[A, B]^, k: B => C) extends PartialFunction[A, C] with Serializable {
-    /** Tests whether `x` is in the domain of the underlying partial function `pf`.
-     *
-     *  @param x the value to test
-     */
     def isDefinedAt(x: A) = pf.isDefinedAt(x)
 
-    /** Applies `pf` to `x` and transforms the result with `k`.
-     *
-     *  @param x the function argument
-     *  @return the result of `k(pf(x))`
-     */
     def apply(x: A): C = k(pf(x))
 
-    /** Applies `pf` to `x` and transforms the result with `k` where `pf` is defined,
-     *  otherwise applies `default`.
-     *
-     *  @tparam A1 the argument type of the fallback function (a subtype of `A`)
-     *  @tparam C1 the result type of the fallback function (a supertype of `C`)
-     *  @param x the function argument
-     *  @param default the fallback function applied when `pf` is not defined at `x`
-     *  @return `k(pf(x))` if `pf` is defined at `x`, otherwise `default(x)`
-     */
     override def applyOrElse[A1 <: A, C1 >: C](x: A1, default: A1 => C1): C1 = {
       val z = pf.applyOrElse(x, checkFallback[B])
       if (!fallbackOccurred(z)) k(z) else default(x)
@@ -405,34 +339,13 @@ object PartialFunction {
    *  @param k the transformation partial function applied to results of `pf`
    */
   private class Combined[-A, B, +C] (pf: PartialFunction[A, B]^, k: PartialFunction[B, C]^) extends PartialFunction[A, C] with Serializable {
-    /** Tests whether `pf` is defined at `x` and `k` is defined at `pf(x)`.
-     *
-     *  @param x the value to test
-     *  @return `true` if `pf` is defined at `x` and `k` is defined at `pf(x)`, `false` otherwise
-     */
     def isDefinedAt(x: A): Boolean = {
       val b: B = pf.applyOrElse(x, checkFallback[B])
       if (!fallbackOccurred(b)) k.isDefinedAt(b) else false
     }
 
-    /** Applies `pf` to `x` and then applies `k` to the result.
-     *
-     *  @param x the function argument
-     *  @return the result of `k(pf(x))`
-     */
     def apply(x: A): C = k(pf(x))
 
-    /** Applies `pf` to `x` and then `k` to the result where both are defined,
-     *  otherwise applies `default`.
-     *
-     *  @tparam A1 the argument type of the fallback function (a subtype of `A`)
-     *  @tparam C1 the result type of the fallback function (a supertype of `C`)
-     *  @param x the function argument
-     *  @param default the fallback function applied when `pf` is not defined at `x`
-     *                 or `k` is not defined at `pf(x)`
-     *  @return `k(pf(x))` if `pf` is defined at `x` and `k` is defined at `pf(x)`,
-     *          otherwise `default(x)`
-     */
     override def applyOrElse[A1 <: A, C1 >: C](x: A1, default: A1 => C1): C1 = {
       val pfv = pf.applyOrElse(x, checkFallback[B])
       if (!fallbackOccurred(pfv)) k.applyOrElse(pfv, (_: B) => default(x)) else default(x)
@@ -467,11 +380,6 @@ object PartialFunction {
   private class Lifted[-A, +B] (val pf: PartialFunction[A, B]^)
       extends scala.runtime.AbstractFunction1[A, Option[B]] with Serializable {
 
-    /** Applies the underlying partial function to `x`, wrapping the result in an `Option`.
-     *
-     *  @param x the function argument
-     *  @return `Some(pf(x))` if `pf` is defined at `x`, `None` otherwise
-     */
     def apply(x: A): Option[B] = {
       val z = pf.applyOrElse(x, checkFallback[B])
       if (!fallbackOccurred(z)) Some(z) else None
@@ -479,27 +387,12 @@ object PartialFunction {
   }
 
   private class Unlifted[A, B] (f: A => Option[B]) extends scala.runtime.AbstractPartialFunction[A, B] with Serializable {
-    /** Tests whether the underlying function `f` returns a defined `Option` for `x`.
-     *
-     *  @param x the value to test
-     *  @return `true` if `f(x)` is a `Some`, `false` otherwise
-     */
     def isDefinedAt(x: A): Boolean = f(x).isDefined
 
-    /** Applies the underlying function `f` to `x` and returns the contained value,
-     *  or `default(x)` where `f(x)` is `None`.
-     *
-     *  @tparam A1 the argument type of the fallback function (a subtype of `A`)
-     *  @tparam B1 the result type of the fallback function (a supertype of `B`)
-     *  @param x the function argument
-     *  @param default the fallback function applied when `f(x)` is `None`
-     *  @return the value contained in `f(x)` if defined, otherwise `default(x)`
-     */
     override def applyOrElse[A1 <: A, B1 >: B](x: A1, default: A1 => B1): B1 = {
       f(x).getOrElse(default(x))
     }
 
-    /** Returns the underlying optional function `f`. */
     override def lift = f
   }
 
@@ -520,36 +413,11 @@ object PartialFunction {
   private val constFalse: Any -> Boolean = { _ => false}
 
   private val empty_pf: PartialFunction[Any, Nothing] = new PartialFunction[Any, Nothing] with Serializable {
-    /** Tests whether `x` is in this function's domain, which is empty, so always returns `false`.
-     *
-     *  @param x the value to test
-     */
     def isDefinedAt(x: Any) = false
-    /** Throws a [[scala.MatchError]], since this partial function has an empty domain.
-     *
-     *  @param x the function argument, reported in the thrown [[scala.MatchError]]
-     */
     def apply(x: Any) = throw new MatchError(x)
-    /** Returns `that` unchanged, since this partial function is never defined.
-     *
-     *  @tparam A1 the argument type of the fallback function
-     *  @tparam B1 the result type of the fallback function
-     *  @param that the fallback function
-     */
     override def orElse[A1, B1](that: PartialFunction[A1, B1]^) = that
-    /** Returns this empty partial function unchanged, since there are no results to transform.
-     *
-     *  @tparam C the result type of the transformation function
-     *  @param k the transformation function, never applied
-     */
     override def andThen[C](k: PartialFunction[Nothing, C]^): PartialFunction[Any, C]^{k} = this
     override val lift: Any -> None.type = (x: Any) => None
-    /** Returns a function that always returns `false`, since this partial function is
-     *  never defined and the action is never run.
-     *
-     *  @tparam U the result type of the action function, ignored
-     *  @param action the action function, never invoked
-     */
     override def runWith[U](action: Nothing => U) = constFalse
   }
 

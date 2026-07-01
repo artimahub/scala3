@@ -16,9 +16,8 @@ import scala.language.`2.13`
 
 import scala.annotation.meta.{beanGetter, beanSetter, field}
 
-/** When attached to a field, this annotation adds a getter method following
- *  the Java Bean convention, and, if the field is a `var`, a setter as well.
- *  For example:
+/** When attached to a field, this annotation adds a setter and a getter
+ *  method following the Java Bean convention. For example:
  *  ```scala sc:compile
  *    class Person:
  *      @BeanProperty
@@ -43,5 +42,4 @@ import scala.annotation.meta.{beanGetter, beanSetter, field}
  */
 @field @beanGetter @beanSetter
 @deprecatedInheritance("Scheduled for being final in the future", "2.13.0")
-/** A field annotation that generates a Java Bean-style getter for the annotated `val` or `var`, and a setter when it is a `var`. */
 class BeanProperty extends scala.annotation.StaticAnnotation

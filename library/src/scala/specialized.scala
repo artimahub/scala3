@@ -28,24 +28,11 @@ import Specializable._
  *    class MyList[@specialized(Int, Double, Boolean) T] ..
  *  ```
  *
- *  @param group the group of types for which specialization should be performed (typically constructed implicitly via the varargs constructor); predefined groups consist mostly of primitive types, though some include `AnyRef`
+ *  @param group the group of primitive types for which specialization should be performed (typically constructed implicitly via the varargs constructor)
  */
 // class tspecialized[T](group: Group[T]) extends scala.annotation.StaticAnnotation {
 
-/** Annotates a type parameter for which the compiler should automatically generate
- *  specialized versions of the enclosing class or method, avoiding the boxing of
- *  primitive types.
- *
- *  @param group the group of types for which specialization should be performed; predefined groups consist mostly of primitive types, though some include `AnyRef`
- */
 final class specialized(group: SpecializedGroup) extends scala.annotation.StaticAnnotation {
-  /** Creates a specialization annotation for the given explicit list of types.
-   *
-   *  @param types the types at which specialization should be performed
-   */
   def this(types: Specializable*) = this(new Group(types.toList))
-  /** Creates a specialization annotation covering the default group of primitive types,
-   *  [[scala.Specializable.Primitives]].
-   */
   def this() = this(Primitives)
 }
