@@ -102,7 +102,9 @@ trait Stateful
 trait Unscoped extends ExclusiveCapability, Classifier
 
 @experimental
-/** Marker trait for classes with mutable state. Combines [[Stateful]] and [[Unscoped]]. */
+/** Marker trait for classes with mutable state. Combines [[Stateful]] and
+ *  [[Unscoped]].
+ */
 trait Mutable extends Stateful, Unscoped
 
 /** Carrier trait for capture set type parameters. */

@@ -63,7 +63,9 @@ import scala.collection.mutable.ListBuffer
  *  ```
  */
 @deprecated(message = "Support for trait App is deprecated in Scala 3. Please refer to https://docs.scala-lang.org/scala3/book/methods-main-methods.html.", since = "3.8.0")
-/** Turns an object into an executable program by treating the object's body as its `main` method. */
+/** Turns an object into an executable program by treating the object's body as
+ *  its `main` method.
+ */
 trait App extends DelayedInit {
 
   /** The time when the execution of this program started, in milliseconds since 1

@@ -247,7 +247,9 @@ abstract class Enumeration (initial: Int) extends Serializable {
 
   /** The type of the enumerated values. */
   @SerialVersionUID(7091335633555234129L)
-  /** A single value belonging to this enumeration, identified by a unique integer id and ordered by it. */
+  /** A single value belonging to this enumeration, identified by a unique
+   *  integer id and ordered by it.
+   */
   abstract class Value extends Ordered[Value] with Serializable {
     /** The id and bit location of this enumeration value. */
     def id: Int
@@ -304,7 +306,9 @@ abstract class Enumeration (initial: Int) extends Serializable {
      *  @param name a human-readable name for this value, or `null` to derive the name reflectively
      */
     def this(name: String | Null) = this(nextId, name)
-    /** Creates a value identified by the next automatically assigned id (the current `nextId`). */
+    /** Creates a value identified by the next automatically assigned id (the
+     *  current `nextId`).
+     */
     def this()             = this(nextId)
 
     assert(!vmap.isDefinedAt(i), "Duplicate id: " + i)
@@ -353,7 +357,8 @@ abstract class Enumeration (initial: Int) extends Serializable {
    *  @define Coll `collection.immutable.SortedSet`
    */
   @SerialVersionUID(7229671200427364242L)
-  /** An immutable set of values of this enumeration, ordered by increasing id. */
+  /** An immutable set of values of this enumeration, ordered by increasing id.
+   */
   class ValueSet private[ValueSet] (private var nnIds: immutable.BitSet)
     extends immutable.AbstractSet[Value]
       with immutable.SortedSet[Value]
@@ -396,7 +401,9 @@ abstract class Enumeration (initial: Int) extends Serializable {
      *  @return a new `ValueSet` without `value`
      */
     def excl (value: Value): ValueSet = new ValueSet(nnIds - (value.id - bottomId))
-    /** Returns an iterator over the values of this set in increasing order of their ids. */
+    /** Returns an iterator over the values of this set in increasing order of
+     *  their ids.
+     */
     def iterator: Iterator[Value] = nnIds.iterator map (id => thisenum.apply(bottomId + id))
     /** Returns an iterator over the values of this set starting from the given value, in increasing order of their ids.
      *

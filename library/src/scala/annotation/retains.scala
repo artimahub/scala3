@@ -24,7 +24,9 @@ class retains[Elems] extends annotation.StaticAnnotation
 
 /** Equivalent in meaning to `@retains[any.type]`, but consumes less bytecode. */
 @experimental
-/** An annotation equivalent in meaning to `@retains[any.type]`, but consumes less bytecode. */
+/** An annotation equivalent in meaning to `@retains[any.type]`, but consumes
+ *  less bytecode.
+ */
 class retainsCap extends annotation.StaticAnnotation
   // This special case is needed to be able to load standard library modules without
   // cyclic reference errors. Specifically, load sequences involving IterableOnce.

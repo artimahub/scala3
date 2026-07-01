@@ -202,7 +202,8 @@ object <:< {
      *  @param x the value to return
      */
     override def apply(x: Any) = x
-    /** Returns this same evidence, since swapping `Any` with `Any` is a no-op. */
+    /** Returns this same evidence, since swapping `Any` with `Any` is a no-op.
+     */
     override def flip: Any =:= Any = this
     /** Returns `r` unchanged.
      *

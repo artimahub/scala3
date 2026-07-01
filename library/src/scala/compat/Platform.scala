@@ -151,7 +151,9 @@ object Platform {
     */
   @inline
   @deprecated("Use `java.lang.System#currentTimeMillis` instead.", since = "2.13.0")
-  /** Returns the current time in milliseconds, counted since 1 January 1970 UTC. */
+  /** Returns the current time in milliseconds, counted since 1 January 1970
+   *  UTC.
+   */
   def currentTime: Long = System.currentTimeMillis()
 
   /** Runs the garbage collector.
