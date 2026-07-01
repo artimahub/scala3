@@ -20,11 +20,17 @@ import java.lang.{Class => jClass}
 import scala.annotation.{nowarn, tailrec}
 
 @deprecated("use scala.reflect.ClassTag instead", "2.10.0")
+/** The deprecated members of [[scala.reflect.ClassManifest]], separated into
+ *  their own trait so that each can carry its own deprecation annotation.
+ *
+ *  @tparam T the type represented by the manifest
+ */
 trait ClassManifestDeprecatedApis[T] extends OptManifest[T] {
   self: ClassManifest[T] =>
 
   // Still in use in target test.junit.comp.
   @deprecated("use runtimeClass instead", "2.10.0")
+  /** Returns the runtime `Class` object representing the erasure of the type `T`. */
   def erasure: jClass[?] = runtimeClass
 
   private def subtype(sub: jClass[?], sup: jClass[?]): Boolean = {
@@ -90,51 +96,99 @@ trait ClassManifestDeprecatedApis[T] extends OptManifest[T] {
   def >:>(that: ClassManifest[?]): Boolean =
     that <:< this
 
+  /** Tests whether `other` may be compared for equality with this manifest,
+   *  which holds exactly when `other` is itself a `ClassManifest`.
+   *
+   *  @param other the value tested for comparability with this manifest
+   */
   override def canEqual(other: Any) = other match {
     case _: ClassManifest[?] => true
     case _                   => false
   }
 
+  /** Returns the runtime `Class` object for the array type whose element type is `tp`.
+   *
+   *  @tparam A the element type of the array
+   *  @param tp the runtime `Class` object of the array's element type
+   */
   protected def arrayClass[A](tp: jClass[?]): jClass[Array[A]] =
     java.lang.reflect.Array.newInstance(tp, 0).getClass.asInstanceOf[jClass[Array[A]]]
 
   @deprecated("use wrap instead", "2.10.0")
+  /** Returns a `ClassManifest` for the array type `Array[T]`. */
   def arrayManifest: ClassManifest[Array[T]] =
     ClassManifest.classType[Array[T]](arrayClass[T](runtimeClass), this)
 
   @deprecated("use wrap.newArray instead", "2.10.0")
+  /** Creates a new two-dimensional array `Array[Array[T]]` whose outer dimension
+   *  has `len` elements.
+   *
+   *  @param len the length of the outer array
+   *  @return a new `Array[Array[T]]` of length `len`, with unallocated inner arrays
+   */
   def newArray2(len: Int): Array[Array[T]] =
     java.lang.reflect.Array.newInstance(arrayClass[T](runtimeClass), len)
       .asInstanceOf[Array[Array[T]]]
 
   @deprecated("use wrap.wrap.newArray instead", "2.10.0")
+  /** Creates a new three-dimensional array `Array[Array[Array[T]]]` whose outer
+   *  dimension has `len` elements.
+   *
+   *  @param len the length of the outer array
+   *  @return a new `Array[Array[Array[T]]]` of length `len`, with unallocated inner arrays
+   */
   def newArray3(len: Int): Array[Array[Array[T]]] =
     java.lang.reflect.Array.newInstance(arrayClass[Array[T]](arrayClass[T](runtimeClass)), len)
       .asInstanceOf[Array[Array[Array[T]]]]
 
   @deprecated("use wrap.wrap.wrap.newArray instead", "2.10.0")
+  /** Creates a new four-dimensional array `Array[Array[Array[Array[T]]]]` whose
+   *  outer dimension has `len` elements.
+   *
+   *  @param len the length of the outer array
+   *  @return a new `Array[Array[Array[Array[T]]]]` of length `len`, with unallocated inner arrays
+   */
   def newArray4(len: Int): Array[Array[Array[Array[T]]]] =
     java.lang.reflect.Array.newInstance(arrayClass[Array[Array[T]]](arrayClass[Array[T]](arrayClass[T](runtimeClass))), len)
       .asInstanceOf[Array[Array[Array[Array[T]]]]]
 
   @deprecated("use wrap.wrap.wrap.wrap.newArray instead", "2.10.0")
+  /** Creates a new five-dimensional array `Array[Array[Array[Array[Array[T]]]]]`
+   *  whose outer dimension has `len` elements.
+   *
+   *  @param len the length of the outer array
+   *  @return a new `Array[Array[Array[Array[Array[T]]]]]` of length `len`, with unallocated inner arrays
+   */
   def newArray5(len: Int): Array[Array[Array[Array[Array[T]]]]] =
     java.lang.reflect.Array.newInstance(arrayClass[Array[Array[Array[T]]]](arrayClass[Array[Array[T]]](arrayClass[Array[T]](arrayClass[T](runtimeClass)))), len)
       .asInstanceOf[Array[Array[Array[Array[Array[T]]]]]]
 
   @deprecated("create WrappedArray directly instead", "2.10.0")
+  /** Creates a new `ArraySeq[T]` backed by a freshly allocated array of length `len`.
+   *
+   *  @param len the length of the backing array
+   *  @return a new `ArraySeq[T]` wrapping an array of length `len`
+   */
   def newWrappedArray(len: Int): ArraySeq[T] =
     // it's safe to assume T <: AnyRef here because the method is overridden for all value type manifests
     new ArraySeq.ofRef[T & AnyRef](newArray(len).asInstanceOf[Array[T & AnyRef]]).asInstanceOf[ArraySeq[T]]
 
   @deprecated("use ArrayBuilder.make(this) instead", "2.10.0")
+  /** Returns a new `ArrayBuilder` for arrays with element type `T`. */
   def newArrayBuilder(): ArrayBuilder[T] =
     // it's safe to assume T <: AnyRef here because the method is overridden for all value type manifests
     new ArrayBuilder.ofRef[T & AnyRef]()(using this.asInstanceOf[ClassManifest[T & AnyRef]]).asInstanceOf[ArrayBuilder[T]]
 
   @deprecated("use scala.reflect.runtime.universe.TypeTag to capture type structure instead", "2.10.0")
+  /** Returns the manifests of the type arguments of the type represented by this
+   *  manifest; the default implementation returns an empty list.
+   */
   def typeArguments: List[OptManifest[?]] = List()
 
+  /** Returns the type-argument portion of this manifest's string representation:
+   *  the type arguments in bracketed form, the array component type in brackets,
+   *  or the empty string when neither applies.
+   */
   protected def argString =
     if (typeArguments.nonEmpty) typeArguments.mkString("[", ", ", "]")
     else if (runtimeClass.isArray) "["+ClassManifest.fromClass(runtimeClass.getComponentType)+"]"
@@ -170,6 +224,12 @@ object ClassManifestFactory {
   val Nothing = ManifestFactory.Nothing
   val Null    = ManifestFactory.Null
 
+  /** Returns the `ClassManifest` corresponding to the runtime class `clazz`, using
+   *  the predefined value manifests for the primitive classes and `Unit` for `void`.
+   *
+   *  @tparam T the type represented by `clazz`
+   *  @param clazz the runtime `Class` object to build a manifest for
+   */
   def fromClass[T](clazz: jClass[T]): ClassManifest[T] = clazz match {
     case java.lang.Byte.TYPE      => Byte.asInstanceOf[ClassManifest[T]]
     case java.lang.Short.TYPE     => Short.asInstanceOf[ClassManifest[T]]
@@ -183,6 +243,11 @@ object ClassManifestFactory {
     case _                        => classType[T & AnyRef](clazz).asInstanceOf[ClassManifest[T]]
   }
 
+  /** Returns a `Manifest` for the singleton type `value.type`.
+   *
+   *  @tparam T the type to be represented, typically the singleton type of `value`
+   *  @param value the runtime object whose singleton type is represented
+   */
   def singleType[T <: AnyRef](value: AnyRef): Manifest[T] = Manifest.singleType(value)
 
   /** ClassManifest for the class type `clazz`, where `clazz` is
@@ -220,6 +285,13 @@ object ClassManifestFactory {
   def classType[T](prefix: OptManifest[?], clazz: jClass[?], args: OptManifest[?]*): ClassManifest[T] =
     new ClassTypeManifest[T](Some(prefix), clazz, args.toList)
 
+  /** Returns a `ClassManifest` for the array type `Array[T]`, given the manifest
+   *  `arg` for its element type.
+   *
+   *  @tparam T the array element type
+   *  @param arg the manifest for the element type `T`, or `NoManifest` if unknown
+   *  @return the array manifest, or the manifest for `Object` when `arg` is `NoManifest`
+   */
   def arrayType[T](arg: OptManifest[?]): ClassManifest[Array[T]] = (arg: @unchecked) match {
     case NoManifest          => Object.asInstanceOf[ClassManifest[Array[T]]]
     case m: ClassManifest[?] => m.asInstanceOf[ClassManifest[T]].arrayManifest
@@ -227,8 +299,12 @@ object ClassManifestFactory {
 
   @SerialVersionUID(1L)
   private class AbstractTypeClassManifest[T](prefix: OptManifest[?], name: String, clazz: jClass[?], args: OptManifest[?]*) extends ClassManifest[T] {
+    /** Returns the runtime `Class` used as the erasure of this abstract type. */
     override def runtimeClass = clazz
     override val typeArguments = args.toList
+    /** Returns a string representation of this manifest in the form
+     *  `prefix#name` followed by its type arguments.
+     */
     override def toString() = prefix.toString+"#"+name+argString
   }
 
@@ -270,6 +346,9 @@ private class ClassTypeManifest[T](
   val runtimeClass: jClass[?],
   override val typeArguments: List[OptManifest[?]]) extends ClassManifest[T]
 {
+  /** Returns a string representation of this manifest, combining the optional
+   *  prefix, the class name (or `Array`), and its type arguments.
+   */
   override def toString() =
     (if (prefix.isEmpty) "" else prefix.get.toString+"#") +
     (if (runtimeClass.isArray) "Array" else runtimeClass.getName) +

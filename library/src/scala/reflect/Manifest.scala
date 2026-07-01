@@ -49,11 +49,21 @@ import scala.collection.mutable.{ArrayBuilder, ArraySeq}
 // TODO undeprecated until Scala reflection becomes non-experimental
 // @deprecated("use scala.reflect.ClassTag (to capture erasures) or scala.reflect.runtime.universe.TypeTag (to capture types) or both instead", "2.10.0")
 trait Manifest[T] extends ClassManifest[T] with Equals {
+  /** Returns the manifests of the type arguments of the type `T`; the base
+   *  case returns an empty list.
+   */
   override def typeArguments: List[Manifest[?]] = Nil
 
+  /** Returns a `Manifest` for the array type `Array[T]`. */
   override def arrayManifest: Manifest[Array[T]] =
     Manifest.classType[Array[T]](arrayClass[T](runtimeClass), this)
 
+  /** Tests whether `that` may be compared for equality with this manifest,
+   *  which holds when `that` is a non-null `Manifest`.
+   *
+   *  @param that the value tested for comparability with this manifest
+   *  @return `true` if `that` is a non-null `Manifest`, `false` otherwise
+   */
   override def canEqual(that: Any): Boolean = that match {
     case _: Manifest[?]   => true
     case _                => false
@@ -67,6 +77,7 @@ trait Manifest[T] extends ClassManifest[T] with Equals {
     case m: Manifest[?] => (m canEqual this) && (this.runtimeClass == m.runtimeClass) && (this <:< m) && (m <:< this)
     case _              => false
   }
+  /** Returns a hash code derived from the erasure (`runtimeClass`) of the type `T`. */
   override def hashCode() = this.runtimeClass.##
 }
 
@@ -145,6 +156,12 @@ object Manifest {
   def classType[T](prefix: Manifest[?], clazz: Predef.Class[?], args: Manifest[?]*): Manifest[T] =
     ManifestFactory.classType[T](prefix, clazz, args*)
 
+  /** Returns a `Manifest` for the array type `Array[T]` whose element type is
+   *  described by `arg`.
+   *
+   *  @tparam T the array element type
+   *  @param arg the manifest for the element type
+   */
   def arrayType[T](arg: Manifest[?]): Manifest[Array[T]] =
     ManifestFactory.arrayType[T](arg)
 
@@ -184,14 +201,32 @@ object Manifest {
 // @deprecated("use type tags and manually check the corresponding class or type instead", "2.10.0")
 @nowarn("""cat=deprecation&origin=scala\.reflect\.ClassManifest(DeprecatedApis.*)?""")
 @SerialVersionUID(1L)
+/** A `Manifest` for one of the primitive value types (`Byte`, `Short`, `Char`,
+ *  `Int`, `Long`, `Float`, `Double`, `Boolean`, or `Unit`).
+ *
+ *  @tparam T the value type described by this manifest
+ *  @param toString the display name of the value type, used as this manifest's string representation
+ */
 abstract class AnyValManifest[T <: AnyVal](override val toString: String) extends Manifest[T] with Equals {
   override def <:<(that: ClassManifest[?]): Boolean =
     (that eq this) || (that eq Manifest.Any) || (that eq Manifest.AnyVal)
+  /** Tests whether `other` may be compared for equality with this manifest,
+   *  which holds when `other` is a non-null `AnyValManifest`.
+   *
+   *  @param other the value tested for comparability with this manifest
+   */
   override def canEqual(other: Any) = other match {
     case _: AnyValManifest[?] => true
     case _                    => false
   }
+  /** Tests whether `that` is the same manifest instance as this one; value-type
+   *  manifests are singletons, so equality is reference identity.
+   *
+   *  @param that the value to compare with this manifest
+   *  @return `true` if `that` is this exact manifest instance, `false` otherwise
+   */
   override def equals(that: Any): Boolean = this eq that.asInstanceOf[AnyRef]
+  /** Returns an identity-based hash code, consistent with this manifest's reference equality. */
   override def hashCode = System.identityHashCode(this)
 }
 
@@ -204,15 +239,32 @@ abstract class AnyValManifest[T <: AnyVal](override val toString: String) extend
  */
 @nowarn("""cat=deprecation&origin=scala\.reflect\.ClassManifest(DeprecatedApis.*)?""")
 object ManifestFactory {
+  /** Returns the manifests for the nine primitive value types (`Byte`, `Short`,
+   *  `Char`, `Int`, `Long`, `Float`, `Double`, `Boolean`, and `Unit`).
+   */
   def valueManifests: List[AnyValManifest[?]] =
     List(Byte, Short, Char, Int, Long, Float, Double, Boolean, Unit)
 
   @SerialVersionUID(1L)
   final private[reflect] class ByteManifest extends AnyValManifest[scala.Byte]("Byte") {
+    /** Returns the runtime `Class` for the primitive `byte` type. */
     def runtimeClass: Class[java.lang.Byte] = java.lang.Byte.TYPE
     @inline override def newArray(len: Int): Array[Byte] = new Array[Byte](len)
+    /** Creates a new `ArraySeq[Byte]` backed by a freshly allocated `Array[Byte]`
+     *  of length `len`.
+     *
+     *  @param len the length of the backing array
+     *  @return a new `ArraySeq[Byte]` wrapping an array of length `len`
+     */
     override def newWrappedArray(len: Int): ArraySeq[Byte] = new ArraySeq.ofByte(new Array[Byte](len))
+    /** Returns a new `ArrayBuilder` for `Array[Byte]`. */
     override def newArrayBuilder(): ArrayBuilder[Byte] = new ArrayBuilder.ofByte()
+    /** Matches `x` against the `Byte` type when this manifest is used as an
+     *  extractor in a pattern.
+     *
+     *  @param x the value to match
+     *  @return `Some(x)` if `x` is a `Byte`, `None` otherwise
+     */
     override def unapply(x: Any): Option[Byte] = {
       x match {
         case d: Byte => Some(d)
@@ -225,10 +277,24 @@ object ManifestFactory {
 
   @SerialVersionUID(1L)
   final private[reflect] class ShortManifest extends AnyValManifest[scala.Short]("Short") {
+    /** Returns the runtime `Class` for the primitive `short` type. */
     def runtimeClass: Class[java.lang.Short] = java.lang.Short.TYPE
     @inline override def newArray(len: Int): Array[Short] = new Array[Short](len)
+    /** Creates a new `ArraySeq[Short]` backed by a freshly allocated `Array[Short]`
+     *  of length `len`.
+     *
+     *  @param len the length of the backing array
+     *  @return a new `ArraySeq[Short]` wrapping an array of length `len`
+     */
     override def newWrappedArray(len: Int): ArraySeq[Short] = new ArraySeq.ofShort(new Array[Short](len))
+    /** Returns a new `ArrayBuilder` for `Array[Short]`. */
     override def newArrayBuilder(): ArrayBuilder[Short] = new ArrayBuilder.ofShort()
+    /** Matches `x` against the `Short` type when this manifest is used as an
+     *  extractor in a pattern.
+     *
+     *  @param x the value to match
+     *  @return `Some(x)` if `x` is a `Short`, `None` otherwise
+     */
     override def unapply(x: Any): Option[Short] = {
       x match {
         case d: Short => Some(d)
@@ -241,10 +307,24 @@ object ManifestFactory {
 
   @SerialVersionUID(1L)
   final private[reflect] class CharManifest extends AnyValManifest[scala.Char]("Char") {
+    /** Returns the runtime `Class` for the primitive `char` type. */
     def runtimeClass: Class[java.lang.Character] = java.lang.Character.TYPE
     @inline override def newArray(len: Int): Array[Char] = new Array[Char](len)
+    /** Creates a new `ArraySeq[Char]` backed by a freshly allocated `Array[Char]`
+     *  of length `len`.
+     *
+     *  @param len the length of the backing array
+     *  @return a new `ArraySeq[Char]` wrapping an array of length `len`
+     */
     override def newWrappedArray(len: Int): ArraySeq[Char] = new ArraySeq.ofChar(new Array[Char](len))
+    /** Returns a new `ArrayBuilder` for `Array[Char]`. */
     override def newArrayBuilder(): ArrayBuilder[Char] = new ArrayBuilder.ofChar()
+    /** Matches `x` against the `Char` type when this manifest is used as an
+     *  extractor in a pattern.
+     *
+     *  @param x the value to match
+     *  @return `Some(x)` if `x` is a `Char`, `None` otherwise
+     */
     override def unapply(x: Any): Option[Char] = {
       x match {
         case d: Char => Some(d)
@@ -257,10 +337,24 @@ object ManifestFactory {
 
   @SerialVersionUID(1L)
   final private[reflect] class IntManifest extends AnyValManifest[scala.Int]("Int") {
+    /** Returns the runtime `Class` for the primitive `int` type. */
     def runtimeClass: Class[java.lang.Integer] = java.lang.Integer.TYPE
     @inline override def newArray(len: Int): Array[Int] = new Array[Int](len)
+    /** Creates a new `ArraySeq[Int]` backed by a freshly allocated `Array[Int]`
+     *  of length `len`.
+     *
+     *  @param len the length of the backing array
+     *  @return a new `ArraySeq[Int]` wrapping an array of length `len`
+     */
     override def newWrappedArray(len: Int): ArraySeq[Int] = new ArraySeq.ofInt(new Array[Int](len))
+    /** Returns a new `ArrayBuilder` for `Array[Int]`. */
     override def newArrayBuilder(): ArrayBuilder[Int] = new ArrayBuilder.ofInt()
+    /** Matches `x` against the `Int` type when this manifest is used as an
+     *  extractor in a pattern.
+     *
+     *  @param x the value to match
+     *  @return `Some(x)` if `x` is an `Int`, `None` otherwise
+     */
     override def unapply(x: Any): Option[Int] = {
       x match {
         case d: Int => Some(d)
@@ -273,10 +367,24 @@ object ManifestFactory {
 
   @SerialVersionUID(1L)
   final private[reflect] class LongManifest extends AnyValManifest[scala.Long]("Long") {
+    /** Returns the runtime `Class` for the primitive `long` type. */
     def runtimeClass: Class[java.lang.Long] = java.lang.Long.TYPE
     @inline override def newArray(len: Int): Array[Long] = new Array[Long](len)
+    /** Creates a new `ArraySeq[Long]` backed by a freshly allocated `Array[Long]`
+     *  of length `len`.
+     *
+     *  @param len the length of the backing array
+     *  @return a new `ArraySeq[Long]` wrapping an array of length `len`
+     */
     override def newWrappedArray(len: Int): ArraySeq[Long] = new ArraySeq.ofLong(new Array[Long](len))
+    /** Returns a new `ArrayBuilder` for `Array[Long]`. */
     override def newArrayBuilder(): ArrayBuilder[Long] = new ArrayBuilder.ofLong()
+    /** Matches `x` against the `Long` type when this manifest is used as an
+     *  extractor in a pattern.
+     *
+     *  @param x the value to match
+     *  @return `Some(x)` if `x` is a `Long`, `None` otherwise
+     */
     override def unapply(x: Any): Option[Long] = {
       x match {
         case d: Long => Some(d)
@@ -289,10 +397,24 @@ object ManifestFactory {
 
   @SerialVersionUID(1L)
   final private[reflect] class FloatManifest extends AnyValManifest[scala.Float]("Float") {
+    /** Returns the runtime `Class` for the primitive `float` type. */
     def runtimeClass: Class[java.lang.Float] = java.lang.Float.TYPE
     @inline override def newArray(len: Int): Array[Float] = new Array[Float](len)
+    /** Creates a new `ArraySeq[Float]` backed by a freshly allocated `Array[Float]`
+     *  of length `len`.
+     *
+     *  @param len the length of the backing array
+     *  @return a new `ArraySeq[Float]` wrapping an array of length `len`
+     */
     override def newWrappedArray(len: Int): ArraySeq[Float] = new ArraySeq.ofFloat(new Array[Float](len))
+    /** Returns a new `ArrayBuilder` for `Array[Float]`. */
     override def newArrayBuilder(): ArrayBuilder[Float] = new ArrayBuilder.ofFloat()
+    /** Matches `x` against the `Float` type when this manifest is used as an
+     *  extractor in a pattern.
+     *
+     *  @param x the value to match
+     *  @return `Some(x)` if `x` is a `Float`, `None` otherwise
+     */
     override def unapply(x: Any): Option[Float] = {
       x match {
         case d: Float => Some(d)
@@ -305,11 +427,25 @@ object ManifestFactory {
 
   @SerialVersionUID(1L)
   final private[reflect] class DoubleManifest extends AnyValManifest[scala.Double]("Double") {
+    /** Returns the runtime `Class` for the primitive `double` type. */
     def runtimeClass: Class[java.lang.Double] = java.lang.Double.TYPE
     @inline override def newArray(len: Int): Array[Double] = new Array[Double](len)
+    /** Creates a new `ArraySeq[Double]` backed by a freshly allocated `Array[Double]`
+     *  of length `len`.
+     *
+     *  @param len the length of the backing array
+     *  @return a new `ArraySeq[Double]` wrapping an array of length `len`
+     */
     override def newWrappedArray(len: Int): ArraySeq[Double] = new ArraySeq.ofDouble(new Array[Double](len))
+    /** Returns a new `ArrayBuilder` for `Array[Double]`. */
     override def newArrayBuilder(): ArrayBuilder[Double] = new ArrayBuilder.ofDouble()
 
+    /** Matches `x` against the `Double` type when this manifest is used as an
+     *  extractor in a pattern.
+     *
+     *  @param x the value to match
+     *  @return `Some(x)` if `x` is a `Double`, `None` otherwise
+     */
     override def unapply(x: Any): Option[Double] = {
       x match {
         case d: Double => Some(d)
@@ -322,10 +458,24 @@ object ManifestFactory {
 
   @SerialVersionUID(1L)
   final private[reflect] class BooleanManifest extends AnyValManifest[scala.Boolean]("Boolean") {
+    /** Returns the runtime `Class` for the primitive `boolean` type. */
     def runtimeClass: Class[java.lang.Boolean] = java.lang.Boolean.TYPE
     @inline override def newArray(len: Int): Array[Boolean] = new Array[Boolean](len)
+    /** Creates a new `ArraySeq[Boolean]` backed by a freshly allocated `Array[Boolean]`
+     *  of length `len`.
+     *
+     *  @param len the length of the backing array
+     *  @return a new `ArraySeq[Boolean]` wrapping an array of length `len`
+     */
     override def newWrappedArray(len: Int): ArraySeq[Boolean] = new ArraySeq.ofBoolean(new Array[Boolean](len))
+    /** Returns a new `ArrayBuilder` for `Array[Boolean]`. */
     override def newArrayBuilder(): ArrayBuilder[Boolean] = new ArrayBuilder.ofBoolean()
+    /** Matches `x` against the `Boolean` type when this manifest is used as an
+     *  extractor in a pattern.
+     *
+     *  @param x the value to match
+     *  @return `Some(x)` if `x` is a `Boolean`, `None` otherwise
+     */
     override def unapply(x: Any): Option[Boolean] = {
       x match {
         case d: Boolean => Some(d)
@@ -338,13 +488,33 @@ object ManifestFactory {
 
   @SerialVersionUID(1L)
   final private[reflect] class UnitManifest extends AnyValManifest[scala.Unit]("Unit") {
+    /** Returns the runtime `Class` for the primitive `void` type. */
     def runtimeClass: Class[java.lang.Void] = java.lang.Void.TYPE
     @inline override def newArray(len: Int): Array[Unit] = new Array[Unit](len)
+    /** Creates a new `ArraySeq[Unit]` backed by a freshly allocated `Array[Unit]`
+     *  of length `len`.
+     *
+     *  @param len the length of the backing array
+     *  @return a new `ArraySeq[Unit]` wrapping an array of length `len`
+     */
     override def newWrappedArray(len: Int): ArraySeq[Unit] = new ArraySeq.ofUnit(new Array[Unit](len))
+    /** Returns a new `ArrayBuilder` for `Array[Unit]`. */
     override def newArrayBuilder(): ArrayBuilder[Unit] = new ArrayBuilder.ofUnit()
+    /** Returns the runtime `Class` for the array type whose element type is `tp`,
+     *  using `Array[BoxedUnit]` when `tp` is the `Unit` runtime class.
+     *
+     *  @tparam T the array element type
+     *  @param tp the runtime `Class` of the array's element type
+     */
     override protected def arrayClass[T](tp: Class[?]): Class[Array[T]] =
       if (tp eq runtimeClass) classOf[Array[scala.runtime.BoxedUnit]].asInstanceOf[Class[Array[T]]]
       else super.arrayClass(tp)
+    /** Matches `x` against the `Unit` type when this manifest is used as an
+     *  extractor in a pattern.
+     *
+     *  @param x the value to match
+     *  @return `Some(())` if `x` is a `Unit`, `None` otherwise
+     */
     override def unapply(x: Any): Option[Unit] = {
       x match {
         case d: Unit => Some(d)
@@ -361,6 +531,10 @@ object ManifestFactory {
 
   @SerialVersionUID(1L)
   final private class AnyManifest extends PhantomManifest[scala.Any](ObjectTYPE, "Any") {
+    /** Produces a new `Array[Any]` of length `len`.
+     *
+     *  @param len the length of the new array
+     */
     override def newArray(len: Int) = new Array[scala.Any](len)
     override def <:<(that: ClassManifest[?]): Boolean = (that eq this)
     private def readResolve(): Any = Manifest.Any
@@ -369,6 +543,10 @@ object ManifestFactory {
 
   @SerialVersionUID(1L)
   final private class ObjectManifest extends PhantomManifest[java.lang.Object](ObjectTYPE, "Object") {
+    /** Produces a new `Array[java.lang.Object]` of length `len`.
+     *
+     *  @param len the length of the new array
+     */
     override def newArray(len: Int) = new Array[java.lang.Object](len)
     override def <:<(that: ClassManifest[?]): Boolean = (that eq this) || (that eq Any)
     private def readResolve(): Any = Manifest.Object
@@ -379,6 +557,10 @@ object ManifestFactory {
 
   @SerialVersionUID(1L)
   final private class AnyValPhantomManifest extends PhantomManifest[scala.AnyVal](ObjectTYPE, "AnyVal") {
+    /** Produces a new `Array[AnyVal]` of length `len`.
+     *
+     *  @param len the length of the new array
+     */
     override def newArray(len: Int) = new Array[scala.AnyVal](len)
     override def <:<(that: ClassManifest[?]): Boolean = (that eq this) || (that eq Any)
     private def readResolve(): Any = Manifest.AnyVal
@@ -387,6 +569,10 @@ object ManifestFactory {
 
   @SerialVersionUID(1L)
   final private class NullManifest extends PhantomManifest[scala.Null](NullTYPE, "Null") {
+    /** Produces a new `Array[Null]` of length `len`.
+     *
+     *  @param len the length of the new array
+     */
     override def newArray(len: Int) = new Array[scala.Null](len)
     override def <:<(that: ClassManifest[?]): Boolean =
       (that ne null) && (that ne Nothing) && !(that <:< AnyVal)
@@ -396,6 +582,10 @@ object ManifestFactory {
 
   @SerialVersionUID(1L)
   final private class NothingManifest extends PhantomManifest[scala.Nothing](NothingTYPE, "Nothing") {
+    /** Produces a new `Array[Nothing]` of length `len`.
+     *
+     *  @param len the length of the new array
+     */
     override def newArray(len: Int) = new Array[scala.Nothing](len)
     override def <:<(that: ClassManifest[?]): Boolean = (that ne null)
     private def readResolve(): Any = Manifest.Nothing
@@ -454,7 +644,14 @@ object ManifestFactory {
   @SerialVersionUID(1L)
   private abstract class PhantomManifest[T](_runtimeClass: Predef.Class[?],
                                             override val toString: String) extends ClassTypeManifest[T](None, _runtimeClass, Nil) {
+    /** Tests whether `that` is the same manifest instance as this one; phantom
+     *  manifests are singletons, so equality is reference identity.
+     *
+     *  @param that the value to compare with this manifest
+     *  @return `true` if `that` is this exact manifest instance, `false` otherwise
+     */
     override def equals(that: Any): Boolean = this eq that.asInstanceOf[AnyRef]
+    /** Returns an identity-based hash code, consistent with this manifest's reference equality. */
     override def hashCode = System.identityHashCode(this)
   }
 
@@ -465,19 +662,34 @@ object ManifestFactory {
   private class ClassTypeManifest[T](prefix: Option[Manifest[?]],
                                      val runtimeClass: Predef.Class[?],
                                      override val typeArguments: List[Manifest[?]]) extends Manifest[T] {
+    /** Returns a string representation of this manifest, combining the optional
+     *  prefix, the class name (or `Array`), and its type arguments.
+     */
     override def toString() =
       (if (prefix.isEmpty) "" else prefix.get.toString+"#") +
       (if (runtimeClass.isArray) "Array" else runtimeClass.getName) +
       argString
    }
 
+  /** Returns a `Manifest` for the array type `Array[T]` whose element type is
+   *  described by `arg`.
+   *
+   *  @tparam T the array element type
+   *  @param arg the manifest for the element type
+   */
   def arrayType[T](arg: Manifest[?]): Manifest[Array[T]] =
     arg.asInstanceOf[Manifest[T]].arrayManifest
 
   @SerialVersionUID(1L)
   private class AbstractTypeManifest[T](prefix: Manifest[?], name: String, upperBound: Predef.Class[?], args: scala.collection.Seq[Manifest[?]]) extends Manifest[T] {
+    /** Returns the runtime `Class` used as the erasure of this abstract type,
+     *  namely its upper bound.
+     */
     def runtimeClass = upperBound
     override val typeArguments = args.toList
+    /** Returns a string representation of this manifest in the form `prefix#name`
+     *  followed by its type arguments.
+     */
     override def toString() = prefix.toString+"#"+name+argString
   }
 
@@ -496,7 +708,13 @@ object ManifestFactory {
 
   @SerialVersionUID(1L)
   private class WildcardManifest[T](lowerBound: Manifest[?], upperBound: Manifest[?]) extends Manifest[T] {
+    /** Returns the runtime `Class` used as the erasure of this wildcard type,
+     *  taken from its upper bound.
+     */
     def runtimeClass = upperBound.runtimeClass
+    /** Returns a string representation of this wildcard type in the form
+     *  `_ >: L <: U`, omitting each bound that is `Nothing`.
+     */
     override def toString() =
       "_" +
         (if (lowerBound eq Nothing) "" else " >: "+lowerBound) +
@@ -516,7 +734,14 @@ object ManifestFactory {
   private class IntersectionTypeManifest[T](parents: Array[Manifest[?]]) extends Manifest[T] {
     // We use an `Array` instead of a `Seq` for `parents` to avoid cyclic dependencies during deserialization
     // which can cause serialization proxies to leak and cause a ClassCastException.
+    /** Returns the runtime `Class` used as the erasure of this intersection type,
+     *  taken from its first parent. The `parents` array must be non-empty;
+     *  requesting the runtime class of an intersection with no parents throws.
+     */
     def runtimeClass = parents(0).runtimeClass
+    /** Returns a string representation of this intersection type, joining its
+     *  parents with `with`.
+     */
     override def toString() = parents.mkString(" with ")
   }
 

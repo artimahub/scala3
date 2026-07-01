@@ -276,7 +276,17 @@ trait PartialFunction[-A, +B] extends Function1[A, B] { self: PartialFunction[A,
  */
 object PartialFunction {
 
+  /** An extractor that matches a sequence by applying a partial function to each of its elements.
+   *
+   *  @tparam A the argument type of the wrapped partial function
+   *  @tparam B the result type of the wrapped partial function
+   */
   final class ElementWiseExtractor[-A, +B] private[PartialFunction] (private val pf: PartialFunction[A, B]^) extends AnyVal { this: ElementWiseExtractor[A, B]^ =>
+    /** Applies the wrapped partial function to every element of `seq`.
+     *
+     *  @param seq the sequence whose elements are matched against the partial function
+     *  @return `Some` sequence of results if the partial function is defined at every element of `seq`, `None` otherwise
+     */
     def unapplySeq(seq: Seq[A]): Option[Seq[B]] = {
       boundary:
         Some(seq.map:
@@ -295,18 +305,49 @@ object PartialFunction {
    */
   private class OrElse[-A, +B] (f1: PartialFunction[A, B]^, f2: PartialFunction[A, B]^)
     extends scala.runtime.AbstractPartialFunction[A, B] with Serializable {
+    /** Tests whether `x` is in the domain of either composed partial function.
+     *
+     *  @param x the value to test
+     */
     def isDefinedAt(x: A) = f1.isDefinedAt(x) || f2.isDefinedAt(x)
 
+    /** Applies the primary partial function where it is defined, otherwise the fallback partial function.
+     *
+     *  @param x the function argument
+     *  @return the result of `f1(x)` if `f1` is defined at `x`, otherwise `f2(x)`
+     */
     override def apply(x: A): B = f1.applyOrElse(x, f2)
 
+    /** Applies the primary partial function where it is defined, otherwise the fallback partial function
+     *  where it is defined, otherwise `default`.
+     *
+     *  @tparam A1 the argument type of the fallback function (a subtype of `A`)
+     *  @tparam B1 the result type of the fallback function (a supertype of `B`)
+     *  @param x the function argument
+     *  @param default the fallback function applied when neither composed partial function is defined at `x`
+     *  @return the result of applying whichever of `f1`, `f2`, or `default` is first defined at `x`
+     */
     override def applyOrElse[A1 <: A, B1 >: B](x: A1, default: A1 => B1): B1 = {
       val z = f1.applyOrElse(x, checkFallback[B])
       if (!fallbackOccurred(z)) z else f2.applyOrElse(x, default)
     }
 
+    /** Composes this partial function with a further fallback partial function `that`.
+     *
+     *  @tparam A1 the argument type of the fallback function
+     *  @tparam B1 the result type of the fallback function
+     *  @param that the fallback function
+     *  @return a partial function whose domain is the union of this function's domain and the domain of `that`
+     */
     override def orElse[A1 <: A, B1 >: B](that: PartialFunction[A1, B1]^): OrElse[A1, B1]^{this, that} =
       new OrElse[A1, B1] (f1, f2 orElse that)
 
+    /** Composes this partial function with a transformation function applied to its results.
+     *
+     *  @tparam C the result type of the transformation function
+     *  @param k the transformation function
+     *  @return a partial function that maps arguments `x` to `k(this(x))`
+     */
     override def andThen[C](k: B => C): OrElse[A, C]^{this, k} =
       new OrElse[A, C] (f1 andThen k, f2 andThen k)
   }
@@ -320,10 +361,28 @@ object PartialFunction {
    *  @param k the transformation function applied to results of `pf`
    */
   private class AndThen[-A, B, +C] (pf: PartialFunction[A, B]^, k: B => C) extends PartialFunction[A, C] with Serializable {
+    /** Tests whether `x` is in the domain of the underlying partial function.
+     *
+     *  @param x the value to test
+     */
     def isDefinedAt(x: A) = pf.isDefinedAt(x)
 
+    /** Applies the underlying partial function to `x` and transforms the result with `k`.
+     *
+     *  @param x the function argument
+     *  @return the result of applying `k` to `pf(x)`
+     */
     def apply(x: A): C = k(pf(x))
 
+    /** Applies the underlying partial function to `x` and transforms the result with `k`,
+     *  or applies `default` where the underlying function is not defined.
+     *
+     *  @tparam A1 the argument type of the fallback function (a subtype of `A`)
+     *  @tparam C1 the result type of the fallback function (a supertype of `C`)
+     *  @param x the function argument
+     *  @param default the fallback function applied when the underlying partial function is not defined at `x`
+     *  @return `k(pf(x))` if `pf` is defined at `x`, otherwise `default(x)`
+     */
     override def applyOrElse[A1 <: A, C1 >: C](x: A1, default: A1 => C1): C1 = {
       val z = pf.applyOrElse(x, checkFallback[B])
       if (!fallbackOccurred(z)) k(z) else default(x)
@@ -339,13 +398,32 @@ object PartialFunction {
    *  @param k the transformation partial function applied to results of `pf`
    */
   private class Combined[-A, B, +C] (pf: PartialFunction[A, B]^, k: PartialFunction[B, C]^) extends PartialFunction[A, C] with Serializable {
+    /** Tests whether `x` is in the domain of the first partial function and its result is in the domain of the second.
+     *
+     *  @param x the value to test
+     *  @return `true` if `pf` is defined at `x` and `k` is defined at `pf(x)`, `false` otherwise
+     */
     def isDefinedAt(x: A): Boolean = {
       val b: B = pf.applyOrElse(x, checkFallback[B])
       if (!fallbackOccurred(b)) k.isDefinedAt(b) else false
     }
 
+    /** Applies the first partial function to `x` and the second partial function to that result.
+     *
+     *  @param x the function argument
+     *  @return the result of applying `k` to `pf(x)`
+     */
     def apply(x: A): C = k(pf(x))
 
+    /** Applies the first partial function to `x`, then the second partial function to that result,
+     *  or applies `default` where either function is not defined.
+     *
+     *  @tparam A1 the argument type of the fallback function (a subtype of `A`)
+     *  @tparam C1 the result type of the fallback function (a supertype of `C`)
+     *  @param x the function argument
+     *  @param default the fallback function applied when either composed partial function is not defined
+     *  @return `k(pf(x))` if `pf` is defined at `x` and `k` is defined at `pf(x)`, otherwise `default(x)`
+     */
     override def applyOrElse[A1 <: A, C1 >: C](x: A1, default: A1 => C1): C1 = {
       val pfv = pf.applyOrElse(x, checkFallback[B])
       if (!fallbackOccurred(pfv)) k.applyOrElse(pfv, (_: B) => default(x)) else default(x)
@@ -380,6 +458,11 @@ object PartialFunction {
   private class Lifted[-A, +B] (val pf: PartialFunction[A, B]^)
       extends scala.runtime.AbstractFunction1[A, Option[B]] with Serializable {
 
+    /** Applies the underlying partial function to `x`, wrapping the result in an `Option`.
+     *
+     *  @param x the function argument
+     *  @return `Some(pf(x))` if `pf` is defined at `x`, `None` otherwise
+     */
     def apply(x: A): Option[B] = {
       val z = pf.applyOrElse(x, checkFallback[B])
       if (!fallbackOccurred(z)) Some(z) else None
@@ -387,12 +470,26 @@ object PartialFunction {
   }
 
   private class Unlifted[A, B] (f: A => Option[B]) extends scala.runtime.AbstractPartialFunction[A, B] with Serializable {
+    /** Tests whether the underlying optional function yields a value for `x`.
+     *
+     *  @param x the value to test
+     *  @return `true` if `f(x)` is a `Some`, `false` if it is a `None`
+     */
     def isDefinedAt(x: A): Boolean = f(x).isDefined
 
+    /** Applies the underlying optional function to `x`, returning its value where defined and `default` otherwise.
+     *
+     *  @tparam A1 the argument type of the fallback function (a subtype of `A`)
+     *  @tparam B1 the result type of the fallback function (a supertype of `B`)
+     *  @param x the function argument
+     *  @param default the fallback function applied when `f` returns `None` for `x`
+     *  @return the value contained in `f(x)` if it is a `Some`, or `default(x)` if it is a `None`
+     */
     override def applyOrElse[A1 <: A, B1 >: B](x: A1, default: A1 => B1): B1 = {
       f(x).getOrElse(default(x))
     }
 
+    /** Returns the optional function underlying this partial function. */
     override def lift = f
   }
 

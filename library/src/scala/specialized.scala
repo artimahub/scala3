@@ -33,6 +33,11 @@ import Specializable._
 // class tspecialized[T](group: Group[T]) extends scala.annotation.StaticAnnotation {
 
 final class specialized(group: SpecializedGroup) extends scala.annotation.StaticAnnotation {
+  /** Creates a `specialized` annotation that specializes on the given types.
+   *
+   *  @param types the types to specialize on, given as their `Specializable` companions (for example `Int`, `Double`, `Boolean`)
+   */
   def this(types: Specializable*) = this(new Group(types.toList))
+  /** Creates a `specialized` annotation that specializes on all primitive types. */
   def this() = this(Primitives)
 }

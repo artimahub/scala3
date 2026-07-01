@@ -23,13 +23,37 @@ final class Symbol private (val name: String) extends Serializable {
 
   @throws(classOf[java.io.ObjectStreamException])
   private def readResolve(): Any = Symbol.apply(name)
+  /** Returns the hash code for this symbol, which is the hash code of its name. */
   override def hashCode() = name.hashCode()
+  /** Tests whether `other` is this same symbol, using reference equality.
+   *
+   *  Because symbols are interned, two symbols are equal exactly when they are
+   *  the same object, so reference equality suffices.
+   *
+   *  @param other the object to compare with this symbol
+   */
   override def equals(other: Any) = this eq other.asInstanceOf[AnyRef]
 }
 
 object Symbol extends UniquenessCache[String, Symbol] {
+  /** Returns the unique, interned symbol with the given name. Repeated calls
+   *  with equal names return the same object, so results can be compared with
+   *  reference equality.
+   *
+   *  @param name the name of the symbol
+   */
   override def apply(name: String): Symbol = super.apply(name)
+  /** Creates a new symbol wrapping the given name.
+   *
+   *  @param name the name to wrap
+   *  @return a freshly constructed `Symbol` for `name`
+   */
   protected def valueFromKey(name: String): Symbol = new Symbol(name)
+  /** Extracts the name used as the cache key for the given symbol.
+   *
+   *  @param sym the symbol whose key is needed
+   *  @return the symbol's name, wrapped in `Some`
+   */
   protected def keyFromValue(sym: Symbol): Option[String] = Some(sym.name)
 }
 
@@ -49,9 +73,26 @@ private[scala] abstract class UniquenessCache[K, V] {
   private val wlock = rwl.writeLock
   private val map = new WeakHashMap[K, WeakReference[V]]
 
+  /** Constructs the value to be cached for the given key.
+   *
+   *  @param k the key to construct a value from
+   *  @return the value corresponding to `k`
+   */
   protected def valueFromKey(k: K): V
+  /** Extracts the key under which the given value is cached.
+   *
+   *  @param v the value whose key is needed
+   *  @return the key for `v`, or `None` if it has none
+   */
   protected def keyFromValue(v: V): Option[K]
 
+  /** Returns the cached value for the given key, constructing and caching it on
+   *  first access. Values are held via weak references, so the cached value may
+   *  be reconstructed for a key after its previous value has been
+   *  garbage-collected. Access is thread-safe.
+   *
+   *  @param name the key to look up
+   */
   def apply(name: K): V = {
     def cached(): V | Null = {
       rlock.lock
@@ -85,5 +126,11 @@ private[scala] abstract class UniquenessCache[K, V] {
       case res  => res
     }
   }
+  /** Extracts the key associated with the given value, enabling use as an
+   *  extractor in pattern matches.
+   *
+   *  @param other the value to extract from
+   *  @return the key for `other`, or `None` if it has none
+   */
   def unapply(other: V): Option[K] = keyFromValue(other)
 }

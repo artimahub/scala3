@@ -38,5 +38,8 @@ final class MatchError(@transient obj: Any) extends RuntimeException {
     this
   }
 
+  /** Returns the detail message of this error, describing the unmatched object
+   *  and its class, or `"null"` if the object is `null`.
+   */
   override def getMessage(): String = objString
 }
