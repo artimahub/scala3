@@ -67,9 +67,6 @@ type Shared = SharedCapability
  *  During separation checking, exclusive usage of marked capabilities will be enforced.
  */
 @experimental
-/** Marker trait for capabilities that should only be used by one concurrent
- *  process at a given time, such as write-access to a shared mutable buffer.
- */
 trait ExclusiveCapability extends Capability
 
 @experimental
@@ -89,17 +86,10 @@ trait Control extends SharedCapability, Classifier
  *  These  classes typically contain mutable variables and/or update methods.
  */
 @experimental
-/** Marker trait for classes that can consult and change the global program
- *  state. Such classes typically contain mutable variables and/or update
- *  methods.
- */
 trait Stateful
 
 /** Marker trait for classes that are not subject to scoping restrictions of captured capabilities. */
 @experimental
-/** Marker trait for classes that are not subject to the scoping restrictions of
- *  captured capabilities.
- */
 trait Unscoped extends ExclusiveCapability, Classifier
 
 @experimental
@@ -110,7 +100,6 @@ trait Mutable extends Stateful, Unscoped
 
 /** Carrier trait for capture set type parameters. */
 @experimental
-/** Carrier trait for capture set type parameters. */
 trait CapSet extends Any
 
 /** A type constraint expressing that the capture set `C` needs to contain
@@ -120,12 +109,6 @@ trait CapSet extends Any
  *  @tparam R the singleton type of the capability that must be present in `C`
  */
 @experimental
-/** A type constraint expressing that the capture set `C` needs to contain
- *  the capability `R`.
- *
- *  @tparam C the capture set that must contain the capability `R`
- *  @tparam R the singleton type of the capability that must be present in `C`
- */
 sealed trait Contains[+C >: CapSet <: CapSet @retainsCap, R <: Singleton]
 
 @experimental
@@ -142,10 +125,6 @@ object Contains:
  *  Now deprecated and with no effect.
  */
 @experimental @deprecated
-/** Formerly an annotation on capture-set parameters `C` declaring that the
- *  method's body does not have `C` in its use-set. Now deprecated and with no
- *  effect.
- */
 final class reserve extends annotation.StaticAnnotation
 
 /** An annotation for definitions that should not be accessible from code
@@ -153,11 +132,6 @@ final class reserve extends annotation.StaticAnnotation
  */
 @experimental
 @getter @setter @beanGetter @beanSetter @field
-/** An annotation for definitions that should not be accessible from code
- *  compiled under safe mode.
- *
- *  @param message an optional explanation for why the definition is unavailable in safe mode
- */
 final class rejectSafe(message: String = "") extends scala.annotation.ConstantAnnotation
 
 /** An annotation for definitions that are assumed to be accessible from code
@@ -165,9 +139,6 @@ final class rejectSafe(message: String = "") extends scala.annotation.ConstantAn
  */
 @experimental
 @getter @setter @beanGetter @beanSetter @field
-/** An annotation for definitions that are assumed to be accessible from code
- *  compiled under safe mode.
- */
 final class assumeSafe extends scala.annotation.ConstantAnnotation
 
 @experimental
@@ -177,9 +148,6 @@ object internal:
    *  soft modifier.
    */
   @getter @param
-  /** An annotation reflecting that a parameter or method carries the `consume`
-   *  soft modifier.
-   */
   final class consume extends annotation.StaticAnnotation
 
   /** An annotation on a type indicating that the type was inferred. Added
@@ -227,14 +195,6 @@ end internal
  *  separation checking.
  */
 @experimental
-/** Strips all covariant capture sets from the [[Mutable]] (or [[scala.Array]])
- *  argument, turning it into an immutable type. `Array[?]` is included since it
- *  counts as a `Mutable` type for separation checking.
- *
- *  @param x the [[Mutable]] or [[scala.Array]] value to freeze; it is consumed
- *  @return `x` itself, unchanged at runtime, but with its covariant capture sets stripped
- *          from the static result type
- */
 def freeze(@internal.consume x: Mutable | Array[?]): x.type = x
 
 @experimental
@@ -265,10 +225,6 @@ object unsafe:
    *  can experiment with it quickly between minor releases
    */
   @getter @param
-  /** An annotation marking a constructor parameter or class field whose
-   *  captured capabilities are not tracked, so they are not contributed to the
-   *  capture set of the constructed object.
-   */
   final class untrackedCaptures extends annotation.StaticAnnotation
 
   extension [T](x: T)

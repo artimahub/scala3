@@ -26,8 +26,6 @@ import scala.language.`2.13`
  *  an asymmetric equals method, which is not generally recommended.
  */
 @deprecated("Explicitly override hashCode, equals and toString instead.", "2.13.0")
-/** Forwards `hashCode` and `toString` to a proxied object `self`; `equals` uses
- *  proxy/self identity checks plus `that.equals(self)`. */
 trait Proxy extends Any {
   /** The proxied object used by `hashCode`, `toString`, and `equals`. */
   def self: Any
@@ -55,11 +53,6 @@ object Proxy {
   /** A proxy which exposes the type it is proxying for via a type parameter.
    */
   @deprecated("Explicitly override hashCode, equals and toString instead.", "2.13.0")
-  /** A proxy that exposes the type of the proxied object through a type
-   *  parameter.
-   *
-   *  @tparam T the type of the proxied object `self`
-   */
   trait Typed[T] extends Any with Proxy {
     /** The proxied object, typed as `T`. */
     def self: T

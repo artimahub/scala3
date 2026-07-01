@@ -50,9 +50,4 @@ import scala.annotation.meta._
  */
 @getter @setter @beanGetter @beanSetter
 @deprecatedInheritance("Scheduled for being final in the future", "2.13.0")
-/** An annotation that designates that overriding a member is deprecated.
- *
- *  @param message the message to print during compilation if the member was overridden
- *  @param since a string identifying the first version in which overriding was deprecated
- */
 class deprecatedOverriding(message: String = "", since: String = "") extends scala.annotation.ConstantAnnotation

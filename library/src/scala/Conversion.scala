@@ -28,12 +28,6 @@ import annotation.internal.preview
  *  @tparam U the output type of the conversion (covariant)
  */
 @java.lang.FunctionalInterface
-/** A class for implicit values that can serve as implicit conversions from `T`
- *  to `U`.
- *
- *  @tparam T the input type of the conversion (contravariant)
- *  @tparam U the output type of the conversion (covariant)
- */
 abstract class Conversion[-T, +U] extends Function1[T, U]:
     /** Converts value `x` of type `T` to type `U`.
      *

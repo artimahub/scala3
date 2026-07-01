@@ -15,9 +15,9 @@ package scala.beans
 import scala.language.`2.13`
 import scala.annotation.meta.{beanGetter, beanSetter, field}
 
-/** A field annotation that generates a Java Bean-style getter named
- *  `isFieldName` for the annotated `val` or `var`, and a setter when it is a
- *  `var`.
+/** This annotation has the same functionality as
+ *  `scala.beans.BeanProperty`, but the generated Bean getter will be
+ *  named `isFieldName` instead of `getFieldName`.
  */
 @field @beanGetter @beanSetter
 @deprecatedInheritance("Scheduled for being final in the future", "2.13.0")

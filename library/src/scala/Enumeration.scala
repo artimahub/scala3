@@ -87,11 +87,6 @@ import scala.util.matching.Regex
  *                 identifies values at run-time.
  */
 @SerialVersionUID(8476000850333817230L)
-/** Defines a finite set of values specific to the enumeration, providing a
- *  lightweight alternative to case classes.
- *
- *  @param initial the integer from which to start counting the ids that identify values at run-time
- */
 abstract class Enumeration (initial: Int) extends Serializable {
   thisenum =>
 
@@ -249,9 +244,6 @@ abstract class Enumeration (initial: Int) extends Serializable {
 
   /** The type of the enumerated values. */
   @SerialVersionUID(7091335633555234129L)
-  /** A single value belonging to this enumeration, identified by a unique
-   *  integer id and ordered by it.
-   */
   abstract class Value extends Ordered[Value] with Serializable {
     /** The id and bit location of this enumeration value. */
     def id: Int
@@ -292,12 +284,6 @@ abstract class Enumeration (initial: Int) extends Serializable {
    *  identification behaviour.
    */
   @SerialVersionUID(0 - 3501153230598116017L)
-  /** A concrete enumeration value identified by the integer `i` and called
-   *  `name`.
-   *
-   *  @param i the integer that identifies this value at run-time; must be unique amongst all values of the enumeration
-   *  @param name a human-readable name for this value, or `null` to derive the name reflectively
-   */
   protected class Val(i: Int, name: String | Null) extends Value with Serializable {
     /** Creates a value identified by the integer `i`.
      *
@@ -362,8 +348,6 @@ abstract class Enumeration (initial: Int) extends Serializable {
    *  @define Coll `collection.immutable.SortedSet`
    */
   @SerialVersionUID(7229671200427364242L)
-  /** An immutable set of values of this enumeration, ordered by increasing id.
-   */
   class ValueSet private[ValueSet] (private var nnIds: immutable.BitSet)
     extends immutable.AbstractSet[Value]
       with immutable.SortedSet[Value]

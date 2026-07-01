@@ -62,10 +62,4 @@ import scala.annotation.meta._
  */
 @getter @setter @beanGetter @beanSetter @field
 @deprecatedInheritance("Scheduled for being final in the future", "2.13.0")
-/** An annotation that designates that a definition is deprecated.
- *  A deprecation warning is issued upon usage of the annotated definition.
- *
- *  @param message the message to print during compilation if the definition is accessed
- *  @param since   a string identifying the first version in which the definition was deprecated
- */
 class deprecated(message: String = "", since: String = "") extends scala.annotation.ConstantAnnotation

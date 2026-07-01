@@ -54,9 +54,4 @@ import scala.language.`2.13`
  
  */
 @scala.annotation.implicitNotFound(msg = "No singleton value available for ${T}; eligible singleton types for `ValueOf` synthesis include literals and stable paths.")
-/** A wrapper carrying the unique value of the singleton type `T`.
- *
- *  @tparam T the singleton type whose single inhabitant is wrapped
- *  @param value the unique value of type `T`
- */
 final class ValueOf[T](val value: T) extends AnyVal

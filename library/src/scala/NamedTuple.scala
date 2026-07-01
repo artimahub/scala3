@@ -47,7 +47,7 @@ object NamedTuple:
   /** A named tuple expression will desugar to a call to `build`. For instance,
    *  `(name = "Lyra", age = 23)` will desugar to `build[("name", "age")]()(("Lyra", 23))`.
    *
-   *  @tparam N the tuple of name types for the named tuple's fields
+   *  @tparam N the tuple of literal string types representing the field names
    */
   inline def build[N <: Tuple]()[V <: Tuple](x: V): NamedTuple[N, V] = x
 

@@ -53,12 +53,6 @@ import language.experimental.captureChecking
  *  @param names the string names (n_1, ..., n_k) of the witness values generated for the context bounds of the annotated type
  */
 @experimental
-/** An annotation that marks a type definition as one that should get a context
- *  bound companion, recording the names of the witnesses generated for its
- *  context bounds.
- *
- *  @param names the names of the witnesses generated for the context bounds of the annotated type
- */
 class WitnessNames(names: String*) extends StaticAnnotation
 
 
