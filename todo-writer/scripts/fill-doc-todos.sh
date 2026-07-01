@@ -51,8 +51,12 @@ log() { local m="[$(date '+%H:%M:%S')] $1"; echo "$m"; echo "$m" >> "$LOG_FILE";
 # Render a prompt file, substituting {FILE_PATH}.
 render() { sed "s|{FILE_PATH}|$1|g" "$2"; }
 
-# Extract the review JSON text from a raw model emission (strip ``` fences).
-clean_json() { sed -e 's/^```json//' -e 's/^```//' | sed '/^[[:space:]]*$/d'; }
+# Extract the review JSON from a raw model emission. Strips ``` fences and any
+# prose the model emitted before the JSON object (some runs prefix a sentence
+# like "Here is the review:"), starting output at the first line beginning with
+# '{'. Without this, a prose preamble makes the style verdict unparseable, which
+# both falsely reports non-convergence AND silently drops real style findings.
+clean_json() { sed -e 's/^```json//' -e 's/^```//' | awk '/^[[:space:]]*\{/{f=1} f'; }
 
 HOUSE_RULES_FILE="${HOUSE_RULES_FILE:-$TODO_WRITER_DIR/docs/house-rules.md}"
 
