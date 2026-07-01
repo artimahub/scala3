@@ -233,11 +233,22 @@ object ScaladocChecker:
   /** True if `line` consists only of annotation(s) such as `@deprecated(...)`,
     *  with no declaration or other content on it. Lines like `@deprecated def f`
     *  are NOT pure-annotation lines (the declaration is on the same line).
+    *
+    *  Argument groups are stripped as balanced `(...)`/`[...]` pairs so arbitrary
+    *  argument content (quotes, commas, brackets) does not defeat the check; what
+    *  must remain is only annotation names like `@foo @bar.baz`.
     */
   private def isPureAnnotationLine(line: String): Boolean =
     val trimmed = line.trim
-    trimmed.startsWith("@") &&
-      trimmed.replaceAll("""(?:@[\w\(\)\s,."]+\s*)*""", "").trim.isEmpty
+    if !trimmed.startsWith("@") then false
+    else
+      var s    = trimmed
+      var prev = ""
+      while s != prev do
+        prev = s
+        s = s.replaceAll("""\([^()]*\)""", "").replaceAll("""\[[^\[\]]*\]""", "")
+      val tokens = s.trim.split("""\s+""").filter(_.nonEmpty)
+      tokens.nonEmpty && tokens.forall(_.startsWith("@"))
 
   /** Byte offset of the declaration that a Scaladoc block ending at `fromIndex`
     *  documents: the first non-blank line after the comment, skipping any

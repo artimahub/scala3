@@ -426,6 +426,24 @@ class IntegrationSpec extends AnyFlatSpec with Matchers:
     }
   }
 
+  it should "skip multiple annotations, including ones with quoted/bracketed args, before a documented declaration" in {
+    // The pre-existing comment sits before two annotations, one carrying a
+    // string argument that contains quotes and commas. Both annotation lines
+    // must be skipped so the class is still recognized as documented.
+    val content = """package test
+                    |
+                    |/** A documented class. */
+                    |@deprecatedInheritance("Scheduled for being final", "2.13.0")
+                    |@deprecated("As of JDK 17, 'strictfp' is not required", "3.8.0")
+                    |class Foo extends scala.annotation.StaticAnnotation
+                    |""".stripMargin
+
+    withTempFile(content) { path =>
+      val result = ScaladocChecker.checkFile(path)
+      result.results.count(_.scaladoc.synthetic) should be(0)
+    }
+  }
+
   it should "still synthesize docs for an undocumented annotated class" in {
     // No comment anywhere: the annotated class is genuinely undocumented.
     val content = """package test
