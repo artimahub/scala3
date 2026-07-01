@@ -18,4 +18,5 @@ import scala.language.`2.13`
  */
 // TODO: remove
 @deprecated("will be removed in a future release", since = "2.12.7")
+/** A runtime error signaling the use of an uninitialized variable or value. */
 final class UninitializedError extends RuntimeException("uninitialized value")

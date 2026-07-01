@@ -21,9 +21,18 @@ trait Specializable
 
 object Specializable {
   // No type parameter in @specialized annotation.
+  /** A common supertype for the predefined groups of types that can be supplied
+   *  to the `@specialized` annotation.
+   */
   trait SpecializedGroup
 
   // Smuggle a list of types by way of a tuple upon which Group is parameterized.
+  /** A group of types encoded as the tuple type `T`, for use with the
+   *  `@specialized` annotation.
+   *
+   *  @tparam T a tuple type whose element types are the members of the group
+   *  @param value a tuple whose element types make up the group; its value is never used
+   */
   class Group[T](value: T) extends SpecializedGroup
 
   final val Primitives:  Group[(Byte, Short, Int, Long, Char, Float, Double, Boolean, Unit)] = null.asInstanceOf[Group[(Byte, Short, Int, Long, Char, Float, Double, Boolean, Unit)]]

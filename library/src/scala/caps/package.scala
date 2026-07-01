@@ -93,6 +93,9 @@ trait Stateful
 trait Unscoped extends ExclusiveCapability, Classifier
 
 @experimental
+/** Marker trait for classes with mutable state. Combines [[Stateful]] and
+ *  [[Unscoped]].
+ */
 trait Mutable extends Stateful, Unscoped
 
 /** Carrier trait for capture set type parameters. */
@@ -180,6 +183,7 @@ object internal:
    *  @tparam T the type of the mutable variable's value
    */
   trait Var[T] extends Mutable:
+    /** Returns the current value of the mutable variable. */
     def get: T
     update def set(x: T): Unit
 
