@@ -65,10 +65,10 @@ trait Manifest[T] extends ClassManifest[T] with Equals {
     Manifest.classType[Array[T]](arrayClass[T](runtimeClass), this)
 
   /** Tests whether `that` may be compared for equality with this manifest,
-   *  which holds when `that` is itself a `Manifest`.
+   *  which holds when `that` is a non-null `Manifest`.
    *
    *  @param that the value tested for comparability with this manifest
-   *  @return `true` if `that` is a `Manifest`, `false` otherwise
+   *  @return `true` if `that` is a non-null `Manifest`, `false` otherwise
    */
   override def canEqual(that: Any): Boolean = that match {
     case _: Manifest[?]   => true
@@ -220,7 +220,7 @@ abstract class AnyValManifest[T <: AnyVal](override val toString: String) extend
   override def <:<(that: ClassManifest[?]): Boolean =
     (that eq this) || (that eq Manifest.Any) || (that eq Manifest.AnyVal)
   /** Tests whether `other` may be compared for equality with this manifest,
-   *  which holds when `other` is itself an `AnyValManifest`.
+   *  which holds when `other` is a non-null `AnyValManifest`.
    *
    *  @param other the value tested for comparability with this manifest
    */
@@ -522,7 +522,7 @@ object ManifestFactory {
      *  extractor in a pattern.
      *
      *  @param x the value to match
-     *  @return `Some(x)` if `x` is a `Unit`, `None` otherwise
+     *  @return `Some(())` if `x` is a `Unit`, `None` otherwise
      */
     override def unapply(x: Any): Option[Unit] = {
       x match {
@@ -744,7 +744,8 @@ object ManifestFactory {
     // We use an `Array` instead of a `Seq` for `parents` to avoid cyclic dependencies during deserialization
     // which can cause serialization proxies to leak and cause a ClassCastException.
     /** Returns the runtime `Class` used as the erasure of this intersection type,
-     *  taken from its first parent.
+     *  taken from its first parent. The `parents` array must be non-empty;
+     *  requesting the runtime class of an intersection with no parents throws.
      */
     def runtimeClass = parents(0).runtimeClass
     /** Returns a string representation of this intersection type, joining its
