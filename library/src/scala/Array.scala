@@ -200,6 +200,7 @@ object Array {
   /** Returns an array of length 0.
    *
    *  @tparam T the element type of the array
+   *  @return an empty `Array[T]` (length 0)
    */
   def empty[T: ClassTag]: Array[T] = new Array[T](0)
 
