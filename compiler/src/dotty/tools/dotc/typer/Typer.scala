@@ -51,7 +51,7 @@ import NullOpsDecorator.*
 import cc.{Setup, CheckCaptures, isRetainsLike, derivesFromCapSet}
 import config.MigrationVersion
 import dotty.tools.dotc.core.Mode.Interactive
-import transform.CheckUnused.OriginalName
+import transform.CheckUnused.withOriginalName
 
 import scala.annotation.{unchecked as _, *}
 import dotty.tools.dotc.util.chaining.*
@@ -172,10 +172,11 @@ class Typer(@constructorOnly nestingLevel: Int = 0) extends Namer
                with Checking
                with QuotesAndSplices
                with Deriving
-               with Migrations {
+               with Migrations
+               with SpecStrings {
 
   import Typer.*
-  import tpd.{cpy => _, _}
+  import tpd.{cpy => _, *}
   import untpd.cpy
 
   /** The scope of the typer.
@@ -763,9 +764,7 @@ class Typer(@constructorOnly nestingLevel: Int = 0) extends Namer
       typed(localExtensionSelection, pt)
     else if rawType.exists then
       val ref = setType(ensureAccessible(rawType, superAccess = false, tree.srcPos))
-      if ref.symbol.name != name then
-        ref.withAttachment(OriginalName, name)
-      else ref
+      withOriginalName(ref, name)
     else if name == nme._scope then
       // gross hack to support current xml literals.
       // awaiting a better implicits based solution for library-supported xml
@@ -921,6 +920,12 @@ class Typer(@constructorOnly nestingLevel: Int = 0) extends Namer
           tree, pt, IgnoredProto(pt), qual, ctx.typerState.ownedVars, this, inSelect = true)
       else EmptyTree
 
+    // Otherwise, under magic, if selector is `$spec`, convert to spec string representation.
+    def trySpecString(tree: untpd.Select, qual: Tree) =
+      if selName == nme.SPEC then
+        ref(defn.Compiletime_spec).appliedTo(qual).withSpan(tree.span)
+      else EmptyTree
+
     // Otherwise, try a GADT approximation if we're trying to select a member
     def tryGadt() =
       if ctx.gadt.isNarrowing then
@@ -1006,6 +1011,7 @@ class Typer(@constructorOnly nestingLevel: Int = 0) extends Namer
       .orElse(tryNamedTupleSelection())
       .orElse(trySmallGenericTuple(qual, withCast = true))
       .orElse(tryExt(tree, qual))
+      .orElse(trySpecString(tree, qual))
       .orElse(tryGadt())
       .orElse(tryDefineFurther())
       .orElse(tryDynamic())
@@ -3655,17 +3661,21 @@ class Typer(@constructorOnly nestingLevel: Int = 0) extends Namer
           val packageObjectName = desugar.packageObjectName(ctx.source)
           val topLevelClassSymbol = pkg.moduleClass.info.decls.lookup(packageObjectName.moduleClassName)
           topLevelClassSymbol.ensureCompleted()
-          // When sibling files in this package come from the classpath (TASTy),
-          // force their `<src>$package` classes now to avoid cross-unit cycles
-          // as in #25894: otherwise the first lookup on this package (e.g. an
-          // import qualifier at the top of this file) forces them during the
-          // import's completer, and their unpickling can chain through source
-          // exports back to the import itself.
+          // Force the `<src>$package` classes of the sibling files in this
+          // package now to avoid cross-unit cycles as in #25894 / #26340:
+          // otherwise the first lookup on this package (e.g. an import qualifier
+          // at the top of this file) forces them during the import's completer,
+          // and resolving their exports can chain back to the import itself.
+          // This must cover both classpath (TASTy) siblings and sibling source
+          // units recompiled in the same run (#26340): a top-level `export` in
+          // any of them is the link that closes the cycle, so pre-resolving them
+          // all through the regular member path breaks it. We skip any package
+          // object that is already being completed to avoid forcing a cycle.
           if !pkg.isEffectiveRoot && pkg != defn.EmptyPackageVal then
             pkg.moduleClass.denot match
               case pcd: SymDenotations.PackageClassDenotation =>
                 for pobj <- pcd.packageObjs do
-                  if pobj.symbol.isDefinedInBinary then
+                  if !pobj.symbol.isCompleting then
                     pobj.symbol.ensureCompleted()
               case _ =>
           var stats1 = typedStats(tree.stats, pkg.moduleClass)._1
@@ -3818,6 +3828,15 @@ class Typer(@constructorOnly nestingLevel: Int = 0) extends Namer
           val resTpe = TypeOps.nestedPairs(elemTpes)
           app1.cast(resTpe)
 
+  def typedInterpolated(tree: untpd.InterpolatedString, pt: Type, locked: TypeVars)(using Context) =
+    val tree1 =
+      if tree.id == nme.SPEC then
+        val segments1 = processSpec(tree.segments)
+        if segments1.corresponds(tree.segments)(_ eq _) then tree
+        else untpd.cpy.InterpolatedString(tree)(tree.id, segments1)
+      else tree
+    typedUnadapted(desugar(tree1), pt, locked)
+
  /** Checks if `tree` is a named tuple with one element that could be
   *  interpreted as an assignment, such as `(x = 1)`. If so, issues a warning.
   *  However, only checks the Tuple case if we're not within a type,
@@ -3951,6 +3970,7 @@ class Typer(@constructorOnly nestingLevel: Int = 0) extends Namer
           case tree: untpd.Parens =>
             checkDeprecatedAssignmentSyntax(tree)
             typedUnadapted(desugar(tree, pt), pt, locked)
+          case tree: untpd.InterpolatedString => typedInterpolated(tree, pt, locked)
           case _ => typedUnadapted(desugar(tree, pt), pt, locked)
         }
 
@@ -4341,7 +4361,8 @@ class Typer(@constructorOnly nestingLevel: Int = 0) extends Namer
       findRef(tree.name, WildcardType, ExtensionMethod, EmptyFlags, qual.srcPos, altImports) match
         case ref: TermRef =>
           def tryExtMethod(ref: TermRef)(using Context) =
-            extMethodApply(untpd.TypedSplice(tpd.ref(ref).withSpan(tree.nameSpan)), qual, pt)
+            val refTree = withOriginalName(tpd.ref(ref).withSpan(tree.nameSpan), tree.name)
+            extMethodApply(untpd.TypedSplice(refTree), qual, pt)
           if altImports.isEmpty then
             tryExtMethod(ref)
           else

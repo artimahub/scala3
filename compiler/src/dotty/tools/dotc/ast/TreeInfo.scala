@@ -479,11 +479,27 @@ trait UntypedTreeInfo extends TreeInfo[Untyped] { self: Trees.Instance[Untyped] 
     case _ => false
   }
 
+  def isConsumeAnnot(tree: Tree)(using Context): Boolean = unsplice(tree) match
+    case Apply(
+      Select(
+        New(
+          Select(
+            Select(
+              Select(
+                Select(
+                  Ident(nme.ROOTPKG),
+                  nme.scala),
+                nme.caps),
+              nme.internal),
+            tpnme.consume)), _), _) => true
+    case _ => false
+
   /**  The largest subset of {NoInits, PureInterface} that a
    *   trait or class enclosing this statement can have as flags.
    */
   private def defKind(tree: Tree)(using Context): FlagSet = unsplice(tree) match {
     case EmptyTree | _: Import => NoInitsInterface
+    case _: ModuleDef => NoInits
     case tree: TypeDef =>
       if tree.isClassDef then
         if Feature.shouldBehaveAsScala2 then EmptyFlags
@@ -608,11 +624,14 @@ trait TypedTreeInfo extends TreeInfo[Type] { self: Trees.Instance[Type] =>
     case TypeApply(fn, _) =>
       val sym = fn.symbol
       if tree.tpe.isInstanceOf[MethodOrPoly] then exprPurity(fn)
+      else if sym == defn.Any_typeCast then
+        fn match
+          case Select(qual, _) => exprPurity(qual) `min` Pure
+          case _ => Impure
       else if sym == defn.QuotedTypeModule_of
           || sym == defn.Predef_classOf
           || sym == defn.Compiletime_erasedValue && tree.tpe.dealias.isInstanceOf[ConstantType]
           || defn.capsErasedValueMethods.contains(sym)
-          || sym == defn.Any_typeCast
       then Pure
       else Impure
     case Apply(fn, args) =>
