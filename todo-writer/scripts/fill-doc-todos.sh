@@ -8,8 +8,8 @@
 #
 #   Writer (Opus) drafts
 #   repeat up to MAX_ROUNDS:
-#       Accuracy review (Codex, different model family)  ┐ run in parallel
-#       Style review    (Claude Sonnet)                  ┘
+#       Codex review (accuracy emphasis)  ┐ run in parallel
+#       Claude review (style emphasis)     ┘
 #       if BOTH approve -> done
 #       else Writer refines, addressing both reviews (with right-of-reply)
 #   on non-convergence -> keep best draft, flag NEEDS-HUMAN in the digest
@@ -56,15 +56,15 @@ render() { sed "s|{FILE_PATH}|$1|g" "$2"; }
 # Extract the review JSON from a raw model emission. Strips ``` fences and any
 # prose the model emitted before the JSON object (some runs prefix a sentence
 # like "Here is the review:"), starting output at the first line beginning with
-# '{'. Without this, a prose preamble makes the style verdict unparseable, which
-# both falsely reports non-convergence AND silently drops real style findings.
+# '{'. Without this, a prose preamble makes a reviewer verdict unparseable,
+# which both falsely reports non-convergence AND silently drops real findings.
 clean_json() { sed -e 's/^```json//' -e 's/^```//' | awk '/^[[:space:]]*\{/{f=1} f'; }
 
 HOUSE_RULES_FILE="${HOUSE_RULES_FILE:-$TODO_WRITER_DIR/docs/house-rules.md}"
 
 # Emit accumulated, reviewer-derived house rules (if any) so the writer and the
-# style reviewer pick up conventions learned from earlier PRs. Appended after the
-# base prompt; it refines (does not replace) the rules baked into the prompt files.
+# reviewers pick up conventions learned from earlier PRs. Appended after the base
+# prompt; it refines (does not replace) the rules baked into the prompt files.
 house_rules() {
   if [ -s "$HOUSE_RULES_FILE" ]; then
     echo
@@ -135,7 +135,7 @@ for FILE in "${TARGETS[@]}"; do
     round=1
     converged=false
     while [ "$round" -le "$MAX_ROUNDS" ]; do
-        log "  round $round/$MAX_ROUNDS: accuracy (Codex $ACCURACY_MODEL) ‖ style ($STYLE_MODEL)..."
+        log "  round $round/$MAX_ROUNDS: Codex ($ACCURACY_MODEL, accuracy emphasis) ‖ Claude ($STYLE_MODEL, style emphasis)..."
 
         # Unified diff of ONLY the writer's changes, to scope both reviewers.
         DIFF_BLOCK="$WORK_DIR/${SAFE}.diff"
@@ -143,14 +143,14 @@ for FILE in "${TARGETS[@]}"; do
           diff -u "$ORIG" "$ABS" || true
         } > "$DIFF_BLOCK"
 
-        # Accuracy review (Codex) — background.
-        ( cat <(render "$ABS" "$PROMPTS_DIR/doc-accuracy-review-prompt.txt") "$DIFF_BLOCK" \
+        # Codex review (accuracy emphasis, but checks accuracy and style) — background.
+        ( cat <(render "$ABS" "$PROMPTS_DIR/doc-accuracy-review-prompt.txt") <(house_rules) "$DIFF_BLOCK" \
             | codex exec --model "$ACCURACY_MODEL" -s read-only --skip-git-repo-check -C "$REPO_ROOT" \
                 --output-schema "$SCHEMA" --output-last-message "$ACC_JSON" - \
                 > "$REVIEWS_DIR/${SAFE}.accuracy.log" 2>&1 ) &
         acc_pid=$!
 
-        # Style review (Claude Sonnet) — background.
+        # Claude review (style emphasis, but checks accuracy and style) — background.
         ( cat <(render "$ABS" "$PROMPTS_DIR/doc-style-review-prompt.txt") <(house_rules) "$DIFF_BLOCK" \
             | claude --dangerously-skip-permissions -p --model "$STYLE_MODEL" \
                 --allowedTools Read,Grep,Glob --output-format json \
@@ -165,7 +165,7 @@ for FILE in "${TARGETS[@]}"; do
 
         acc_verdict=$(jq -r '.verdict // "revise"' "$final_acc" 2>/dev/null || echo revise)
         sty_verdict=$(jq -r '.verdict // "revise"' "$final_sty" 2>/dev/null || echo revise)
-        log "    accuracy=$acc_verdict  style=$sty_verdict"
+        log "    codex=$acc_verdict  claude=$sty_verdict"
 
         if [ "$acc_verdict" = "approve" ] && [ "$sty_verdict" = "approve" ]; then
             converged=true
@@ -179,8 +179,8 @@ for FILE in "${TARGETS[@]}"; do
         # ---- Writer: refine using both reviews -----------------------------
         log "    refine: incorporating both reviews..."
         { render "$ABS" "$PROMPTS_DIR/doc-refine-prompt.txt"; house_rules
-          echo "--- ACCURACY (Codex) ---"; cat "$final_acc"
-          echo "--- STYLE ($STYLE_MODEL) ---"; cat "$final_sty"
+          echo "--- CODEX REVIEW (accuracy emphasis) ---"; cat "$final_acc"
+          echo "--- CLAUDE REVIEW (style emphasis) ---"; cat "$final_sty"
         } | claude --dangerously-skip-permissions -p --model "$WRITER_MODEL" \
                 --allowedTools Edit,Read,Grep,Glob \
                 > "$REVIEWS_DIR/${SAFE}.refine${round}.log" 2>&1
@@ -194,8 +194,8 @@ for FILE in "${TARGETS[@]}"; do
         echo "# Doc review digest: $REL"
         echo
         echo "- converged: $converged (after up to $MAX_ROUNDS rounds)"
-        echo "- accuracy verdict: $(jq -r '.verdict // "?"' "$final_acc" 2>/dev/null)"
-        echo "- style verdict: $(jq -r '.verdict // "?"' "$final_sty" 2>/dev/null)"
+        echo "- Codex verdict (accuracy emphasis): $(jq -r '.verdict // "?"' "$final_acc" 2>/dev/null)"
+        echo "- Claude verdict (style emphasis): $(jq -r '.verdict // "?"' "$final_sty" 2>/dev/null)"
         echo
         echo "## Needs human / low confidence (check these first)"
         echo

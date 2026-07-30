@@ -6,7 +6,7 @@
     "verdict": {
       "type": "string",
       "enum": ["approve", "revise"],
-      "description": "approve only if every filled doc is acceptable as-is for this lens"
+      "description": "approve only if every filled doc is acceptable as-is"
     },
     "summary": {
       "type": "string",
