@@ -12,7 +12,7 @@
 #       Claude review (style emphasis)     ┘
 #       if BOTH approve -> done
 #       else Writer refines, addressing both reviews (with right-of-reply)
-#   on non-convergence -> keep best draft, flag NEEDS-HUMAN in the digest
+#   after a non-converged final review -> one final Writer refinement, then move on
 #
 # This script does NOT commit. It edits the working tree and writes a per-file
 # review JSON + a human digest sorted most-needs-review-first. Intended for
@@ -134,6 +134,7 @@ for FILE in "${TARGETS[@]}"; do
 
     round=1
     converged=false
+    final_refinement=false
     while [ "$round" -le "$MAX_ROUNDS" ]; do
         log "  round $round/$MAX_ROUNDS: Codex ($ACCURACY_MODEL, accuracy emphasis) ‖ Claude ($STYLE_MODEL, style emphasis)..."
 
@@ -173,17 +174,23 @@ for FILE in "${TARGETS[@]}"; do
         fi
 
         if [ "$round" -eq "$MAX_ROUNDS" ]; then
-            break   # no refine after the last review; fall through to flagging
+            final_refinement=true
+            log "    final refine: incorporating the last reviews (not re-reviewed)..."
+        else
+            log "    refine: incorporating both reviews..."
         fi
 
         # ---- Writer: refine using both reviews -----------------------------
-        log "    refine: incorporating both reviews..."
         { render "$ABS" "$PROMPTS_DIR/doc-refine-prompt.txt"; house_rules
           echo "--- CODEX REVIEW (accuracy emphasis) ---"; cat "$final_acc"
           echo "--- CLAUDE REVIEW (style emphasis) ---"; cat "$final_sty"
         } | claude --dangerously-skip-permissions -p --model "$WRITER_MODEL" \
                 --allowedTools Edit,Read,Grep,Glob \
                 > "$REVIEWS_DIR/${SAFE}.refine${round}.log" 2>&1
+
+        if [ "$final_refinement" = "true" ]; then
+            break
+        fi
 
         round=$((round + 1))
     done
@@ -194,6 +201,7 @@ for FILE in "${TARGETS[@]}"; do
         echo "# Doc review digest: $REL"
         echo
         echo "- converged: $converged (after up to $MAX_ROUNDS rounds)"
+        echo "- final refinement after review limit: $final_refinement (not re-reviewed)"
         echo "- Codex verdict (accuracy emphasis): $(jq -r '.verdict // "?"' "$final_acc" 2>/dev/null)"
         echo "- Claude verdict (style emphasis): $(jq -r '.verdict // "?"' "$final_sty" 2>/dev/null)"
         echo
@@ -212,12 +220,12 @@ for FILE in "${TARGETS[@]}"; do
 
     # ---- Bonus findings: real bugs noticed in PRE-EXISTING docs ------------
     BONUS="$REVIEWS_DIR/bonus-findings.md"
-    n_bonus=$(jq -r '(.bonus_findings // []) | length' "$final_acc" 2>/dev/null || echo 0)
+    n_bonus=$(jq -rs 'map(.bonus_findings // []) | add | length' "$final_acc" "$final_sty" 2>/dev/null || echo 0)
     if [ "${n_bonus:-0}" -gt 0 ]; then
         {
             echo "## $REL"
-            jq -r '(.bonus_findings // [])[]
-                | "- L\(.line) `\(.symbol)`: \(.issue) → \(.suggestion)"' "$final_acc" 2>/dev/null
+            jq -rs 'map(.bonus_findings // []) | add | .[]
+                | "- L\(.line) `\(.symbol)`: \(.issue) → \(.suggestion)"' "$final_acc" "$final_sty" 2>/dev/null
             echo
         } >> "$BONUS"
         log "  bonus: $n_bonus pre-existing doc issue(s) noted in $BONUS"
@@ -225,7 +233,7 @@ for FILE in "${TARGETS[@]}"; do
 
     flagged=$(grep -cE "NEEDS-HUMAN" "$ABS" 2>/dev/null); flagged=${flagged:-0}
     remaining=$(grep -c "$MARKER" "$ABS" 2>/dev/null); remaining=${remaining:-0}
-    log "  done: converged=$converged | NEEDS-HUMAN=$flagged | unfilled markers left=$remaining"
+    log "  done: converged=$converged | final-refinement=$final_refinement | NEEDS-HUMAN=$flagged | unfilled markers left=$remaining"
     log "  digest: $DIGEST"
 done
 
