@@ -25,6 +25,7 @@
 # Env overrides:
 #   MAX_ROUNDS=2  WRITER_MODEL=opus  STYLE_MODEL=sonnet
 #   ACCURACY_MODEL=gpt-5.6-terra  DRY_RUN=false
+#   INTER_FILE_PAUSE_SECONDS=60  STOP_FILE=todo-writer/stop-fill-doc-todos
 # =============================================================================
 
 set -uo pipefail
@@ -43,12 +44,39 @@ PROMPTS_DIR="$SCRIPT_DIR/prompts"
 SCHEMA="$SCRIPT_DIR/schemas/doc-review.schema.json"
 REVIEWS_DIR="$TODO_WRITER_DIR/reviews"
 LOG_FILE="$TODO_WRITER_DIR/fill-doc-todos.log"
+INTER_FILE_PAUSE_SECONDS=${INTER_FILE_PAUSE_SECONDS:-60}
+STOP_FILE=${STOP_FILE:-"$TODO_WRITER_DIR/stop-fill-doc-todos"}
 WORK_DIR="$(mktemp -d)"
 trap 'rm -rf "$WORK_DIR"' EXIT
 
 mkdir -p "$REVIEWS_DIR"
 
+if ! [[ "$INTER_FILE_PAUSE_SECONDS" =~ ^[0-9]+$ ]]; then
+    echo "INTER_FILE_PAUSE_SECONDS must be a non-negative integer, got: $INTER_FILE_PAUSE_SECONDS" >&2
+    exit 2
+fi
+
 log() { local m="[$(date '+%H:%M:%S')] $1"; echo "$m"; echo "$m" >> "$LOG_FILE"; }
+
+# Exit only at a file boundary so the current writer/reviewer/refinement cycle
+# always completes. Check both before and after the pause: a stop file created
+# during the pause prevents the next file from starting.
+between_files() {
+    local index=$1
+    if [ -e "$STOP_FILE" ]; then
+        log "STOP: found $STOP_FILE after completing a file; exiting cleanly. Remove it before resuming."
+        exit 0
+    fi
+
+    if [ "$index" -lt $(( ${#TARGETS[@]} - 1 )) ] && [ "$INTER_FILE_PAUSE_SECONDS" -gt 0 ]; then
+        log "Pausing ${INTER_FILE_PAUSE_SECONDS}s before the next file (create $STOP_FILE to stop after this pause)."
+        sleep "$INTER_FILE_PAUSE_SECONDS"
+        if [ -e "$STOP_FILE" ]; then
+            log "STOP: found $STOP_FILE after the pause; exiting cleanly. Remove it before resuming."
+            exit 0
+        fi
+    fi
+}
 
 # Render a prompt file, substituting {FILE_PATH}.
 render() { sed "s|{FILE_PATH}|$1|g" "$2"; }
@@ -88,9 +116,11 @@ fi
 log "=============================================="
 log "fill-doc-todos.sh starting"
 log "Files: ${#TARGETS[@]} | rounds: $MAX_ROUNDS | writer: $WRITER_MODEL | accuracy: $ACCURACY_MODEL | style: $STYLE_MODEL"
+log "Inter-file pause: ${INTER_FILE_PAUSE_SECONDS}s | stop file: $STOP_FILE"
 log "=============================================="
 
-for FILE in "${TARGETS[@]}"; do
+for index in "${!TARGETS[@]}"; do
+    FILE="${TARGETS[$index]}"
     # Normalize to absolute path.
     case "$FILE" in /*) ABS="$FILE" ;; *) ABS="$REPO_ROOT/$FILE" ;; esac
     REL="${ABS#"$REPO_ROOT"/}"
@@ -98,6 +128,7 @@ for FILE in "${TARGETS[@]}"; do
 
     if ! grep -q "$MARKER" "$ABS" 2>/dev/null; then
         log "SKIP $REL (no '$MARKER')"
+        between_files "$index"
         continue
     fi
 
@@ -108,6 +139,7 @@ for FILE in "${TARGETS[@]}"; do
 
     if [ "$DRY_RUN" = "true" ]; then
         log "DRY RUN: would fill+review $REL"
+        between_files "$index"
         continue
     fi
 
@@ -124,6 +156,7 @@ for FILE in "${TARGETS[@]}"; do
             > "$REVIEWS_DIR/${SAFE}.writer.log" 2>&1
     if [ $? -ne 0 ]; then
         log "  ERROR writer failed; see ${SAFE}.writer.log — skipping file"
+        between_files "$index"
         continue
     fi
 
@@ -235,6 +268,7 @@ for FILE in "${TARGETS[@]}"; do
     remaining=$(grep -c "$MARKER" "$ABS" 2>/dev/null); remaining=${remaining:-0}
     log "  done: converged=$converged | final-refinement=$final_refinement | NEEDS-HUMAN=$flagged | unfilled markers left=$remaining"
     log "  digest: $DIGEST"
+    between_files "$index"
 done
 
 log ""
