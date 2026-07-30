@@ -23,7 +23,8 @@
 #   ./fill-doc-todos.sh                     # default: io files with markers
 #
 # Env overrides:
-#   MAX_ROUNDS=2  WRITER_MODEL=opus  STYLE_MODEL=sonnet  DRY_RUN=false
+#   MAX_ROUNDS=2  WRITER_MODEL=opus  STYLE_MODEL=sonnet
+#   ACCURACY_MODEL=gpt-5.6-terra  DRY_RUN=false
 # =============================================================================
 
 set -uo pipefail
@@ -31,6 +32,7 @@ set -uo pipefail
 MAX_ROUNDS=${MAX_ROUNDS:-2}
 WRITER_MODEL=${WRITER_MODEL:-opus}
 STYLE_MODEL=${STYLE_MODEL:-sonnet}
+ACCURACY_MODEL=${ACCURACY_MODEL:-gpt-5.6-terra}
 DRY_RUN=${DRY_RUN:-false}
 MARKER="TODO FILL IN"
 
@@ -85,7 +87,7 @@ fi
 
 log "=============================================="
 log "fill-doc-todos.sh starting"
-log "Files: ${#TARGETS[@]} | rounds: $MAX_ROUNDS | writer: $WRITER_MODEL | style: $STYLE_MODEL"
+log "Files: ${#TARGETS[@]} | rounds: $MAX_ROUNDS | writer: $WRITER_MODEL | accuracy: $ACCURACY_MODEL | style: $STYLE_MODEL"
 log "=============================================="
 
 for FILE in "${TARGETS[@]}"; do
@@ -133,7 +135,7 @@ for FILE in "${TARGETS[@]}"; do
     round=1
     converged=false
     while [ "$round" -le "$MAX_ROUNDS" ]; do
-        log "  round $round/$MAX_ROUNDS: accuracy (Codex) ‖ style ($STYLE_MODEL)..."
+        log "  round $round/$MAX_ROUNDS: accuracy (Codex $ACCURACY_MODEL) ‖ style ($STYLE_MODEL)..."
 
         # Unified diff of ONLY the writer's changes, to scope both reviewers.
         DIFF_BLOCK="$WORK_DIR/${SAFE}.diff"
@@ -143,7 +145,7 @@ for FILE in "${TARGETS[@]}"; do
 
         # Accuracy review (Codex) — background.
         ( cat <(render "$ABS" "$PROMPTS_DIR/doc-accuracy-review-prompt.txt") "$DIFF_BLOCK" \
-            | codex exec -s read-only --skip-git-repo-check -C "$REPO_ROOT" \
+            | codex exec --model "$ACCURACY_MODEL" -s read-only --skip-git-repo-check -C "$REPO_ROOT" \
                 --output-schema "$SCHEMA" --output-last-message "$ACC_JSON" - \
                 > "$REVIEWS_DIR/${SAFE}.accuracy.log" 2>&1 ) &
         acc_pid=$!

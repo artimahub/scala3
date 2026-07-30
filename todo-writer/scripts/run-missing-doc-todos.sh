@@ -33,7 +33,8 @@
 #   ./run-missing-doc-todos.sh --plan <partition> [more...] # preview target files, then revert (no AI)
 #   ./run-missing-doc-todos.sh <partition> [more...]        # generate + fill (leaves changes in tree)
 #
-# Env overrides (forwarded to fill-doc-todos.sh): MAX_ROUNDS, WRITER_MODEL, STYLE_MODEL
+# Env overrides (forwarded to fill-doc-todos.sh): MAX_ROUNDS, WRITER_MODEL,
+# STYLE_MODEL, ACCURACY_MODEL (default: gpt-5.6-terra)
 # =============================================================================
 
 set -euo pipefail
