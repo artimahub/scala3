@@ -31,6 +31,8 @@
 # Usage:
 #   ./run-missing-doc-todos.sh --list                       # show partitions
 #   ./run-missing-doc-todos.sh --plan <partition> [more...] # preview target files, then revert (no AI)
+#   ./run-missing-doc-todos.sh --mark-only <partition> [more...] # add TODO markers, then stop
+#   ./run-missing-doc-todos.sh --fill-only <partition> [more...] # fill existing TODO markers, no generation
 #   ./run-missing-doc-todos.sh <partition> [more...]        # generate + fill (leaves changes in tree)
 #
 # Env overrides (forwarded to fill-doc-todos.sh): MAX_ROUNDS, WRITER_MODEL,
@@ -144,7 +146,7 @@ list_partitions() {
     printf "  %-20s gen: %s\n" "$p" "${GEN[*]}"
   done
   echo
-  echo "Usage: $(basename "$0") [--list | --plan <partition> | <partition>]"
+  echo "Usage: $(basename "$0") [--list | --plan <partition> [more...] | --mark-only <partition> [more...] | --fill-only <partition> [more...] | <partition> [more...]]"
 }
 
 # Generate markers for one or more partitions (unioned into a single PR), then
@@ -187,6 +189,19 @@ prepare_partition() {
   done
 }
 
+# Return files in the selected partitions that already have TODO markers. This
+# does not run todo-writer and is used to separate generation from filling.
+existing_targets() {
+  local p keep_files=""
+  for p in "$@"; do
+    partition_spec "$p"
+    keep_files+="$(git -C "$REPO_ROOT" ls-files -- "${KEEP[@]}")"$'\n'
+  done
+  printf '%s' "$keep_files" | sort -u | while read -r f; do
+    [ -n "$f" ] && grep -q "$MARKER" "$REPO_ROOT/$f" 2>/dev/null && echo "$f"
+  done
+}
+
 # Format a duration in seconds as e.g. "1h 23m 45s".
 fmt_elapsed() {
   local s=$1 h m
@@ -196,6 +211,25 @@ fmt_elapsed() {
   { [ "$h" -gt 0 ] || [ "$m" -gt 0 ]; } && out+="${m}m "
   out+="${s}s"
   echo "$out"
+}
+
+fill_targets() {
+  local label=$1
+  shift
+  local targets=("$@")
+  if [ "${#targets[@]}" -eq 0 ]; then
+    echo "No existing markers found for '$label' -- nothing to fill."
+    return
+  fi
+
+  local start_ts; start_ts=$(date '+%H:%M:%S')
+  SECONDS=0
+  echo ">>> filling ${#targets[@]} file(s) for PR '$label'  (started $start_ts)"
+  "$FILL" "${targets[@]}"
+  echo
+  echo "PR '$label' done in $(fmt_elapsed "$SECONDS")  (started $start_ts, finished $(date '+%H:%M:%S'))."
+  echo "Review the working tree, then commit as one PR."
+  echo "Before the next PR, fold reviewer feedback into docs/house-rules.md."
 }
 
 main() {
@@ -220,20 +254,33 @@ main() {
       echo "Reverting preview changes (no files were filled)."
       for f in "${targets[@]}"; do git -C "$REPO_ROOT" checkout -- "$f"; done
       exit 0 ;;
-    *)
-      local start_ts; start_ts=$(date '+%H:%M:%S')
-      SECONDS=0
+    --mark-only)
+      shift
+      [ $# -ge 1 ] || { echo "--mark-only needs at least one partition name" >&2; exit 2; }
       mapfile -t targets < <(prepare_partition "$@")
-      if [ "${#targets[@]}" -eq 0 ]; then
-        echo "No markers generated for '$*' -- nothing to fill."
-        exit 0
-      fi
-      echo ">>> filling ${#targets[@]} file(s) for PR '$*'  (started $start_ts)"
-      "$FILL" "${targets[@]}"
       echo
-      echo "PR '$*' done in $(fmt_elapsed "$SECONDS")  (started $start_ts, finished $(date '+%H:%M:%S'))."
-      echo "Review the working tree, then commit as one PR."
-      echo "Before the next PR, fold reviewer feedback into docs/house-rules.md."
+      echo "Markers left in ${#targets[@]} file(s) for '$*':"
+      local total=0
+      for f in "${targets[@]}"; do
+        n=$(grep -cE '/\*\* '"$MARKER" "$REPO_ROOT/$f" 2>/dev/null || echo 0)
+        total=$((total + n))
+        printf "  %4d declarations  %s\n" "$n" "$f"
+      done
+      echo "  ----"
+      printf "  %4d TODO markers total\n" "$total"
+      echo
+      echo "Inspect the markers, then run:"
+      echo "  $(basename "$0") --fill-only $*"
+      exit 0 ;;
+    --fill-only)
+      shift
+      [ $# -ge 1 ] || { echo "--fill-only needs at least one partition name" >&2; exit 2; }
+      mapfile -t targets < <(existing_targets "$@")
+      fill_targets "$*" "${targets[@]}"
+      exit 0 ;;
+    *)
+      mapfile -t targets < <(prepare_partition "$@")
+      fill_targets "$*" "${targets[@]}"
       exit 0 ;;
   esac
 }
