@@ -50,15 +50,16 @@ traffic. Measured from inside the container before the rebuild:
 pypi.org                                  BLOCKED
 astral.sh                                 BLOCKED
 openrouter.ai                             BLOCKED
-generativelanguage.googleapis.com         BLOCKED
+inference.poolside.ai                     BLOCKED (now allowlisted, needs rebuild)
 api.anthropic.com                         reachable
 ```
 
-The allowlist is `api.anthropic.com`, `api.openai.com`, `auth.openai.com`,
-`chatgpt.com`, plus GitHub, npm, Sentry/Statsig, VS Code marketplace and Maven
-Central. **Every free-tier provider is blocked until its host is added.**
+**Every provider is blocked until its host is added.** This also applies to the
+`WebFetch` tool in Claude Code, which runs from inside the container: it can
+fetch github.com but not `docs.poolside.ai`, which is worth knowing before
+trusting it to research a provider.
 
-To add one, put the hostname in the `for domain in \` loop in
+To add a host, put the name in the `for domain in \` loop in
 `init-firewall.sh`, then restart the container (or re-run
 `sudo /usr/local/bin/init-firewall.sh`):
 
@@ -66,20 +67,41 @@ To add one, put the hostname in the `for domain in \` loop in
 for domain in \
     "registry.npmjs.org" \
     "api.anthropic.com" \
-    "openrouter.ai" \
+    "inference.poolside.ai" \
     ...
 ```
 
 (Do not put a trailing `# comment` on those lines; the list uses backslash
 continuations and a comment after the backslash breaks the loop.)
 
-Caveat worth remembering when choosing a provider: the ipset is resolved **once**
-at container start. Providers behind a small, stable set of IPs (OpenRouter,
-Groq) work fine. `generativelanguage.googleapis.com` (Google AI Studio) rotates
-across a large pool, so a session that starts fine will begin failing partway
-through as DNS hands out addresses that were never added to the ipset. Prefer
-providers with stable IPs, or the firewall needs a different approach for that
-host.
+### Name-pinning vs CIDR ranges
+
+The per-domain loop pins whatever IPs `dig` returned **once**, at container
+start. That is fine for a host behind a small stable address set, and wrong for
+one behind a large rotating pool.
+
+Google is the worked example, already solved in `init-firewall.sh`: listing
+`generativelanguage.googleapis.com` and friends by name was not enough for
+Gemini CLI sign-in, because the OAuth flow redirects across hosts never resolved
+at all. The symptom was `connect EHOSTUNREACH 74.125.137.95:443`, a Google
+address reached via a correctly-resolved name that simply was not in the ipset.
+The fix was to add Google's full published range set from
+`https://www.gstatic.com/ipranges/goog.json` as CIDRs. Diagnostic rule of thumb
+from that episode: an allowlisted NAME is not an allowlisted IP, and this
+failure looks like DNS or a proxy problem but is neither.
+
+Check before adding a provider, since DNS works even under the firewall:
+
+```bash
+dig +short A <host>     # a couple of stable IPs -> name-pinning is fine
+                        # a CNAME into a big CDN/anycast pool -> needs CIDRs
+```
+
+Measured for the current entries: `inference.poolside.ai` is a CNAME to Baseten
+(`inference.baseten.co`) behind one GCP load-balancer IP, and `openrouter.ai` is
+two stable Cloudflare IPs. Both are safe to pin by name. `platform.poolside.ai`
+is CloudFront with rotating IPs, but that is the browser console, used from the
+Mac, so it never needs allowlisting.
 
 ## 3. Using Aider
 
@@ -162,23 +184,110 @@ The reviewers should skip Aider because:
 Rule of thumb: Aider for the steps that edit files, curl for the steps that only
 judge.
 
-## 5. Rebuild checklist
+## 5. Provider: Poolside
 
-1. Pick the provider, add its host to `init-firewall.sh`, commit on
-   `dc-template`.
-2. Rebuild the container.
-3. `aider --version` to confirm the install worked.
-4. `curl -s -o /dev/null -w "%{http_code}" https://<provider-host>` to confirm
-   the firewall change took.
-5. Put the API key in `/home/node/.aider/.env` (persisted volume).
-6. Smoke test on one small file, checking that **nothing was committed**:
+Gathered by web search on 2026-07-31, **not** from the vendor docs directly:
+`docs.poolside.ai` is not allowlisted, so `WebFetch` could not read it from
+inside the container. Treat the exact model identifier strings as unverified
+until `GET /v1/models` is called after the rebuild.
+
+- **Free tier.** Free in preview. Get a developer key at `platform.poolside.ai`
+  (browser, from the Mac): sign in, API Keys tab, New key.
+- **Base URL.** `https://inference.poolside.ai/v1`, OpenAI-compatible, so the
+  OpenAI SDK and Aider/LiteLLM both work against it unchanged.
+- **Models.** The Laguna family, which succeeded the earlier Malibu and Point
+  models. Laguna M.1 is the flagship agentic-coding model (256K context, up to
+  32K output); Laguna S 2.1 and Laguna XS 2.1 are the smaller ones.
+
+Aider config, since it is an OpenAI-compatible endpoint rather than a provider
+LiteLLM knows natively:
 
 ```bash
-git checkout -- library/src/scala/io/
-todo-writer/scripts/run-missing-doc-todos.sh --mark-only io-ref
-aider --model <model> --message "Fill in the TODO FILL IN Scaladoc." \
-      --yes-always --no-auto-commits --no-gitignore --map-tokens 0 \
-      library/src/scala/io/Source.scala
+# /home/node/.aider/.env
+OPENAI_API_BASE=https://inference.poolside.ai/v1
+OPENAI_API_KEY=<key from platform.poolside.ai>
+```
+
+```bash
+aider --model openai/<model-id-from-/v1/models> ...
+```
+
+### The OpenRouter alternative
+
+The same Laguna models are also on OpenRouter, including `:free` variants
+(`poolside/laguna-m.1:free`, `poolside/laguna-xs.2:free`), rate-limited to about
+20 requests/minute and 200/day. Paid, they are among the cheapest coding models
+available: Laguna XS 2.1 at $0.06/$0.12 and Laguna S 2.1 at $0.10/$0.20 per 1M
+input/output tokens.
+
+Worth considering because the plan is to try several services: allowlisting
+`openrouter.ai` once opens every free model behind one host and one key, instead
+of a firewall edit and a container rebuild per vendor. 200 requests/day is
+ample here, since one file at `MAX_ROUNDS=2` costs roughly 5 to 6 requests.
+
+## 6. The single-file experiment
+
+Target: **`library/src/scala/util/Try.scala`** (batch 4, the `util` partition).
+Picked over the alternatives because:
+
+- ~50 undocumented declarations in 331 lines. Big enough to be a real workload,
+  small enough to read every generated comment by hand in one sitting.
+- It is core, heavily-used API, so a wrong or vague comment is obvious on sight
+  rather than needing research to catch.
+- Its semantics are exactly where a cheap model produces plausible-but-wrong
+  prose: `Try.apply` catching only `NonFatal`, `flatMap`/`map` swallowing
+  exceptions into `Failure`, and `recover` versus `recoverWith`. Good signal on
+  whether the free tier is usable at all.
+
+Rejected: the `scala.concurrent` small files (`SyncChannel`, `Channel`,
+`SyncVar`) are all `@deprecated`, so they misrepresent the batch;
+`DynamicVariable` is already fully documented by the earlier tag PRs;
+`duration/DurationConversions.scala` is 51 near-identical unit accessors, which
+tests throughput but not accuracy.
+
+Smaller fallbacks if Try is too much for a first run: `util/Sorting.scala` (29
+undocumented) or `concurrent/duration/package.scala` (24).
+
+Run it, checking that **nothing was committed**:
+
+```bash
+cd /workspace/scala3
+# 1. insert TODO FILL IN markers across the whole util partition (runs sbt)
+todo-writer/scripts/run-missing-doc-todos.sh --mark-only util
+
+# 2. keep the markers in Try.scala only, revert the rest of the partition
+git diff --name-only -- library/src/scala/util \
+  | grep -v '^library/src/scala/util/Try\.scala$' \
+  | xargs -r git checkout --
+
+# 3. fill just that file
+aider --model openai/<model-id> \
+      --message-file todo-writer/scripts/prompts/doc-writer-prompt.txt \
+      --read todo-writer/docs/house-rules.md \
+      --yes-always --no-auto-commits --no-gitignore \
+      --map-tokens 0 --no-stream --no-check-update \
+      library/src/scala/util/Try.scala
+
 git log --oneline -1   # must be unchanged
 git diff --stat        # changes must be here, uncommitted
+git diff               # read every comment
 ```
+
+Note the writer prompt contains a `{FILE_PATH}` placeholder that
+`fill-doc-todos.sh` substitutes via `render`. For a hand-run, substitute it
+first or pass the path in `--message` instead.
+
+Throw the experiment away with `git checkout -- library/src/scala/util/`.
+
+## 7. Rebuild checklist
+
+1. Add the provider host to `init-firewall.sh` on `dc-template`, commit, merge
+   into `dc-scala`. (`inference.poolside.ai` is already in as of 94ee1d4.)
+2. Rebuild the container.
+3. `aider --version` to confirm the install worked.
+4. `curl -s -o /dev/null -w "%{http_code}" https://inference.poolside.ai/v1/models`
+   to confirm the firewall change took.
+5. Put the key in `/home/node/.aider/.env` (persisted volume).
+6. `curl -s https://inference.poolside.ai/v1/models -H "Authorization: Bearer $KEY" | jq`
+   to get the real model identifiers.
+7. Run the experiment above.
