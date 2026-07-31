@@ -105,17 +105,18 @@ object Declaration:
         case None => ()
     false
 
+  private val AsciiSymbolChars = "~!@#%^*+-<>?:=&|/\\"
+
   /** Whether a character is a valid Scala operator/symbol character.
     *
     *  Scala method names can be operator names composed of these characters,
-    *  e.g. `<:<`, `+=`, `::`, etc. See the Scala Language Specification.
+    *  e.g. `<:<`, `#::`, `+=`, `→`, etc. See the Scala Language Specification.
     */
   private def isSymbolChar(c: Char): Boolean =
-    val symbolChars = Set(
-      '+', '-', '=', '!', '?', ':', '~', '/', '%', '&',
-      '*', '<', '>', '|', '^', '\\'
-    )
-    symbolChars.contains(c)
+    AsciiSymbolChars.contains(c) ||
+      (Character.getType(c) match
+        case Character.MATH_SYMBOL | Character.OTHER_SYMBOL => true
+        case _                                              => false)
 
   private def parseDef(chunk: String): Declaration =
     // Normalize chunk: join lines, collapse whitespace

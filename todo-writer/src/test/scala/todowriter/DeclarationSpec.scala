@@ -283,6 +283,26 @@ class DeclarationSpec extends AnyFlatSpec with Matchers:
     decl.returnType should be(Some("Int"))
   }
 
+  it should "parse def with a hash-prefixed operator name" in {
+    val chunk = "def #::[B](elem: B): List[B] = ???"
+    val decl = Declaration.parse(chunk)
+    decl.kind should be(DeclKind.Def)
+    decl.name should be("#::")
+    decl.tparams should be(List("B"))
+    decl.params should be(List("elem"))
+    decl.returnType should be(Some("List[B]"))
+  }
+
+  it should "parse def with a Unicode operator name" in {
+    val chunk = "def →[B](that: B): (A, B) = ???"
+    val decl = Declaration.parse(chunk)
+    decl.kind should be(DeclKind.Def)
+    decl.name should be("→")
+    decl.tparams should be(List("B"))
+    decl.params should be(List("that"))
+    decl.returnType should be(Some("(A, B)"))
+  }
+
   it should "not treat colon as part of an alphanumeric method name" in {
     val chunk = "def foo: Int = 42"
     val decl = Declaration.parse(chunk)

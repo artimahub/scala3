@@ -803,3 +803,20 @@ class IntegrationSpec extends AnyFlatSpec with Matchers:
       synth should contain((DeclKind.Def, "<:<"))
     }
   }
+
+  it should "detect undocumented defs with hash-prefixed and Unicode operator names" in {
+    val content = """package test
+                    |
+                    |class Operators {
+                    |  def #::[A](elem: A): List[A] = ???
+                    |  def →[A](that: A): (A, A) = ???
+                    |}
+                    |""".stripMargin
+
+    withTempFile(content) { path =>
+      val result = ScaladocChecker.checkFile(path)
+      val synth = result.results.filter(_.scaladoc.synthetic).map(r => (r.declaration.kind, r.declaration.name))
+      synth should contain((DeclKind.Def, "#::"))
+      synth should contain((DeclKind.Def, "→"))
+    }
+  }
