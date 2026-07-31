@@ -728,3 +728,110 @@ class IntegrationSpec extends AnyFlatSpec with Matchers:
       checkResult.hasIssues should be(false)
     }
   }
+
+  // --- Regression tests for ticket: todo-writer potential misses ---
+
+  it should "detect undocumented override val (public val in class body)" in {
+    // Mirrors library/src/scala/reflect/ClassManifestDeprecatedApis.scala:
+    //   /** Returns the runtime class... */
+    //   override def runtimeClass = clazz
+    //   override val typeArguments = args.toList   <-- missed by todo-writer
+    val content = """package test
+                    |
+                    |/** A class manifest.
+                    | */
+                    |class AbstractTypeClassManifest {
+                    |  /** Returns the runtime class that was supplied as the erasure of the abstract type. */
+                    |  override def runtimeClass: Class[?] = clazz
+                    |  override val typeArguments: List[Any] = args.toList
+                    |  override def toString(): String = prefix.toString
+                    |}
+                    |""".stripMargin
+
+    withTempFile(content) { path =>
+      val result = ScaladocChecker.checkFile(path)
+      val synth = result.results.filter(_.scaladoc.synthetic).map(r => (r.declaration.kind, r.declaration.name))
+      // typeArguments (a public val) should be detected as undocumented
+      synth should contain((DeclKind.Val, "typeArguments"))
+      // toString (a public def) should also be detected
+      synth should contain((DeclKind.Def, "toString"))
+    }
+  }
+
+  it should "detect undocumented @inline override def with annotation on same line" in {
+    // Mirrors library/src/scala/reflect/Manifest.scala:
+    //   /** Returns the `Class` for the primitive type `byte`. */
+    //   def runtimeClass: Class[java.lang.Byte] = java.lang.Byte.TYPE
+    //   @inline override def newArray(len: Int): Array[Byte] = new Array[Byte](len)  <-- missed
+    val content = """package test
+                    |
+                    |/** A class.
+                    | */
+                    |final private[reflect] class ByteManifest extends Base {
+                    |  /** Returns the Class for the primitive type byte. */
+                    |  def runtimeClass: Class[Byte] = java.lang.Byte.TYPE
+                    |  @inline override def newArray(len: Int): Array[Byte] = new Array[Byte](len)
+                    |}
+                    |""".stripMargin
+
+    withTempFile(content) { path =>
+      val result = ScaladocChecker.checkFile(path)
+      val synth = result.results.filter(_.scaladoc.synthetic).map(r => (r.declaration.kind, r.declaration.name))
+      // @inline override def newArray should be detected as undocumented
+      synth should contain((DeclKind.Def, "newArray"))
+    }
+  }
+
+  it should "detect undocumented defs preceded by annotations with type arguments" in {
+    val content = """package test
+                    |
+                    |class Annotated {
+                    |  @ann[String]("reason") override def documentedByTheChecker(): Int = 1
+                    |}
+                    |""".stripMargin
+
+    withTempFile(content) { path =>
+      val result = ScaladocChecker.checkFile(path)
+      val synth = result.results.filter(_.scaladoc.synthetic).map(r => (r.declaration.kind, r.declaration.name))
+      synth should contain((DeclKind.Def, "documentedByTheChecker"))
+    }
+  }
+
+  it should "detect undocumented def with symbolic operator name <:<" in {
+    // Mirrors library/src/scala/reflect/Manifest.scala:
+    //   override def newArray(len: Int) = new Array[scala.Any](len)
+    //   override def <:<(that: ClassManifest[?]): Boolean = (that eq this)  <-- missed
+    val content = """package test
+                    |
+                    |/** A class.
+                    | */
+                    |final private class AnyManifest extends Base {
+                    |  override def newArray(len: Int) = new Array[scala.Any](len)
+                    |  override def <:<(that: ClassManifest[?]): Boolean = (that eq this)
+                    |}
+                    |""".stripMargin
+
+    withTempFile(content) { path =>
+      val result = ScaladocChecker.checkFile(path)
+      val synth = result.results.filter(_.scaladoc.synthetic).map(r => (r.declaration.kind, r.declaration.name))
+      // override def <:< should be detected as undocumented
+      synth should contain((DeclKind.Def, "<:<"))
+    }
+  }
+
+  it should "detect undocumented defs with hash-prefixed and Unicode operator names" in {
+    val content = """package test
+                    |
+                    |class Operators {
+                    |  def #::[A](elem: A): List[A] = ???
+                    |  def →[A](that: A): (A, A) = ???
+                    |}
+                    |""".stripMargin
+
+    withTempFile(content) { path =>
+      val result = ScaladocChecker.checkFile(path)
+      val synth = result.results.filter(_.scaladoc.synthetic).map(r => (r.declaration.kind, r.declaration.name))
+      synth should contain((DeclKind.Def, "#::"))
+      synth should contain((DeclKind.Def, "→"))
+    }
+  }
