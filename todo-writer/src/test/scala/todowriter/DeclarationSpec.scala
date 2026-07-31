@@ -252,3 +252,68 @@ class DeclarationSpec extends AnyFlatSpec with Matchers:
     decl.tparams should be(List("CC", "T"))
     decl.params should be(List("ord"))
   }
+
+  // --- Bug fixes -----------------------------------------------------------
+
+  // Bug 3: symbolic method names (e.g. <:<) were not parsed correctly,
+  // producing an empty name and causing the declaration to be skipped.
+  it should "parse def with symbolic operator name" in {
+    val chunk = "override def <:<(that: ClassManifest[?]): Boolean = (that eq this)"
+    val decl = Declaration.parse(chunk)
+    decl.kind should be(DeclKind.Def)
+    decl.name should be("<:<")
+    decl.params should be(List("that"))
+    decl.returnType should be(Some("Boolean"))
+  }
+
+  it should "parse def with symbolic operator name and no return type" in {
+    val chunk = "override def <:<(that: ClassManifest[?]) = (that eq this)"
+    val decl = Declaration.parse(chunk)
+    decl.kind should be(DeclKind.Def)
+    decl.name should be("<:<")
+    decl.params should be(List("that"))
+  }
+
+  it should "parse def with operator name containing =" in {
+    val chunk = "def +=(other: Int): Int = x + other"
+    val decl = Declaration.parse(chunk)
+    decl.kind should be(DeclKind.Def)
+    decl.name should be("+=")
+    decl.params should be(List("other"))
+    decl.returnType should be(Some("Int"))
+  }
+
+  it should "not treat colon as part of an alphanumeric method name" in {
+    val chunk = "def foo: Int = 42"
+    val decl = Declaration.parse(chunk)
+    decl.kind should be(DeclKind.Def)
+    decl.name should be("foo")
+    decl.returnType should be(Some("Int"))
+  }
+
+  // Bug 1: vals were not detected as undocumented declarations.
+  // Declaration.parse should still correctly parse val/var.
+  it should "parse override val" in {
+    val chunk = "override val typeArguments = args.toList"
+    val decl = Declaration.parse(chunk)
+    decl.kind should be(DeclKind.Val)
+    decl.name should be("typeArguments")
+  }
+
+  it should "parse annotated override def with @inline" in {
+    val chunk = "@inline override def newArray(len: Int): Array[Byte] = new Array[Byte](len)"
+    val decl = Declaration.parse(chunk)
+    decl.kind should be(DeclKind.Def)
+    decl.name should be("newArray")
+    decl.params should be(List("len"))
+    decl.returnType should be(Some("Array[Byte]"))
+  }
+
+  it should "parse override def preceded by multiple annotations" in {
+    val chunk = "@SerialVersionUID(1L) @nowarn(\"cat=deprecation\") override def foo(x: Int): Int = x"
+    val decl = Declaration.parse(chunk)
+    decl.kind should be(DeclKind.Def)
+    decl.name should be("foo")
+    decl.params should be(List("x"))
+    decl.returnType should be(Some("Int"))
+  }

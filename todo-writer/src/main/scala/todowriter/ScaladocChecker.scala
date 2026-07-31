@@ -166,7 +166,8 @@ object ScaladocChecker:
            !trimmed.startsWith("*") && !trimmed.startsWith("/*") then
           val chunk = Declaration.getDeclarationAfter(text, lineStart)
           val decl  = Declaration.parse(chunk)
-          if (decl.kind == DeclKind.Def || decl.kind == DeclKind.Class || decl.kind == DeclKind.Trait) &&
+          if (decl.kind == DeclKind.Def || decl.kind == DeclKind.Class || decl.kind == DeclKind.Trait ||
+              decl.kind == DeclKind.Val || decl.kind == DeclKind.Var) &&
              decl.name.nonEmpty &&
              declKeywordOnLine(trimmed, decl.kind) &&
              // Do not synthesize docs for private declarations: they are not part
@@ -280,10 +281,14 @@ object ScaladocChecker:
 
   /** The leading declaration keyword of a trimmed source line, after stripping
     *  annotations and modifiers, or None if the line does not begin a declaration.
+    *
+    *  Uses Declaration.dropLeadingAnnotations for robust annotation stripping
+    *  (properly handles annotation arguments with spaces, strings, and nested
+    *  parentheses — unlike a greedy regex that includes whitespace in its
+    *  character class and would consume following keywords like `def`).
     */
   private def declLeadingKeyword(trimmed: String): Option[String] =
-    val stripped = trimmed
-      .replaceAll("""(?:@[\w\(\)\s,."]+\s*)*""", "")
+    val stripped = Declaration.dropLeadingAnnotations(trimmed)
       .replaceAll("""(?:private\[[^\]]*\]|protected\[[^\]]*\]|private|protected|final|override|inline|implicit|sealed|abstract|lazy|case|transparent|opaque|export)\s+""", "")
       .trim
     (TermMemberKeywords ++ TemplateKeywords).find(k =>
@@ -316,9 +321,10 @@ object ScaladocChecker:
       case DeclKind.Def   => "def "
       case DeclKind.Class => "class "
       case DeclKind.Trait => "trait "
+      case DeclKind.Val   => "val "
+      case DeclKind.Var   => "var "
       case _              => return false
-    val stripped = trimmed
-      .replaceAll("""(?:@[\w\(\)\s,."]+\s*)*""", "")
+    val stripped = Declaration.dropLeadingAnnotations(trimmed)
       .replaceAll("""(?:private\[[^\]]*\]|protected\[[^\]]*\]|private|protected|final|override|inline|implicit|given|export|opaque|sealed|abstract|lazy|case)\s+""", "")
       .trim
     stripped.startsWith(keyword) || stripped.startsWith("case " + keyword)

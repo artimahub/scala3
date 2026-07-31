@@ -16,9 +16,18 @@ case class Declaration(
 )
 
 object Declaration:
-  /** Regex to detect the start of a declaration (with optional modifiers/annotations). */
+  /** Regex to detect the start of a declaration (with optional modifiers/annotations).
+    *
+    *  The annotation part uses a precise regex that properly handles annotation
+    *  arguments (balanced `(...)` and `[...]` with one level of nesting) without
+    *  including whitespace in the character class. The old regex `@[\w\(\)\s,."]+`
+    *  was too greedy: because `\s` was in the character class it could consume
+    *  following keywords like `override` and `def`, causing failures when used
+    *  with replaceAll. With findFirstMatchIn the old regex still worked (via
+    *  backtracking), but the new regex is both more correct and more efficient.
+    */
   private val DeclStartPattern: Regex =
-    """(?:@[\w\(\)\s,."]+\s*)*(?:private|protected|final|override|inline|implicit|given|export|opaque|sealed|abstract|lazy|case\s+)*\s*(class|trait|object|def|val|var)\b""".r
+    """(?:@[\w.]+(?:\[[^\]]*\]|\((?:[^()]|\([^()]*\))*)*\s*)*(?:private|protected|final|override|inline|implicit|given|export|opaque|sealed|abstract|lazy|case\s+)*\s*(class|trait|object|def|val|var)\b""".r
 
   /** Regex to parse a def declaration.
    *
@@ -96,6 +105,18 @@ object Declaration:
         case None => ()
     false
 
+  /** Whether a character is a valid Scala operator/symbol character.
+    *
+    *  Scala method names can be operator names composed of these characters,
+    *  e.g. `<:<`, `+=`, `::`, etc. See the Scala Language Specification.
+    */
+  private def isSymbolChar(c: Char): Boolean =
+    val symbolChars = Set(
+      '+', '-', '=', '!', '?', ':', '~', '/', '%', '&',
+      '*', '<', '>', '|', '^', '\\'
+    )
+    symbolChars.contains(c)
+
   private def parseDef(chunk: String): Declaration =
     // Normalize chunk: join lines, collapse whitespace
     val normalized = chunk.linesIterator.mkString(" ").replaceAll("\\s+", " ")
@@ -106,8 +127,18 @@ object Declaration:
       while i < normalized.length && normalized(i).isWhitespace do i += 1
 
       val nameStart = i
-      while i < normalized.length &&
-          (normalized(i).isLetterOrDigit || normalized(i) == '_' || normalized(i) == '$') do i += 1
+      // Scala method names come in two flavours:
+      //  - Identifier names: start with a letter / digit / '_' / '$'
+      //  - Operator (symbolic) names: consist of symbolic characters
+      //    (e.g. <:<, +=, :::, ::-, etc.)
+      // We branch on the first character so that ':' (a type-annotation
+      // separator for identifier names) is not mistakenly consumed as part
+      // of a symbolic name.
+      if i < normalized.length && (normalized(i).isLetterOrDigit || normalized(i) == '_' || normalized(i) == '$') then
+        while i < normalized.length &&
+            (normalized(i).isLetterOrDigit || normalized(i) == '_' || normalized(i) == '$') do i += 1
+      else
+        while i < normalized.length && isSymbolChar(normalized(i)) do i += 1
       val name = normalized.substring(nameStart, i)
 
       while i < normalized.length && normalized(i).isWhitespace do i += 1
@@ -356,8 +387,15 @@ object Declaration:
       name.substring(1, name.length - 1)
     else name
 
-  /** Remove leading parameter annotations, including annotation arguments. */
-  private def dropLeadingAnnotations(str: String): String =
+  /** Remove leading annotations, including annotation arguments.
+    *
+    *  This properly handles annotations with string arguments (which may
+    *  contain spaces, commas, parens, etc.) by tracking string boundaries
+    *  and balanced parentheses. This is more robust than a regex with
+    *  whitespace in its character class, which would greedily consume
+    *  following keywords like `def` or `override`.
+    */
+  def dropLeadingAnnotations(str: String): String =
     var remaining = str.trim
     var changed = true
     while changed && remaining.startsWith("@") do
