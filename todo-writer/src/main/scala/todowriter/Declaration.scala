@@ -388,7 +388,7 @@ object Declaration:
       name.substring(1, name.length - 1)
     else name
 
-  /** Remove leading annotations, including annotation arguments.
+  /** Remove leading annotations, including type and value arguments.
     *
     *  This properly handles annotations with string arguments (which may
     *  contain spaces, commas, parens, etc.) by tracking string boundaries
@@ -413,31 +413,43 @@ object Declaration:
     else
       var i = 1
       while i < str.length && (str(i).isLetterOrDigit || str(i) == '_' || str(i) == '.') do i += 1
-      while i < str.length && str(i).isWhitespace do i += 1
 
-      if i < str.length && str(i) == '(' then
-        var depth = 0
-        var inString = false
-        var quoteChar = '\u0000'
-        var escaped = false
+      var keepReadingArguments = true
+      while keepReadingArguments do
+        while i < str.length && str(i).isWhitespace do i += 1
+        if i < str.length && (str(i) == '(' || str(i) == '[') then
+          val open = str(i)
+          val close = if open == '(' then ')' else ']'
+          val end = balancedGroupEnd(str, i, open, close)
+          if end < 0 then return -1
+          i = end
+        else keepReadingArguments = false
+      i
 
-        while i < str.length do
-          val ch = str(i)
-          if inString then
-            if escaped then escaped = false
-            else if ch == '\\' then escaped = true
-            else if ch == quoteChar then inString = false
-          else
-            if ch == '"' || ch == '\'' then
-              inString = true
-              quoteChar = ch
-            else if ch == '(' then depth += 1
-            else if ch == ')' then
-              depth -= 1
-              if depth == 0 then return i + 1
-          i += 1
-        -1
-      else i
+  /** Return the index after a balanced parenthesized or bracketed group, or -1 if unbalanced. */
+  private def balancedGroupEnd(str: String, start: Int, open: Char, close: Char): Int =
+    var i = start
+    var depth = 0
+    var inString = false
+    var quoteChar = '\u0000'
+    var escaped = false
+
+    while i < str.length do
+      val ch = str(i)
+      if inString then
+        if escaped then escaped = false
+        else if ch == '\\' then escaped = true
+        else if ch == quoteChar then inString = false
+      else
+        if ch == '"' || ch == '\'' then
+          inString = true
+          quoteChar = ch
+        else if ch == open then depth += 1
+        else if ch == close then
+          depth -= 1
+          if depth == 0 then return i + 1
+      i += 1
+    -1
 
   /** Split a string by commas, but ignore commas inside brackets/parentheses. */
   private def splitByCommasTopLevel(str: String): List[String] =

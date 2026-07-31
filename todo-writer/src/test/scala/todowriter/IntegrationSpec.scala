@@ -782,6 +782,21 @@ class IntegrationSpec extends AnyFlatSpec with Matchers:
     }
   }
 
+  it should "detect undocumented defs preceded by annotations with type arguments" in {
+    val content = """package test
+                    |
+                    |class Annotated {
+                    |  @ann[String]("reason") override def documentedByTheChecker(): Int = 1
+                    |}
+                    |""".stripMargin
+
+    withTempFile(content) { path =>
+      val result = ScaladocChecker.checkFile(path)
+      val synth = result.results.filter(_.scaladoc.synthetic).map(r => (r.declaration.kind, r.declaration.name))
+      synth should contain((DeclKind.Def, "documentedByTheChecker"))
+    }
+  }
+
   it should "detect undocumented def with symbolic operator name <:<" in {
     // Mirrors library/src/scala/reflect/Manifest.scala:
     //   override def newArray(len: Int) = new Array[scala.Any](len)

@@ -337,3 +337,7 @@ class DeclarationSpec extends AnyFlatSpec with Matchers:
     decl.params should be(List("x"))
     decl.returnType should be(Some("Int"))
   }
+
+  it should "strip annotation type and value arguments" in {
+    Declaration.dropLeadingAnnotations("@ann[String](\"reason\") override def foo") should be("override def foo")
+  }
