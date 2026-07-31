@@ -103,7 +103,86 @@ two stable Cloudflare IPs. Both are safe to pin by name. `platform.poolside.ai`
 is CloudFront with rotating IPs, but that is the browser console, used from the
 Mac, so it never needs allowlisting.
 
-## 3. Using Aider
+## 3. Where the API key goes
+
+Short version: `/home/node/.aider/.env`, written **after** the rebuild, and
+always passed explicitly with `--env-file /home/node/.aider/.env`.
+
+```bash
+umask 077
+cat > /home/node/.aider/.env <<'EOF'
+OPENAI_API_BASE=https://inference.poolside.ai/v1
+OPENAI_API_KEY=<key>
+EOF
+chmod 600 /home/node/.aider/.env
+```
+
+### Why that path survives a rebuild
+
+Three storage classes are in play, and a path being "inside the container" says
+nothing about which one it is on. Measured with
+`findmnt -no SOURCE,FSTYPE --target <path>`:
+
+| Path | Backing | Survives a rebuild? |
+|---|---|---|
+| `/`, `/home/node` | `overlay`, the container's writable layer | **No** |
+| `/home/node/.claude`, `.codex`, `.aider` | named volume, `/docker/volumes/<name>-<devcontainerId>/_data` | **Yes** |
+| `/workspace` | bind mount to `~/relax/dc-scala` on the Mac | Yes, it is the Mac's disk |
+
+A named volume is storage Docker manages *outside* any container.
+`/home/node/.aider` is only a mount *point*: an empty directory baked into the
+image that Docker hangs external storage onto at startup. A rebuild deletes the
+container and its overlay layer, builds a new image, starts a new container, and
+re-mounts the same volume at the same path. The data was never in the container.
+
+The existing proof is that the Claude Code login in `/home/node/.claude` does not
+have to be redone after each rebuild. `.aider` just joins that list.
+
+Corollary, and the reason ordering matters: **the mount does not exist until the
+first rebuild after adding it to `devcontainer.json`.** Writing the key to
+`/home/node/.aider/.env` beforehand puts it on the overlay, where the rebuild
+discards it, and the freshly created volume mounts empty over the top. Rebuild
+first, then write the key.
+
+Two things that do lose a populated volume:
+
+- The volume name embeds `${devcontainerId}`, which is keyed to the workspace
+  folder. Moving or renaming `~/relax/dc-scala` on the Mac gives a new ID and
+  therefore a new, empty volume. Editing `devcontainer.json` does not.
+- Removing it explicitly: `docker volume rm`, Docker Desktop's volume tab, or
+  "Dev Containers: Clean Up Dev Containers". Plain "Rebuild Container" and
+  "Rebuild Without Cache" both keep it.
+
+### Two footguns
+
+**`.env` is not gitignored in scala3.** The `.env` rule added in `2bf0958` is in
+the devcontainer repo, not in scala3. Aider's default `--env-file` is `.env` at
+the git root, which here resolves to `/workspace/scala3/.env`: an untracked
+secret sitting in a public fork that PRs are opened from. Verified with
+`git check-ignore -v .env`, which reports it as not ignored. Hence passing
+`--env-file` explicitly rather than relying on the default.
+
+**Do not `export OPENAI_API_KEY` in `.zshrc`.** The Codex CLI reads the same
+variable, so a global export pointed at Poolside silently cross-wires Codex,
+which still matters because the reviewer steps of `fill-doc-todos.sh` run on it.
+Keeping the value in a file only aider reads, via `--env-file`, scopes it
+correctly. (It is also on the overlay and would not survive a rebuild anyway.)
+
+### The no-secret-in-the-container alternative
+
+If a key on the container filesystem is ever unwanted, put it in the Mac shell
+environment and reference it without storing it:
+
+```json
+"remoteEnv": {
+  "POOLSIDE_API_KEY": "${localEnv:POOLSIDE_API_KEY}"
+}
+```
+
+Then `aider --api-key openai=$POOLSIDE_API_KEY`. Nothing secret lands in the
+container or in git, at the cost of a VS Code restart on every key rotation.
+
+## 4. Using Aider
 
 ### Interactive
 
@@ -138,7 +217,7 @@ aider --model "$WRITER_MODEL" \
 | `--map-tokens 0` | Disables the repo map. On a repo the size of scala3 the map is enormous and would dominate token spend for no benefit, since each call targets exactly one file. |
 | `--read <file>` | Adds a file as read-only context. Cleaner fit for `docs/house-rules.md` than the current `house_rules()` prompt concatenation. |
 | `--no-stream` | Keeps stdout parseable. |
-| `--env-file /home/node/.aider/.env` | Where to keep the API key. Only `/home/node/.aider` is a persisted volume; a container rebuild wipes the rest of the home directory, so a key in `~/.aider.conf.yml` or `~/.zshrc` is lost on every rebuild. |
+| `--env-file /home/node/.aider/.env` | Where the API key lives. Passed explicitly rather than relying on aider's default, which would look for `.env` in the scala3 repo root. See section 3. |
 | `--chat-mode ask` | Read-only mode, will not edit files. |
 
 ### Model names
@@ -154,7 +233,7 @@ groq/llama-3.3-70b-versatile
 API keys come from the matching env var (`OPENROUTER_API_KEY`, `GEMINI_API_KEY`,
 `GROQ_API_KEY`) or `--api-key provider=key`.
 
-## 4. How to wire it into fill-doc-todos.sh
+## 5. How to wire it into fill-doc-todos.sh
 
 Recommendation: **use Aider only for the writer and refine steps, and plain
 `curl` for the two reviewer steps.**
@@ -184,7 +263,7 @@ The reviewers should skip Aider because:
 Rule of thumb: Aider for the steps that edit files, curl for the steps that only
 judge.
 
-## 5. Provider: Poolside
+## 6. Provider: Poolside
 
 Gathered by web search on 2026-07-31, **not** from the vendor docs directly:
 `docs.poolside.ai` is not allowlisted, so `WebFetch` could not read it from
@@ -225,7 +304,7 @@ Worth considering because the plan is to try several services: allowlisting
 of a firewall edit and a container rebuild per vendor. 200 requests/day is
 ample here, since one file at `MAX_ROUNDS=2` costs roughly 5 to 6 requests.
 
-## 6. The single-file experiment
+## 7. The single-file experiment
 
 Target: **`library/src/scala/util/Try.scala`** (batch 4, the `util` partition).
 Picked over the alternatives because:
@@ -279,7 +358,7 @@ first or pass the path in `--message` instead.
 
 Throw the experiment away with `git checkout -- library/src/scala/util/`.
 
-## 7. Rebuild checklist
+## 8. Rebuild checklist
 
 1. Add the provider host to `init-firewall.sh` on `dc-template`, commit, merge
    into `dc-scala`. (`inference.poolside.ai` is already in as of 94ee1d4.)
@@ -287,7 +366,8 @@ Throw the experiment away with `git checkout -- library/src/scala/util/`.
 3. `aider --version` to confirm the install worked.
 4. `curl -s -o /dev/null -w "%{http_code}" https://inference.poolside.ai/v1/models`
    to confirm the firewall change took.
-5. Put the key in `/home/node/.aider/.env` (persisted volume).
+5. Write the key to `/home/node/.aider/.env` (section 3). This step comes
+   **after** the rebuild, not before: the volume does not exist until then.
 6. `curl -s https://inference.poolside.ai/v1/models -H "Authorization: Bearer $KEY" | jq`
    to get the real model identifiers.
 7. Run the experiment above.
