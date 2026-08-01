@@ -371,3 +371,67 @@ Throw the experiment away with `git checkout -- library/src/scala/util/`.
 6. `curl -s https://inference.poolside.ai/v1/models -H "Authorization: Bearer $KEY" | jq`
    to get the real model identifiers.
 7. Run the experiment above.
+
+## 9. Experiment results (2026-08-01)
+
+Target `library/src/scala/util/Try.scala`, 42 declarations / 128 placeholders,
+model `poolside/laguna-s-2.1` unless noted. Guards on every run: marker count,
+a strip-comments-and-diff code-integrity check, and a redundant-`@return` count.
+
+| # | Client / mode | Result |
+|---|---|---|
+| 1 | aider `--edit-format diff` | 0 filled. Model never emits SEARCH/REPLACE; burned 31k output tokens narrating, hit the 32k cap |
+| 2 | aider `diff`, aider-specific prompt | 0 filled. Reply unparseable, `Output tokens: ~0` |
+| 3 | aider `--edit-format whole` | **All 128 filled, prose good.** 12 redundant `@return` kept |
+| 4 | as #3 + DROP worked example | Redundant `@return` 12 -> 1, **but silently deleted the entire `Failure` class** |
+| 5 | Codex CLI + poolside | Died in 5.6s. `codex_core::tools::router: unsupported call: read`, then two 400 `Invalid JSON in tool call arguments` |
+
+### What is actually established
+
+- **The model writes good Scaladoc.** Accurate on non-obvious behaviour (it got
+  `NonFatal` on `Try.apply` and `orElse` right), correct voice and tag style.
+  This was never the failure.
+- **The model does valid tool calls.** Verified directly against
+  `/v1/chat/completions` with a `tools` array: correct tool name, well-formed
+  JSON arguments, `finish_reason: tool_calls`. So run 5 is a Codex/poolside
+  integration mismatch, not a model limitation.
+- **What it cannot do is reproduce a large file verbatim.** Run 4 regenerated
+  ~500 lines and dropped a public case class, leaving 68 dangling references.
+  It cannot compile.
+- **Every success signal lied in run 4.** Marker count 0, `edits applied: 1`,
+  `=== all markers filled ===`, and a plausible diffstat (101 insertions /
+  38 deletions). Only the code-line diff caught it. Whatever client is used,
+  keep that guard.
+- The DROP worked example is worth carrying forward regardless of client: it
+  took redundant `@return` from 12 to 1 with no over-correction (checked; no
+  `NonFatal` guarantee was lost).
+
+### Model facts, from poolside's own `/v1/models`
+
+Both `laguna-s-2.1` (fp4) and `laguna-xs-2.1` (fp8): 262,144 context,
+**32,768 max output**, `supported_features: ["tools", "reasoning"]`,
+`is_free: true` with all pricing fields `"0"`. Laguna M.1 is not on the direct
+platform; it is OpenRouter-only.
+
+### Codex wiring, for the record
+
+Works as a provider (`PONG` round-tripped) but fails on the agent loop:
+
+```bash
+codex exec \
+  -c 'model_providers.poolside={name="Poolside",base_url="https://inference.poolside.ai/v1",env_key="POOLSIDE_API_KEY",wire_api="responses"}' \
+  -c 'model_provider="poolside"' -c 'model="poolside/laguna-s-2.1"'
+```
+
+Codex 0.146 dropped `wire_api = "chat"`; poolside implements both `/v1/responses`
+and `/v1/chat/completions`, so `"responses"` is required and works. Two cosmetic
+errors either way: `failed to refresh available models` (poolside returns `data`,
+Codex wants `models`) and a fallback-metadata warning.
+
+### Prompts
+
+- `doc-writer-prompt.txt` — original, Claude Code tools, used by `fill-doc-todos.sh`
+- `doc-writer-prompt-aider.txt` — SEARCH/REPLACE protocol + DROP example
+- `doc-writer-prompt-codex.txt` — targeted-patch instructions + DROP example
+
+All three keep the substantive rules byte-identical so client comparisons stay fair.
