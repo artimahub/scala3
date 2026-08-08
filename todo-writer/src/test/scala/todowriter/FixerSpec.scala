@@ -99,6 +99,48 @@ class FixerSpec extends AnyFlatSpec with Matchers:
     paramIdx should be < returnIdx
   }
 
+  it should "insert @return after all param batches even with a blank line in between" in {
+    val text = """/** A non-blocking, asynchronous left fold over the specified futures,
+                 | *  with the start value of the given zero.
+                 | *
+                 | *  @param futures the `Iterable` of futures to be folded
+                 | *  @param zero the start value of the fold
+                 | *
+                 | *  @param executor the `ExecutionContext` on which the fold operation will be executed
+                 | *
+                 | */
+                 |final def foldLeft[T, R](futures: scala.collection.immutable.Iterable[Future[T]])(zero: R)(op: (R, T) => R)(implicit executor: ExecutionContext): Future[R] =
+                 |  foldNext(futures.iterator, zero, op)""".stripMargin
+    val block = ScaladocBlock.findAll(text).head
+    val result = Fixer.buildFixedBlock(text, block, Nil, Nil, true)
+
+    val zeroIdx = result.indexOf("@param zero")
+    val executorIdx = result.indexOf("@param executor")
+    val returnIdx = result.indexOf("@return")
+
+    zeroIdx should be < executorIdx
+    executorIdx should be < returnIdx
+  }
+
+  it should "move @return after later param batches when a blank line separates them" in {
+    val text = """/** A non-blocking, asynchronous left fold over the specified futures,
+                 | *  with the start value of the given zero.
+                 | *
+                 | *  @param futures the `Iterable` of futures to be folded
+                 | *  @param zero the start value of the fold
+                 | *  @return the `Future` holding the result of the fold
+                 | *
+                 | *  @param executor the `ExecutionContext` on which the fold operation will be executed
+                 | */""".stripMargin
+    val block = ScaladocBlock.findAll(text).head
+    val result = Fixer.buildFixedBlock(text, block, Nil, Nil, false)
+
+    val lastParamIdx = result.lastIndexOf("@param executor")
+    val returnIdx = result.indexOf("@return")
+
+    lastParamIdx should be < returnIdx
+  }
+
   it should "sort existing tags to proper order (tparam, param, return)" in {
     // Original has @param before @tparam - should be reordered
     val text = """/** Does something.
