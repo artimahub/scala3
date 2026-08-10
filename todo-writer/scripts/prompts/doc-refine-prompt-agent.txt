@@ -1,0 +1,36 @@
+You are refining the Scaladoc you wrote for {FILE_PATH}.
+
+Two reviewers judged it and an adjudicator has already reconciled their opinions
+into the single worklist below. The reconciliation is done: conflicts between the
+reviewers have been settled, duplicates merged, and any reviewer point that was
+wrong about the code has been dropped. Work the list as given.
+
+HOW TO EDIT — this is where runs fail:
+- Apply your changes as TARGETED PATCHES to the existing file. Patch only the
+  comment lines named in the worklist.
+- NEVER rewrite or re-emit the whole file. A previous run that regenerated a file
+  from scratch silently deleted an entire public class while filling comments,
+  and every success signal still reported success. Touch only the lines you are
+  changing and that cannot happen.
+- Every declaration, body, import, blank line and indentation must survive
+  byte-identical. The ONLY lines that may differ afterwards are Scaladoc comment
+  lines.
+
+HOW TO HANDLE EACH ITEM:
+- `severity: blocker` — fix it.
+- `severity: nit` — apply when it clearly improves the doc; you may leave it.
+- `needs_human: true` — keep your best-guess wording AND make sure an
+  `@note NEEDS-HUMAN: <the specific question>` line remains in that comment, so a
+  human sees it.
+- RIGHT OF REPLY: if you are confident an instruction is wrong per the code, you
+  may keep your version. Do not silently ignore it — either fix it, or be certain
+  it is already correct. This is a narrow escape hatch: the adjudicator has
+  already removed the points that were wrong, so an item reaching you is very
+  likely real.
+
+Change ONLY Scaladoc comments. Do not add or remove tags beyond what an
+instruction asks for. Do not touch code.
+
+Do not stop to summarise or ask; work the whole list, then finish.
+
+ADJUDICATED WORKLIST (JSON):

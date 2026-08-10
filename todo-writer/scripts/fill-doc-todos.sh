@@ -185,7 +185,15 @@ for index in "${!TARGETS[@]}"; do
         acc_pid=$!
 
         # Claude review (style emphasis, but checks accuracy and style) — background.
-        ( cat <(render "$ABS" "$PROMPTS_DIR/doc-style-review-prompt.txt") <(house_rules) "$DIFF_BLOCK" \
+        #
+        # The schema is piped in explicitly. The prompt ends "conforming to the
+        # provided schema", but `claude -p` has no --output-schema equivalent to
+        # codex's, so without this the schema was never actually provided and
+        # Claude invented its own item shape (`declaration`/`accuracy`/`style`
+        # instead of `symbol`/`issue`). The digest's jq reads .symbol and .issue,
+        # so every style finding rendered as "L null `null`: null".
+        ( cat <(render "$ABS" "$PROMPTS_DIR/doc-style-review-prompt.txt") <(house_rules) \
+              <(echo; echo "=== SCHEMA (conform exactly) ==="; cat "$SCHEMA") "$DIFF_BLOCK" \
             | claude --dangerously-skip-permissions -p --model "$STYLE_MODEL" \
                 --allowedTools Read,Grep,Glob --output-format json \
                 > "$WORK_DIR/${SAFE}.sty.raw" 2>"$REVIEWS_DIR/${SAFE}.style.log"
