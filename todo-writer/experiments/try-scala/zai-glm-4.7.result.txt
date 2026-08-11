@@ -1,0 +1,15 @@
+label:             zai-glm-4.7
+provider/model:    cerebras / openai/zai-glm-4.7
+reasoning_effort:  none
+rounds run:        1   (r1=60s)
+WORK TIME:         60s   <- compare providers on this
+wall clock:        60s   (includes 0s of this script's own between-round pauses)
+per-marker:        n/a (nothing filled)
+last client exit:  0
+stopped because:   no progress in round 1
+marker progression:128 -> 128   (started at 128)
+markers left:      128
+CODE INTEGRITY:    PASS
+Failure+Success:   2/2 classes present
+redundant @return: 1
+tag lines ending '.': 1 of 129  (house style: omit)

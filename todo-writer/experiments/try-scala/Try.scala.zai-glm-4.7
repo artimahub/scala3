@@ -162,30 +162,30 @@ sealed abstract class Try[+T] extends Product with Serializable { self: Try[T]^ 
    *  @param p the predicate used to test elements
    */
   final class WithFilter(p: T => Boolean) uses Try.this {
-    /** Returns a `Try` containing the result of applying `f` to the value if this `Try` is a `Success` whose value satisfies the predicate `p`.
+    /** TODO FILL IN
      *
-     *  @tparam U the type of the result of applying `f`
-     *  @param f the function to apply to the value
-     *  @return a `Success` containing the result of `f` applied to the value if the value satisfies `p`, a `Failure` otherwise
+     *  @tparam U TODO FILL IN
+     *  @param f TODO FILL IN
+     *  @return TODO FILL IN
      */
     def map[U](f:     T => U): Try[U]^{Try.this, p.only[Control], f.only[Control]} = Try.this.filter(p).map(f)
-    /** Returns a `Try` containing the result of applying `f` to the value if this `Try` is a `Success` whose value satisfies the predicate `p`.
+    /** TODO FILL IN
      *
-     *  @tparam U the type of the value in the resulting `Try`
-     *  @param f the function to apply to the value
-     *  @return the `Try` returned by `f` applied to the value if the value satisfies `p`, a `Failure` otherwise
+     *  @tparam U TODO FILL IN
+     *  @param f TODO FILL IN
+     *  @return TODO FILL IN
      */
     def flatMap[U](f: T => Try[U]^): Try[U]^{Try.this, p.only[Control], f}         = Try.this.filter(p).flatMap(f)
-    /** Applies `f` to the value if this `Try` is a `Success` whose value satisfies the predicate `p`.
+    /** TODO FILL IN
      *
-     *  @tparam U the (discarded) result type of `f`
-     *  @param f the function to apply
+     *  @tparam U TODO FILL IN
+     *  @param f TODO FILL IN
      */
     def foreach[U](f: T => U): Unit                                                = Try.this.filter(p).foreach(f)
-    /** Returns a new `WithFilter` that combines this predicate with `q`.
+    /** TODO FILL IN
      *
-     *  @param q the additional predicate to compose with this filter's predicate
-     *  @return a new `WithFilter` whose predicate requires both `p` and `q` to be satisfied
+     *  @param q TODO FILL IN
+     *  @return TODO FILL IN
      */
     def withFilter(q: T => Boolean): WithFilter^{Try.this, p, q}                   = new WithFilter(x => p(x) && q(x))
   }
@@ -282,86 +282,87 @@ object Try {
     }
 }
 
-/** A `Try` that represents a failed computation.
+/** TODO FILL IN
  *
- *  @tparam T the type of the value that would have been computed if the operation had succeeded
- *  @param exception the exception that caused the failure
+ *  @tparam T TODO FILL IN
+ *  @param exception TODO FILL IN
  */
 final case class Failure[+T](exception: Throwable) extends Try[T] { self: Failure[T]^ =>
-  /** Returns `true` since this is a `Failure`. */
+  /** TODO FILL IN */
   override def isFailure: Boolean = true
-  /** Returns `false` since this is a `Failure`. */
+  /** TODO FILL IN */
   override def isSuccess: Boolean = false
-  /** Throws the exception that caused this failure. */
+  /** TODO FILL IN */
   override def get: T = throw exception
-  /** Returns the given `default` argument since this is a `Failure`.
+  /** TODO FILL IN
    *
-   *  @tparam U the type of the returned value
-   *  @param default the default value to return
+   *  @tparam U TODO FILL IN
+   *  @param default TODO FILL IN
+   *  @return TODO FILL IN
    */
   override def getOrElse[U >: T](default: => U): U = default
-  /** Returns the given `default` argument since this is a `Failure`.
+  /** TODO FILL IN
    *
-   *  @tparam U the type of the value in the returned `Try`
-   *  @param default the fallback `Try` to return
-   *  @return `default`; any non-fatal exception thrown while evaluating `default` is caught and returned as a `Failure`
+   *  @tparam U TODO FILL IN
+   *  @param default TODO FILL IN
+   *  @return TODO FILL IN
    */
   override def orElse[U >: T](default: => Try[U]^): Try[U]^{default} =
     try default catch { case NonFatal(e) => Failure(e) }
-  /** Returns this `Failure` unchanged.
+  /** TODO FILL IN
    *
-   *  @tparam U the type of the value in the resulting `Try`
-   *  @param f the function that would be applied to the value if this were a `Success`
-   *  @return this `Failure`
+   *  @tparam U TODO FILL IN
+   *  @param f TODO FILL IN
+   *  @return TODO FILL IN
    */
   override def flatMap[U](f: T => Try[U]^): Try[U]^{this} = this.asTryOf[U]
-  /** Returns this `Failure` unchanged.
+  /** TODO FILL IN
    *
-   *  @tparam U the type of the value in the inner `Try`
-   *  @param ev evidence that `T` is itself a `Try[U]`
-   *  @return this `Failure`
+   *  @tparam U TODO FILL IN
+   *  @param ev TODO FILL IN
+   *  @return TODO FILL IN
    */
   override def flatten[U](implicit ev: T <:< Try[U]): Try[U]^{this} = this.asTryOf[U]
-  /** Does nothing since this is a `Failure`.
+  /** TODO FILL IN
    *
-   *  @tparam U the (discarded) result type of `f`
-   *  @param f the function that would be applied if this were a `Success`
+   *  @tparam U TODO FILL IN
+   *  @param f TODO FILL IN
    */
   override def foreach[U](f: T => U): Unit = ()
-  /** Applies `f` to the exception since this is a `Failure`.
+  /** TODO FILL IN
    *
-   *  @tparam U the type of the value in the resulting `Try`
-   *  @param s the function that would be applied to the value if this were a `Success`
-   *  @param f the function to apply to the exception
-   *  @return the `Try` returned by `f` applied to the exception; any non-fatal exception thrown by `f` is caught and returned as a `Failure`
+   *  @tparam U TODO FILL IN
+   *  @param s TODO FILL IN
+   *  @param f TODO FILL IN
+   *  @return TODO FILL IN
    */
   override def transform[U](s: T => Try[U]^, f: Throwable => Try[U]^): Try[U]^{f} =
     try f(exception) catch { case NonFatal(e) => Failure(e) }
-  /** Returns this `Failure` unchanged.
+  /** TODO FILL IN
    *
-   *  @tparam U the type of the mapped value
-   *  @param f the function that would be applied to the value if this were a `Success`
-   *  @return this `Failure`
+   *  @tparam U TODO FILL IN
+   *  @param f TODO FILL IN
+   *  @return TODO FILL IN
    */
   override def map[U](f: T => U): Try[U]^{this} = this.asTryOf[U]
-  /** Returns this `Failure` unchanged.
+  /** TODO FILL IN
    *
-   *  @tparam U the type of the value returned by the partial function
-   *  @param pf the partial function that would be applied if this were a `Success`
-   *  @return this `Failure`
+   *  @tparam U TODO FILL IN
+   *  @param pf TODO FILL IN
+   *  @return TODO FILL IN
    */
   override def collect[U](pf: PartialFunction[T, U]^): Try[U]^{this} = this.asTryOf[U]
-  /** Returns this `Failure` unchanged.
+  /** TODO FILL IN
    *
-   *  @param p the predicate that would be tested if this were a `Success`
-   *  @return this `Failure`
+   *  @param p TODO FILL IN
+   *  @return TODO FILL IN
    */
   override def filter(p: T => Boolean): Try[T]^{this} = this
-  /** Applies `pf` to the exception if it is defined, constructing a `Success` with the result.
+  /** TODO FILL IN
    *
-   *  @tparam U the type of the value in the resulting `Try`, a supertype of `T`
-   *  @param pf the partial function to apply to the exception
-   *  @return a `Success` wrapping the result of applying `pf` to the exception if `pf` is defined, this `Failure` otherwise; any non-fatal exception thrown by `pf` is caught and returned as a `Failure`
+   *  @tparam U TODO FILL IN
+   *  @param pf TODO FILL IN
+   *  @return TODO FILL IN
    */
   override def recover[U >: T](pf: PartialFunction[Throwable, U]^): Try[U]^{this, pf.only[Control]} = {
     val marker = Statics.pfMarker
@@ -370,11 +371,11 @@ final case class Failure[+T](exception: Throwable) extends Try[T] { self: Failur
       if (marker ne v.asInstanceOf[AnyRef]) Success(v.asInstanceOf[U]) else this
     } catch { case NonFatal(e) => Failure(e) }
   }
-  /** Applies `pf` to the exception if it is defined, returning the resulting `Try`.
+  /** TODO FILL IN
    *
-   *  @tparam U the type of the value in the resulting `Try`, a supertype of `T`
-   *  @param pf the partial function to apply to the exception
-   *  @return the `Try` produced by `pf` applied to the exception if `pf` is defined, this `Failure` otherwise; any non-fatal exception thrown by `pf` is caught and returned as a `Failure`
+   *  @tparam U TODO FILL IN
+   *  @param pf TODO FILL IN
+   *  @return TODO FILL IN
    */
   override def recoverWith[U >: T](pf: PartialFunction[Throwable, Try[U]^]^): Try[U]^{this, pf} = {
     val marker = Statics.pfMarker
@@ -383,91 +384,91 @@ final case class Failure[+T](exception: Throwable) extends Try[T] { self: Failur
       if (marker ne v.asInstanceOf[AnyRef]) v.asInstanceOf[Try[U]] else this
     } catch { case NonFatal(e) => Failure(e) }
   }
-  /** Returns a `Success` containing the exception that caused this failure. */
+  /** TODO FILL IN */
   override def failed: Try[Throwable] = Success(exception)
-  /** Returns `None`. */
+  /** TODO FILL IN */
   override def toOption: Option[T] = None
-  /** Returns a `Left` containing the exception. */
+  /** TODO FILL IN */
   override def toEither: Either[Throwable, T] = Left(exception)
-  /** Applies `fa` to the exception.
+  /** TODO FILL IN
    *
-   *  @tparam U the type of the result
-   *  @param fa the function to apply
-   *  @param fb the function that would be applied if this were a `Success`
-   *  @return the result of applying `fa` to the exception
+   *  @tparam U TODO FILL IN
+   *  @param fa TODO FILL IN
+   *  @param fb TODO FILL IN
+   *  @return TODO FILL IN
    */
   override def fold[U](fa: Throwable => U, fb: T => U): U = fa(exception)
 
   private inline def asTryOf[U]: Try[U]^{this} = this.asInstanceOf[Try[U]]
 }
 
-/** A `Try` that represents a successful computation.
+/** TODO FILL IN
  *
- *  @tparam T the type of the successfully computed value
- *  @param value the successfully computed value
+ *  @tparam T TODO FILL IN
+ *  @param value TODO FILL IN
  */
 final case class Success[+T](value: T) extends Try[T] {
-  /** Returns `false` since this is a `Success`. */
+  /** TODO FILL IN */
   override def isFailure: Boolean = false
-  /** Returns `true` since this is a `Success`. */
+  /** TODO FILL IN */
   override def isSuccess: Boolean = true
-  /** Returns the value. */
+  /** TODO FILL IN */
   override def get = value
-  /** Returns the value since this is a `Success`.
+  /** TODO FILL IN
    *
-   *  @tparam U the type of the returned value, a supertype of `T`
-   *  @param default the default value that would be returned if this were a `Failure`
-   *  @return the value
+   *  @tparam U TODO FILL IN
+   *  @param default TODO FILL IN
+   *  @return TODO FILL IN
    */
   override def getOrElse[U >: T](default: => U): U = get
-  /** Returns this `Success` since it is a `Success`.
+  /** TODO FILL IN
    *
-   *  @tparam U the type of the value in the returned `Try`, a supertype of `T`
-   *  @param default the fallback `Try` that would be returned if this were a `Failure`
-   *  @return this `Success`
+   *  @tparam U TODO FILL IN
+   *  @param default TODO FILL IN
+   *  @return TODO FILL IN
    */
   override def orElse[U >: T](default: => Try[U]^): Try[U] = this
-  /** Returns the result of applying `f` to the value.
+  /** TODO FILL IN
    *
-   *  @tparam U the type of the value in the resulting `Try`
-   *  @param f the function to apply to the value
-   *  @return the `Try` returned by `f`; any non-fatal exception thrown by `f` is caught and returned as a `Failure`
+   *  @tparam U TODO FILL IN
+   *  @param f TODO FILL IN
+   *  @return TODO FILL IN
    */
   override def flatMap[U](f: T => Try[U]^): Try[U]^{f} =
     try f(value) catch { case NonFatal(e) => Failure(e) }
-  /** Returns the inner `Try`.
+  /** TODO FILL IN
    *
-   *  @tparam U the type of the value in the inner `Try`
-   *  @param ev evidence that `T` is itself a `Try[U]`
-   *  @return the value, which is itself a `Try[U]`
+   *  @tparam U TODO FILL IN
+   *  @param ev TODO FILL IN
+   *  @return TODO FILL IN
    */
   override def flatten[U](implicit ev: T <:< Try[U]): Try[U] = value
-  /** Applies `f` to the value.
+  /** TODO FILL IN
    *
-   *  @tparam U the (discarded) result type of `f`
-   *  @param f the function to apply
+   *  @tparam U TODO FILL IN
+   *  @param f TODO FILL IN
    */
   override def foreach[U](f: T => U): Unit = f(value)
-  /** Applies `s` to the value since this is a `Success`.
+  /** TODO FILL IN
    *
-   *  @tparam U the type of the value in the resulting `Try`
-   *  @param s the function to apply to the value
-   *  @param f the function that would be applied if this were a `Failure`
-   *  @return the `Try` returned by `s`; any non-fatal exception thrown by `s` is caught and returned as a `Failure`
+   *  @tparam U TODO FILL IN
+   *  @param s TODO FILL IN
+   *  @param f TODO FILL IN
+   *  @return TODO FILL IN
    */
   override def transform[U](s: T => Try[U]^, f: Throwable => Try[U]^): Try[U]^{s} = this flatMap s
-  /** Returns a `Success` containing the result of applying `f` to the value.
+  /** TODO FILL IN
    *
-   *  @tparam U the type of the mapped value
-   *  @param f the function to apply to the value
-   *  @return a `Success` containing the result of `f` applied to the value; any non-fatal exception thrown by `f` is caught and returned as a `Failure`
+   *  @tparam U TODO FILL IN
+   *  @param f TODO FILL IN
+   *  @return TODO FILL IN
    */
   override def map[U](f: T => U): Try[U]^{f.only[Control]} = Try[U](f(value))
-  /** Returns a `Success` containing the result of `pf` applied to the value if `pf` is defined.
+  /** TODO FILL IN
    *
-   *  @tparam U the type of the value returned by the partial function
-   *  @param pf the partial function to apply to the value
-   *  @return a `Success` containing the result of `pf` applied to the value if `pf` is defined, a `Failure` with a `NoSuchElementException` if `pf` is not defined; any non-fatal exception thrown by `pf` is caught and returned as a `Failure`
+   *  @tparam U TODO FILL IN
+   *  @param pf TODO FILL IN
+   *  @return TODO FILL IN
    */
   override def collect[U](pf: PartialFunction[T, U]^): Try[U]^{pf.only[Control]} = {
     val marker = Statics.pfMarker
@@ -477,41 +478,41 @@ final case class Success[+T](value: T) extends Try[T] {
       else Failure(new NoSuchElementException("Predicate does not hold for " + value))
     } catch { case NonFatal(e) => Failure(e) }
   }
-  /** Returns this `Success` if the value satisfies the predicate `p`.
+  /** TODO FILL IN
    *
-   *  @param p the predicate to test the value against
-   *  @return this `Success` if the value satisfies `p`, a `Failure` with a `NoSuchElementException` otherwise; any non-fatal exception thrown by `p` is caught and returned as a `Failure`
+   *  @param p TODO FILL IN
+   *  @return TODO FILL IN
    */
   override def filter(p: T => Boolean): Try[T]^{p.only[Control]} =
     try {
       if (p(value)) this else Failure(new NoSuchElementException("Predicate does not hold for " + value))
     } catch { case NonFatal(e) => Failure(e) }
-  /** Returns this `Success` unchanged since it is not a `Failure`.
+  /** TODO FILL IN
    *
-   *  @tparam U the type of the value in the resulting `Try`, a supertype of `T`
-   *  @param pf the partial function that would be applied if this were a `Failure`
-   *  @return this `Success`
+   *  @tparam U TODO FILL IN
+   *  @param pf TODO FILL IN
+   *  @return TODO FILL IN
    */
   override def recover[U >: T](pf: PartialFunction[Throwable, U]^): Try[U] = this
-  /** Returns this `Success` unchanged since it is not a `Failure`.
+  /** TODO FILL IN
    *
-   *  @tparam U the type of the value in the resulting `Try`, a supertype of `T`
-   *  @param pf the partial function that would be applied if this were a `Failure`
-   *  @return this `Success`
+   *  @tparam U TODO FILL IN
+   *  @param pf TODO FILL IN
+   *  @return TODO FILL IN
    */
   override def recoverWith[U >: T](pf: PartialFunction[Throwable, Try[U]^]^): Try[U] = this
-  /** Returns a `Failure` containing an `UnsupportedOperationException`. */
+  /** TODO FILL IN */
   override def failed: Try[Throwable] = Failure(new UnsupportedOperationException("Success.failed"))
-  /** Returns a `Some` containing the value. */
+  /** TODO FILL IN */
   override def toOption: Option[T] = Some(value)
-  /** Returns a `Right` containing the value. */
+  /** TODO FILL IN */
   override def toEither: Either[Throwable, T] = Right(value)
-  /** Applies `fb` to the value.
+  /** TODO FILL IN
    *
-   *  @tparam U the type of the result
-   *  @param fa the function that would be applied if this were a `Failure`
-   *  @param fb the function to apply to the value
-   *  @return the result of applying `fb` to the value; any non-fatal exception thrown by `fb` is caught and `fa` is applied to that exception
+   *  @tparam U TODO FILL IN
+   *  @param fa TODO FILL IN
+   *  @param fb TODO FILL IN
+   *  @return TODO FILL IN
    */
   override def fold[U](fa: Throwable => U, fb: T => U): U =
     try { fb(value) } catch { case NonFatal(e) => fa(e) }

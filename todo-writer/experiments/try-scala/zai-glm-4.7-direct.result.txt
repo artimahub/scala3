@@ -1,0 +1,15 @@
+label:             zai-glm-4.7-direct
+provider/model:    direct / zai-glm-4.7
+reasoning_effort:  <unset, model default>
+rounds run:        1   (r1=5s)
+WORK TIME:         5s   <- compare providers on this
+wall clock:        5s   (includes 0s of this script's own between-round pauses)
+per-marker:        0.0s per marker filled
+last client exit:  0
+stopped because:   all markers filled
+marker progression:128 -> 0   (started at 128)
+markers left:      0
+CODE INTEGRITY:    PASS
+Failure+Success:   2/2 classes present
+redundant @return: 12
+tag lines ending '.': 1 of 128  (house style: omit)
