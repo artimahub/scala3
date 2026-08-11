@@ -1,0 +1,15 @@
+label:             gpt-oss-120b-direct
+provider/model:    direct / gpt-oss-120b
+reasoning_effort:  <unset, model default>
+rounds run:        2   (r1=6s, r2=5s)
+WORK TIME:         11s   <- compare providers on this
+wall clock:        71s   (includes 60s of this script's own between-round pauses)
+per-marker:        0.1s per marker filled
+last client exit:  0
+stopped because:   all markers filled
+marker progression:128 -> 54 -> 0   (started at 128)
+markers left:      0
+CODE INTEGRITY:    PASS
+Failure+Success:   2/2 classes present
+redundant @return: 1
+tag lines ending '.': 1 of 117  (house style: omit)

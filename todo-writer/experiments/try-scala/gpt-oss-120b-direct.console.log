@@ -1,0 +1,23 @@
+bash: warning: setlocale: LC_ALL: cannot change locale (en_US.UTF-8)
+=== trial: gpt-oss-120b-direct  (provider direct, model gpt-oss-120b) ===
+start: 128 markers
+--- round 1/6: 128 markers remaining ---
+    round 1: 128 -> 54 markers  (6s, client exit 0)
+    pausing 60s to let the rate-limit window recover
+--- round 2/6: 54 markers remaining ---
+    round 2: 54 -> 0 markers  (5s, client exit 0)
+label:             gpt-oss-120b-direct
+provider/model:    direct / gpt-oss-120b
+reasoning_effort:  <unset, model default>
+rounds run:        2   (r1=6s, r2=5s)
+WORK TIME:         11s   <- compare providers on this
+wall clock:        71s   (includes 60s of this script's own between-round pauses)
+per-marker:        0.1s per marker filled
+last client exit:  0
+stopped because:   all markers filled
+marker progression:128 -> 54 -> 0   (started at 128)
+markers left:      0
+CODE INTEGRITY:    PASS
+Failure+Success:   2/2 classes present
+redundant @return: 1
+tag lines ending '.': 1 of 117  (house style: omit)
