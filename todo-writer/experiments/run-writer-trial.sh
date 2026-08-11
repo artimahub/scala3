@@ -80,6 +80,22 @@ EXP="$REPO/todo-writer/experiments/try-scala"
 TARGET=library/src/scala/util/Try.scala
 INPUT="$EXP/Try.scala.MARKED-input"
 
+# Model metadata. Lives on the persisted volume rather than in the repo because
+# it sits beside the API keys; it survives a devcontainer rebuild.
+#
+# This is REQUIRED, not tuning. Without an entry aider falls back to a
+# conservative output cap, and zai-glm-4.7 is a reasoning model on Cerebras: it
+# emits into a separate `reasoning` field before any `content`, so the fallback
+# cap was consumed before it produced a single character. Aider reported
+# "Output tokens: ~0" and the trial scored 128 -> 128, "no progress in round 1",
+# which reads as a model failure and was not one. Given a real budget the same
+# model emitted 42 of 42 SEARCH/REPLACE blocks, all matching byte-exactly, in
+# one 5-second reply.
+#
+# The reasoning overhead is not proportional: 216 tokens to answer "PONG", but
+# only 934 of 7,147 on the real task. Judge it on real work, not a toy prompt.
+METADATA=${METADATA:-/home/node/.aider/model-metadata.json}
+
 cd "$REPO"
 export PATH="$PATH:/home/node/.local/bin"
 export BROWSER=/bin/true          # aider offers to open docs URLs; --yes-always accepts
@@ -90,6 +106,13 @@ if pgrep -f "bin/aider --model" >/dev/null || pgrep -f "pool exec" >/dev/null; t
     exit 2
 fi
 [ -f "$INPUT" ] || { echo "Missing marked input: $INPUT" >&2; exit 2; }
+# Fail loudly rather than silently running with aider's fallback caps, which is
+# what made zai-glm-4.7 look broken.
+if [ "$PROVIDER" = cerebras ] && ! grep -q "\"${MODEL}\"" "$METADATA" 2>/dev/null; then
+    echo "No metadata entry for '$MODEL' in $METADATA." >&2
+    echo "Add one (max_output_tokens 32000) or aider will use a conservative default cap." >&2
+    exit 2
+fi
 
 code_lines() { grep -vE '^\s*(\*|/\*\*|\*/)' "$1" | grep -v '^\s*$'; }
 # grep -c prints 0 and exits 1 when there are no matches; `|| true` keeps the
@@ -160,6 +183,7 @@ run_one_round() {
             --yes-always --no-auto-commits --no-gitignore \
             --map-tokens 0 --no-stream --no-check-update --no-analytics \
             --no-show-model-warnings --no-auto-lint \
+            --model-metadata-file "$METADATA" \
             --chat-history-file "$EXP/$LABEL.chat.md" \
             --input-history-file "$EXP/$LABEL.input" \
             --llm-history-file "$EXP/$LABEL.llm" \
