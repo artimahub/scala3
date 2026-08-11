@@ -46,6 +46,19 @@
 # Note that a client's exit code is NOT the completion signal: aider exited 0
 # having abandoned its retries with 63 markers left. The marker count decides.
 #
+# --no-auto-lint is REQUIRED, not tidiness. Aider lints edited files with a
+# tree-sitter grammar that does not understand Scala 3 capture checking, so it
+# reports untouched original source as broken:
+#
+#     def flatMap[U](f: T => Try[U]^): Try[U]^{this, f}     <- flagged
+#
+# and then asks the model to "Fix any errors below". That spends rounds on
+# nothing and, worse, actively invites the model to edit Scala code, which is
+# the one thing the writer prompt forbids and what the integrity guard exists to
+# catch. Four such prompts appeared in one gpt-oss-120b run before this was
+# spotted. Poolside is unaffected (pool has no linter), so leaving it on would
+# also have made the two providers incomparable.
+#
 # Output goes under experiments/, on the bind mount, so it survives a rebuild.
 #
 # Env: MAX_ROUNDS=6  ROUND_PAUSE=60  TIMEOUT=3600
@@ -104,7 +117,39 @@ round_times=""
 rounds_run=0
 stopped_because="max rounds"
 
+# Ctrl-C handling. aider traps SIGINT itself (it uses it to interrupt a
+# response, not to exit), so an interactive Ctrl-C leaves the client alive AND
+# lets this loop start another round. The client therefore runs in the
+# background so we hold its PID and can kill it, and the loop exits rather than
+# continuing. Without this the only way to stop a trial is to find and kill
+# three processes by hand, script first.
+#
+# Killing the client PID alone is not enough: it is a subshell whose children
+# (timeout, then aider or pool) survive it. `set -m` gives each background job
+# its own process group so a negative-PID kill reaches the whole tree, and the
+# pkill sweep afterwards catches anything that escaped into another group.
+set -m
+client_pid=""
+kill_client_tree() {
+    [ -n "$client_pid" ] || return 0
+    kill -TERM -"$client_pid" 2>/dev/null || kill -TERM "$client_pid" 2>/dev/null
+    sleep 2
+    kill -9 -"$client_pid" 2>/dev/null || kill -9 "$client_pid" 2>/dev/null
+    # Anything that reparented or changed group.
+    pkill -9 -P "$client_pid" 2>/dev/null
+}
+on_interrupt() {
+    echo ""
+    echo "!! interrupted -- stopping the client and ending the trial"
+    kill_client_tree
+    echo "   $TARGET is left mid-edit; the next trial resets it from the baseline."
+    echo "   If a client somehow survives, it will be a '$PROVIDER' process; kill it by PID."
+    exit 130
+}
+trap on_interrupt INT TERM
+
 run_one_round() {
+    (
     case "$PROVIDER" in
       cerebras)
         export OPENAI_API_BASE="$CEREBRAS_API_BASE"
@@ -114,7 +159,7 @@ run_one_round() {
             --message-file "$EXP/prompt.aider.txt" \
             --yes-always --no-auto-commits --no-gitignore \
             --map-tokens 0 --no-stream --no-check-update --no-analytics \
-            --no-show-model-warnings \
+            --no-show-model-warnings --no-auto-lint \
             --chat-history-file "$EXP/$LABEL.chat.md" \
             --input-history-file "$EXP/$LABEL.input" \
             --llm-history-file "$EXP/$LABEL.llm" \
@@ -131,6 +176,12 @@ run_one_round() {
       *)
         echo "Unknown provider: $PROVIDER (want cerebras or poolside)" >&2; exit 2 ;;
     esac
+    ) &
+    client_pid=$!
+    wait "$client_pid"
+    local st=$?
+    client_pid=""
+    return $st
 }
 
 : > "$EXP/$LABEL.log"
