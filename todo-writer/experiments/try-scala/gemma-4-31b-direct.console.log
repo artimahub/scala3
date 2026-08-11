@@ -1,0 +1,20 @@
+bash: warning: setlocale: LC_ALL: cannot change locale (en_US.UTF-8)
+=== trial: gemma-4-31b-direct  (provider direct, model gemma-4-31b) ===
+start: 128 markers
+--- round 1/6: 128 markers remaining ---
+    round 1: 128 -> 0 markers  (3s, client exit 0)
+label:             gemma-4-31b-direct
+provider/model:    direct / gemma-4-31b
+reasoning_effort:  <unset, model default>
+rounds run:        1   (r1=3s)
+WORK TIME:         3s   <- compare providers on this
+wall clock:        3s   (includes 0s of this script's own between-round pauses)
+per-marker:        0.0s per marker filled
+last client exit:  0
+stopped because:   all markers filled
+marker progression:128 -> 0   (started at 128)
+markers left:      0
+CODE INTEGRITY:    PASS
+Failure+Success:   2/2 classes present
+redundant @return: 10
+tag lines ending '.': 1 of 127  (house style: omit)
