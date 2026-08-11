@@ -2,17 +2,27 @@
 #
 # run-writer-trial.sh <label> <provider> <model> [edit-format]
 #
+#   provider = direct     -> no client: one user message straight to the
+#                            OpenAI-compatible endpoint, blocks applied by
+#                            direct-writer.py. PREFERRED for Cerebras.
 #   provider = cerebras   -> aider, OpenAI-compatible, SEARCH/REPLACE prompt
 #   provider = poolside   -> pool exec (agent), targeted-patch prompt
 #
 # Runs ONE writer model over the same marked input and scores it against the
 # same guards, so trials are comparable across providers.
 #
-# Two clients are unavoidable: pool sends Anthropic-style cache_control fields
-# that Cerebras rejects, and aider's edit formats defeated poolside's laguna (it
-# cannot emit SEARCH/REPLACE, and whole-file mode deleted a public class). Each
-# provider gets the client and prompt it works with; the INPUT and the GUARDS
-# are identical, which is what makes the comparison fair.
+# Three of four models failed through aider, each differently: laguna could not
+# emit SEARCH/REPLACE at all (and whole-file mode deleted a public class),
+# gpt-oss-120b was fed bogus lint errors, and zai-glm-4.7 returned empty content
+# in three configurations. The same GLM, file and endpoint given a plain
+# single-message prompt returned 42 of 42 correct blocks in 5 seconds. So
+# 'direct' is the preferred path for Cerebras and 'cerebras' (aider) is kept
+# only for comparison against the runs already recorded.
+#
+# poolside stays on pool because laguna cannot emit SEARCH/REPLACE in ANY
+# client; pool's own edit tools are the only thing that works for it. That
+# asymmetry is a property of the model, not of this harness. The INPUT and the
+# GUARDS are identical throughout, which is what keeps the comparison fair.
 #
 # ---------------------------------------------------------------------------
 # WHY THIS LOOPS
@@ -67,9 +77,9 @@
 
 set -uo pipefail
 
-LABEL=${1:?usage: run-writer-trial.sh <label> <provider: cerebras|poolside> <model> [edit-format]}
-PROVIDER=${2:?usage: run-writer-trial.sh <label> <provider: cerebras|poolside> <model> [edit-format]}
-MODEL=${3:?usage: run-writer-trial.sh <label> <provider: cerebras|poolside> <model> [edit-format]}
+LABEL=${1:?usage: run-writer-trial.sh <label> <provider: cerebras|direct|poolside> <model> [edit-format]}
+PROVIDER=${2:?usage: run-writer-trial.sh <label> <provider: cerebras|direct|poolside> <model> [edit-format]}
+MODEL=${3:?usage: run-writer-trial.sh <label> <provider: cerebras|direct|poolside> <model> [edit-format]}
 EDIT_FORMAT=${4:-diff}
 TIMEOUT=${TIMEOUT:-3600}
 # Optional: 'none' | 'low' | 'medium' | 'high'. Left unset by default so each
@@ -208,6 +218,23 @@ run_one_round() {
             --llm-history-file "$EXP/$LABEL.llm" \
             "$TARGET" >> "$EXP/$LABEL.log" 2>&1
         ;;
+      direct)
+        # No coding-agent client: one user message straight to the endpoint,
+        # blocks parsed and applied by direct-writer.py. See its docstring for
+        # why. Uses the Cerebras credentials.
+        export DIRECT_KEY="$CEREBRAS_API_KEY"
+        timeout --signal=TERM "$TIMEOUT" \
+          python3 "$REPO/todo-writer/experiments/direct-writer.py" \
+            --file "$TARGET" \
+            --prompt "$EXP/prompt.aider.txt" \
+            --model "$MODEL" \
+            --base-url "$CEREBRAS_API_BASE" \
+            --api-key-env DIRECT_KEY \
+            --max-tokens 32000 \
+            ${REASONING_EFFORT:+--reasoning-effort "$REASONING_EFFORT"} \
+            --dump "$EXP/$LABEL.reply.txt" \
+            >> "$EXP/$LABEL.log" 2>&1
+        ;;
       poolside)
         export POOLSIDE_API_KEY="$OPENAI_API_KEY"
         export POOLSIDE_STANDALONE_BASE_URL="https://inference.poolside.ai"
@@ -217,7 +244,7 @@ run_one_round() {
             >> "$EXP/$LABEL.log" 2>&1
         ;;
       *)
-        echo "Unknown provider: $PROVIDER (want cerebras or poolside)" >&2; exit 2 ;;
+        echo "Unknown provider: $PROVIDER (want cerebras, direct or poolside)" >&2; exit 2 ;;
     esac
     ) &
     client_pid=$!
