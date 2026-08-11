@@ -1,0 +1,168 @@
+You are filling in Scaladoc documentation TODOs in a Scala source file.
+
+The file {FILE_PATH} contains `TODO FILL IN` placeholders of three kinds:
+
+1. A whole-comment description placeholder (the HARD one):
+       /** TODO FILL IN
+        *
+        *  @param x TODO FILL IN
+        */
+   Here the first line is the missing *description* of the declaration.
+
+2. Tag placeholders: `@param x TODO FILL IN`, `@tparam T TODO FILL IN`, `@return TODO FILL IN`.
+
+Your task: replace every `TODO FILL IN` with accurate documentation grounded in
+the code, using *SEARCH/REPLACE* blocks. The file is already in the chat, so you
+have its full contents; ground every description in what the code actually does.
+
+OUTPUT FORMAT -- read this twice, it is where runs fail.
+
+Reply with NOTHING but *SEARCH/REPLACE* blocks, in exactly this form:
+
+{FILE_PATH}
+```scala
+<<<<<<< SEARCH
+<the exact existing lines, copied character for character>
+=======
+<the same lines with the TODOs filled in>
+>>>>>>> REPLACE
+```
+
+Rules for the blocks:
+- The SEARCH section must reproduce the existing text EXACTLY: same indentation,
+  same spacing inside declarations, same everything. It is matched literally. A
+  block whose SEARCH text does not appear verbatim in the file is discarded.
+- The SEARCH text must be UNIQUE in the file. Include the declaration line
+  beneath the comment so short comments like `/** TODO FILL IN */` are
+  distinguishable from one another. A block matching several places is discarded.
+- Keep each block small: the comment plus the one declaration line under it.
+  Do not echo whole classes.
+- Emit one block per declaration you are filling.
+- No preamble, no commentary between blocks, no summary at the end. Blocks only.
+- Do NOT output the corrected file, or corrected regions, as plain code fences.
+  Only the SEARCH/REPLACE form above is applied; anything else is thrown away.
+- BEFORE emitting each block, check the @return rule below. If your description
+  begins with "Returns" and already states the whole return value, DELETE the
+  `@return` line rather than filling it. A tag that merely restates the
+  description is the single most common defect in this task; on a previous run
+  14 of them survived. `@return` earns its place only by adding a fact the
+  description does not state.
+- You are not expected to finish the whole file in one reply. Emit as many
+  COMPLETE blocks as you can and stop cleanly; whatever you do not reach stays
+  marked and is picked up by a follow-up run. A truncated final block is worse
+  than one fewer block.
+
+THE DESCRIPTION (whole-comment placeholder) — this needs judgment.
+These rules follow the official Scala style guide (https://docs.scala-lang.org/style/scaladoc.html):
+- Write a first sentence that stands alone as the API-index summary of what
+  this declaration is or does. It must make sense read by itself. Get to the point
+  as quickly as possible.
+- VOICE: declarative, third person, present tense — document what the code DOES, not
+  what it should do ("Returns the result of applying `f`", not "Return ..." or
+  "Should return ..."). For a method/def, start with a third-person verb ("Returns ...",
+  "Creates ...", "Validates ..."). For a class/trait/object, a noun phrase
+  ("A `Source` backed by ...") or a verb phrase ("Provides ...") both read well.
+- NO SELF-REFERENCE: do not begin with "This class/trait/object/method ...". Describe
+  the thing directly (the style guide prefers "Does XXX" over "This class does XXX").
+- Add further sentences only when they convey non-obvious behavior, constraints,
+  side effects, or usage. For a trivial accessor, one sentence is the whole doc.
+- Do NOT restate the signature ("a method that takes an Int and returns a String").
+- Match the voice and altitude of nearby Scaladoc in the same file.
+- HONESTY OVER CONFIDENCE: if the code does not let you determine the intended
+  meaning, write your best-guess description AND append on its own line, inside
+  the comment, a marker: `@note NEEDS-HUMAN: <the specific question you could not
+  resolve>`. A flagged honest guess is far more useful than a confident wrong doc.
+
+TAGS:
+- @param: purpose of the parameter; constraints (non-negative, non-null), units
+  (ms, bytes), defaults — only what is true per the code.
+- @tparam: what the type parameter represents and any bounds.
+- @return: first decide whether to KEEP or DROP it, using the project's redundant-@return
+  rule (same as remove-redundant-returns):
+  * DROP it (delete the whole `@return TODO FILL IN` line) ONLY when BOTH hold:
+    (a) the comment's description (the prose before the tags) BEGINS with the word
+        "Returns" — whether that description already existed or you just wrote it, AND
+    (b) that description already fully states what is returned, so an @return would only
+        restate it and add no edge case, sentinel, unit, bound, or guarantee.
+    The very first word of the description must be exactly "Returns". If it begins with any
+    other word ("Creates", "Computes", "Gets", "A", ...), KEEP the @return.
+    When you delete the tag, also delete an orphaned blank ` *` line if removing the tag
+    leaves one with no tags after it. Change no indentation otherwise.
+  * Otherwise KEEP it and fill it with specifics NOT already in the description — edge
+    cases ("`None` if absent", "-1 if not found"), units, or a NEW vs mutated collection.
+  * Be CONSERVATIVE: when in doubt, KEEP and fill. Drop only clear-cut echoes of a
+    "Returns ..." description.
+
+WORKED EXAMPLE OF THE DROP CASE — read this one twice.
+Filling in every `@return` is the single most common way this task is got wrong.
+The rule is a genuine either/or, and the DROP half applies just as often as KEEP.
+
+  Given:
+      /** TODO FILL IN
+       *
+       *  @tparam U TODO FILL IN
+       *  @param default TODO FILL IN
+       *  @return TODO FILL IN
+       */
+      override def getOrElse[U >: T](default: => U): U = default
+
+  Suppose you write the description "Returns the given `default` argument since
+  this `Try` is a `Failure`." It begins with the word "Returns" and it already
+  states the entire return value. So `@return` can only echo it, and the whole
+  `@return` line MUST be deleted:
+
+  CORRECT:
+      /** Returns the given `default` argument since this `Try` is a `Failure`.
+       *
+       *  @tparam U the type of the returned value, a supertype of `T`
+       *  @param default the default value to return if this is a `Failure`
+       */
+
+  WRONG — do not do this:
+      /** Returns the given `default` argument since this `Try` is a `Failure`.
+       *
+       *  @tparam U the type of the returned value, a supertype of `T`
+       *  @param default the default value to return if this is a `Failure`
+       *  @return the `default` value          <-- pure echo, must be deleted
+       */
+
+  CONTRAST, a legitimate KEEP on a neighbouring method:
+      /** Returns the given `default` argument since this `Try` is a `Failure`.
+       *
+       *  @param default the fallback `Try` to return (evaluated lazily)
+       *  @return the `default` `Try`; any non-fatal exception thrown while
+       *          evaluating `default` is caught and returned as a `Failure`
+       */
+  Here the tag states an exception guarantee the description does not, so it
+  earns its place. That is the test: does the tag add a fact, or repeat one?
+
+  If removing an `@return` leaves the comment with no tags at all, also remove
+  the now-orphaned blank ` *` line, so a bare one-line comment stays one line:
+      /** Returns the value held by this `Success`. */
+
+STYLE (per the Scala style guide):
+- Prefer wiki-style and markdown over HTML: use `[[scala.Option]]`-style links and
+  backticks for code references like `pos`; do not introduce HTML tags.
+- Tag continuations start lowercase and omit a trailing period for single phrases.
+- Description sentences are full sentences (capitalized, end with a period).
+- Keep the description text starting on the first line of the comment (after `/**`),
+  as the existing comments do; do not reflow or re-indent the asterisks.
+
+STRICT SCOPE — this is important:
+- Replace ONLY the literal `TODO FILL IN` text. Leave every other character of every
+  comment exactly as it is. (The ONE exception is dropping a redundant `@return TODO FILL
+  IN` line, and its orphaned blank ` *` line, per the @return rule above.)
+- The REPLACE side of every block must be byte-identical to the SEARCH side except
+  for the filled-in documentation. Never alter a declaration, a body, an import,
+  or indentation.
+- If a pre-existing (non-TODO) comment looks WRONG or outdated, do NOT fix it and do NOT
+  rewrite it. Leave it untouched. Reviewers will capture such issues separately. Your job
+  is strictly to fill the placeholders, not to improve surrounding prose.
+
+Do NOT:
+- Touch anything that is not a `TODO FILL IN` placeholder (no rewording adjacent prose).
+- Add any new tags, or remove `@param`/`@tparam` tags. (Dropping a redundant
+  `@return TODO FILL IN` per the @return rule above is the ONE allowed removal.)
+- Modify code outside Scaladoc comments.
+
+Emit the *SEARCH/REPLACE* blocks for {FILE_PATH} now. Blocks only, no other output.

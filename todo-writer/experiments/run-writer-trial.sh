@@ -2,17 +2,27 @@
 #
 # run-writer-trial.sh <label> <provider> <model> [edit-format]
 #
+#   provider = direct     -> no client: one user message straight to the
+#                            OpenAI-compatible endpoint, blocks applied by
+#                            direct-writer.py. PREFERRED for Cerebras.
 #   provider = cerebras   -> aider, OpenAI-compatible, SEARCH/REPLACE prompt
 #   provider = poolside   -> pool exec (agent), targeted-patch prompt
 #
 # Runs ONE writer model over the same marked input and scores it against the
 # same guards, so trials are comparable across providers.
 #
-# Two clients are unavoidable: pool sends Anthropic-style cache_control fields
-# that Cerebras rejects, and aider's edit formats defeated poolside's laguna (it
-# cannot emit SEARCH/REPLACE, and whole-file mode deleted a public class). Each
-# provider gets the client and prompt it works with; the INPUT and the GUARDS
-# are identical, which is what makes the comparison fair.
+# Three of four models failed through aider, each differently: laguna could not
+# emit SEARCH/REPLACE at all (and whole-file mode deleted a public class),
+# gpt-oss-120b was fed bogus lint errors, and zai-glm-4.7 returned empty content
+# in three configurations. The same GLM, file and endpoint given a plain
+# single-message prompt returned 42 of 42 correct blocks in 5 seconds. So
+# 'direct' is the preferred path for Cerebras and 'cerebras' (aider) is kept
+# only for comparison against the runs already recorded.
+#
+# poolside stays on pool because laguna cannot emit SEARCH/REPLACE in ANY
+# client; pool's own edit tools are the only thing that works for it. That
+# asymmetry is a property of the model, not of this harness. The INPUT and the
+# GUARDS are identical throughout, which is what keeps the comparison fair.
 #
 # ---------------------------------------------------------------------------
 # WHY THIS LOOPS
@@ -67,11 +77,27 @@
 
 set -uo pipefail
 
-LABEL=${1:?usage: run-writer-trial.sh <label> <provider: cerebras|poolside> <model> [edit-format]}
-PROVIDER=${2:?usage: run-writer-trial.sh <label> <provider: cerebras|poolside> <model> [edit-format]}
-MODEL=${3:?usage: run-writer-trial.sh <label> <provider: cerebras|poolside> <model> [edit-format]}
+LABEL=${1:?usage: run-writer-trial.sh <label> <provider: cerebras|direct|poolside> <model> [edit-format]}
+PROVIDER=${2:?usage: run-writer-trial.sh <label> <provider: cerebras|direct|poolside> <model> [edit-format]}
+MODEL=${3:?usage: run-writer-trial.sh <label> <provider: cerebras|direct|poolside> <model> [edit-format]}
 EDIT_FORMAT=${4:-diff}
 TIMEOUT=${TIMEOUT:-3600}
+# Optional: 'none' | 'low' | 'medium' | 'high'. Left unset by default so each
+# model runs as it ships.
+#
+# zai-glm-4.7 needs REASONING_EFFORT=none. With a real output budget it still
+# returned empty `content` through aider twice, narrating its intentions in the
+# reasoning channel ("I'll apply the function f to the value if the predicate p
+# holds...") and never emitting the answer. The same model, same file, same
+# endpoint, given a plain single-message prompt instead of aider's system prompt
+# and few-shot examples, produced 42 of 42 correct blocks in 5 seconds. Measured
+# on the API directly: effort 'none' gives 0 reasoning tokens, the default gives
+# 216 just to answer "PONG".
+#
+# Do NOT set this globally. gpt-oss-120b also emits a reasoning field and
+# completed fine without it, so forcing it off would change conditions for a
+# model that has already been measured.
+REASONING_EFFORT=${REASONING_EFFORT:-}
 MAX_ROUNDS=${MAX_ROUNDS:-6}
 ROUND_PAUSE=${ROUND_PAUSE:-60}
 
@@ -79,6 +105,22 @@ REPO=/workspace/scala3
 EXP="$REPO/todo-writer/experiments/try-scala"
 TARGET=library/src/scala/util/Try.scala
 INPUT="$EXP/Try.scala.MARKED-input"
+
+# Model metadata. Lives on the persisted volume rather than in the repo because
+# it sits beside the API keys; it survives a devcontainer rebuild.
+#
+# This is REQUIRED, not tuning. Without an entry aider falls back to a
+# conservative output cap, and zai-glm-4.7 is a reasoning model on Cerebras: it
+# emits into a separate `reasoning` field before any `content`, so the fallback
+# cap was consumed before it produced a single character. Aider reported
+# "Output tokens: ~0" and the trial scored 128 -> 128, "no progress in round 1",
+# which reads as a model failure and was not one. Given a real budget the same
+# model emitted 42 of 42 SEARCH/REPLACE blocks, all matching byte-exactly, in
+# one 5-second reply.
+#
+# The reasoning overhead is not proportional: 216 tokens to answer "PONG", but
+# only 934 of 7,147 on the real task. Judge it on real work, not a toy prompt.
+METADATA=${METADATA:-/home/node/.aider/model-metadata.json}
 
 cd "$REPO"
 export PATH="$PATH:/home/node/.local/bin"
@@ -90,6 +132,13 @@ if pgrep -f "bin/aider --model" >/dev/null || pgrep -f "pool exec" >/dev/null; t
     exit 2
 fi
 [ -f "$INPUT" ] || { echo "Missing marked input: $INPUT" >&2; exit 2; }
+# Fail loudly rather than silently running with aider's fallback caps, which is
+# what made zai-glm-4.7 look broken.
+if [ "$PROVIDER" = cerebras ] && ! grep -q "\"${MODEL}\"" "$METADATA" 2>/dev/null; then
+    echo "No metadata entry for '$MODEL' in $METADATA." >&2
+    echo "Add one (max_output_tokens 32000) or aider will use a conservative default cap." >&2
+    exit 2
+fi
 
 code_lines() { grep -vE '^\s*(\*|/\*\*|\*/)' "$1" | grep -v '^\s*$'; }
 # grep -c prints 0 and exits 1 when there are no matches; `|| true` keeps the
@@ -154,16 +203,47 @@ run_one_round() {
       cerebras)
         export OPENAI_API_BASE="$CEREBRAS_API_BASE"
         export OPENAI_API_KEY="$CEREBRAS_API_KEY"
+        local extra=()
+        [ -n "$REASONING_EFFORT" ] && extra=(--reasoning-effort "$REASONING_EFFORT")
         timeout --signal=TERM "$TIMEOUT" \
           aider --model "$MODEL" --edit-format "$EDIT_FORMAT" \
+            "${extra[@]}" \
             --message-file "$EXP/prompt.aider.txt" \
             --yes-always --no-auto-commits --no-gitignore \
             --map-tokens 0 --no-stream --no-check-update --no-analytics \
             --no-show-model-warnings --no-auto-lint \
+            --model-metadata-file "$METADATA" \
             --chat-history-file "$EXP/$LABEL.chat.md" \
             --input-history-file "$EXP/$LABEL.input" \
             --llm-history-file "$EXP/$LABEL.llm" \
             "$TARGET" >> "$EXP/$LABEL.log" 2>&1
+        ;;
+      direct)
+        # No coding-agent client: one user message straight to the endpoint,
+        # blocks parsed and applied by direct-writer.py. See its docstring for
+        # why. Uses the Cerebras credentials.
+        export DIRECT_KEY="$CEREBRAS_API_KEY"
+        # Its own prompt, rendered fresh each round. The aider prompt only NAMES
+        # the SEARCH/REPLACE format; aider itself supplies the literal shape via
+        # a system prompt and few-shot examples. Sent as a bare user message with
+        # no such scaffolding, GLM replied with plain ```scala fences of the
+        # corrected regions instead -- readable, useless, 0 blocks parsed. The
+        # direct prompt spells the format out literally, and the same model then
+        # produced 42 of 42 applicable blocks.
+        sed "s|{FILE_PATH}|$TARGET|g" \
+            "$REPO/todo-writer/scripts/prompts/doc-writer-prompt-direct.txt" \
+            > "$EXP/prompt.direct.txt"
+        timeout --signal=TERM "$TIMEOUT" \
+          python3 "$REPO/todo-writer/experiments/direct-writer.py" \
+            --file "$TARGET" \
+            --prompt "$EXP/prompt.direct.txt" \
+            --model "$MODEL" \
+            --base-url "$CEREBRAS_API_BASE" \
+            --api-key-env DIRECT_KEY \
+            --max-tokens 32000 \
+            ${REASONING_EFFORT:+--reasoning-effort "$REASONING_EFFORT"} \
+            --dump "$EXP/$LABEL.reply.txt" \
+            >> "$EXP/$LABEL.log" 2>&1
         ;;
       poolside)
         export POOLSIDE_API_KEY="$OPENAI_API_KEY"
@@ -174,7 +254,7 @@ run_one_round() {
             >> "$EXP/$LABEL.log" 2>&1
         ;;
       *)
-        echo "Unknown provider: $PROVIDER (want cerebras or poolside)" >&2; exit 2 ;;
+        echo "Unknown provider: $PROVIDER (want cerebras, direct or poolside)" >&2; exit 2 ;;
     esac
     ) &
     client_pid=$!
@@ -254,6 +334,7 @@ PY
 {
   echo "label:             $LABEL"
   echo "provider/model:    $PROVIDER / $MODEL"
+  echo "reasoning_effort:  ${REASONING_EFFORT:-<unset, model default>}"
   echo "rounds run:        $rounds_run   ($round_times)"
   echo "WORK TIME:         $((elapsed - paused))s   <- compare providers on this"
   echo "wall clock:        ${elapsed}s   (includes ${paused}s of this script's own between-round pauses)"
