@@ -93,6 +93,15 @@ start=$SECONDS
 rc=0
 integrity=PASS
 progression="$start_markers"
+# Timing. `wall` is everything; `paused` is only this script's own sleeps
+# between rounds. Subtracting them gives the time actually spent waiting on the
+# model and the service, which is the number to compare providers on -- a model
+# that needs four rounds would otherwise be charged for three extra pauses and
+# look slower than it is. Rate-limit backoff inside a round is deliberately NOT
+# subtracted: that is the service being slow, which is a real cost of using it.
+paused=0
+round_times=""
+rounds_run=0
 stopped_because="max rounds"
 
 run_one_round() {
@@ -138,7 +147,10 @@ for round in $(seq 1 "$MAX_ROUNDS"); do
     run_one_round
     rc=$?
     after=$(count_markers)
-    echo "    round $round: $before -> $after markers  ($((SECONDS - rstart))s, client exit $rc)"
+    rsecs=$((SECONDS - rstart))
+    rounds_run=$round
+    round_times="${round_times}${round_times:+, }r${round}=${rsecs}s"
+    echo "    round $round: $before -> $after markers  (${rsecs}s, client exit $rc)"
     progression="$progression -> $after"
 
     if ! code_lines "$TARGET" | diff -q "$EXP/.code.before" - >/dev/null; then
@@ -156,6 +168,7 @@ for round in $(seq 1 "$MAX_ROUNDS"); do
     [ "$round" -lt "$MAX_ROUNDS" ] && [ "$ROUND_PAUSE" -gt 0 ] && {
         echo "    pausing ${ROUND_PAUSE}s to let the rate-limit window recover"
         sleep "$ROUND_PAUSE"
+        paused=$((paused + ROUND_PAUSE))
     }
 done
 
@@ -190,7 +203,12 @@ PY
 {
   echo "label:             $LABEL"
   echo "provider/model:    $PROVIDER / $MODEL"
-  echo "elapsed:           ${elapsed}s   (last client exit $rc)"
+  echo "rounds run:        $rounds_run   ($round_times)"
+  echo "WORK TIME:         $((elapsed - paused))s   <- compare providers on this"
+  echo "wall clock:        ${elapsed}s   (includes ${paused}s of this script's own between-round pauses)"
+  echo "per-marker:        $(awk -v t="$((elapsed - paused))" -v f="$((start_markers - markers))" \
+                             'BEGIN{ if (f>0) printf "%.1fs per marker filled", t/f; else print "n/a (nothing filled)" }')"
+  echo "last client exit:  $rc"
   echo "stopped because:   $stopped_because"
   echo "marker progression:$progression   (started at 128)"
   echo "markers left:      $markers"
