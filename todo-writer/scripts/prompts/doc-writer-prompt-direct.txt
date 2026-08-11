@@ -41,6 +41,12 @@ Rules for the blocks:
 - No preamble, no commentary between blocks, no summary at the end. Blocks only.
 - Do NOT output the corrected file, or corrected regions, as plain code fences.
   Only the SEARCH/REPLACE form above is applied; anything else is thrown away.
+- BEFORE emitting each block, check the @return rule below. If your description
+  begins with "Returns" and already states the whole return value, DELETE the
+  `@return` line rather than filling it. A tag that merely restates the
+  description is the single most common defect in this task; on a previous run
+  14 of them survived. `@return` earns its place only by adding a fact the
+  description does not state.
 - You are not expected to finish the whole file in one reply. Emit as many
   COMPLETE blocks as you can and stop cleanly; whatever you do not reach stays
   marked and is picked up by a follow-up run. A truncated final block is worse
