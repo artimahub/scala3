@@ -72,6 +72,22 @@ PROVIDER=${2:?usage: run-writer-trial.sh <label> <provider: cerebras|poolside> <
 MODEL=${3:?usage: run-writer-trial.sh <label> <provider: cerebras|poolside> <model> [edit-format]}
 EDIT_FORMAT=${4:-diff}
 TIMEOUT=${TIMEOUT:-3600}
+# Optional: 'none' | 'low' | 'medium' | 'high'. Left unset by default so each
+# model runs as it ships.
+#
+# zai-glm-4.7 needs REASONING_EFFORT=none. With a real output budget it still
+# returned empty `content` through aider twice, narrating its intentions in the
+# reasoning channel ("I'll apply the function f to the value if the predicate p
+# holds...") and never emitting the answer. The same model, same file, same
+# endpoint, given a plain single-message prompt instead of aider's system prompt
+# and few-shot examples, produced 42 of 42 correct blocks in 5 seconds. Measured
+# on the API directly: effort 'none' gives 0 reasoning tokens, the default gives
+# 216 just to answer "PONG".
+#
+# Do NOT set this globally. gpt-oss-120b also emits a reasoning field and
+# completed fine without it, so forcing it off would change conditions for a
+# model that has already been measured.
+REASONING_EFFORT=${REASONING_EFFORT:-}
 MAX_ROUNDS=${MAX_ROUNDS:-6}
 ROUND_PAUSE=${ROUND_PAUSE:-60}
 
@@ -177,8 +193,11 @@ run_one_round() {
       cerebras)
         export OPENAI_API_BASE="$CEREBRAS_API_BASE"
         export OPENAI_API_KEY="$CEREBRAS_API_KEY"
+        local extra=()
+        [ -n "$REASONING_EFFORT" ] && extra=(--reasoning-effort "$REASONING_EFFORT")
         timeout --signal=TERM "$TIMEOUT" \
           aider --model "$MODEL" --edit-format "$EDIT_FORMAT" \
+            "${extra[@]}" \
             --message-file "$EXP/prompt.aider.txt" \
             --yes-always --no-auto-commits --no-gitignore \
             --map-tokens 0 --no-stream --no-check-update --no-analytics \
@@ -278,6 +297,7 @@ PY
 {
   echo "label:             $LABEL"
   echo "provider/model:    $PROVIDER / $MODEL"
+  echo "reasoning_effort:  ${REASONING_EFFORT:-<unset, model default>}"
   echo "rounds run:        $rounds_run   ($round_times)"
   echo "WORK TIME:         $((elapsed - paused))s   <- compare providers on this"
   echo "wall clock:        ${elapsed}s   (includes ${paused}s of this script's own between-round pauses)"
