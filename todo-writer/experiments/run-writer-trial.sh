@@ -223,10 +223,20 @@ run_one_round() {
         # blocks parsed and applied by direct-writer.py. See its docstring for
         # why. Uses the Cerebras credentials.
         export DIRECT_KEY="$CEREBRAS_API_KEY"
+        # Its own prompt, rendered fresh each round. The aider prompt only NAMES
+        # the SEARCH/REPLACE format; aider itself supplies the literal shape via
+        # a system prompt and few-shot examples. Sent as a bare user message with
+        # no such scaffolding, GLM replied with plain ```scala fences of the
+        # corrected regions instead -- readable, useless, 0 blocks parsed. The
+        # direct prompt spells the format out literally, and the same model then
+        # produced 42 of 42 applicable blocks.
+        sed "s|{FILE_PATH}|$TARGET|g" \
+            "$REPO/todo-writer/scripts/prompts/doc-writer-prompt-direct.txt" \
+            > "$EXP/prompt.direct.txt"
         timeout --signal=TERM "$TIMEOUT" \
           python3 "$REPO/todo-writer/experiments/direct-writer.py" \
             --file "$TARGET" \
-            --prompt "$EXP/prompt.aider.txt" \
+            --prompt "$EXP/prompt.direct.txt" \
             --model "$MODEL" \
             --base-url "$CEREBRAS_API_BASE" \
             --api-key-env DIRECT_KEY \

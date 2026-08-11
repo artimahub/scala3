@@ -58,6 +58,12 @@ def post(base_url, api_key, payload, timeout):
         headers={
             "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json",
+            # Cerebras sits behind Cloudflare, which rejects urllib's default
+            # "Python-urllib/3.11" User-Agent with HTTP 403 "error code: 1010"
+            # (bot-signature block) before the request ever reaches the API.
+            # Measured: default UA -> 403, curl-like UA -> 200. The same request
+            # via curl always worked, which is why the probe never hit this.
+            "User-Agent": "curl/8.5.0",
         },
     )
     with urllib.request.urlopen(req, timeout=timeout) as r:
