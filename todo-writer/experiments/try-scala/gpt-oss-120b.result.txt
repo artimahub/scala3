@@ -1,8 +1,14 @@
 label:             gpt-oss-120b
 provider/model:    cerebras / openai/gpt-oss-120b
-exit:             0      elapsed: 1235s
-markers left:     63   (0 = fully filled; input had 128)
-CODE INTEGRITY:   PASS
-Failure+Success:  2/2 classes present
-redundant @return:1
-tag lines ending '.': 11 of 95  (house style: omit)
+rounds run:        3   (r1=85s, r2=89s, r3=145s)
+WORK TIME:         319s   <- compare providers on this
+wall clock:        439s   (includes 120s of this script's own between-round pauses)
+per-marker:        2.5s per marker filled
+last client exit:  0
+stopped because:   all markers filled
+marker progression:128 -> 98 -> 12 -> 0   (started at 128)
+markers left:      0
+CODE INTEGRITY:    PASS
+Failure+Success:   2/2 classes present
+redundant @return: 1
+tag lines ending '.': 1 of 111  (house style: omit)

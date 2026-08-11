@@ -1,0 +1,11 @@
+# Re-include trial logs.
+#
+# The repo root .gitignore has `*.log` at line 4, which comes from upstream
+# scala3's build infrastructure -- editing it would put a diff in every PR. This
+# nested negation is scoped to our own experiments directory instead.
+#
+# These logs are worth keeping: they carry the SearchReplaceNoExactMatch counts,
+# the rate-limit retries and aider's injected lint prompts. Every diagnosis in
+# this experiment so far came out of them, and none of it appears in the
+# .result.txt summary.
+!*.log
