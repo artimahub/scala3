@@ -619,6 +619,12 @@ object Future {
 
     @throws[TimeoutException]
     @throws[InterruptedException]
+    /** TODO FILL IN
+     *
+     *  @param atMost TODO FILL IN
+     *  @param permit TODO FILL IN
+     *  @return TODO FILL IN
+     */
     override final def ready(atMost: Duration)(implicit permit: CanAwait): this.type = {
       import Duration.{Undefined, Inf, MinusInf}
       atMost match {
@@ -647,31 +653,155 @@ object Future {
 
     @throws[TimeoutException]
     @throws[InterruptedException]
+    /** TODO FILL IN
+     *
+     *  @param atMost TODO FILL IN
+     *  @param permit TODO FILL IN
+     */
     override final def result(atMost: Duration)(implicit permit: CanAwait): Nothing = {
       ready(atMost)
       timeoutError(atMost)
     }
 
+    /** TODO FILL IN
+     *
+     *  @tparam U TODO FILL IN
+     *  @param f TODO FILL IN
+     *  @param executor TODO FILL IN
+     */
     override final def onComplete[U](f: Try[Nothing] => U)(implicit executor: ExecutionContext): Unit = ()
+    /** TODO FILL IN */
     override final def isCompleted: Boolean = false
+    /** TODO FILL IN */
     override final def value: Option[Try[Nothing]] = None
+    /** TODO FILL IN */
     override final def failed: Future[Throwable] = this
+    /** TODO FILL IN
+     *
+     *  @tparam U TODO FILL IN
+     *  @param f TODO FILL IN
+     *  @param executor TODO FILL IN
+     */
     override final def foreach[U](f: Nothing => U)(implicit executor: ExecutionContext): Unit = ()
+    /** TODO FILL IN
+     *
+     *  @tparam S TODO FILL IN
+     *  @param s TODO FILL IN
+     *  @param f TODO FILL IN
+     *  @param executor TODO FILL IN
+     *  @return TODO FILL IN
+     */
     override final def transform[S](s: Nothing => S, f: Throwable => Throwable)(implicit executor: ExecutionContext): Future[S] = this
+    /** TODO FILL IN
+     *
+     *  @tparam S TODO FILL IN
+     *  @param f TODO FILL IN
+     *  @param executor TODO FILL IN
+     *  @return TODO FILL IN
+     */
     override final def transform[S](f: Try[Nothing] => Try[S])(implicit executor: ExecutionContext): Future[S] = this
+    /** TODO FILL IN
+     *
+     *  @tparam S TODO FILL IN
+     *  @param f TODO FILL IN
+     *  @param executor TODO FILL IN
+     *  @return TODO FILL IN
+     */
     override final def transformWith[S](f: Try[Nothing] => Future[S])(implicit executor: ExecutionContext): Future[S] = this
+    /** TODO FILL IN
+     *
+     *  @tparam S TODO FILL IN
+     *  @param f TODO FILL IN
+     *  @param executor TODO FILL IN
+     *  @return TODO FILL IN
+     */
     override final def map[S](f: Nothing => S)(implicit executor: ExecutionContext): Future[S] = this
+    /** TODO FILL IN
+     *
+     *  @tparam S TODO FILL IN
+     *  @param f TODO FILL IN
+     *  @param executor TODO FILL IN
+     *  @return TODO FILL IN
+     */
     override final def flatMap[S](f: Nothing => Future[S])(implicit executor: ExecutionContext): Future[S] = this
+    /** TODO FILL IN
+     *
+     *  @tparam S TODO FILL IN
+     *  @param ev TODO FILL IN
+     *  @return TODO FILL IN
+     */
     override final def flatten[S](implicit ev: Nothing <:< Future[S]): Future[S] = this
+    /** TODO FILL IN
+     *
+     *  @param p TODO FILL IN
+     *  @param executor TODO FILL IN
+     *  @return TODO FILL IN
+     */
     override final def filter(p: Nothing => Boolean)(implicit executor: ExecutionContext): Future[Nothing] = this
+    /** TODO FILL IN
+     *
+     *  @tparam S TODO FILL IN
+     *  @param pf TODO FILL IN
+     *  @param executor TODO FILL IN
+     *  @return TODO FILL IN
+     */
     override final def collect[S](pf: PartialFunction[Nothing, S])(implicit executor: ExecutionContext): Future[S] = this
+    /** TODO FILL IN
+     *
+     *  @tparam U TODO FILL IN
+     *  @param pf TODO FILL IN
+     *  @param executor TODO FILL IN
+     *  @return TODO FILL IN
+     */
     override final def recover[U >: Nothing](pf: PartialFunction[Throwable, U])(implicit executor: ExecutionContext): Future[U] = this
+    /** TODO FILL IN
+     *
+     *  @tparam U TODO FILL IN
+     *  @param pf TODO FILL IN
+     *  @param executor TODO FILL IN
+     *  @return TODO FILL IN
+     */
     override final def recoverWith[U >: Nothing](pf: PartialFunction[Throwable, Future[U]])(implicit executor: ExecutionContext): Future[U] = this
+    /** TODO FILL IN
+     *
+     *  @tparam U TODO FILL IN
+     *  @param that TODO FILL IN
+     *  @return TODO FILL IN
+     */
     override final def zip[U](that: Future[U]): Future[(Nothing, U)] = this
+    /** TODO FILL IN
+     *
+     *  @tparam U TODO FILL IN
+     *  @tparam R TODO FILL IN
+     *  @param that TODO FILL IN
+     *  @param f TODO FILL IN
+     *  @param executor TODO FILL IN
+     *  @return TODO FILL IN
+     */
     override final def zipWith[U, R](that: Future[U])(f: (Nothing, U) => R)(implicit executor: ExecutionContext): Future[R] = this
+    /** TODO FILL IN
+     *
+     *  @tparam U TODO FILL IN
+     *  @param that TODO FILL IN
+     *  @return TODO FILL IN
+     */
     override final def fallbackTo[U >: Nothing](that: Future[U]): Future[U] = this
+    /** TODO FILL IN
+     *
+     *  @tparam S TODO FILL IN
+     *  @param tag TODO FILL IN
+     *  @return TODO FILL IN
+     */
     override final def mapTo[S](implicit tag: ClassTag[S]): Future[S] = this
+    /** TODO FILL IN
+     *
+     *  @tparam U TODO FILL IN
+     *  @param pf TODO FILL IN
+     *  @param executor TODO FILL IN
+     *  @return TODO FILL IN
+     */
     override final def andThen[U](pf: PartialFunction[Try[Nothing], U])(implicit executor: ExecutionContext): Future[Nothing] = this
+    /** TODO FILL IN */
     override final def toString(): String = "Future(<never>)"
   }
 
@@ -946,6 +1076,7 @@ object Future {
 }
 
 @deprecated("Superseded by `scala.concurrent.Batchable`", "2.13.0")
+/** TODO FILL IN */
 trait OnCompleteRunnable extends Batchable {
   self: Runnable =>
 }

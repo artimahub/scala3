@@ -26,6 +26,10 @@ class SyncChannel[A] {
   private var pendingWrites = List[(A, SyncVar[Signal])]()
   private var pendingReads  = List[SyncVar[A]]()
 
+  /** TODO FILL IN
+   *
+   *  @param data TODO FILL IN
+   */
   def write(data: A): Unit = {
     // create write request
     val writeReq = new SyncVar[Signal]
@@ -51,6 +55,7 @@ class SyncChannel[A] {
     writeReq.get
   }
 
+  /** TODO FILL IN */
   def read: A = {
     // create read request
     val readReq = new SyncVar[A]

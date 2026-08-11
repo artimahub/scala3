@@ -49,6 +49,12 @@ object boundary:
 
   object Break:
     import caps.unsafe.unsafeAssumePure
+    /** TODO FILL IN
+     *
+     *  @tparam T TODO FILL IN
+     *  @param label TODO FILL IN
+     *  @param value TODO FILL IN
+     */
     def apply[T](label: Label[T], value: T) =
       // SAFETY: labels cannot leak from [[Break]], and is only used for equality comparison.
       new Break(label.unsafeAssumePure, value)

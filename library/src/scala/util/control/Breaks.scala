@@ -90,7 +90,16 @@ class Breaks {
   def breakable(op: => Unit): Unit =
     try op catch { case ex: BreakControl if ex eq breakException => }
 
+  /** TODO FILL IN
+   *
+   *  @tparam T TODO FILL IN
+   */
   sealed trait TryBlock[T] {
+    /** TODO FILL IN
+     *
+     *  @param onBreak TODO FILL IN
+     *  @return TODO FILL IN
+     */
     def catchBreak(onBreak: => T): T
   }
 

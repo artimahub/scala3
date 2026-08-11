@@ -1,0 +1,8 @@
+label:             gpt-oss-120b
+provider/model:    cerebras / openai/gpt-oss-120b
+exit:             0      elapsed: 1235s
+markers left:     63   (0 = fully filled; input had 128)
+CODE INTEGRITY:   PASS
+Failure+Success:  2/2 classes present
+redundant @return:1
+tag lines ending '.': 11 of 95  (house style: omit)

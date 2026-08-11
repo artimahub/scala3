@@ -17,7 +17,13 @@ import scala.language.`2.13`
 import scala.language.implicitConversions
 import language.experimental.captureChecking
 
+/** Provides an implicit conversion that adds the `tap` and `pipe` chaining methods to every type. */
 trait ChainingSyntax {
+  /** Returns a `ChainingOps[A]` that wraps the value `a`, enabling the `tap` and `pipe` chaining methods on it.
+   *
+   *  @tparam A the type of the wrapped value
+   *  @param a the value to enrich with chaining operations
+   */
   @inline implicit final def scalaUtilChainingOps[A](a: A): ChainingOps[A] = new ChainingOps(a)
 }
 

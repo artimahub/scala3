@@ -174,6 +174,14 @@ import scala.language.implicitConversions
 object Exception {
   type Catcher[+T] = PartialFunction[Throwable, T]
 
+  /** TODO FILL IN
+   *
+   *  @tparam Ex TODO FILL IN
+   *  @tparam T TODO FILL IN
+   *  @param isDef TODO FILL IN
+   *  @param f TODO FILL IN
+   *  @return TODO FILL IN
+   */
   def mkCatcher[Ex <: Throwable: ClassTag, T](isDef: Ex => Boolean, f: Ex => T): PartialFunction[Throwable, T] = new Catcher[T] {
     private def downcast(x: Throwable): Option[Ex] =
       if (classTag[Ex].runtimeClass.isAssignableFrom(x.getClass)) Some(x.asInstanceOf[Ex])
@@ -183,8 +191,22 @@ object Exception {
     def apply(x: Throwable): T = f(downcast(x).get)
   }
 
+  /** TODO FILL IN
+   *
+   *  @tparam T TODO FILL IN
+   *  @param isDef TODO FILL IN
+   *  @param f TODO FILL IN
+   *  @return TODO FILL IN
+   */
   def mkThrowableCatcher[T](isDef: Throwable => Boolean, f: Throwable => T): PartialFunction[Throwable, T] = mkCatcher[Throwable, T](isDef, f)
 
+  /** TODO FILL IN
+   *
+   *  @tparam Ex TODO FILL IN
+   *  @tparam T TODO FILL IN
+   *  @param pf TODO FILL IN
+   *  @return TODO FILL IN
+   */
   implicit def throwableSubtypeToCatcher[Ex <: Throwable: ClassTag, T](pf: PartialFunction[Ex, T]): Catcher[T] =
     mkCatcher(pf.isDefinedAt, pf.apply)
 
@@ -200,14 +222,23 @@ object Exception {
     case _                        => false
   }
 
+  /** TODO FILL IN */
   trait Described {
+    /** TODO FILL IN */
     protected val name: String
     private var _desc: String = ""
+    /** TODO FILL IN */
     def desc: String = _desc
+    /** TODO FILL IN
+     *
+     *  @param s TODO FILL IN
+     *  @return TODO FILL IN
+     */
     def withDesc(s: String): this.type = {
       _desc = s
       this
     }
+    /** TODO FILL IN */
     override def toString(): String = name + "(" + desc + ")"
   }
 
@@ -215,9 +246,16 @@ object Exception {
    *  @group logic-container
    */
   class Finally private[Exception](body: => Unit) extends Described {
+    /** TODO FILL IN */
     protected val name = "Finally"
 
+    /** TODO FILL IN
+     *
+     *  @param other TODO FILL IN
+     *  @return TODO FILL IN
+     */
     def and(other: => Unit): Finally = new Finally({ body ; other })
+    /** TODO FILL IN */
     def invoke(): Unit = { body }
   }
 
@@ -233,11 +271,15 @@ object Exception {
    *  @group logic-container
    */
   class Catch[+T](
+    /** TODO FILL IN */
     val pf: Catcher[T],
+    /** TODO FILL IN */
     val fin: Option[Finally] = None,
+    /** TODO FILL IN */
     val rethrow: Throwable => Boolean = shouldRethrow)
   extends Described {
 
+    /** TODO FILL IN */
     protected val name = "Catch"
 
     /** Creates a new Catch with additional exception handling logic.
@@ -247,6 +289,12 @@ object Exception {
      *  @return a new `Catch` that tries this catch's handler first, falling back to `pf2`
      */
     def or[U >: T](pf2: Catcher[U]): Catch[U] = new Catch(pf orElse pf2, fin, rethrow)
+    /** TODO FILL IN
+     *
+     *  @tparam U TODO FILL IN
+     *  @param other TODO FILL IN
+     *  @return TODO FILL IN
+     */
     def or[U >: T](other: Catch[U]): Catch[U] = or(other.pf)
 
     /** Applies this catch logic to the supplied body.
@@ -318,12 +366,25 @@ object Exception {
 
     /** Convenience methods. */
     def toOption: Catch[Option[T]] = withApply(_ => None)
+    /** TODO FILL IN */
     def toEither: Catch[Either[Throwable, T]] = withApply(Left(_))
+    /** TODO FILL IN */
     def toTry: Catch[scala.util.Try[T]] = withApply(x => Failure(x))
   }
 
+  /** TODO FILL IN */
   final val nothingCatcher: Catcher[Nothing]  = mkThrowableCatcher(_ => false, throw _)
+  /** TODO FILL IN
+   *
+   *  @tparam T TODO FILL IN
+   *  @return TODO FILL IN
+   */
   final def nonFatalCatcher[T]: Catcher[T]    = mkThrowableCatcher({ case NonFatal(_) => true; case _ => false }, throw _)
+  /** TODO FILL IN
+   *
+   *  @tparam T TODO FILL IN
+   *  @return TODO FILL IN
+   */
   final def allCatcher[T]: Catcher[T]         = mkThrowableCatcher(_ => true, throw _)
 
   /** The empty `Catch` object.
@@ -364,6 +425,12 @@ object Exception {
   def catching[T](exceptions: Class[?]*): Catch[T] =
     new Catch(pfFromExceptions(exceptions*)) withDesc (exceptions map (_.getName) mkString ", ")
 
+  /** TODO FILL IN
+   *
+   *  @tparam T TODO FILL IN
+   *  @param c TODO FILL IN
+   *  @return TODO FILL IN
+   */
   def catching[T](c: Catcher[T]): Catch[T] = new Catch(c)
 
   /** Creates a `Catch` object which will catch any of the supplied exceptions.
@@ -376,6 +443,12 @@ object Exception {
    *  @return a `Catch` that catches exactly the specified exceptions, including $protectedExceptions, without auto-rethrowing them
    */
   def catchingPromiscuously[T](exceptions: Class[?]*): Catch[T] = catchingPromiscuously(pfFromExceptions(exceptions*))
+  /** TODO FILL IN
+   *
+   *  @tparam T TODO FILL IN
+   *  @param c TODO FILL IN
+   *  @return TODO FILL IN
+   */
   def catchingPromiscuously[T](c: Catcher[T]): Catch[T]         = new Catch(c, None, _ => false)
 
   /** Creates a `Catch` object which catches and ignores any of the supplied exceptions.
@@ -408,7 +481,18 @@ object Exception {
   def failAsValue[T](exceptions: Class[?]*)(value: => T): Catch[T] =
     catching(exceptions*) withApply (_ => value)
 
+  /** TODO FILL IN
+   *
+   *  @tparam T TODO FILL IN
+   *  @tparam R TODO FILL IN
+   *  @param f TODO FILL IN
+   */
   class By[T,R](f: T => R) {
+    /** TODO FILL IN
+     *
+     *  @param x TODO FILL IN
+     *  @return TODO FILL IN
+     */
     def by(x: T): R = f(x)
   }
 

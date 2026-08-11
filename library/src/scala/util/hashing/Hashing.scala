@@ -27,16 +27,39 @@ import scala.annotation.implicitNotFound
   */
 @implicitNotFound(msg = "No implicit Hashing defined for ${T}.")
 trait Hashing[T] extends Serializable {
+  /** TODO FILL IN
+   *
+   *  @param x TODO FILL IN
+   *  @return TODO FILL IN
+   */
   def hash(x: T): Int
 }
 
 object Hashing {
+  /** TODO FILL IN
+   *
+   *  @tparam T TODO FILL IN
+   */
   final class Default[T] extends Hashing[T] {
+    /** TODO FILL IN
+     *
+     *  @param x TODO FILL IN
+     */
     def hash(x: T) = x.##
   }
 
+  /** TODO FILL IN
+   *
+   *  @tparam T TODO FILL IN
+   *  @return TODO FILL IN
+   */
   implicit def default[T]: Default[T] = new Default[T]
 
+  /** TODO FILL IN
+   *
+   *  @tparam T TODO FILL IN
+   *  @param f TODO FILL IN
+   */
   def fromFunction[T](f: T => Int) = new Hashing[T] {
     def hash(x: T) = f(x)
   }

@@ -24,15 +24,25 @@ trait Batchable {
 }
 
 private[concurrent] object BatchingExecutorStatics {
+  /** TODO FILL IN */
   final val emptyBatchArray: Array[Runnable | Null] = new Array[Runnable | Null](0)
 
   // Max number of Runnables executed nested before starting to batch (to prevent stack exhaustion)
+  /** TODO FILL IN */
   final val syncPreBatchDepth = 16
 
   // Max number of Runnables processed in one go (to prevent starvation of other tasks on the pool)
+  /** TODO FILL IN */
   final val runLimit = 1024
 
   object MissingParentBlockContext extends BlockContext {
+    /** TODO FILL IN
+     *
+     *  @tparam T TODO FILL IN
+     *  @param thunk TODO FILL IN
+     *  @param permission TODO FILL IN
+     *  @return TODO FILL IN
+     */
     override def blockOn[T](thunk: => T)(implicit permission: CanAwait): T =
       try thunk finally throw new IllegalStateException("BUG in BatchingExecutor.Batch: parentBlockContext is null")
   }
@@ -103,8 +113,11 @@ private[concurrent] trait BatchingExecutor extends Executor {
    * the `first` field. Subsequent Runnables are stored in the array called `other`.
   */
   private sealed abstract class AbstractBatch protected (
+    /** TODO FILL IN */
     @annotation.stableNull protected final var first: Runnable | Null,
+    /** TODO FILL IN */
     protected final var other: Array[Runnable | Null],
+    /** TODO FILL IN */
     protected final var size: Int
   ) {
 
@@ -123,6 +136,10 @@ private[concurrent] trait BatchingExecutor extends Executor {
       }
     }
 
+    /** TODO FILL IN
+     *
+     *  @param r TODO FILL IN
+     */
     final def push(r: Runnable): Unit = {
       val sz = this.size
       if(sz == 0)
@@ -132,6 +149,10 @@ private[concurrent] trait BatchingExecutor extends Executor {
       this.size = sz + 1
     }
 
+    /** TODO FILL IN
+     *
+     *  @param n TODO FILL IN
+     */
     @tailrec protected final def runN(n: Int): Unit =
       if (n > 0)
         (this.size: @switch) match {
@@ -155,8 +176,13 @@ private[concurrent] trait BatchingExecutor extends Executor {
   private final class AsyncBatch private(_first: Runnable | Null, _other: Array[Runnable | Null], _size: Int) extends AbstractBatch(_first, _other, _size) with Runnable with BlockContext with (BlockContext => Throwable | Null) {
     private final var parentBlockContext: BlockContext = BatchingExecutorStatics.MissingParentBlockContext
 
+    /** TODO FILL IN
+     *
+     *  @param runnable TODO FILL IN
+     */
     final def this(runnable: Runnable) = this(runnable, BatchingExecutorStatics.emptyBatchArray, 1)
 
+    /** TODO FILL IN */
     override final def run(): Unit = {
       _tasksLocal.set(this) // This is later cleared in `apply` or `runWithoutResubmit`
 
@@ -167,6 +193,11 @@ private[concurrent] trait BatchingExecutor extends Executor {
     }
 
     /* LOGIC FOR ASYNCHRONOUS BATCHES */
+    /** TODO FILL IN
+     *
+     *  @param prevBlockContext TODO FILL IN
+     *  @return TODO FILL IN
+     */
     override final def apply(prevBlockContext: BlockContext): Throwable | Null = try {
       parentBlockContext = prevBlockContext
       runN(BatchingExecutorStatics.runLimit)
@@ -203,6 +234,13 @@ private[concurrent] trait BatchingExecutor extends Executor {
       newBatch
     }
 
+    /** TODO FILL IN
+     *
+     *  @tparam T TODO FILL IN
+     *  @param thunk TODO FILL IN
+     *  @param permission TODO FILL IN
+     *  @return TODO FILL IN
+     */
     override final def blockOn[T](thunk: => T)(implicit permission: CanAwait): T = {
       // If we know there will be blocking, we don't want to keep tasks queued up because it could deadlock.
       if(this.size > 0)
@@ -213,6 +251,7 @@ private[concurrent] trait BatchingExecutor extends Executor {
   }
 
   private final class SyncBatch(runnable: Runnable) extends AbstractBatch(runnable, BatchingExecutorStatics.emptyBatchArray, 1) with Runnable {
+    /** TODO FILL IN */
     @tailrec override final def run(): Unit = {
       try runN(BatchingExecutorStatics.runLimit) catch {
         case ie: InterruptedException =>

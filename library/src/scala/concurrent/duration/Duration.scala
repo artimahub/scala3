@@ -100,10 +100,12 @@ object Duration {
   )
 
   // TimeUnit => standard label
+  /** TODO FILL IN */
   protected[duration] val timeUnitName: Map[TimeUnit, String] =
     timeUnitLabels.toMap.view.mapValues(s => words(s).last).toMap
 
   // Label => TimeUnit
+  /** TODO FILL IN */
   protected[duration] val timeUnit: Map[String, TimeUnit] =
     timeUnitLabels.flatMap{ case (unit, names) => expandLabels(names) map (_ -> unit) }.toMap
 
@@ -202,44 +204,81 @@ object Duration {
     private def readResolve(): AnyRef = Undefined      // Instructs deserialization to use this same instance
   }
 
+  /** TODO FILL IN */
   sealed abstract class Infinite extends Duration {
+    /** TODO FILL IN
+     *
+     *  @param other TODO FILL IN
+     *  @return TODO FILL IN
+     */
     def +(other: Duration): Duration = other match {
       case x if x eq Undefined      => Undefined
       case x: Infinite if x ne this => Undefined
       case _                        => this
     }
+    /** TODO FILL IN
+     *
+     *  @param other TODO FILL IN
+     *  @return TODO FILL IN
+     */
     def -(other: Duration): Duration = other match {
       case x if x eq Undefined      => Undefined
       case x: Infinite if x eq this => Undefined
       case _                        => this
     }
 
+    /** TODO FILL IN
+     *
+     *  @param factor TODO FILL IN
+     *  @return TODO FILL IN
+     */
     def *(factor: Double): Duration =
       if (factor == 0d || JDouble.isNaN(factor)) Undefined
       else if (factor < 0d) -this
       else this
+    /** TODO FILL IN
+     *
+     *  @param divisor TODO FILL IN
+     *  @return TODO FILL IN
+     */
     def /(divisor: Double): Duration =
       if (JDouble.isNaN(divisor) || divisor.isInfinite) Undefined
       else if ((divisor compare 0d) < 0) -this
       else this
+    /** TODO FILL IN
+     *
+     *  @param divisor TODO FILL IN
+     *  @return TODO FILL IN
+     */
     def /(divisor: Duration): Double = divisor match {
       case _: Infinite => Double.NaN
       case x           => Double.PositiveInfinity * (if ((this > Zero) ^ (divisor >= Zero)) -1 else 1)
     }
 
+    /** TODO FILL IN */
     final def isFinite = false
 
     private def fail(what: String) = throw new IllegalArgumentException(s"$what not allowed on infinite Durations")
+    /** TODO FILL IN */
     final def length: Long    = fail("length")
+    /** TODO FILL IN */
     final def unit: TimeUnit  = fail("unit")
+    /** TODO FILL IN */
     final def toNanos: Long   = fail("toNanos")
+    /** TODO FILL IN */
     final def toMicros: Long  = fail("toMicros")
+    /** TODO FILL IN */
     final def toMillis: Long  = fail("toMillis")
+    /** TODO FILL IN */
     final def toSeconds: Long = fail("toSeconds")
+    /** TODO FILL IN */
     final def toMinutes: Long = fail("toMinutes")
+    /** TODO FILL IN */
     final def toHours: Long   = fail("toHours")
+    /** TODO FILL IN */
     final def toDays: Long    = fail("toDays")
 
+    /** TODO FILL IN */
     final def toCoarsest: Duration = this
   }
 
@@ -317,6 +356,12 @@ object Duration {
 
   /** The natural ordering of durations matches the natural ordering for Double, including non-finite values. */
   implicit object DurationIsOrdered extends Ordering[Duration] {
+    /** TODO FILL IN
+     *
+     *  @param a TODO FILL IN
+     *  @param b TODO FILL IN
+     *  @return TODO FILL IN
+     */
     def compare(a: Duration, b: Duration): Int = a compare b
   }
 }
@@ -542,9 +587,29 @@ sealed abstract class Duration extends Serializable with Ordered[Duration] {
    *  @return the quotient of this and `other` as a floating-point number
    */
   def div(other: Duration): Double   = this / other
+  /** TODO FILL IN
+   *
+   *  @param other TODO FILL IN
+   *  @return TODO FILL IN
+   */
   def gt(other: Duration): Boolean   = this > other
+  /** TODO FILL IN
+   *
+   *  @param other TODO FILL IN
+   *  @return TODO FILL IN
+   */
   def gteq(other: Duration): Boolean = this >= other
+  /** TODO FILL IN
+   *
+   *  @param other TODO FILL IN
+   *  @return TODO FILL IN
+   */
   def lt(other: Duration): Boolean   = this < other
+  /** TODO FILL IN
+   *
+   *  @param other TODO FILL IN
+   *  @return TODO FILL IN
+   */
   def lteq(other: Duration): Boolean = this <= other
   /** Returns the difference of that duration and this. When involving non-finite summands the semantics match those
    *  of Double.
@@ -592,10 +657,28 @@ sealed abstract class Duration extends Serializable with Ordered[Duration] {
 object FiniteDuration {
 
   implicit object FiniteDurationIsOrdered extends Ordering[FiniteDuration] {
+    /** TODO FILL IN
+     *
+     *  @param a TODO FILL IN
+     *  @param b TODO FILL IN
+     *  @return TODO FILL IN
+     */
     def compare(a: FiniteDuration, b: FiniteDuration): Int = a compare b
   }
 
+  /** TODO FILL IN
+   *
+   *  @param length TODO FILL IN
+   *  @param unit TODO FILL IN
+   *  @return TODO FILL IN
+   */
   def apply(length: Long, unit: TimeUnit): FiniteDuration  = new FiniteDuration(length, unit)
+  /** TODO FILL IN
+   *
+   *  @param length TODO FILL IN
+   *  @param unit TODO FILL IN
+   *  @return TODO FILL IN
+   */
   def apply(length: Long, unit: String): FiniteDuration    = new FiniteDuration(length, Duration.timeUnit(unit))
 
   // limit on abs. value of durations in their units
@@ -633,21 +716,39 @@ final class FiniteDuration(val length: Long, val unit: TimeUnit) extends Duratio
       case DAYS         => bounded(max_d)
     }, "Duration is limited to +-(2^63-1)ns (ca. 292 years)")
 
+  /** TODO FILL IN */
   def toNanos: Long               = unit.toNanos(length)
+  /** TODO FILL IN */
   def toMicros: Long              = unit.toMicros(length)
+  /** TODO FILL IN */
   def toMillis: Long              = unit.toMillis(length)
+  /** TODO FILL IN */
   def toSeconds: Long             = unit.toSeconds(length)
+  /** TODO FILL IN */
   def toMinutes: Long             = unit.toMinutes(length)
+  /** TODO FILL IN */
   def toHours: Long               = unit.toHours(length)
+  /** TODO FILL IN */
   def toDays: Long                = unit.toDays(length)
+  /** TODO FILL IN
+   *
+   *  @param u TODO FILL IN
+   *  @return TODO FILL IN
+   */
   def toUnit(u: TimeUnit): Double = toNanos.toDouble / NANOSECONDS.convert(1, u)
 
   /** Constructs a [[Deadline]] from this duration by adding it to the current instant `Deadline.now`. */
   def fromNow: Deadline = Deadline.now + this
 
   private def unitString  = timeUnitName(unit) + ( if (length == 1) "" else "s" )
+  /** TODO FILL IN */
   override def toString(): String     = "" + length + " " + unitString
 
+  /** TODO FILL IN
+   *
+   *  @param other TODO FILL IN
+   *  @return TODO FILL IN
+   */
   def compare(other: Duration): Int = other match {
     case x: FiniteDuration => toNanos compare x.toNanos
     case _                 => -(other compare this)
@@ -665,21 +766,41 @@ final class FiniteDuration(val length: Long, val unit: TimeUnit) extends Duratio
     new FiniteDuration(totalLength, commonUnit)
   }
 
+  /** TODO FILL IN
+   *
+   *  @param other TODO FILL IN
+   *  @return TODO FILL IN
+   */
   def +(other: Duration): Duration = other match {
     case x: FiniteDuration => add(x.length, x.unit)
     case _                 => other
   }
+  /** TODO FILL IN
+   *
+   *  @param other TODO FILL IN
+   *  @return TODO FILL IN
+   */
   def -(other: Duration): Duration = other match {
     case x: FiniteDuration => add(-x.length, x.unit)
     case _                 => -other
   }
 
+  /** TODO FILL IN
+   *
+   *  @param factor TODO FILL IN
+   *  @return TODO FILL IN
+   */
   def *(factor: Double): Duration  =
     if (!factor.isInfinite) fromNanos(toNanos * factor)
     else if (JDouble.isNaN(factor)) Undefined
     else if ((factor > 0) ^ (this < Zero)) Inf
     else MinusInf
 
+  /** TODO FILL IN
+   *
+   *  @param divisor TODO FILL IN
+   *  @return TODO FILL IN
+   */
   def /(divisor: Double): Duration =
     if (!divisor.isInfinite) fromNanos(toNanos / divisor)
     else if (JDouble.isNaN(divisor)) Undefined
@@ -687,6 +808,11 @@ final class FiniteDuration(val length: Long, val unit: TimeUnit) extends Duratio
 
   // if this is made a constant, then scalac will elide the conditional and always return +0.0, scala/bug#6331
   private def minusZero = -0d
+  /** TODO FILL IN
+   *
+   *  @param divisor TODO FILL IN
+   *  @return TODO FILL IN
+   */
   def /(divisor: Duration): Double =
     if (divisor.isFinite) toNanos.toDouble / divisor.toNanos
     else if (divisor eq Undefined) Double.NaN
@@ -694,11 +820,41 @@ final class FiniteDuration(val length: Long, val unit: TimeUnit) extends Duratio
     else minusZero
 
   // overloaded methods taking FiniteDurations, so that you can calculate while statically staying finite
+  /** TODO FILL IN
+   *
+   *  @param other TODO FILL IN
+   *  @return TODO FILL IN
+   */
   def +(other: FiniteDuration): FiniteDuration     = add(other.length, other.unit)
+  /** TODO FILL IN
+   *
+   *  @param other TODO FILL IN
+   *  @return TODO FILL IN
+   */
   def -(other: FiniteDuration): FiniteDuration     = add(-other.length, other.unit)
+  /** TODO FILL IN
+   *
+   *  @param other TODO FILL IN
+   *  @return TODO FILL IN
+   */
   def plus(other: FiniteDuration): FiniteDuration  = this + other
+  /** TODO FILL IN
+   *
+   *  @param other TODO FILL IN
+   *  @return TODO FILL IN
+   */
   def minus(other: FiniteDuration): FiniteDuration = this - other
+  /** TODO FILL IN
+   *
+   *  @param other TODO FILL IN
+   *  @return TODO FILL IN
+   */
   def min(other: FiniteDuration): FiniteDuration   = if (this < other) this else other
+  /** TODO FILL IN
+   *
+   *  @param other TODO FILL IN
+   *  @return TODO FILL IN
+   */
   def max(other: FiniteDuration): FiniteDuration   = if (this > other) this else other
 
   // overloaded methods taking Long so that you can calculate while statically staying finite
@@ -751,10 +907,13 @@ final class FiniteDuration(val length: Long, val unit: TimeUnit) extends Duratio
    */
   def mul(factor: Long): FiniteDuration  = this * factor
 
+  /** TODO FILL IN */
   def unary_- : FiniteDuration = Duration(-length, unit)
 
+  /** TODO FILL IN */
   final def isFinite = true
 
+  /** TODO FILL IN */
   final override def toCoarsest: FiniteDuration = {
     def loop(length: Long, unit: TimeUnit): FiniteDuration = {
       def coarserOrThis(coarser: TimeUnit, divider: Int): FiniteDuration =
@@ -777,9 +936,15 @@ final class FiniteDuration(val length: Long, val unit: TimeUnit) extends Duratio
     else loop(length, unit)
   }
 
+  /** TODO FILL IN
+   *
+   *  @param other TODO FILL IN
+   *  @return TODO FILL IN
+   */
   override def equals(other: Any): Boolean = other match {
     case x: FiniteDuration => toNanos == x.toNanos
     case _                 => super.equals(other)
   }
+  /** TODO FILL IN */
   override def hashCode(): Int = toNanos.toInt
 }

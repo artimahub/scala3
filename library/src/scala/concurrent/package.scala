@@ -217,6 +217,12 @@ package concurrent {
     }
 
     private object FutureValue {
+      /** TODO FILL IN
+       *
+       *  @tparam T TODO FILL IN
+       *  @param a TODO FILL IN
+       *  @return TODO FILL IN
+       */
       def unapply[T](a: Awaitable[T]): Option[Try[T]] = a match {
         case f: Future[T @unchecked] => f.value
         case _ => None

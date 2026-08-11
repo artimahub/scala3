@@ -34,6 +34,11 @@ object FromDigits {
    *  @tparam T the numeric type that digit strings with arbitrary radix can be converted to
    */
   trait WithRadix[T] extends FromDigits[T] {
+    /** TODO FILL IN
+     *
+     *  @param digits TODO FILL IN
+     *  @return TODO FILL IN
+     */
     def fromDigits(digits: String): T = fromDigits(digits, 10)
 
     /** Converts digits string with given radix to number of type `T`.
