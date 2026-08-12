@@ -1,0 +1,21 @@
+bash: warning: setlocale: LC_ALL: cannot change locale (en_US.UTF-8)
+cost guard: 'inclusionai/ling-3.0-tiny:free' confirmed free (prompt price 0)
+=== trial: ling-3-tiny  (provider openrouter, model inclusionai/ling-3.0-tiny:free) ===
+start: 128 markers
+--- round 1/2: 128 markers remaining ---
+    round 1: 128 -> 128 markers  (13s, client exit 0)
+label:             ling-3-tiny
+provider/model:    openrouter / inclusionai/ling-3.0-tiny:free
+reasoning_effort:  none
+rounds run:        1   (r1=13s)
+WORK TIME:         13s   <- compare providers on this
+wall clock:        13s   (includes 0s of this script's own between-round pauses)
+per-marker:        n/a (nothing filled)
+last client exit:  0
+stopped because:   no progress in round 1
+marker progression:128 -> 128   (started at 128)
+markers left:      128
+CODE INTEGRITY:    PASS
+Failure+Success:   2/2 classes present
+redundant @return: 1
+tag lines ending '.': 1 of 129  (house style: omit)

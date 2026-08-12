@@ -1,0 +1,47 @@
+library/src/scala/util/Try.scala
+```scala
+<<<<<<< SEARCH
+/** TODO FILL IN */
+override def isFailure: Boolean = true
+=======
+/** Returns `true` if the `Try` is a `Failure`, `false` otherwise. */
+override def isFailure: Boolean = true
+>>>>>>> REPLACE
+```
+
+library/src/scala/util/Try.scala
+```scala
+<<<<<<< SEARCH
+/** TODO FILL IN */
+override def isSuccess: Boolean = false
+=======
+/** Returns `true` if the `Try` is a `Success`, `false` otherwise. */
+override def isSuccess: Boolean = false
+>>>>>>> REPLACE
+```
+
+library/src/scala/util/Try.scala
+```scala
+<<<<<<< SEARCH
+/** TODO FILL IN */
+override def get: T = throw exception
+=======
+/** Returns the value from this `Success` or throws the exception if this is a `Failure`. */
+override def get: T = throw exception
+>>>>>>> REPLACE
+```
+
+library/src/scala/util/Try.scala
+```scala
+<<<<<<< SEARCH
+/** TODO FILL IN */
+override def getOrElse[U >: T](default: => U): U = default
+=======
+/** Returns the given `default` argument since this `Try` is a `Failure`.
+ *
+ *  @tparam U the type of the returned value, a supertype of `T`
+ *  @param default the default value to return if this is a `Failure`
+ */
+override def getOrElse[U >: T](default: => U): U = default
+>>>>>>> REPLACE
+```

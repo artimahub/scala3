@@ -1,0 +1,21 @@
+bash: warning: setlocale: LC_ALL: cannot change locale (en_US.UTF-8)
+cost guard: 'nvidia/nemotron-3.5-lightning:free' confirmed free (prompt price 0)
+=== trial: nemotron-lightning  (provider openrouter, model nvidia/nemotron-3.5-lightning:free) ===
+start: 128 markers
+--- round 1/3: 128 markers remaining ---
+    round 1: 128 -> 128 markers  (100s, client exit 0)
+label:             nemotron-lightning
+provider/model:    openrouter / nvidia/nemotron-3.5-lightning:free
+reasoning_effort:  <unset, model default>
+rounds run:        1   (r1=100s)
+WORK TIME:         100s   <- compare providers on this
+wall clock:        100s   (includes 0s of this script's own between-round pauses)
+per-marker:        n/a (nothing filled)
+last client exit:  0
+stopped because:   no progress in round 1
+marker progression:128 -> 128   (started at 128)
+markers left:      128
+CODE INTEGRITY:    PASS
+Failure+Success:   2/2 classes present
+redundant @return: 1
+tag lines ending '.': 1 of 129  (house style: omit)

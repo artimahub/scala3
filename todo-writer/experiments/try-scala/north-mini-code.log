@@ -1,0 +1,4 @@
+  finish_reason:   length
+  tokens:          prompt=7863 completion=32000 reasoning=32910
+  reply had EMPTY content (check the reasoning channel)
+  blocks parsed:   0

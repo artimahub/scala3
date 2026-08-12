@@ -1,0 +1,27 @@
+bash: warning: setlocale: LC_ALL: cannot change locale (en_US.UTF-8)
+cost guard: 'poolside/laguna-xs-2.1:free' confirmed free (prompt price 0)
+=== trial: laguna-xs-or  (provider openrouter, model poolside/laguna-xs-2.1:free) ===
+start: 128 markers
+--- round 1/2: 128 markers remaining ---
+    round 1: 128 -> 122 markers  (205s, client exit 0)
+    pausing 15s to let the rate-limit window recover
+--- round 2/2: 122 markers remaining ---
+    round 2: 122 -> 15 markers  (75s, client exit 0)
+    !! CODE INTEGRITY FAILURE in round 2; rolling this round back and stopping
+54d53
+<   override def foreach[U](f: T => U): Unit = ()
+label:             laguna-xs-or
+provider/model:    openrouter / poolside/laguna-xs-2.1:free
+reasoning_effort:  none
+rounds run:        2   (r1=205s, r2=75s)
+WORK TIME:         280s   <- compare providers on this
+wall clock:        295s   (includes 15s of this script's own between-round pauses)
+per-marker:        46.7s per marker filled
+last client exit:  0
+stopped because:   code integrity failure in round 2
+marker progression:128 -> 122 -> 15   (started at 128)
+markers left:      122
+CODE INTEGRITY:    FAIL
+Failure+Success:   2/2 classes present
+redundant @return: 1
+tag lines ending '.': 1 of 129  (house style: omit)

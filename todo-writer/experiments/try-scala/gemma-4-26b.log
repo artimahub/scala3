@@ -1,0 +1,6 @@
+  finish_reason:   stop
+  tokens:          prompt=8650 completion=6661 reasoning=0
+  blocks parsed:   0
+  applied:         0
+  skipped (no match):  0
+  skipped (ambiguous): 0

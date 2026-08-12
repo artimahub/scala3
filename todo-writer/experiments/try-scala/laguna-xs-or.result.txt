@@ -1,0 +1,15 @@
+label:             laguna-xs-or
+provider/model:    openrouter / poolside/laguna-xs-2.1:free
+reasoning_effort:  none
+rounds run:        2   (r1=205s, r2=75s)
+WORK TIME:         280s   <- compare providers on this
+wall clock:        295s   (includes 15s of this script's own between-round pauses)
+per-marker:        46.7s per marker filled
+last client exit:  0
+stopped because:   code integrity failure in round 2
+marker progression:128 -> 122 -> 15   (started at 128)
+markers left:      122
+CODE INTEGRITY:    FAIL
+Failure+Success:   2/2 classes present
+redundant @return: 1
+tag lines ending '.': 1 of 129  (house style: omit)

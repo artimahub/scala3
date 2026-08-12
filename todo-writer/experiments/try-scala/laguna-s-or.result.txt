@@ -1,0 +1,15 @@
+label:             laguna-s-or
+provider/model:    openrouter / poolside/laguna-s-2.1:free
+reasoning_effort:  none
+rounds run:        2   (r1=127s, r2=54s)
+WORK TIME:         181s   <- compare providers on this
+wall clock:        196s   (includes 15s of this script's own between-round pauses)
+per-marker:        2.8s per marker filled
+last client exit:  0
+stopped because:   max rounds
+marker progression:128 -> 96 -> 64   (started at 128)
+markers left:      64
+CODE INTEGRITY:    PASS
+Failure+Success:   2/2 classes present
+redundant @return: 3
+tag lines ending '.': 1 of 127  (house style: omit)
