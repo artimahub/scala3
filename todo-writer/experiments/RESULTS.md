@@ -39,7 +39,6 @@ model produces plausible-but-wrong prose:
 | `gpt-oss-120b` | aider / Cerebras | 3 | 319s | 128 -> 0 | PASS | 1 | no | yes | `exp/try-gpt-oss-120b` |
 | `zai-glm-4.7` | aider / Cerebras | 1 | 60s | **128 -> 128** | n/a | n/a | n/a | n/a | `exp/try-zai-glm-4.7` |
 | `laguna-s-2.1` | pool / poolside | 1 | ~2040s | 128 -> 0 | PASS | 1 | yes | yes | output lost, see below |
-| `cohere/north-mini-code:free` | direct / OpenRouter | \_ | \_ | \_ | \_ | \_ | \_ | \_ | `exp/try-qwen3-coder` |
 
 Work time excludes the runner's own between-round pauses; rate-limit backoff
 inside a round is left in, since that is a real cost of a free tier.
@@ -116,7 +115,8 @@ Two bugs found only by running it live, both now fixed:
 | `exp/try-gpt-oss-120b-direct` | direct run |
 | `exp/try-zai-glm-4.7` | three aider failures **and** the working direct run |
 | `exp/try-gemma-4-31b` | direct run |
-| `exp/try-qwen3-coder` | OpenRouter run (branch name predates the model choice) |
+| `exp/try-openrouter` | all eight OpenRouter trials |
+| `exp/try-north-mini-code` | the first OpenRouter attempt, before the reasoning and keepalive fixes |
 | `exp/wk4-marked-wip` | the full week-4 partition marked, 36 files |
 | `feature-todo-writer` | the harness: runner, `direct-writer.py`, prompts, pipeline |
 
@@ -135,8 +135,95 @@ diagnostics every finding here rests on would be silently dropped.
 - **OpenRouter's $10 raises the free-model daily cap from 50 to 1000 requests.**
   Irrelevant for these trials (a whole file is 1-2 requests) but necessary for a
   real partition: 36 files x ~2 rounds is ~72 writer requests.
+- **A `:free` id is a different model from its paid twin.** Dropping the suffix
+  silently switches to the paid one. `run-writer-trial.sh` now refuses any
+  OpenRouter model whose live `pricing.prompt` is not `0`, and refuses ids that
+  are not in the catalogue at all.
 - **Commit before switching branches.** Uncommitted results ride along silently
   and can land on the wrong branch.
+
+## OpenRouter free tier
+
+Tried after Cerebras, on the same input through the same `direct` path. Branch:
+`exp/try-openrouter`, which holds every OpenRouter result together.
+
+**Nothing usable came out of it.** Eight models tried; not one both filled the
+file and passed the guards.
+
+| Model | Reasoning | Work time | Markers | Integrity | What happened |
+|---|---|---|---:|---|---|
+| `openai/gpt-oss-20b:free` | default | 0s | 128 -> 128 | n/a | HTTP 429, rate-limited upstream |
+| `nvidia/nemotron-3-super-120b-a12b:free` | default | 601s | 128 -> 128 | n/a | timed out, no response at all |
+| `nvidia/nemotron-3.5-lightning:free` | default | 100s | 128 -> 128 | PASS | 25,173 of 26,550 tokens on reasoning; 4 blocks, none matched |
+| `cohere/north-mini-code:free` | default | 1011s | 128 -> 128 | PASS | reasoning=32,910, `content` empty, 0 blocks |
+| `poolside/laguna-s-2.1:free` | off | 181s | 128 -> **64** | PASS | worked, but slow and only half done in 2 rounds |
+| `poolside/laguna-xs-2.1:free` | off | 280s | 128 -> 122 | **FAIL** | **deleted a method**; round rolled back |
+| `google/gemma-4-26b-a4b-it:free` | off | 348s | 128 -> 128 | PASS | replied, but 0 blocks -- wrong format |
+| `inclusionai/ling-3.0-tiny:free` | off | 13s | 128 -> 128 | PASS | replied, but 0 blocks -- wrong format |
+
+### The three failure modes
+
+**Shared upstream pools.** `:free` variants route through a pool shared with
+every other free user, so you queue behind them. gpt-oss-20b returned
+`limit_source: upstream_provider_shared_pool` before doing any work, and
+nemotron-super-120b never answered at all. This is structurally different from
+Cerebras, where an own key against their own hardware finished the same file in
+3-12 seconds.
+
+**Reasoning eats the budget.** Free models here skew towards reasoning models,
+which emit into a separate channel before any `content`. Given a 32K budget they
+can spend all of it thinking: north-mini-code burned 32,910 reasoning tokens and
+returned nothing, in 16 minutes. Disabling reasoning is what made laguna work at
+all, and OpenRouter spells that `reasoning: {"enabled": false}` where Cerebras
+uses `reasoning_effort: "none"` -- send the wrong one and it is silently ignored.
+
+**Smaller models cannot produce the format.** gemma-4-26b and ling-3.0-tiny both
+replied normally with reasoning off -- `finish_reason: stop`, thousands of
+content tokens -- and yielded **zero** parseable blocks. They wrote something
+else entirely. On Cerebras the same size class (gemma-4-31b) managed 42 of 42,
+so this is about these particular models, not about model size as such.
+
+**A viability probe does not predict real behaviour.** A 400-token "say PONG"
+request said north-mini-code, nemotron-super-120b and gpt-oss-20b were all
+healthy and fast. All three then failed on an 8K-token prompt asking for 32K of
+output. The shared pool copes with toy requests and collapses under real ones.
+
+### The guard caught a live code deletion
+
+`poolside/laguna-xs-2.1:free` round 2 filled 107 markers (122 -> 15) and, while
+doing it, deleted a public method:
+
+```
+54d53
+<   override def foreach[U](f: T => U): Unit = ()
+```
+
+The strip-comments integrity check caught it, rolled the whole round back, and
+stopped the trial. Every other signal looked like success: `finish_reason: stop`,
+21 blocks parsed, 18 applied, a big drop in the marker count. Without the guard
+that is a PR with a missing method and 107 plausible new comments.
+
+This is the second time a model has silently removed code while filling comments
+-- laguna-s-2.1 deleted the entire `Failure` class under aider's whole-file mode.
+Both times it was the same model family, and both times only this check noticed.
+
+### One thing OpenRouter did establish
+
+`laguna-s-2.1` emitted valid SEARCH/REPLACE blocks here (9 parsed, 9 applied),
+which it could never do through aider. So its earlier failure was aider's
+prompt scaffolding, not an inability to produce the format -- consistent with
+what the GLM investigation found.
+
+### Verdict
+
+Cerebras is the better free tier for this workload by a wide margin: dedicated
+capacity, 3-12 second fills, and three models that complete the file. OpenRouter's
+value is breadth of catalogue, not throughput, and the shared free pool is not
+suited to an 8K-in/32K-out job repeated across 36 files.
+
+The $10 credit is not wasted -- it raises the free daily cap from 50 to 1000
+requests, and OpenRouter remains the only route to models no one else hosts. But
+it is not the path for the PR schedule.
 
 ## Still open
 
