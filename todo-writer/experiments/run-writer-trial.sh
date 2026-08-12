@@ -134,6 +134,34 @@ if pgrep -f "bin/aider --model" >/dev/null || pgrep -f "pool exec" >/dev/null; t
     exit 2
 fi
 [ -f "$INPUT" ] || { echo "Missing marked input: $INPUT" >&2; exit 2; }
+
+# COST GUARD. OpenRouter bills real money for most of its 400+ models, and a
+# free variant is a DIFFERENT model id from its paid twin -- dropping the
+# ':free' suffix silently switches you to the paid one. Model ids also go stale:
+# 'qwen/qwen3-coder-480b:free' was suggested from a blog post and does not
+# exist, while every qwen3-coder that does exist is paid.
+#
+# So this refuses to run unless the catalogue itself reports the model as
+# zero-cost. Checked against the live API, not a hardcoded list.
+if [ "$PROVIDER" = openrouter ]; then
+    if [ -z "${OPENROUTER_API_KEY:-}" ]; then
+        echo "OPENROUTER_API_KEY is not set." >&2; exit 2
+    fi
+    price=$(curl -s --max-time 30 https://openrouter.ai/api/v1/models \
+              -H "Authorization: Bearer $OPENROUTER_API_KEY" -H "User-Agent: curl/8.5.0" \
+            | jq -r --arg m "$MODEL" '.data[] | select(.id==$m) | .pricing.prompt' 2>/dev/null)
+    if [ -z "$price" ]; then
+        echo "REFUSING: '$MODEL' is not in OpenRouter's catalogue." >&2
+        echo "List free ones with: curl -s https://openrouter.ai/api/v1/models -H \"Authorization: Bearer \$OPENROUTER_API_KEY\" | jq -r '.data[]|select(.pricing.prompt==\"0\")|.id'" >&2
+        exit 2
+    fi
+    if [ "$price" != "0" ]; then
+        echo "REFUSING: '$MODEL' is NOT free (prompt price $price per token)." >&2
+        echo "This would spend real credits. Use a ':free' model id." >&2
+        exit 2
+    fi
+    echo "cost guard: '$MODEL' confirmed free (prompt price 0)"
+fi
 # Fail loudly rather than silently running with aider's fallback caps, which is
 # what made zai-glm-4.7 look broken.
 if [ "$PROVIDER" = cerebras ] && ! grep -q "\"${MODEL}\"" "$METADATA" 2>/dev/null; then
