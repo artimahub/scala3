@@ -67,7 +67,16 @@ def post(base_url, api_key, payload, timeout):
         },
     )
     with urllib.request.urlopen(req, timeout=timeout) as r:
-        return json.loads(r.read().decode())
+        body = r.read().decode()
+    # OpenRouter holds the connection open during long generations by emitting
+    # keepalive lines -- blank lines and lines of spaces -- BEFORE the JSON
+    # body. json.loads rejects the result outright; jq tolerates it, which is
+    # why every curl probe worked and the first real run did not. Start at the
+    # first brace rather than trusting the payload to be the whole response.
+    start = body.find("{")
+    if start == -1:
+        raise ValueError(f"no JSON object in response: {body[:200]!r}")
+    return json.loads(body[start:])
 
 
 def main():
@@ -103,8 +112,25 @@ def main():
         "max_tokens": args.max_tokens,
         "messages": [{"role": "user", "content": content}],
     }
+    # Reasoning control, which is NOT portable between providers.
+    #
+    # Cerebras takes  reasoning_effort: "none"|"low"|"medium"|"high"
+    # OpenRouter takes reasoning: {"enabled": false} / {"effort": "..."}
+    #
+    # This matters more than a compatibility nicety. Reasoning models emit into
+    # a separate channel before any `content`, and with a large budget they can
+    # spend all of it thinking. cohere/north-mini-code:free did exactly that:
+    # completion=32000, reasoning=32910, content empty, 1011 seconds for zero
+    # blocks. Sending the wrong provider's spelling means the setting is
+    # silently ignored and the run burns the full budget again.
     if args.reasoning_effort:
-        payload["reasoning_effort"] = args.reasoning_effort
+        if "openrouter.ai" in args.base_url:
+            if args.reasoning_effort == "none":
+                payload["reasoning"] = {"enabled": False}
+            else:
+                payload["reasoning"] = {"effort": args.reasoning_effort}
+        else:
+            payload["reasoning_effort"] = args.reasoning_effort
 
     try:
         resp = post(args.base_url, api_key, payload, args.timeout)
