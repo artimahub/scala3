@@ -4,7 +4,8 @@
 #
 #   provider = direct     -> no client: one user message straight to the
 #                            OpenAI-compatible endpoint, blocks applied by
-#                            direct-writer.py. PREFERRED for Cerebras.
+#                            direct-writer.py. PREFERRED. Endpoint = Cerebras.
+#   provider = openrouter -> same code path, endpoint = OpenRouter.
 #   provider = cerebras   -> aider, OpenAI-compatible, SEARCH/REPLACE prompt
 #   provider = poolside   -> pool exec (agent), targeted-patch prompt
 #
@@ -77,9 +78,9 @@
 
 set -uo pipefail
 
-LABEL=${1:?usage: run-writer-trial.sh <label> <provider: cerebras|direct|poolside> <model> [edit-format]}
-PROVIDER=${2:?usage: run-writer-trial.sh <label> <provider: cerebras|direct|poolside> <model> [edit-format]}
-MODEL=${3:?usage: run-writer-trial.sh <label> <provider: cerebras|direct|poolside> <model> [edit-format]}
+LABEL=${1:?usage: run-writer-trial.sh <label> <provider: direct|openrouter|cerebras|poolside> <model> [edit-format]}
+PROVIDER=${2:?usage: run-writer-trial.sh <label> <provider: direct|openrouter|cerebras|poolside> <model> [edit-format]}
+MODEL=${3:?usage: run-writer-trial.sh <label> <provider: direct|openrouter|cerebras|poolside> <model> [edit-format]}
 EDIT_FORMAT=${4:-diff}
 TIMEOUT=${TIMEOUT:-3600}
 # Optional: 'none' | 'low' | 'medium' | 'high'. Left unset by default so each
@@ -125,7 +126,8 @@ METADATA=${METADATA:-/home/node/.aider/model-metadata.json}
 cd "$REPO"
 export PATH="$PATH:/home/node/.local/bin"
 export BROWSER=/bin/true          # aider offers to open docs URLs; --yes-always accepts
-set -a; . /home/node/.aider/.env; set +a
+POOLSIDE_ENV_FILE_HINT=/home/node/.aider/.env
+set -a; . "$POOLSIDE_ENV_FILE_HINT"; set +a
 
 if pgrep -f "bin/aider --model" >/dev/null || pgrep -f "pool exec" >/dev/null; then
     echo "REFUSING: another trial is already running (they share $TARGET)." >&2
@@ -218,11 +220,25 @@ run_one_round() {
             --llm-history-file "$EXP/$LABEL.llm" \
             "$TARGET" >> "$EXP/$LABEL.log" 2>&1
         ;;
-      direct)
+      direct|openrouter)
         # No coding-agent client: one user message straight to the endpoint,
         # blocks parsed and applied by direct-writer.py. See its docstring for
-        # why. Uses the Cerebras credentials.
-        export DIRECT_KEY="$CEREBRAS_API_KEY"
+        # why.
+        #
+        # The endpoint is chosen by the provider name; everything after this
+        # point -- prompt, parsing, applying, guards, scoring -- is identical,
+        # which is what keeps results comparable across services.
+        if [ "$PROVIDER" = openrouter ]; then
+            DIRECT_BASE="${OPENROUTER_API_BASE:-https://openrouter.ai/api/v1}"
+            export DIRECT_KEY="${OPENROUTER_API_KEY:-}"
+        else
+            DIRECT_BASE="$CEREBRAS_API_BASE"
+            export DIRECT_KEY="$CEREBRAS_API_KEY"
+        fi
+        if [ -z "$DIRECT_KEY" ]; then
+            echo "No API key for provider '$PROVIDER'. Expected it in $POOLSIDE_ENV_FILE_HINT." >&2
+            exit 2
+        fi
         # Its own prompt, rendered fresh each round. The aider prompt only NAMES
         # the SEARCH/REPLACE format; aider itself supplies the literal shape via
         # a system prompt and few-shot examples. Sent as a bare user message with
@@ -238,7 +254,7 @@ run_one_round() {
             --file "$TARGET" \
             --prompt "$EXP/prompt.direct.txt" \
             --model "$MODEL" \
-            --base-url "$CEREBRAS_API_BASE" \
+            --base-url "$DIRECT_BASE" \
             --api-key-env DIRECT_KEY \
             --max-tokens 32000 \
             ${REASONING_EFFORT:+--reasoning-effort "$REASONING_EFFORT"} \
@@ -254,7 +270,7 @@ run_one_round() {
             >> "$EXP/$LABEL.log" 2>&1
         ;;
       *)
-        echo "Unknown provider: $PROVIDER (want cerebras, direct or poolside)" >&2; exit 2 ;;
+        echo "Unknown provider: $PROVIDER (want direct, openrouter, cerebras or poolside)" >&2; exit 2 ;;
     esac
     ) &
     client_pid=$!
