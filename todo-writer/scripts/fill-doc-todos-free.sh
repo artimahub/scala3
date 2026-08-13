@@ -60,7 +60,7 @@
 #   ACCURACY_MODEL=gemma-4-31b        ACCURACY_PROVIDER=cerebras
 #   STYLE_MODEL=gpt-oss-120b          STYLE_PROVIDER=cerebras
 #   ADJUDICATOR_MODEL=zai-glm-5-2     ADJUDICATOR_PROVIDER=mistral
-#   INTER_FILE_PAUSE_SECONDS=120  PAUSE_SLEEP=1200  MAX_TOKENS=32000
+#   INTER_FILE_PAUSE_SECONDS=120  PAUSE_SLEEP=30  MAX_TOKENS=32000
 #   DRY_RUN=false
 # =============================================================================
 
@@ -89,7 +89,7 @@ LOG_FILE="$TODO_WRITER_DIR/fill-doc-todos-free.log"
 
 INTER_FILE_PAUSE_SECONDS=${INTER_FILE_PAUSE_SECONDS:-120}
 PAUSE_FILE=${PAUSE_FILE:-"$TODO_WRITER_DIR/PAUSE"}
-PAUSE_SLEEP=${PAUSE_SLEEP:-1200}
+PAUSE_SLEEP=${PAUSE_SLEEP:-30}
 STOP_FILE=${STOP_FILE:-"$TODO_WRITER_DIR/stop-fill-doc-todos"}
 WORK_DIR="$(mktemp -d)"
 trap 'rm -rf "$WORK_DIR"' EXIT
@@ -139,6 +139,11 @@ log() { local m="[$(date '+%H:%M:%S')] $1"; echo "$m"; echo "$m" >> "$LOG_FILE";
 # can be halted mid-file without losing the work already applied. Unlike STOP,
 # which exits, this waits: the process stays alive holding its place, rechecking
 # every PAUSE_SLEEP seconds until the file is gone.
+#
+# PAUSE_SLEEP defaults to 30s because the recheck interval is also the RESUME
+# latency -- removing the file does nothing until the next wake-up. 30s suits
+# stepping through a run and inspecting each phase. For an unattended overnight
+# run where a pause is a genuine hold, raise it: PAUSE_SLEEP=1200.
 check_pause() {
     local where=$1 first=true
     while [ -e "$PAUSE_FILE" ]; do
