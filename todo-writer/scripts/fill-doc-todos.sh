@@ -25,7 +25,7 @@
 # Env overrides:
 #   MAX_ROUNDS=2  WRITER_MODEL=opus  STYLE_MODEL=sonnet
 #   ACCURACY_MODEL=gpt-5.6-terra  DRY_RUN=false
-#   INTER_FILE_PAUSE_SECONDS=60  STOP_FILE=todo-writer/stop-fill-doc-todos
+#   INTER_FILE_PAUSE_SECONDS=120  STOP_FILE=todo-writer/stop-fill-doc-todos
 # =============================================================================
 
 set -uo pipefail
@@ -44,7 +44,7 @@ PROMPTS_DIR="$SCRIPT_DIR/prompts"
 SCHEMA="$SCRIPT_DIR/schemas/doc-review.schema.json"
 REVIEWS_DIR="$TODO_WRITER_DIR/reviews"
 LOG_FILE="$TODO_WRITER_DIR/fill-doc-todos.log"
-INTER_FILE_PAUSE_SECONDS=${INTER_FILE_PAUSE_SECONDS:-60}
+INTER_FILE_PAUSE_SECONDS=${INTER_FILE_PAUSE_SECONDS:-120}
 STOP_FILE=${STOP_FILE:-"$TODO_WRITER_DIR/stop-fill-doc-todos"}
 WORK_DIR="$(mktemp -d)"
 trap 'rm -rf "$WORK_DIR"' EXIT

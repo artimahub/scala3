@@ -49,7 +49,7 @@
 #   ACCURACY_MODEL=gpt-5.6-terra           (codex exec)
 #   ADJUDICATOR_MODEL=poolside/laguna-s-2.1
 #   POOLSIDE_ENV_FILE=/home/node/.aider/.env
-#   WRITER_TIMEOUT=3600  INTER_FILE_PAUSE_SECONDS=60
+#   WRITER_TIMEOUT=3600  INTER_FILE_PAUSE_SECONDS=120
 #   DRY_RUN=false  STOP_FILE=todo-writer/stop-fill-doc-todos
 # =============================================================================
 
@@ -72,7 +72,7 @@ SCHEMA="$SCRIPT_DIR/schemas/doc-review.schema.json"
 ADJ_SCHEMA="$SCRIPT_DIR/schemas/doc-adjudication.schema.json"
 REVIEWS_DIR="$TODO_WRITER_DIR/reviews"
 LOG_FILE="$TODO_WRITER_DIR/fill-doc-todos-poolside.log"
-INTER_FILE_PAUSE_SECONDS=${INTER_FILE_PAUSE_SECONDS:-60}
+INTER_FILE_PAUSE_SECONDS=${INTER_FILE_PAUSE_SECONDS:-120}
 STOP_FILE=${STOP_FILE:-"$TODO_WRITER_DIR/stop-fill-doc-todos"}
 WORK_DIR="$(mktemp -d)"
 trap 'rm -rf "$WORK_DIR"' EXIT
