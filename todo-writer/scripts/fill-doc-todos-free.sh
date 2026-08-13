@@ -8,7 +8,7 @@
 #   Writer      (Mistral  zai-glm-5-2)          drafts
 #   repeat up to MAX_ROUNDS:
 #       Accuracy review (Cerebras gemma-4-31b)  ┐ run in parallel
-#       Style review    (Mistral  mistral-medium)┘
+#       Style review    (Cerebras gpt-oss-120b)  ┘
 #       Adjudicator     (Mistral  zai-glm-5-2)  merges both into ONE verdict
 #       if adjudicator approves -> done
 #       else Writer refines against the adjudicated worklist
@@ -20,12 +20,18 @@
 #                  best score seen anywhere, free, 23s for a 42-declaration file
 #   gemma-4-31b    passes both accuracy probes; a DIFFERENT provider and family
 #                  from the writer, which is what makes its dissent meaningful
-#   mistral-medium 2 redundant @return, the best convention-follower after the
-#                  writer itself
+#   gpt-oss-120b   1 redundant @return, tied best on the convention rule -- and
+#                  its known weakness is accuracy, which is the OTHER reviewer's
+#                  job. Playing each reviewer to its strength.
 #
-# Three families across two providers. Reviewer independence matters more than
-# raw reviewer strength: two reviewers that share weights agree for the wrong
-# reasons.
+# Three families. Reviewer independence matters more than raw reviewer strength:
+# two reviewers that share weights agree for the wrong reasons.
+#
+# Providers are split deliberately: Mistral serves only the writer and the
+# adjudicator, which run SEQUENTIALLY, while both reviewers run in PARALLEL on
+# Cerebras. The first run put writer, style and adjudicator all on Mistral; its
+# free tier 429'd everything after the writer, losing the style review, the
+# adjudication and both refines in under two seconds.
 #
 # NOTE on writer == adjudicator: same weights means same blind spots, so the
 # adjudicator is least likely to overrule the writer exactly where the writer is
@@ -52,7 +58,7 @@
 #   MAX_ROUNDS=2
 #   WRITER_MODEL=zai-glm-5-2          WRITER_PROVIDER=mistral
 #   ACCURACY_MODEL=gemma-4-31b        ACCURACY_PROVIDER=cerebras
-#   STYLE_MODEL=mistral-medium-latest STYLE_PROVIDER=mistral
+#   STYLE_MODEL=gpt-oss-120b          STYLE_PROVIDER=cerebras
 #   ADJUDICATOR_MODEL=zai-glm-5-2     ADJUDICATOR_PROVIDER=mistral
 #   INTER_FILE_PAUSE_SECONDS=120  PAUSE_SLEEP=1200  MAX_TOKENS=32000
 #   DRY_RUN=false
@@ -63,9 +69,11 @@ set -uo pipefail
 MAX_ROUNDS=${MAX_ROUNDS:-2}
 WRITER_MODEL=${WRITER_MODEL:-zai-glm-5-2};                WRITER_PROVIDER=${WRITER_PROVIDER:-mistral}
 ACCURACY_MODEL=${ACCURACY_MODEL:-gemma-4-31b};            ACCURACY_PROVIDER=${ACCURACY_PROVIDER:-cerebras}
-STYLE_MODEL=${STYLE_MODEL:-mistral-medium-latest};        STYLE_PROVIDER=${STYLE_PROVIDER:-mistral}
+STYLE_MODEL=${STYLE_MODEL:-gpt-oss-120b};                  STYLE_PROVIDER=${STYLE_PROVIDER:-cerebras}
 ADJUDICATOR_MODEL=${ADJUDICATOR_MODEL:-zai-glm-5-2};      ADJUDICATOR_PROVIDER=${ADJUDICATOR_PROVIDER:-mistral}
 MAX_TOKENS=${MAX_TOKENS:-32000}
+RATE_LIMIT_BACKOFF=${RATE_LIMIT_BACKOFF:-20}   # doubles per retry: 20, 40, 80
+PROVIDER_SPACING=${PROVIDER_SPACING:-15}       # gap between same-provider calls
 DRY_RUN=${DRY_RUN:-false}
 MARKER="TODO FILL IN"
 
@@ -182,20 +190,42 @@ house_rules() {
 # coding agent buys nothing and costs a subscription.
 json_call() {
     local prov=$1 model=$2 sysf=$3 usrf=$4 out=$5
-    local base key req
+    local base key req raw attempt delay err
     base=$(provider_base "$prov"); key=$(provider_key "$prov")
-    req="$WORK_DIR/req.$$.json"
+    req="$WORK_DIR/req.$$.json"; raw="$WORK_DIR/raw.$$.json"
     jq -n --arg m "$model" --arg s "$(cat "$sysf")" --arg u "$(cat "$usrf")" --argjson mt "$MAX_TOKENS" \
       '{model:$m, max_tokens:$mt, response_format:{type:"json_object"},
         messages:[{role:"system",content:$s},{role:"user",content:$u}]}' > "$req"
-    # -H User-Agent: Cerebras and OpenRouter sit behind Cloudflare, which rejects
-    # some default agents with HTTP 403 "error code: 1010".
-    curl -s --max-time 900 "$base/chat/completions" \
-        -H "Authorization: Bearer $key" -H "Content-Type: application/json" \
-        -H "User-Agent: curl/8.5.0" --data @"$req" \
-      | jq -r '.choices[0].message.content // empty' 2>/dev/null | clean_json > "$out"
-    rm -f "$req"
-    [ -s "$out" ] || echo '{}' > "$out"
+
+    # Retry on rate limits. Mistral's free tier 429s readily when several roles
+    # fire in quick succession, and the first pipeline run lost its style review,
+    # its adjudication AND both refines to that -- while reporting a verdict,
+    # because an unparseable reply silently became {}. Never again: an error here
+    # is logged loudly and the caller can tell a real verdict from a dead call.
+    delay=$RATE_LIMIT_BACKOFF
+    for attempt in 1 2 3 4; do
+        curl -s --max-time 900 "$base/chat/completions" \
+            -H "Authorization: Bearer $key" -H "Content-Type: application/json" \
+            -H "User-Agent: curl/8.5.0" --data @"$req" > "$raw"
+        err=$(jq -r '.error.message // .message // empty' "$raw" 2>/dev/null)
+        if [ -z "$err" ]; then
+            jq -r '.choices[0].message.content // empty' "$raw" 2>/dev/null | clean_json > "$out"
+            if [ -s "$out" ]; then rm -f "$req" "$raw"; return 0; fi
+            err="reply had no parseable content"
+        fi
+        case "$err" in
+            *[Rr]ate*limit*|*429*)
+                log "      rate limited by $prov (attempt $attempt/4); waiting ${delay}s"
+                sleep "$delay"; delay=$((delay * 2)) ;;
+            *)
+                log "      !! $prov/$model call FAILED: $(echo "$err" | head -c 160)"
+                break ;;
+        esac
+    done
+    log "      !! $prov/$model produced no usable JSON -- downstream verdicts from this call are NOT real"
+    echo '{}' > "$out"
+    rm -f "$req" "$raw"
+    return 1
 }
 
 if [ "$#" -eq 0 ]; then
@@ -297,6 +327,12 @@ for index in "${!TARGETS[@]}"; do
         log "    reviewers: accuracy=$acc_verdict  style=$sty_verdict"
 
         check_pause "before adjudication round $round: $REL"
+
+        # Space this away from the writer call on the same provider. The reviews
+        # above take a few seconds; on a free tier that is not enough headroom.
+        if [ "$ADJUDICATOR_PROVIDER" = "$WRITER_PROVIDER" ] && [ "$PROVIDER_SPACING" -gt 0 ]; then
+            sleep "$PROVIDER_SPACING"
+        fi
 
         # ---- Adjudicator ----------------------------------------------------
         log "    adjudicating ($ADJUDICATOR_PROVIDER/$ADJUDICATOR_MODEL)..."
