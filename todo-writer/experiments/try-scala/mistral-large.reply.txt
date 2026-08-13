@@ -1,0 +1,85 @@
+I'll start by filling in the TODOs in the `WithFilter` class, as they are the most prominent placeholders in the file.
+
+library/src/scala/util/Try.scala
+```scala
+<<<<<<< SEARCH
+    /** TODO FILL IN
+     *
+     *  @tparam U TODO FILL IN
+     *  @param f TODO FILL IN
+     *  @return TODO FILL IN
+     */
+    def map[U](f:     T => U): Try[U]^{Try.this, p.only[Control], f.only[Control]} = Try.this.filter(p).map(f)
+=======
+    /** Returns the result of applying the function `f` to the value if it satisfies the predicate `p`.
+     *
+     *  @tparam U the type of the value returned by the function `f`
+     *  @param f the function to apply to the value if it satisfies the predicate
+     *  @return a `Success` containing the result of `f` applied to the value if the value satisfies `p` and `f` executes successfully,
+     *          a `Failure` with a `NoSuchElementException` if the value does not satisfy `p`,
+     *          or a `Failure` containing any non-fatal exception thrown by `f` or `p`
+     */
+    def map[U](f:     T => U): Try[U]^{Try.this, p.only[Control], f.only[Control]} = Try.this.filter(p).map(f)
+>>>>>>> REPLACE
+```
+
+library/src/scala/util/Try.scala
+```scala
+<<<<<<< SEARCH
+    /** TODO FILL IN
+     *
+     *  @tparam U TODO FILL IN
+     *  @param f TODO FILL IN
+     *  @return TODO FILL IN
+     */
+    def flatMap[U](f: T => Try[U]^): Try[U]^{Try.this, p.only[Control], f}         = Try.this.filter(p).flatMap(f)
+=======
+    /** Returns the result of applying the function `f` to the value if it satisfies the predicate `p`.
+     *
+     *  @tparam U the type of the value in the resulting `Try`
+     *  @param f the function to apply to the value if it satisfies the predicate
+     *  @return the `Try` returned by `f` applied to the value if the value satisfies `p`,
+     *          a `Failure` with a `NoSuchElementException` if the value does not satisfy `p`,
+     *          or a `Failure` containing any non-fatal exception thrown by `f` or `p`
+     */
+    def flatMap[U](f: T => Try[U]^): Try[U]^{Try.this, p.only[Control], f}         = Try.this.filter(p).flatMap(f)
+>>>>>>> REPLACE
+```
+
+library/src/scala/util/Try.scala
+```scala
+<<<<<<< SEARCH
+    /** TODO FILL IN
+     *
+     *  @tparam U TODO FILL IN
+     *  @param f TODO FILL IN
+     */
+    def foreach[U](f: T => U): Unit                                                = Try.this.filter(p).foreach(f)
+=======
+    /** Applies the function `f` to the value if it satisfies the predicate `p`.
+     *
+     *  @tparam U the (discarded) result type of the function `f`
+     *  @param f the function to apply to the value if it satisfies the predicate
+     */
+    def foreach[U](f: T => U): Unit                                                = Try.this.filter(p).foreach(f)
+>>>>>>> REPLACE
+```
+
+library/src/scala/util/Try.scala
+```scala
+<<<<<<< SEARCH
+    /** TODO FILL IN
+     *
+     *  @param q TODO FILL IN
+     *  @return TODO FILL IN
+     */
+    def withFilter(q: T => Boolean): WithFilter^{Try.this, p, q}                   = new WithFilter(x => p(x) && q(x))
+=======
+    /** Creates a new `WithFilter` that tests values against both the current predicate `p` and the additional predicate `q`.
+     *
+     *  @param q the additional predicate to test values against
+     *  @return a new `WithFilter` that tests values against both predicates
+     */
+    def withFilter(q: T => Boolean): WithFilter^{Try.this, p, q}                   = new WithFilter(x => p(x) && q(x))
+>>>>>>> REPLACE
+```

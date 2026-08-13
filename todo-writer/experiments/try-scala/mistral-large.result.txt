@@ -1,0 +1,15 @@
+label:             mistral-large
+provider/model:    mistral / mistral-large-latest
+reasoning_effort:  <unset, model default>
+rounds run:        2   (r1=176s, r2=18s)
+WORK TIME:         194s   <- compare providers on this
+wall clock:        204s   (includes 10s of this script's own between-round pauses)
+per-marker:        1.5s per marker filled
+last client exit:  0
+stopped because:   all markers filled
+marker progression:128 -> 14 -> 0   (started at 128)
+markers left:      0
+CODE INTEGRITY:    PASS
+Failure+Success:   2/2 classes present
+redundant @return: 15
+tag lines ending '.': 1 of 133  (house style: omit)

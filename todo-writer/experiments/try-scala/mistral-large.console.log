@@ -1,0 +1,23 @@
+bash: warning: setlocale: LC_ALL: cannot change locale (en_US.UTF-8)
+=== trial: mistral-large  (provider mistral, model mistral-large-latest) ===
+start: 128 markers
+--- round 1/3: 128 markers remaining ---
+    round 1: 128 -> 14 markers  (176s, client exit 0)
+    pausing 10s to let the rate-limit window recover
+--- round 2/3: 14 markers remaining ---
+    round 2: 14 -> 0 markers  (18s, client exit 0)
+label:             mistral-large
+provider/model:    mistral / mistral-large-latest
+reasoning_effort:  <unset, model default>
+rounds run:        2   (r1=176s, r2=18s)
+WORK TIME:         194s   <- compare providers on this
+wall clock:        204s   (includes 10s of this script's own between-round pauses)
+per-marker:        1.5s per marker filled
+last client exit:  0
+stopped because:   all markers filled
+marker progression:128 -> 14 -> 0   (started at 128)
+markers left:      0
+CODE INTEGRITY:    PASS
+Failure+Success:   2/2 classes present
+redundant @return: 15
+tag lines ending '.': 1 of 133  (house style: omit)

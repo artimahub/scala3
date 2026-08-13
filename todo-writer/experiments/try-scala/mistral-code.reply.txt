@@ -1,0 +1,79 @@
+library/src/scala/util/Try.scala
+```scala
+<<<<<<< SEARCH
+    /** TODO FILL IN
+     *
+     *  @tparam U TODO FILL IN
+     *  @param f TODO FILL IN
+     *  @return TODO FILL IN
+     */
+    def map[U](f:     T => U): Try[U]^{Try.this, p.only[Control], f.only[Control]} = Try.this.filter(p).map(f)
+=======
+    /** Applies the given function `f` to the value if it satisfies the predicate `p`.
+     *
+     *  @tparam U the type of the value in the resulting `Try`
+     *  @param f the function to apply to the value if it satisfies `p`
+     *  @return a `Success` containing the result of applying `f` to the value if it satisfies `p`, or a `Failure` with a `NoSuchElementException` if it does not; any non-fatal exception thrown by `f` or `p` is caught and returned as a `Failure`
+     */
+    def map[U](f:     T => U): Try[U]^{Try.this, p.only[Control], f.only[Control]} = Try.this.filter(p).map(f)
+>>>>>>> REPLACE
+```
+
+library/src/scala/util/Try.scala
+```scala
+<<<<<<< SEARCH
+    /** TODO FILL IN
+     *
+     *  @tparam U TODO FILL IN
+     *  @param f TODO FILL IN
+     *  @return TODO FILL IN
+     */
+    def flatMap[U](f: T => Try[U]^): Try[U]^{Try.this, p.only[Control], f}         = Try.this.filter(p).flatMap(f)
+=======
+    /** Applies the given function `f` to the value if it satisfies the predicate `p`.
+     *
+     *  @tparam U the type of the value in the resulting `Try`
+     *  @param f the function to apply to the value if it satisfies `p`
+     *  @return the `Try` returned by `f` applied to the value if it satisfies `p`, or a `Failure` with a `NoSuchElementException` if it does not; any non-fatal exception thrown by `f` or `p` is caught and returned as a `Failure`
+     */
+    def flatMap[U](f: T => Try[U]^): Try[U]^{Try.this, p.only[Control], f}         = Try.this.filter(p).flatMap(f)
+>>>>>>> REPLACE
+```
+
+library/src/scala/util/Try.scala
+```scala
+<<<<<<< SEARCH
+    /** TODO FILL IN
+     *
+     *  @tparam U TODO FILL IN
+     *  @param f TODO FILL IN
+     */
+    def foreach[U](f: T => U): Unit                                                = Try.this.filter(p).foreach(f)
+=======
+    /** Applies the given function `f` to the value if it satisfies the predicate `p`.
+     *
+     *  @tparam U the type of the value in the resulting `Try`
+     *  @param f the function to apply to the value if it satisfies `p`
+     */
+    def foreach[U](f: T => U): Unit                                                = Try.this.filter(p).foreach(f)
+>>>>>>> REPLACE
+```
+
+library/src/scala/util/Try.scala
+```scala
+<<<<<<< SEARCH
+    /** TODO FILL IN
+     *
+     *  @param q TODO FILL IN
+     *  @return TODO FILL IN
+     */
+    def withFilter(q: T => Boolean): WithFilter^{Try.this, p, q}                   = new WithFilter(x => p(x) && q(x))
+=======
+    /** Creates a new `WithFilter` that combines the current predicate `p` with the given predicate `q`.
+     *
+     *  @param q the additional predicate to apply
+     *  @return a new `WithFilter` that applies both `p` and `q` to values
+     */
+    def withFilter(q: T => Boolean): WithFilter^{Try.this, p, q}                   = new WithFilter(x => p(x) && q(x))
+>>>>>>> REPLACE
+```

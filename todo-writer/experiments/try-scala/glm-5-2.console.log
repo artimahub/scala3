@@ -1,0 +1,20 @@
+bash: warning: setlocale: LC_ALL: cannot change locale (en_US.UTF-8)
+=== trial: glm-5-2  (provider mistral, model zai-glm-5-2) ===
+start: 128 markers
+--- round 1/3: 128 markers remaining ---
+    round 1: 128 -> 0 markers  (23s, client exit 0)
+label:             glm-5-2
+provider/model:    mistral / zai-glm-5-2
+reasoning_effort:  <unset, model default>
+rounds run:        1   (r1=23s)
+WORK TIME:         23s   <- compare providers on this
+wall clock:        23s   (includes 0s of this script's own between-round pauses)
+per-marker:        0.2s per marker filled
+last client exit:  0
+stopped because:   all markers filled
+marker progression:128 -> 0   (started at 128)
+markers left:      0
+CODE INTEGRITY:    PASS
+Failure+Success:   2/2 classes present
+redundant @return: 1
+tag lines ending '.': 1 of 118  (house style: omit)
