@@ -6,6 +6,7 @@
 #                            OpenAI-compatible endpoint, blocks applied by
 #                            direct-writer.py. PREFERRED. Endpoint = Cerebras.
 #   provider = openrouter -> same code path, endpoint = OpenRouter.
+#   provider = mistral    -> same code path, endpoint = Mistral.
 #   provider = cerebras   -> aider, OpenAI-compatible, SEARCH/REPLACE prompt
 #   provider = poolside   -> pool exec (agent), targeted-patch prompt
 #
@@ -78,9 +79,9 @@
 
 set -uo pipefail
 
-LABEL=${1:?usage: run-writer-trial.sh <label> <provider: direct|openrouter|cerebras|poolside> <model> [edit-format]}
-PROVIDER=${2:?usage: run-writer-trial.sh <label> <provider: direct|openrouter|cerebras|poolside> <model> [edit-format]}
-MODEL=${3:?usage: run-writer-trial.sh <label> <provider: direct|openrouter|cerebras|poolside> <model> [edit-format]}
+LABEL=${1:?usage: run-writer-trial.sh <label> <provider: direct|openrouter|mistral|cerebras|poolside> <model> [edit-format]}
+PROVIDER=${2:?usage: run-writer-trial.sh <label> <provider: direct|openrouter|mistral|cerebras|poolside> <model> [edit-format]}
+MODEL=${3:?usage: run-writer-trial.sh <label> <provider: direct|openrouter|mistral|cerebras|poolside> <model> [edit-format]}
 EDIT_FORMAT=${4:-diff}
 TIMEOUT=${TIMEOUT:-3600}
 # Optional: 'none' | 'low' | 'medium' | 'high'. Left unset by default so each
@@ -260,7 +261,7 @@ run_one_round() {
             --llm-history-file "$EXP/$LABEL.llm" \
             "$TARGET" >> "$EXP/$LABEL.log" 2>&1
         ;;
-      direct|openrouter)
+      direct|openrouter|mistral)
         # No coding-agent client: one user message straight to the endpoint,
         # blocks parsed and applied by direct-writer.py. See its docstring for
         # why.
@@ -268,13 +269,21 @@ run_one_round() {
         # The endpoint is chosen by the provider name; everything after this
         # point -- prompt, parsing, applying, guards, scoring -- is identical,
         # which is what keeps results comparable across services.
-        if [ "$PROVIDER" = openrouter ]; then
+        case "$PROVIDER" in
+          openrouter)
             DIRECT_BASE="${OPENROUTER_API_BASE:-https://openrouter.ai/api/v1}"
-            export DIRECT_KEY="${OPENROUTER_API_KEY:-}"
-        else
+            export DIRECT_KEY="${OPENROUTER_API_KEY:-}" ;;
+          mistral)
+            # Mistral's free "Experiment" tier: rate-limited access to all their
+            # models, including Codestral and Devstral, at ~1B tokens/month.
+            # Everything here is free, so no cost guard is needed -- unlike
+            # OpenRouter, there is no paid twin to fall through to by mistake.
+            DIRECT_BASE="${MISTRAL_API_BASE:-https://api.mistral.ai/v1}"
+            export DIRECT_KEY="${MISTRAL_API_KEY:-}" ;;
+          *)
             DIRECT_BASE="$CEREBRAS_API_BASE"
-            export DIRECT_KEY="$CEREBRAS_API_KEY"
-        fi
+            export DIRECT_KEY="$CEREBRAS_API_KEY" ;;
+        esac
         if [ -z "$DIRECT_KEY" ]; then
             echo "No API key for provider '$PROVIDER'. Expected it in $POOLSIDE_ENV_FILE_HINT." >&2
             exit 2
@@ -310,7 +319,7 @@ run_one_round() {
             >> "$EXP/$LABEL.log" 2>&1
         ;;
       *)
-        echo "Unknown provider: $PROVIDER (want direct, openrouter, cerebras or poolside)" >&2; exit 2 ;;
+        echo "Unknown provider: $PROVIDER (want direct, openrouter, mistral, cerebras or poolside)" >&2; exit 2 ;;
     esac
     ) &
     client_pid=$!
