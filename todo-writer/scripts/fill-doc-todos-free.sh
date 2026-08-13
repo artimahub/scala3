@@ -73,7 +73,7 @@ STYLE_MODEL=${STYLE_MODEL:-gpt-oss-120b};                  STYLE_PROVIDER=${STYL
 ADJUDICATOR_MODEL=${ADJUDICATOR_MODEL:-zai-glm-5-2};      ADJUDICATOR_PROVIDER=${ADJUDICATOR_PROVIDER:-mistral}
 MAX_TOKENS=${MAX_TOKENS:-32000}
 RATE_LIMIT_BACKOFF=${RATE_LIMIT_BACKOFF:-20}   # doubles per retry: 20, 40, 80
-PROVIDER_SPACING=${PROVIDER_SPACING:-15}       # gap between same-provider calls
+PROVIDER_SPACING=${PROVIDER_SPACING:-30}       # gap between same-provider calls
 DRY_RUN=${DRY_RUN:-false}
 MARKER="TODO FILL IN"
 
@@ -197,7 +197,13 @@ json_call() {
     local prov=$1 model=$2 sysf=$3 usrf=$4 out=$5
     local base key req raw attempt delay err
     base=$(provider_base "$prov"); key=$(provider_key "$prov")
-    req="$WORK_DIR/req.$$.json"; raw="$WORK_DIR/raw.$$.json"
+    # Unique per CALL, not per process. $$ is the script's pid and is identical
+    # inside both background subshells, so the two reviewers running in parallel
+    # were writing and reading the same request file. They raced, and both came
+    # back "no parseable content" -- which looked like a provider failure and was
+    # not. Keying off the output path gives one file per role.
+    local tag; tag=$(basename "$out" .json)
+    req="$WORK_DIR/req.$tag.json"; raw="$WORK_DIR/raw.$tag.json"
     jq -n --arg m "$model" --arg s "$(cat "$sysf")" --arg u "$(cat "$usrf")" --argjson mt "$MAX_TOKENS" \
       '{model:$m, max_tokens:$mt, response_format:{type:"json_object"},
         messages:[{role:"system",content:$s},{role:"user",content:$u}]}' > "$req"
