@@ -225,9 +225,60 @@ The $10 credit is not wasted -- it raises the free daily cap from 50 to 1000
 requests, and OpenRouter remains the only route to models no one else hosts. But
 it is not the path for the PR schedule.
 
+## Paid OpenRouter models -- and the answer
+
+The free-tier failures prompted the obvious question: how much do the paid
+models actually cost? Measured from 8 real runs (avg 8,520 prompt + 11,701
+completion tokens per request), a **whole 36-file PR is 11 to 32 cents**. The
+$10 credit covers the entire remaining schedule roughly 30 times over.
+
+So "free tier" was the wrong thing to optimise. Six paid models on the same
+`Try.scala`, under 25 cents for all six combined. Branch: `exp/try-paid`.
+
+| Model | Work time | Markers | Integrity | Redundant `@return` | `isSuccess` right | `NonFatal` | PR cost |
+|---|---:|---:|---|---:|---|---|---:|
+| **`qwen/qwen3-coder-next`** | **26s** | 128 -> 0 | PASS | **1** | **yes** | **yes** | ~$0.37 |
+| `qwen/qwen3-coder-plus` | 61s | 128 -> 0 | PASS | 11 | yes | yes | ~$1.57 |
+| `qwen/qwen3-coder` | 126s | 128 -> 0 | PASS | 11 | yes | yes | ~$0.51 |
+| `qwen/qwen3-coder-30b-a3b-instruct` | 143s | 128 -> 0 | PASS | 14 | yes | yes | ~$0.24 |
+| `z-ai/glm-4.7-flash` | 201s | 128 -> 122 | PASS | 0\* | - | - | ~$0.32 |
+| `openai/gpt-oss-120b` | 420s | 128 -> 128 | n/a | - | - | - | ~$0.14 |
+
+\* glm-4.7-flash filled almost nothing (56 blocks parsed, 3 applied, 39 did not
+match), so its zero is an artifact of an empty run, not good behaviour.
+
+### qwen3-coder-next is the answer
+
+It is the **first model to do both things well**. The whole comparison until now
+was a trade-off: gpt-oss-120b followed the conditional `@return` DROP rule (1
+violation) but wrote a wrong `isSuccess`; GLM and gemma were accurate but left
+10-12 redundant tags. qwen3-coder-next has 1 redundant tag AND both accuracy
+probes right, in 26 seconds, for about 37 cents per PR.
+
+That it is a **coding-specialised** model is the likeliest explanation, and it
+was the class of model this search wanted from the start -- `qwen3-coder-480b`
+was the original target before it turned out not to exist.
+
+### gpt-oss-120b: the same model, different service
+
+It failed twice through OpenRouter -- first `Reasoning is mandatory for this
+endpoint and cannot be disabled`, then a 420s timeout with reasoning left on --
+while being fast and reliable on Cerebras (11s, full fill). Same weights, same
+prompt, same harness. Which service routes a model matters as much as the model.
+
+### A caveat on the qwen block style
+
+The qwen models emit **very few, very large** blocks: qwen3-coder-30b filled the
+file with 3 blocks of 30, 116 and 114 lines. That means reproducing 100+ lines
+verbatim, which is exactly where laguna deleted a public method and a public
+class. Integrity passed every time here, but the margin is thinner than a model
+emitting 42 small blocks. Keep the integrity guard on for these especially.
+
 ## Still open
 
 - Re-run `laguna-s-2.1` through `pool` to replace the lost output.
+- Re-run `qwen3-coder-next` on a second file before committing to it; one file
+  is one data point, and its few-large-blocks style deserves more evidence.
 - Finish the OpenRouter trials. Free models with adequate output budget:
   `cohere/north-mini-code:free` (the only code-specialised one),
   `nvidia/nemotron-3-super-120b-a12b:free`, `nvidia/nemotron-3-ultra-550b-a55b:free`,
