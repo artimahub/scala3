@@ -147,20 +147,32 @@ if [ "$PROVIDER" = openrouter ]; then
     if [ -z "${OPENROUTER_API_KEY:-}" ]; then
         echo "OPENROUTER_API_KEY is not set." >&2; exit 2
     fi
-    price=$(curl -s --max-time 30 https://openrouter.ai/api/v1/models \
+    pricing=$(curl -s --max-time 30 https://openrouter.ai/api/v1/models \
               -H "Authorization: Bearer $OPENROUTER_API_KEY" -H "User-Agent: curl/8.5.0" \
-            | jq -r --arg m "$MODEL" '.data[] | select(.id==$m) | .pricing.prompt' 2>/dev/null)
-    if [ -z "$price" ]; then
+            | jq -r --arg m "$MODEL" '.data[] | select(.id==$m) | "\(.pricing.prompt) \(.pricing.completion)"' 2>/dev/null)
+    if [ -z "$pricing" ]; then
         echo "REFUSING: '$MODEL' is not in OpenRouter's catalogue." >&2
         echo "List free ones with: curl -s https://openrouter.ai/api/v1/models -H \"Authorization: Bearer \$OPENROUTER_API_KEY\" | jq -r '.data[]|select(.pricing.prompt==\"0\")|.id'" >&2
         exit 2
     fi
-    if [ "$price" != "0" ]; then
-        echo "REFUSING: '$MODEL' is NOT free (prompt price $price per token)." >&2
-        echo "This would spend real credits. Use a ':free' model id." >&2
-        exit 2
+    p_in=${pricing%% *}; p_out=${pricing##* }
+    if [ "$p_in" = "0" ]; then
+        echo "cost guard: '$MODEL' is free (prompt price 0)"
+    else
+        # Estimated from what these trials actually consume: measured across 8
+        # real runs, avg 8520 prompt + 11701 completion tokens per request.
+        # Worst case is MAX_ROUNDS requests; most models finish in 1-2.
+        est=$(awk -v i="$p_in" -v o="$p_out" -v r="$MAX_ROUNDS" \
+                'BEGIN{printf "%.4f", (8520*i + 11701*o) * r}')
+        echo "cost guard: '$MODEL' is PAID -- in \$$(awk -v x="$p_in" 'BEGIN{printf "%.2f", x*1000000}')/M, out \$$(awk -v x="$p_out" 'BEGIN{printf "%.2f", x*1000000}')/M"
+        echo "            worst case this trial (${MAX_ROUNDS} rounds): about \$$est"
+        if [ "${ALLOW_PAID:-}" != "1" ]; then
+            echo "REFUSING: this would spend real credits." >&2
+            echo "Re-run with ALLOW_PAID=1 if that is intended." >&2
+            exit 2
+        fi
+        echo "            ALLOW_PAID=1 set, proceeding."
     fi
-    echo "cost guard: '$MODEL' confirmed free (prompt price 0)"
 fi
 # Fail loudly rather than silently running with aider's fallback caps, which is
 # what made zai-glm-4.7 look broken.
