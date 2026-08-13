@@ -331,7 +331,6 @@ for index in "${!TARGETS[@]}"; do
     check_pause "before writer: $REL"
 
     # ---- Writer -------------------------------------------------------------
-    log "  writer: drafting ($WRITER_PROVIDER/$WRITER_MODEL)..."
     render "$ABS" "$PROMPTS_DIR/doc-writer-prompt-direct.txt" > "$WORK_DIR/${SAFE}.wprompt"
     house_rules >> "$WORK_DIR/${SAFE}.wprompt"
     # ---- Writer loop --------------------------------------------------------
