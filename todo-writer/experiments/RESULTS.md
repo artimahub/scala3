@@ -1,290 +1,260 @@
-# Free-tier writer trials: results
+# Free-model writer study
 
-Which free-tier model can fill missing Scaladoc well enough to drive the
+Can a free-tier model fill missing Scaladoc well enough to drive the
 missing-documentation PR schedule (`docs/missing-doc-schedule.md`), so the
-remaining ~8 PRs do not consume Claude Code or Codex budget.
+remaining ~8 PRs stop consuming Claude Code and Codex budget?
+
+**Yes.** Twenty-six trials across four providers and three clients.
+
+## The answer, up front
+
+| Role | Model | Provider | Why |
+|---|---|---|---|
+| Writer + adjudicator | **`zai-glm-5-2`** | Mistral | 23s, full fill, 1 redundant `@return`, both accuracy probes right |
+| Accuracy reviewer | **`gemma-4-31b`** | Cerebras | passes both accuracy probes; different family from the writer |
+| Style reviewer | **`mistral-medium-latest`** or `gpt-oss-120b` | Mistral / Cerebras | 2 and 1 redundant tags -- the best convention-followers |
+
+All free. Three independent model families, which is what makes reviewer
+disagreement meaningful.
+
+The bigger finding is not about models at all: **most apparent model failures in
+this study were client failures.** See "The harness mattered more than the
+models".
 
 ## The test
 
 Every trial fills the **same input**: `library/src/scala/util/Try.scala` with
-todo-writer's markers in place -- 42 declarations, 128 `TODO FILL IN`
-placeholders. Committed on `exp/try-baseline` and copied to
-`experiments/try-scala/Try.scala.MARKED-input`.
+todo-writer's markers -- 42 declarations, 128 `TODO FILL IN` placeholders.
+Committed on `exp/try-baseline`, copied to `try-scala/Try.scala.MARKED-input`.
 
-Driven by `run-writer-trial.sh <label> <provider> <model>`, which resets the
-file, loops until the markers are gone, and scores four guards:
+`run-writer-trial.sh <label> <provider> <model>` resets the file, loops until the
+markers are gone, and scores:
 
-1. **Code integrity** -- strip comment lines before and after, diff them. A run
-   once deleted an entire public class while the marker count, the edit count
-   and the diffstat all reported success; only this caught it.
+1. **Code integrity** -- strip comment lines before and after, diff them. Any
+   change to a non-comment line fails the round, which is rolled back.
 2. **Markers left** -- 0 means fully filled.
-3. **Redundant `@return`** -- the project's DROP rule, the most-missed convention.
+3. **Redundant `@return`** -- the project's DROP rule: delete `@return` when the
+   description already begins "Returns" and states the whole return value.
 4. **Trailing periods on tag lines** -- a house-style deviation.
 
-Plus two accuracy spot-checks done by hand, chosen because they are where a
-model produces plausible-but-wrong prose:
+Plus two hand-checked accuracy probes, chosen because they are where a model
+writes plausible-but-wrong prose:
 
-- `Failure.isSuccess` returns `false`. Does the doc say so, or does it describe
-  the method's *name*?
+- `Failure.isSuccess` returns `false`. Does the doc say so, or does it just
+  describe the method's *name*?
 - `Failure.orElse` is `try default catch { case NonFatal(e) => Failure(e) }`.
   Is that guarantee documented at all?
 
 ## Results
 
-| Model | Provider / client | Rounds | Work time | Markers | Integrity | Redundant `@return` | `isSuccess` right | `NonFatal` documented | Branch |
-|---|---|---|---|---|---|---|---|---|---|
-| `gpt-oss-120b` | direct / Cerebras | 2 | **11s** | 128 -> 0 | PASS | **1** | no | yes | `exp/try-gpt-oss-120b-direct` |
-| `gemma-4-31b` | direct / Cerebras | 1 | **3s** | 128 -> 0 | PASS | 10 | yes | yes | `exp/try-gemma-4-31b` |
-| `zai-glm-4.7` | direct / Cerebras | 1 | **5s** | 128 -> 0 | PASS | 12 | yes | yes | `exp/try-zai-glm-4.7` |
-| `gpt-oss-120b` | aider / Cerebras | 3 | 319s | 128 -> 0 | PASS | 1 | no | yes | `exp/try-gpt-oss-120b` |
-| `zai-glm-4.7` | aider / Cerebras | 1 | 60s | **128 -> 128** | n/a | n/a | n/a | n/a | `exp/try-zai-glm-4.7` |
-| `laguna-s-2.1` | pool / poolside | 1 | ~2040s | 128 -> 0 | PASS | 1 | yes | yes | output lost, see below |
+Work time excludes the runner's own between-round pauses. Provider rate-limit
+backoff is left in, being a real cost of that service.
 
-Work time excludes the runner's own between-round pauses; rate-limit backoff
-inside a round is left in, since that is a real cost of a free tier.
+### Models that completed the file
 
-`laguna-s-2.1`'s generated file was lost to a devcontainer rebuild before
-`experiments/` existed (it was written to `/tmp`, which is overlay storage). The
-metrics are from the session record; the run itself passed every guard. It is
-worth re-running for a complete table.
+| Model | Provider | Client | Time | Redundant `@return` | `isSuccess` | `NonFatal` |
+|---|---|---|---:|---:|---|---|
+| **`zai-glm-5-2`** | Mistral | direct | **23s** | **1** | yes | yes |
+| `qwen3-coder-next` | OpenRouter (paid) | direct | 26s | **1** | yes | yes |
+| `gpt-oss-120b` | Cerebras | direct | 11s | **1** | **no** | yes |
+| `mistral-medium-latest` | Mistral | direct | 72s | 2 | yes | yes |
+| `gemma-4-31b` | Cerebras | direct | 3s | 10 | yes | yes |
+| `devstral-medium-latest` | Mistral | direct | 56s | 10 | yes | yes |
+| `codestral-latest` | Mistral | direct | 71s | 11 | yes | yes |
+| `mistral-code-latest` | Mistral | direct | 60s | 11 | **no** | yes |
+| `qwen3-coder` | OpenRouter (paid) | direct | 126s | 11 | yes | yes |
+| `qwen3-coder-plus` | OpenRouter (paid) | direct | 61s | 11 | yes | yes |
+| `zai-glm-4.7` | Cerebras | direct | 5s | 12 | yes | yes |
+| `qwen3-coder-30b-a3b` | OpenRouter (paid) | direct | 143s | 14 | yes | yes |
+| `mistral-large-latest` | Mistral | direct | 194s | 15 | yes | yes |
+| `gpt-oss-120b` | Cerebras | aider | 319s | 1 | no | yes |
+| `laguna-s-2.1` | poolside | pool | ~2040s | 1 | yes | yes |
 
-## What the numbers say
+`laguna-s-2.1`'s file was lost to a rebuild before `experiments/` existed; its
+metrics come from the session record.
 
-**No model wins outright.** The two capabilities that matter come apart:
+### Models that did not
 
-- `gpt-oss-120b` is far the best at the conditional `@return` DROP rule -- 1
-  violation against 10 and 12 -- and is the *only* model that writes a wrong
-  doc: `Indicates that this Try is a Success` on `isSuccess: Boolean = false`.
-- `gemma-4-31b` and `zai-glm-4.7` get the accuracy checks right and document the
-  `NonFatal` guarantee more thoroughly, but neither reliably applies a
-  two-condition rule.
+| Model | Provider | Time | Markers | Why |
+|---|---|---:|---:|---|
+| `devstral-latest` | Mistral | 157s | 14 left | stalled; 4 blocks never matched |
+| `laguna-s-2.1:free` | OpenRouter | 181s | 64 left | slow, half done in 2 rounds |
+| `laguna-xs-2.1:free` | OpenRouter | 280s | 122 left | **deleted a method**, rolled back |
+| `glm-4.7-flash` | OpenRouter (paid) | 201s | 122 left | 56 blocks parsed, 3 applied |
+| `north-mini-code:free` | OpenRouter | 1011s | 128 left | reasoning=32,910, empty content |
+| `nemotron-3.5-lightning:free` | OpenRouter | 100s | 128 left | 25,173/26,550 tokens on reasoning |
+| `nemotron-3-super-120b:free` | OpenRouter | 601s | 128 left | timed out, no response |
+| `gpt-oss-20b:free` | OpenRouter | 0s | 128 left | HTTP 429, shared upstream pool |
+| `gemma-4-26b-a4b-it:free` | OpenRouter | 348s | 128 left | 0 blocks -- wrong format |
+| `ling-3.0-tiny:free` | OpenRouter | 13s | 128 left | 0 blocks -- wrong format |
+| `gpt-oss-120b` (paid) | OpenRouter | 420s | 128 left | timed out; **works fine on Cerebras** |
+| `zai-glm-4.7` | Cerebras (aider) | 60s | 128 left | empty content -- aider's fault, see below |
 
-That split is a **model property, not a prompt problem**. All three were run
-through the identical code path with the identical prompt specifically to test
-this, after an attempt to fix it by raising the DROP worked example into the
-prompt's format section moved GLM only from 14 to 12.
+A `redundant @return` score on a failed run measures the unfilled baseline, not
+the model. Ignore it for anything in this table.
 
-The practical reading: pick a writer for accuracy and let the reviewers catch
-convention violations. Redundant `@return` is exactly what the style reviewer
-flags; a wrong `isSuccess` is exactly what the Codex accuracy reviewer flags.
+## What we learned about models
+
+**Two capabilities, and they used to come apart.** Following the conditional
+`@return` DROP rule and writing accurate prose looked like separate skills:
+`gpt-oss-120b` scored 1 on the rule but wrote a wrong `isSuccess`, while
+`gemma-4-31b` and `zai-glm-4.7` were accurate but scored 10 and 12. Running all
+three through the identical path with the identical prompt confirmed it was a
+model property, not prompt wording -- raising the DROP example into the prompt's
+format section moved GLM only from 14 to 12.
+
+**Newer models do both.** `zai-glm-5-2` scores **1** where its predecessor
+`zai-glm-4.7` scored 12, and passes both accuracy probes. Same family, one
+version apart. So the split was a model-maturity artifact, not a law.
+
+**Code specialisation did not predict quality.** A reasonable prior, and wrong:
+`codestral` (11), `mistral-code` (11) and `devstral-medium` (10) all trailed the
+general-purpose `mistral-medium` (2) and `zai-glm-5-2` (1). `mistral-code-latest`
+was also one of only two models to write a wrong `isSuccess`.
+
+**Reasoning models are a hazard here.** They emit into a separate `reasoning`
+channel before any `content`, and with a large output budget they can spend all
+of it thinking. `north-mini-code` burned 32,910 reasoning tokens and returned
+nothing, in 16 minutes. Disabling reasoning is provider-specific:
+`reasoning_effort: "none"` on Cerebras, `reasoning: {"enabled": false}` on
+OpenRouter. Send the wrong spelling and it is silently ignored.
+
+**Block style is a risk signal.** Models emitting few, very large blocks
+(qwen filled the file with 3 blocks of 30, 116 and 114 lines) must reproduce
+100+ lines byte-exactly. That is where both code deletions happened. A model
+emitting 42 small blocks has far more margin.
 
 ## The harness mattered more than the models
 
-Getting a usable answer took longer than it should have because failures kept
-looking like model limitations when they were client problems.
+Most of the elapsed effort went here, because failures kept looking like model
+limitations when they were client problems.
 
 | Client | Outcome |
 |---|---|
-| **aider** | Broke 3 of 4 models, each differently (below) |
-| **Codex CLI** | Its own tool router rejected the model's call: `unsupported call: read` |
-| **pool** | Worked first time for laguna; cannot reach Cerebras (sends `cache_control` fields it rejects) |
-| **direct** | Worked for every model tried |
+| **aider** | broke 3 of 4 models, each differently |
+| **Codex CLI** | its own tool router rejected the model's call: `unsupported call: read` |
+| **pool** | worked first time for laguna; cannot reach Cerebras (sends `cache_control` fields it rejects) |
+| **direct** | worked for every model tried |
 
 Aider's three failures:
 
 - `laguna-s-2.1` could not emit SEARCH/REPLACE at all. Whole-file mode complied
   but **silently deleted the `Failure` case class**, 35 lines, while the marker
   count, `edits applied: 1` and a plausible diffstat all reported success.
-- `gpt-oss-120b` was fed lint errors from a tree-sitter grammar that cannot
-  parse Scala 3 capture checking, so it was asked to "fix" correct code like
-  `def flatMap[U](f: T => Try[U]^): Try[U]^{this, f}`. That both wasted rounds
-  and invited the model to edit Scala, which the prompt forbids.
+- `gpt-oss-120b` was fed lint errors from a tree-sitter grammar that cannot parse
+  Scala 3 capture checking, so it was told to "fix" correct code like
+  `def flatMap[U](f: T => Try[U]^): Try[U]^{this, f}`. That wasted rounds and
+  actively invited the model to edit Scala, which the prompt forbids.
 - `zai-glm-4.7` returned empty `content` in three configurations. Through
-  `direct` the same model, file and endpoint filled everything in 5 seconds.
+  `direct`, the same model, file and endpoint filled everything in 5 seconds.
 
-`direct-writer.py` exists because of that: one user message, no system prompt,
-no few-shot examples, no linter. It parses SEARCH/REPLACE blocks and applies
-each only where its SEARCH text occurs **exactly once**, so the file can only
-change where a block matched.
+`direct-writer.py` exists because of that: one user message, no system prompt, no
+few-shot examples, no linter. It parses SEARCH/REPLACE blocks and applies each
+only where its SEARCH text occurs **exactly once**, so the file can only change
+where a block matched.
 
-Two bugs found only by running it live, both now fixed:
+Three bugs in it, all found only by running it live:
 
-- **HTTP 403 `error code: 1010`** -- Cerebras and OpenRouter both sit behind
-  Cloudflare, which rejects urllib's default `Python-urllib/3.11` User-Agent as
-  a bot signature. Every earlier probe used curl, so it never showed up.
+- **HTTP 403 `error code: 1010`** -- Cerebras and OpenRouter sit behind
+  Cloudflare, which rejects urllib's default `Python-urllib/3.11` User-Agent as a
+  bot signature. Every earlier probe used curl, so it never showed up.
 - **Zero blocks parsed** -- the aider prompt only *names* the SEARCH/REPLACE
-  format; aider supplies the literal shape itself. Sent bare, GLM replied with
-  plain ```scala fences. `doc-writer-prompt-direct.txt` spells the format out.
+  format; aider supplies the literal shape via its system prompt and few-shot
+  examples. Sent bare, models replied with plain ```scala fences.
+  `doc-writer-prompt-direct.txt` spells the format out literally.
+- **JSONDecodeError** -- OpenRouter emits keepalive lines (blanks and spaces)
+  *before* the JSON body during long generations. `json.loads` rejects that; `jq`
+  tolerates it, which is why every curl probe worked and the first real run died.
 
-## Branches
+## The integrity guard earned its place twice
+
+Two models silently removed code while filling comments, and **only the
+strip-comments diff noticed**:
+
+- `laguna-s-2.1` under aider's whole-file mode deleted the entire `Failure` case
+  class (35 lines), leaving 68 dangling references. The file could not compile.
+- `laguna-xs-2.1:free` filled 107 markers and deleted
+  `override def foreach[U](f: T => U): Unit = ()` in the same round.
+
+In both cases every other signal read as success: `finish_reason: stop`, blocks
+parsed and applied, a fast-dropping marker count, a plausible diffstat. Keep this
+check in the real pipeline regardless of which model wins.
+
+## Providers
+
+| Provider | Cost | Verdict |
+|---|---|---|
+| **Mistral** | free ("Experiment", ~1B tokens/month) | **best free tier.** All models, generous quota, every trial passed integrity |
+| **Cerebras** | free | fast (3-11s), dedicated capacity, but only 3 models and `zai-glm-4.7` is deprecated 17 Aug |
+| **OpenRouter** `:free` | free | **unusable.** Shared upstream pools: 429s, timeouts, 8 models tried, 0 usable |
+| **OpenRouter** paid | ~$0.11-0.32 per PR | works well; useful for models nobody else hosts |
+| **poolside** | free | works via `pool`, but ~34 min per file |
+
+**On OpenRouter paid**: a whole 36-file PR costs 11-32 cents, so the $10 credit
+covers the remaining schedule ~30 times over. Optimising for "free" was largely
+the wrong goal -- **reviewer budget dominates writer cost.** One extra review
+round across 36 files costs more Claude Code budget than the entire OpenRouter
+bill for the campaign.
+
+**Same model, different service, different result**: `gpt-oss-120b` fills the
+file in 11s on Cerebras and times out at 420s through OpenRouter. Which service
+routes a model matters as much as the model.
+
+## Branch map
 
 | Branch | Holds |
 |---|---|
 | `exp/try-baseline` | `Try.scala` with its 128 markers -- the fixed starting point |
-| `exp/try-gpt-oss-120b` | aider run |
-| `exp/try-gpt-oss-120b-direct` | direct run |
-| `exp/try-zai-glm-4.7` | three aider failures **and** the working direct run |
+| `exp/try-mistral` | all 7 Mistral trials |
+| `exp/try-paid` | all 6 paid-OpenRouter trials |
+| `exp/try-openrouter` | all 8 free-OpenRouter trials |
+| `exp/try-gpt-oss-120b` / `-direct` | aider and direct runs |
 | `exp/try-gemma-4-31b` | direct run |
-| `exp/try-openrouter` | all eight OpenRouter trials |
-| `exp/try-north-mini-code` | the first OpenRouter attempt, before the reasoning and keepalive fixes |
+| `exp/try-zai-glm-4.7` | three aider failures **and** the working direct run |
+| `exp/try-north-mini-code` | first OpenRouter attempt, pre-fixes |
 | `exp/wk4-marked-wip` | the full week-4 partition marked, 36 files |
 | `feature-todo-writer` | the harness: runner, `direct-writer.py`, prompts, pipeline |
 
 Each trial branch carries the filled `Try.scala`, a `.result.txt` scorecard, the
-raw model reply (`.reply.txt`) and the logs. Logs survive because
-`experiments/.gitignore` negates upstream's `*.log` rule -- without it the
-diagnostics every finding here rests on would be silently dropped.
+raw model reply and the logs. Logs survive because `experiments/.gitignore`
+negates upstream's `*.log` rule -- without it, the diagnostics every finding here
+rests on would be silently dropped.
 
-## Gotchas worth remembering
+## Gotchas
 
 - **A client's exit code is not the completion signal.** aider exited 0 having
   abandoned its retries with 63 of 128 markers left. The marker count decides.
-- **`qwen/qwen3-coder-480b:free` does not exist.** Model ids from search results
-  and blog posts go stale; check `/v1/models` and confirm `pricing.prompt == 0`
-  before building a trial around one.
-- **OpenRouter's $10 raises the free-model daily cap from 50 to 1000 requests.**
-  Irrelevant for these trials (a whole file is 1-2 requests) but necessary for a
-  real partition: 36 files x ~2 rounds is ~72 writer requests.
+- **`grep -c` exits 1 when the count is zero**, so `grep -c ... || echo 0` prints
+  "0\n0" and breaks every numeric test downstream. This bit the loop script and
+  a status check.
+- **Model ids from search results and blog posts go stale.**
+  `qwen/qwen3-coder-480b:free` does not exist; every qwen3-coder that does is
+  paid. Always check `/v1/models` first.
 - **A `:free` id is a different model from its paid twin.** Dropping the suffix
-  silently switches to the paid one. `run-writer-trial.sh` now refuses any
-  OpenRouter model whose live `pricing.prompt` is not `0`, and refuses ids that
-  are not in the catalogue at all.
+  silently switches to the paid one. The runner now refuses any OpenRouter model
+  whose live `pricing.prompt` is not `0` unless `ALLOW_PAID=1`, and prices the
+  run before spending.
+- **A small viability probe does not predict real behaviour.** A 400-token "say
+  PONG" said three OpenRouter models were healthy and fast; all three then failed
+  on an 8K-in/32K-out request.
 - **Commit before switching branches.** Uncommitted results ride along silently
   and can land on the wrong branch.
-
-## OpenRouter free tier
-
-Tried after Cerebras, on the same input through the same `direct` path. Branch:
-`exp/try-openrouter`, which holds every OpenRouter result together.
-
-**Nothing usable came out of it.** Eight models tried; not one both filled the
-file and passed the guards.
-
-| Model | Reasoning | Work time | Markers | Integrity | What happened |
-|---|---|---|---:|---|---|
-| `openai/gpt-oss-20b:free` | default | 0s | 128 -> 128 | n/a | HTTP 429, rate-limited upstream |
-| `nvidia/nemotron-3-super-120b-a12b:free` | default | 601s | 128 -> 128 | n/a | timed out, no response at all |
-| `nvidia/nemotron-3.5-lightning:free` | default | 100s | 128 -> 128 | PASS | 25,173 of 26,550 tokens on reasoning; 4 blocks, none matched |
-| `cohere/north-mini-code:free` | default | 1011s | 128 -> 128 | PASS | reasoning=32,910, `content` empty, 0 blocks |
-| `poolside/laguna-s-2.1:free` | off | 181s | 128 -> **64** | PASS | worked, but slow and only half done in 2 rounds |
-| `poolside/laguna-xs-2.1:free` | off | 280s | 128 -> 122 | **FAIL** | **deleted a method**; round rolled back |
-| `google/gemma-4-26b-a4b-it:free` | off | 348s | 128 -> 128 | PASS | replied, but 0 blocks -- wrong format |
-| `inclusionai/ling-3.0-tiny:free` | off | 13s | 128 -> 128 | PASS | replied, but 0 blocks -- wrong format |
-
-### The three failure modes
-
-**Shared upstream pools.** `:free` variants route through a pool shared with
-every other free user, so you queue behind them. gpt-oss-20b returned
-`limit_source: upstream_provider_shared_pool` before doing any work, and
-nemotron-super-120b never answered at all. This is structurally different from
-Cerebras, where an own key against their own hardware finished the same file in
-3-12 seconds.
-
-**Reasoning eats the budget.** Free models here skew towards reasoning models,
-which emit into a separate channel before any `content`. Given a 32K budget they
-can spend all of it thinking: north-mini-code burned 32,910 reasoning tokens and
-returned nothing, in 16 minutes. Disabling reasoning is what made laguna work at
-all, and OpenRouter spells that `reasoning: {"enabled": false}` where Cerebras
-uses `reasoning_effort: "none"` -- send the wrong one and it is silently ignored.
-
-**Smaller models cannot produce the format.** gemma-4-26b and ling-3.0-tiny both
-replied normally with reasoning off -- `finish_reason: stop`, thousands of
-content tokens -- and yielded **zero** parseable blocks. They wrote something
-else entirely. On Cerebras the same size class (gemma-4-31b) managed 42 of 42,
-so this is about these particular models, not about model size as such.
-
-**A viability probe does not predict real behaviour.** A 400-token "say PONG"
-request said north-mini-code, nemotron-super-120b and gpt-oss-20b were all
-healthy and fast. All three then failed on an 8K-token prompt asking for 32K of
-output. The shared pool copes with toy requests and collapses under real ones.
-
-### The guard caught a live code deletion
-
-`poolside/laguna-xs-2.1:free` round 2 filled 107 markers (122 -> 15) and, while
-doing it, deleted a public method:
-
-```
-54d53
-<   override def foreach[U](f: T => U): Unit = ()
-```
-
-The strip-comments integrity check caught it, rolled the whole round back, and
-stopped the trial. Every other signal looked like success: `finish_reason: stop`,
-21 blocks parsed, 18 applied, a big drop in the marker count. Without the guard
-that is a PR with a missing method and 107 plausible new comments.
-
-This is the second time a model has silently removed code while filling comments
--- laguna-s-2.1 deleted the entire `Failure` class under aider's whole-file mode.
-Both times it was the same model family, and both times only this check noticed.
-
-### One thing OpenRouter did establish
-
-`laguna-s-2.1` emitted valid SEARCH/REPLACE blocks here (9 parsed, 9 applied),
-which it could never do through aider. So its earlier failure was aider's
-prompt scaffolding, not an inability to produce the format -- consistent with
-what the GLM investigation found.
-
-### Verdict
-
-Cerebras is the better free tier for this workload by a wide margin: dedicated
-capacity, 3-12 second fills, and three models that complete the file. OpenRouter's
-value is breadth of catalogue, not throughput, and the shared free pool is not
-suited to an 8K-in/32K-out job repeated across 36 files.
-
-The $10 credit is not wasted -- it raises the free daily cap from 50 to 1000
-requests, and OpenRouter remains the only route to models no one else hosts. But
-it is not the path for the PR schedule.
-
-## Paid OpenRouter models -- and the answer
-
-The free-tier failures prompted the obvious question: how much do the paid
-models actually cost? Measured from 8 real runs (avg 8,520 prompt + 11,701
-completion tokens per request), a **whole 36-file PR is 11 to 32 cents**. The
-$10 credit covers the entire remaining schedule roughly 30 times over.
-
-So "free tier" was the wrong thing to optimise. Six paid models on the same
-`Try.scala`, under 25 cents for all six combined. Branch: `exp/try-paid`.
-
-| Model | Work time | Markers | Integrity | Redundant `@return` | `isSuccess` right | `NonFatal` | PR cost |
-|---|---:|---:|---|---:|---|---|---:|
-| **`qwen/qwen3-coder-next`** | **26s** | 128 -> 0 | PASS | **1** | **yes** | **yes** | ~$0.37 |
-| `qwen/qwen3-coder-plus` | 61s | 128 -> 0 | PASS | 11 | yes | yes | ~$1.57 |
-| `qwen/qwen3-coder` | 126s | 128 -> 0 | PASS | 11 | yes | yes | ~$0.51 |
-| `qwen/qwen3-coder-30b-a3b-instruct` | 143s | 128 -> 0 | PASS | 14 | yes | yes | ~$0.24 |
-| `z-ai/glm-4.7-flash` | 201s | 128 -> 122 | PASS | 0\* | - | - | ~$0.32 |
-| `openai/gpt-oss-120b` | 420s | 128 -> 128 | n/a | - | - | - | ~$0.14 |
-
-\* glm-4.7-flash filled almost nothing (56 blocks parsed, 3 applied, 39 did not
-match), so its zero is an artifact of an empty run, not good behaviour.
-
-### qwen3-coder-next is the answer
-
-It is the **first model to do both things well**. The whole comparison until now
-was a trade-off: gpt-oss-120b followed the conditional `@return` DROP rule (1
-violation) but wrote a wrong `isSuccess`; GLM and gemma were accurate but left
-10-12 redundant tags. qwen3-coder-next has 1 redundant tag AND both accuracy
-probes right, in 26 seconds, for about 37 cents per PR.
-
-That it is a **coding-specialised** model is the likeliest explanation, and it
-was the class of model this search wanted from the start -- `qwen3-coder-480b`
-was the original target before it turned out not to exist.
-
-### gpt-oss-120b: the same model, different service
-
-It failed twice through OpenRouter -- first `Reasoning is mandatory for this
-endpoint and cannot be disabled`, then a 420s timeout with reasoning left on --
-while being fast and reliable on Cerebras (11s, full fill). Same weights, same
-prompt, same harness. Which service routes a model matters as much as the model.
-
-### A caveat on the qwen block style
-
-The qwen models emit **very few, very large** blocks: qwen3-coder-30b filled the
-file with 3 blocks of 30, 116 and 114 lines. That means reproducing 100+ lines
-verbatim, which is exactly where laguna deleted a public method and a public
-class. Integrity passed every time here, but the margin is thinner than a model
-emitting 42 small blocks. Keep the integrity guard on for these especially.
+- **`/tmp` and `/home/node` are overlay storage** and are destroyed by a
+  devcontainer rebuild. An early set of generated files was lost that way. Only
+  `/workspace` (bind mount) and the named volumes survive.
+- **Aider drops `.aider*` files in the git root**, and `.aider*` is not gitignored
+  in scala3 -- a public fork PRs are opened from.
 
 ## Still open
 
-- Re-run `laguna-s-2.1` through `pool` to replace the lost output.
-- Re-run `qwen3-coder-next` on a second file before committing to it; one file
-  is one data point, and its few-large-blocks style deserves more evidence.
-- Finish the OpenRouter trials. Free models with adequate output budget:
-  `cohere/north-mini-code:free` (the only code-specialised one),
-  `nvidia/nemotron-3-super-120b-a12b:free`, `nvidia/nemotron-3-ultra-550b-a55b:free`,
-  `openai/gpt-oss-20b:free`. `poolside/laguna-s-2.1:free` and
-  `google/gemma-4-31b-it:free` are useful **controls** -- same models measured
-  elsewhere, so they isolate what OpenRouter's routing itself changes.
-- Test a writer through the full pipeline (`fill-doc-todos-poolside.sh`), since
-  every result here is writer-only. The reviewers and the adjudicator are what
-  would catch the defects the guards above only count.
+- **Nothing has been run through the full pipeline.** Every result here is
+  writer-only; the reviewers and adjudicator in `fill-doc-todos-poolside.sh` are
+  untested, and they are what would catch the defects the guards merely count.
+- Re-run the winner on a **larger file** (`Future.scala` at 952 lines,
+  `Duration.scala` at 785). One 519-line file is one data point, and the
+  large-block style is exactly where code deletions happened.
+- Re-run `laguna-s-2.1` through `pool` to replace the output lost to the rebuild.
+- Local quantized models are reachable from the container without a firewall
+  change (`host.docker.internal`, host network is allowed). Worth testing
+  `qwen3-coder-next` at Q4_K_M against the bf16/fp8 OpenRouter result -- the
+  large-block style makes it unusually sensitive to quantization.
