@@ -244,8 +244,14 @@ json_call() {
                 err="reply had no parseable content"
             fi
         fi
+        # Providers word their throttling differently and none of them says
+        # "rate limit" reliably. Cerebras returns "Tokens per minute limit
+        # exceeded - too many tokens processed", which the original pattern
+        # missed entirely, so a plain throttle failed fast instead of backing
+        # off. Match the shapes actually observed, plus transient network.
         case "$err" in
-            *[Rr]ate*limit*|*429*)
+            *[Rr]ate*limit*|*429*|*"limit exceeded"*|*"too many"*|*[Qq]uota*|\
+            *[Oo]verloaded*|*[Tt]emporar*|*"name resolution"*|*503*)
                 log "      rate limited by $prov (attempt $attempt/4); waiting ${delay}s"
                 sleep "$delay"; delay=$((delay * 2)) ;;
             *)
