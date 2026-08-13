@@ -1,0 +1,23 @@
+bash: warning: setlocale: LC_ALL: cannot change locale (en_US.UTF-8)
+cost guard: 'qwen/qwen3-coder-plus' is PAID -- in $0.65/M, out $3.25/M
+            worst case this trial (3 rounds): about $0.1307
+            ALLOW_PAID=1 set, proceeding.
+=== trial: qwen3-coder-plus  (provider openrouter, model qwen/qwen3-coder-plus) ===
+start: 128 markers
+--- round 1/3: 128 markers remaining ---
+    round 1: 128 -> 0 markers  (61s, client exit 0)
+label:             qwen3-coder-plus
+provider/model:    openrouter / qwen/qwen3-coder-plus
+reasoning_effort:  none
+rounds run:        1   (r1=61s)
+WORK TIME:         61s   <- compare providers on this
+wall clock:        61s   (includes 0s of this script's own between-round pauses)
+per-marker:        0.5s per marker filled
+last client exit:  0
+stopped because:   all markers filled
+marker progression:128 -> 0   (started at 128)
+markers left:      0
+CODE INTEGRITY:    PASS
+Failure+Success:   2/2 classes present
+redundant @return: 11
+tag lines ending '.': 1 of 129  (house style: omit)

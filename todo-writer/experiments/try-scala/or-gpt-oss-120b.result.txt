@@ -1,0 +1,15 @@
+label:             or-gpt-oss-120b
+provider/model:    openrouter / openai/gpt-oss-120b
+reasoning_effort:  <unset, model default>
+rounds run:        1   (r1=420s)
+WORK TIME:         420s   <- compare providers on this
+wall clock:        420s   (includes 0s of this script's own between-round pauses)
+per-marker:        n/a (nothing filled)
+last client exit:  124
+stopped because:   no progress in round 1
+marker progression:128 -> 128   (started at 128)
+markers left:      128
+CODE INTEGRITY:    PASS
+Failure+Success:   2/2 classes present
+redundant @return: 1
+tag lines ending '.': 1 of 129  (house style: omit)

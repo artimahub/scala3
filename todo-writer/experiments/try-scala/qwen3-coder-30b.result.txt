@@ -1,0 +1,15 @@
+label:             qwen3-coder-30b
+provider/model:    openrouter / qwen/qwen3-coder-30b-a3b-instruct
+reasoning_effort:  none
+rounds run:        1   (r1=143s)
+WORK TIME:         143s   <- compare providers on this
+wall clock:        143s   (includes 0s of this script's own between-round pauses)
+per-marker:        1.1s per marker filled
+last client exit:  0
+stopped because:   all markers filled
+marker progression:128 -> 0   (started at 128)
+markers left:      0
+CODE INTEGRITY:    PASS
+Failure+Success:   2/2 classes present
+redundant @return: 14
+tag lines ending '.': 1 of 129  (house style: omit)
