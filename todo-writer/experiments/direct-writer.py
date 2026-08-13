@@ -153,7 +153,19 @@ def main():
                 continue
             print(f"ERROR: HTTP {e.code}: {body}", file=sys.stderr)
             return 1
-        except Exception as e:  # network, timeout, malformed JSON
+        except urllib.error.URLError as e:
+            # DNS and transient network failures. Seen live: "Errno -3 Temporary
+            # failure in name resolution" mid-run, with both endpoints healthy
+            # seconds later. Worth retrying rather than losing the file.
+            if attempt < 4:
+                print(f"  network error ({e.reason}), attempt {attempt}/4; waiting {delay}s")
+                sys.stdout.flush()
+                time.sleep(delay)
+                delay *= 2
+                continue
+            print(f"ERROR: URLError: {e}", file=sys.stderr)
+            return 1
+        except Exception as e:  # malformed JSON, anything unexpected
             print(f"ERROR: {type(e).__name__}: {e}", file=sys.stderr)
             return 1
     if resp is None:
