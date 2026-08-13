@@ -80,6 +80,9 @@ ACCURACY_EMPHASIS=${ACCURACY_EMPHASIS:-"Your particular focus is FACTUAL CORRECT
 STYLE_EMPHASIS=${STYLE_EMPHASIS:-"Your particular focus is STYLE AND READABILITY: Scaladoc conventions, the project's tag rules, voice and altitude, and whether the text is genuinely useful to an API reader. Still raise every factual error you see, and treat it as a blocker."}
 RATE_LIMIT_BACKOFF=${RATE_LIMIT_BACKOFF:-30}   # doubles per retry: 30, 60, 120
 PROVIDER_SPACING=${PROVIDER_SPACING:-30}       # gap between same-provider calls
+WRITER_MAX_PASSES=${WRITER_MAX_PASSES:-6}     # fill passes before review starts
+WRITER_PASS_PAUSE=${WRITER_PASS_PAUSE:-30}    # gap between fill passes
+SUSPICIOUS_REVIEW_BYTES=${SUSPICIOUS_REVIEW_BYTES:-400}
 DRY_RUN=${DRY_RUN:-false}
 MARKER="TODO FILL IN"
 
@@ -244,8 +247,14 @@ json_call() {
                 err="reply had no parseable content"
             fi
         fi
+        # Providers word their throttling differently and none of them says
+        # "rate limit" reliably. Cerebras returns "Tokens per minute limit
+        # exceeded - too many tokens processed", which the original pattern
+        # missed entirely, so a plain throttle failed fast instead of backing
+        # off. Match the shapes actually observed, plus transient network.
         case "$err" in
-            *[Rr]ate*limit*|*429*)
+            *[Rr]ate*limit*|*429*|*"limit exceeded"*|*"too many"*|*[Qq]uota*|\
+            *[Oo]verloaded*|*[Tt]emporar*|*"name resolution"*|*503*)
                 log "      rate limited by $prov (attempt $attempt/4); waiting ${delay}s"
                 sleep "$delay"; delay=$((delay * 2)) ;;
             *)
@@ -325,10 +334,44 @@ for index in "${!TARGETS[@]}"; do
     log "  writer: drafting ($WRITER_PROVIDER/$WRITER_MODEL)..."
     render "$ABS" "$PROMPTS_DIR/doc-writer-prompt-direct.txt" > "$WORK_DIR/${SAFE}.wprompt"
     house_rules >> "$WORK_DIR/${SAFE}.wprompt"
+    # ---- Writer loop --------------------------------------------------------
+    # Fill FIRST, review after. These are separate concerns and want separate
+    # stopping rules: "is every placeholder written" and "is the prose good" are
+    # not the same question. Governing both with MAX_ROUNDS meant a weak writer
+    # pass sent half a file to the reviewers -- one run left 54 of 128 markers,
+    # and the style reviewer duly filed a blocker against a `@return TODO FILL
+    # IN` that had simply never been written. Reviewing placeholders wastes the
+    # reviewers and tells us nothing.
+    #
+    # The markers are the ledger: whatever a pass misses stays marked, so the
+    # next pass picks it up. Paced deliberately -- the backoff exists for
+    # surprises, not as a routine throttle. Tripping a provider's limit on every
+    # file is a good way to get an account blocked rather than merely slowed.
     markers_before=$(grep -c "$MARKER" "$ABS" 2>/dev/null || true)
-    run_writer "$WORK_DIR/${SAFE}.wprompt" "$REVIEWS_DIR/${SAFE}.writer.log"
-    writer_rc=$?
-    sed 's/^/    /' "$REVIEWS_DIR/${SAFE}.writer.log" | while read -r l; do log "$l"; done
+    writer_rc=0
+    wpass=1
+    while [ "$wpass" -le "$WRITER_MAX_PASSES" ]; do
+        wbefore=$(grep -c "$MARKER" "$ABS" 2>/dev/null || true)
+        [ "${wbefore:-0}" -eq 0 ] && break
+        check_pause "before writer pass $wpass: $REL"
+        log "  writer pass $wpass/$WRITER_MAX_PASSES ($WRITER_PROVIDER/$WRITER_MODEL): ${wbefore} marker(s) to go..."
+        run_writer "$WORK_DIR/${SAFE}.wprompt" "$REVIEWS_DIR/${SAFE}.writer${wpass}.log"
+        writer_rc=$?
+        sed 's/^/    /' "$REVIEWS_DIR/${SAFE}.writer${wpass}.log" | while read -r l; do log "$l"; done
+        integrity_ok "writer pass $wpass" || break
+        wafter=$(grep -c "$MARKER" "$ABS" 2>/dev/null || true)
+        log "    pass $wpass: ${wbefore} -> ${wafter} markers"
+        [ "${wafter:-0}" -eq 0 ] && { log "  all markers filled after $wpass pass(es)"; break; }
+        if [ "${wafter:-0}" -eq "${wbefore:-0}" ]; then
+            log "  !! writer pass $wpass made no progress; stopping the fill loop with ${wafter} marker(s) left"
+            break
+        fi
+        [ "$wpass" -lt "$WRITER_MAX_PASSES" ] && {
+            log "    pausing ${WRITER_PASS_PAUSE}s before the next writer pass"
+            sleep "$WRITER_PASS_PAUSE"
+        }
+        wpass=$((wpass + 1))
+    done
     integrity_ok "writer" || { between_files "$index"; continue; }
 
     # Do NOT review a file the writer did not change. A DNS failure once killed
@@ -390,6 +433,24 @@ for index in "${!TARGETS[@]}"; do
             jq -e 'has("verdict")' "$1" >/dev/null 2>&1 || { echo "UNAVAILABLE"; return; }
             jq -r '.verdict' "$1" 2>/dev/null
         }
+        # A THROTTLED reviewer is the nastiest failure here, because a
+        # truncated reply can still be valid JSON. gpt-oss-120b returned 152
+        # bytes of {"verdict":"approve","items":[]} while Cerebras was refusing
+        # it on tokens-per-minute -- indistinguishable from a genuine clean bill
+        # of health, and the adjudicator converged on it. The same model given a
+        # clear window returned real blockers. Size is the tell.
+        flag_suspicious() {   # $1 = json, $2 = label
+            local sz v n
+            sz=$(wc -c < "$1" 2>/dev/null || echo 0)
+            v=$(jq -r '.verdict // ""' "$1" 2>/dev/null)
+            n=$(jq -r '(.items // []) | length' "$1" 2>/dev/null)
+            if [ "$v" = approve ] && [ "${n:-0}" -eq 0 ] && [ "${sz:-0}" -lt "$SUSPICIOUS_REVIEW_BYTES" ]; then
+                log "      ?? $2 approved with 0 items in only ${sz} bytes -- suspiciously terse."
+                log "      ?? A throttled or truncated reply can still parse as a clean approval. Treat with doubt."
+            fi
+        }
+        flag_suspicious "$final_acc" "$ACCURACY_PROVIDER/$ACCURACY_MODEL"
+        flag_suspicious "$final_sty" "$STYLE_PROVIDER/$STYLE_MODEL"
         acc_verdict=$(verdict_of "$final_acc")
         sty_verdict=$(verdict_of "$final_sty")
         log "    reviewers: accuracy=$acc_verdict  style=$sty_verdict"
