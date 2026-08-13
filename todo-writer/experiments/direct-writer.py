@@ -90,7 +90,7 @@ def main():
     ap.add_argument("--max-tokens", type=int, default=32000)
     ap.add_argument("--timeout", type=int, default=900)
     ap.add_argument("--reasoning-effort", default="")
-    ap.add_argument("--retry-backoff", type=int, default=20)
+    ap.add_argument("--retry-backoff", type=int, default=30)
     ap.add_argument("--dump", default="", help="write the raw reply here")
     args = ap.parse_args()
 

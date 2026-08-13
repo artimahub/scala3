@@ -7,7 +7,7 @@
 #
 #   Writer      (Mistral  zai-glm-5-2)          drafts
 #   repeat up to MAX_ROUNDS:
-#       Accuracy review (Cerebras gemma-4-31b)  ┐ run in parallel
+#       Accuracy review (Cerebras gemma-4-31b)  ┐ sequential, spaced
 #       Style review    (Cerebras gpt-oss-120b)  ┘
 #       Adjudicator     (Mistral  zai-glm-5-2)  merges both into ONE verdict
 #       if adjudicator approves -> done
@@ -28,8 +28,8 @@
 # two reviewers that share weights agree for the wrong reasons.
 #
 # Providers are split deliberately: Mistral serves only the writer and the
-# adjudicator, which run SEQUENTIALLY, while both reviewers run in PARALLEL on
-# Cerebras. The first run put writer, style and adjudicator all on Mistral; its
+# adjudicator, both reviewers are on Cerebras, and EVERY call is sequential and
+# spaced. The first run put writer, style and adjudicator all on Mistral; its
 # free tier 429'd everything after the writer, losing the style review, the
 # adjudication and both refines in under two seconds.
 #
@@ -72,8 +72,8 @@ ACCURACY_MODEL=${ACCURACY_MODEL:-gemma-4-31b};            ACCURACY_PROVIDER=${AC
 STYLE_MODEL=${STYLE_MODEL:-gpt-oss-120b};                  STYLE_PROVIDER=${STYLE_PROVIDER:-cerebras}
 ADJUDICATOR_MODEL=${ADJUDICATOR_MODEL:-zai-glm-5-2};      ADJUDICATOR_PROVIDER=${ADJUDICATOR_PROVIDER:-mistral}
 MAX_TOKENS=${MAX_TOKENS:-32000}
-RATE_LIMIT_BACKOFF=${RATE_LIMIT_BACKOFF:-20}   # doubles per retry: 20, 40, 80
-PROVIDER_SPACING=${PROVIDER_SPACING:-15}       # gap between same-provider calls
+RATE_LIMIT_BACKOFF=${RATE_LIMIT_BACKOFF:-30}   # doubles per retry: 30, 60, 120
+PROVIDER_SPACING=${PROVIDER_SPACING:-30}       # gap between same-provider calls
 DRY_RUN=${DRY_RUN:-false}
 MARKER="TODO FILL IN"
 
@@ -197,7 +197,13 @@ json_call() {
     local prov=$1 model=$2 sysf=$3 usrf=$4 out=$5
     local base key req raw attempt delay err
     base=$(provider_base "$prov"); key=$(provider_key "$prov")
-    req="$WORK_DIR/req.$$.json"; raw="$WORK_DIR/raw.$$.json"
+    # Unique per CALL, not per process. $$ is the script's pid and is identical
+    # inside both background subshells, so the two reviewers running in parallel
+    # were writing and reading the same request file. They raced, and both came
+    # back "no parseable content" -- which looked like a provider failure and was
+    # not. Keying off the output path gives one file per role.
+    local tag; tag=$(basename "$out" .json)
+    req="$WORK_DIR/req.$tag.json"; raw="$WORK_DIR/raw.$tag.json"
     jq -n --arg m "$model" --arg s "$(cat "$sysf")" --arg u "$(cat "$usrf")" --argjson mt "$MAX_TOKENS" \
       '{model:$m, max_tokens:$mt, response_format:{type:"json_object"},
         messages:[{role:"system",content:$s},{role:"user",content:$u}]}' > "$req"
@@ -310,7 +316,7 @@ for index in "${!TARGETS[@]}"; do
     round=1; converged=false; final_refinement=false
     while [ "$round" -le "$MAX_ROUNDS" ]; do
         check_pause "before review round $round: $REL"
-        log "  round $round/$MAX_ROUNDS: accuracy ($ACCURACY_MODEL) ‖ style ($STYLE_MODEL)..."
+        log "  round $round/$MAX_ROUNDS: accuracy ($ACCURACY_MODEL) then style ($STYLE_MODEL)..."
 
         DIFF_BLOCK="$WORK_DIR/${SAFE}.diff"
         { echo; echo "=== DIFF OF DOCS TO REVIEW (judge only these additions) ==="
@@ -321,11 +327,16 @@ for index in "${!TARGETS[@]}"; do
         { render "$ABS" "$PROMPTS_DIR/doc-style-review-prompt.txt"; house_rules
           echo; echo "=== SCHEMA (conform exactly) ==="; cat "$SCHEMA"; } > "$WORK_DIR/${SAFE}.stysys"
 
-        json_call "$ACCURACY_PROVIDER" "$ACCURACY_MODEL" "$WORK_DIR/${SAFE}.accsys" "$DIFF_BLOCK" "$final_acc" &
-        acc_pid=$!
-        json_call "$STYLE_PROVIDER" "$STYLE_MODEL" "$WORK_DIR/${SAFE}.stysys" "$DIFF_BLOCK" "$final_sty" &
-        sty_pid=$!
-        wait "$acc_pid"; wait "$sty_pid"
+        # Sequential, not parallel. There is no hurry, and running them
+        # concurrently bought nothing but risk: the two calls raced over a shared
+        # temp file, and firing two requests at one provider within a second is
+        # exactly what free-tier limits punish. Reviewer independence comes from
+        # different models, not from concurrency.
+        json_call "$ACCURACY_PROVIDER" "$ACCURACY_MODEL" "$WORK_DIR/${SAFE}.accsys" "$DIFF_BLOCK" "$final_acc"
+        if [ "$STYLE_PROVIDER" = "$ACCURACY_PROVIDER" ] && [ "$PROVIDER_SPACING" -gt 0 ]; then
+            sleep "$PROVIDER_SPACING"
+        fi
+        json_call "$STYLE_PROVIDER" "$STYLE_MODEL" "$WORK_DIR/${SAFE}.stysys" "$DIFF_BLOCK" "$final_sty"
 
         acc_verdict=$(jq -r '.verdict // "revise"' "$final_acc" 2>/dev/null || echo revise)
         sty_verdict=$(jq -r '.verdict // "revise"' "$final_sty" 2>/dev/null || echo revise)
