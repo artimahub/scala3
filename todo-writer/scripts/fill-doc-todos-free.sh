@@ -305,9 +305,25 @@ for index in "${!TARGETS[@]}"; do
     log "  writer: drafting ($WRITER_PROVIDER/$WRITER_MODEL)..."
     render "$ABS" "$PROMPTS_DIR/doc-writer-prompt-direct.txt" > "$WORK_DIR/${SAFE}.wprompt"
     house_rules >> "$WORK_DIR/${SAFE}.wprompt"
+    markers_before=$(grep -c "$MARKER" "$ABS" 2>/dev/null || true)
     run_writer "$WORK_DIR/${SAFE}.wprompt" "$REVIEWS_DIR/${SAFE}.writer.log"
+    writer_rc=$?
     sed 's/^/    /' "$REVIEWS_DIR/${SAFE}.writer.log" | while read -r l; do log "$l"; done
     integrity_ok "writer" || { between_files "$index"; continue; }
+
+    # Do NOT review a file the writer did not change. A DNS failure once killed
+    # the writer, the script carried on, and BOTH reviewers approved an empty
+    # diff -- they were reviewing nothing and rubber-stamping it, which would
+    # have been recorded as converged=true with all 128 markers still in place.
+    # A stage that fails must not be able to look like a stage that passed.
+    markers_after=$(grep -c "$MARKER" "$ABS" 2>/dev/null || true)
+    if [ "$writer_rc" -ne 0 ] || [ "${markers_after:-0}" -eq "${markers_before:-0}" ]; then
+        log "  !! WRITER PRODUCED NOTHING on $REL (exit $writer_rc, markers ${markers_before:-?} -> ${markers_after:-?})"
+        log "  !! skipping review: there is no diff to judge. This file is UNTOUCHED, not done."
+        cp -f "$ORIG" "$ABS"
+        between_files "$index"; continue
+    fi
+    log "  writer filled $(( ${markers_before:-0} - ${markers_after:-0} )) marker(s); ${markers_after:-0} left"
 
     final_acc="$REVIEWS_DIR/${SAFE}.accuracy.json"
     final_sty="$REVIEWS_DIR/${SAFE}.style.json"
