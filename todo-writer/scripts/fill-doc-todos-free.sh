@@ -7,7 +7,7 @@
 #
 #   Writer      (Mistral  zai-glm-5-2)          drafts
 #   repeat up to MAX_ROUNDS:
-#       Accuracy review (Cerebras gemma-4-31b)  ┐ sequential, spaced
+#       Accuracy review (Mistral  mistral-medium) ┐ sequential, spaced
 #       Style review    (Cerebras gpt-oss-120b)  ┘
 #       Adjudicator     (Mistral  zai-glm-5-2)  merges both into ONE verdict
 #       if adjudicator approves -> done
@@ -57,7 +57,7 @@
 # Env overrides:
 #   MAX_ROUNDS=2
 #   WRITER_MODEL=zai-glm-5-2          WRITER_PROVIDER=mistral
-#   ACCURACY_MODEL=gemma-4-31b        ACCURACY_PROVIDER=cerebras
+#   ACCURACY_MODEL=mistral-medium-latest ACCURACY_PROVIDER=mistral
 #   STYLE_MODEL=gpt-oss-120b          STYLE_PROVIDER=cerebras
 #   ADJUDICATOR_MODEL=zai-glm-5-2     ADJUDICATOR_PROVIDER=mistral
 #   INTER_FILE_PAUSE_SECONDS=120  PAUSE_SLEEP=30  MAX_TOKENS=32000
@@ -68,10 +68,16 @@ set -uo pipefail
 
 MAX_ROUNDS=${MAX_ROUNDS:-2}
 WRITER_MODEL=${WRITER_MODEL:-zai-glm-5-2};                WRITER_PROVIDER=${WRITER_PROVIDER:-mistral}
-ACCURACY_MODEL=${ACCURACY_MODEL:-gemma-4-31b};            ACCURACY_PROVIDER=${ACCURACY_PROVIDER:-cerebras}
+ACCURACY_MODEL=${ACCURACY_MODEL:-mistral-medium-latest};   ACCURACY_PROVIDER=${ACCURACY_PROVIDER:-mistral}
 STYLE_MODEL=${STYLE_MODEL:-gpt-oss-120b};                  STYLE_PROVIDER=${STYLE_PROVIDER:-cerebras}
 ADJUDICATOR_MODEL=${ADJUDICATOR_MODEL:-zai-glm-5-2};      ADJUDICATOR_PROVIDER=${ADJUDICATOR_PROVIDER:-mistral}
 MAX_TOKENS=${MAX_TOKENS:-32000}
+# Both reviewers get the SAME brief and are both asked to judge accuracy AND
+# style. These only tilt the attention. The aim is two full passes over the same
+# ground by different models: better that a problem is raised twice than missed
+# once.
+ACCURACY_EMPHASIS=${ACCURACY_EMPHASIS:-"Your particular focus is FACTUAL CORRECTNESS: API contracts, what the implementation really does, exception and edge-case behaviour, and subtle mismatches between prose and code. Still raise every style problem you see."}
+STYLE_EMPHASIS=${STYLE_EMPHASIS:-"Your particular focus is STYLE AND READABILITY: Scaladoc conventions, the project's tag rules, voice and altitude, and whether the text is genuinely useful to an API reader. Still raise every factual error you see, and treat it as a blocker."}
 RATE_LIMIT_BACKOFF=${RATE_LIMIT_BACKOFF:-30}   # doubles per retry: 30, 60, 120
 PROVIDER_SPACING=${PROVIDER_SPACING:-30}       # gap between same-provider calls
 DRY_RUN=${DRY_RUN:-false}
@@ -221,8 +227,22 @@ json_call() {
         err=$(jq -r '.error.message // .message // empty' "$raw" 2>/dev/null)
         if [ -z "$err" ]; then
             jq -r '.choices[0].message.content // empty' "$raw" 2>/dev/null | clean_json > "$out"
-            if [ -s "$out" ]; then rm -f "$req" "$raw"; return 0; fi
-            err="reply had no parseable content"
+            if [ -s "$out" ]; then
+                # The reply arrived, but is it USABLE? gemma-4-31b once returned
+                # 78KB of items as a flat array of loose values instead of
+                # objects, truncated mid-string at the token limit. jq could not
+                # parse a byte of it, yet `jq -r '.verdict // "revise"'` then
+                # produced "revise" -- a fabricated verdict from a broken reply,
+                # indistinguishable downstream from a real one. Validate here so
+                # that can never happen again.
+                if jq empty "$out" 2>/dev/null; then
+                    rm -f "$req" "$raw"; return 0
+                fi
+                log "      !! $prov/$model returned INVALID JSON ($(wc -c < "$out") bytes; likely truncated at the token limit)"
+                err="unparseable JSON"
+            else
+                err="reply had no parseable content"
+            fi
         fi
         case "$err" in
             *[Rr]ate*limit*|*429*)
@@ -338,10 +358,20 @@ for index in "${!TARGETS[@]}"; do
         { echo; echo "=== DIFF OF DOCS TO REVIEW (judge only these additions) ==="
           diff -u "$ORIG" "$ABS" || true; } > "$DIFF_BLOCK"
 
-        { render "$ABS" "$PROMPTS_DIR/doc-accuracy-review-prompt.txt"; house_rules
-          echo; echo "=== SCHEMA (conform exactly) ==="; cat "$SCHEMA"; } > "$WORK_DIR/${SAFE}.accsys"
-        { render "$ABS" "$PROMPTS_DIR/doc-style-review-prompt.txt"; house_rules
-          echo; echo "=== SCHEMA (conform exactly) ==="; cat "$SCHEMA"; } > "$WORK_DIR/${SAFE}.stysys"
+        # One shared brief, rendered twice with different emphasis.
+        render_review() {   # $1 = emphasis text, $2 = destination
+            render "$ABS" "$PROMPTS_DIR/doc-review-prompt.txt" \
+              | awk -v e="$1" '{gsub(/\{EMPHASIS\}/, e); print}'
+            house_rules
+            echo; echo "=== SCHEMA (conform exactly) ==="; cat "$SCHEMA"
+        }
+        render_review "$ACCURACY_EMPHASIS" > "$WORK_DIR/${SAFE}.accsys"
+        render_review "$STYLE_EMPHASIS"    > "$WORK_DIR/${SAFE}.stysys"
+
+        # The accuracy reviewer may share a provider with the writer; space it.
+        if [ "$ACCURACY_PROVIDER" = "$WRITER_PROVIDER" ] && [ "$PROVIDER_SPACING" -gt 0 ]; then
+            sleep "$PROVIDER_SPACING"
+        fi
 
         # Sequential, not parallel. There is no hurry, and running them
         # concurrently bought nothing but risk: the two calls raced over a shared
@@ -354,9 +384,18 @@ for index in "${!TARGETS[@]}"; do
         fi
         json_call "$STYLE_PROVIDER" "$STYLE_MODEL" "$WORK_DIR/${SAFE}.stysys" "$DIFF_BLOCK" "$final_sty"
 
-        acc_verdict=$(jq -r '.verdict // "revise"' "$final_acc" 2>/dev/null || echo revise)
-        sty_verdict=$(jq -r '.verdict // "revise"' "$final_sty" 2>/dev/null || echo revise)
+        # A review that did not parse is UNAVAILABLE, not "revise". Collapsing
+        # the two hid a dead reviewer behind a plausible verdict.
+        verdict_of() {
+            jq -e 'has("verdict")' "$1" >/dev/null 2>&1 || { echo "UNAVAILABLE"; return; }
+            jq -r '.verdict' "$1" 2>/dev/null
+        }
+        acc_verdict=$(verdict_of "$final_acc")
+        sty_verdict=$(verdict_of "$final_sty")
         log "    reviewers: accuracy=$acc_verdict  style=$sty_verdict"
+        if [ "$acc_verdict" = UNAVAILABLE ] && [ "$sty_verdict" = UNAVAILABLE ]; then
+            log "    !! BOTH reviews unavailable -- nothing to adjudicate; treating this round as unreviewed"
+        fi
 
         check_pause "before adjudication round $round: $REL"
 
