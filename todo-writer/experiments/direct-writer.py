@@ -105,6 +105,18 @@ def reindent(text, indent):
     return "\n".join(indent + l[base:] if l.strip() else "" for l in lines)
 
 
+def code_only(text):
+    """The non-comment, non-blank lines, for verifying an edit touched nothing
+    but Scaladoc. Mirrors the caller's strip-comments integrity check."""
+    out = []
+    for l in text.split("\n"):
+        t = l.strip()
+        if not t or t.startswith("*") or t.startswith("/**") or t.startswith("*/"):
+            continue
+        out.append(l)
+    return out
+
+
 def post(base_url, api_key, payload, timeout):
     req = urllib.request.Request(
         base_url.rstrip("/") + "/chat/completions",
@@ -251,6 +263,21 @@ def main():
 
     blocks = BLOCK.findall(reply)
     applied = skipped_nomatch = skipped_ambiguous = unchanged = reindented = 0
+    skipped_would_alter_code = 0
+
+    def try_apply(candidate):
+        """Accept an edited file ONLY if it changed no code line.
+
+        Defence at the point of application, not after the fact. The re-indent
+        fallback below re-indents a replacement to suit the file, and when the
+        model's block has inconsistent relative indentation that arithmetic
+        shifted a `def` line by a space: it fired on 4 files and corrupted 2.
+        Rather than trying to make the arithmetic always right, verify the
+        outcome -- which also covers every other way a block could touch code."""
+        return code_only(candidate) == code_baseline
+
+    code_baseline = code_only(src)
+
     for search, replace in blocks:
         n = src.count(search)
         if n == 0:
@@ -270,7 +297,11 @@ def main():
                 skipped_nomatch += 1
                 continue
             start, end, indent = hit
-            src = src[:start] + reindent(replace, indent) + src[end:]
+            candidate = src[:start] + reindent(replace, indent) + src[end:]
+            if not try_apply(candidate):
+                skipped_would_alter_code += 1
+                continue
+            src = candidate
             applied += 1
             reindented += 1
         elif n > 1:
@@ -280,7 +311,11 @@ def main():
         elif search == replace:
             unchanged += 1
         else:
-            src = src.replace(search, replace, 1)
+            candidate = src.replace(search, replace, 1)
+            if not try_apply(candidate):
+                skipped_would_alter_code += 1
+                continue
+            src = candidate
             applied += 1
 
     if applied:
@@ -291,6 +326,8 @@ def main():
     print(f"  applied:         {applied}")
     print(f"  skipped (no match):  {skipped_nomatch}")
     print(f"  skipped (ambiguous): {skipped_ambiguous}")
+    if skipped_would_alter_code:
+        print(f"  REFUSED (would alter code): {skipped_would_alter_code}")
     if reindented:
         print(f"  re-indented:     {reindented} (SEARCH whitespace did not match; matched dedented, unique)")
     if unchanged:
