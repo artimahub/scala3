@@ -56,8 +56,20 @@ Also flag a `@note NEEDS-HUMAN: ...` marker from the writer, setting
 `needs_human=true` and surfacing its question.
 
 For each declaration you assess, decide:
-- severity: "blocker" (inaccurate, misleading, or sufficiently poor style to
-  fix), "nit" (minor polish), or "ok".
+- severity, and be strict about this line:
+    "blocker" -- the documentation says something FALSE, or OMITS behaviour a
+      caller must know (an exception it can throw, a sentinel it can return, a
+      side effect), or breaks a stated project rule such as the @return DROP
+      rule. Something is wrong and a reader would be misled.
+    "nit"     -- everything else, including every preference about WORDING.
+      If the documentation is true and complete and you would merely phrase it
+      differently, that is a nit. "Use 'wrapped in a Failure' rather than
+      'returned as a Failure'" is a nit, not a blocker. So is "this sentence
+      could be more concise".
+    "ok"      -- nothing to say.
+  Severity drives whether the writer is sent back round, so inflating a
+  rewording into a blocker costs a whole revision cycle and re-opens prose that
+  was already correct. When you are torn between blocker and nit, choose nit.
 - confidence: how sure you are of the assessment (high/medium/low).
 - needs_human: true when the code genuinely does not reveal the intended
   meaning, so a human who knows the design must verify.
