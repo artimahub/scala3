@@ -175,13 +175,20 @@ check_pause() {
     return 0
 }
 
+# $2 = "nosleep" to skip the inter-file pause. The pause exists to space out API
+# calls; a file that was skipped made none, so waiting after it buys nothing. On
+# a resumed run most files are already done, and pausing after each would add
+# INTER_FILE_PAUSE_SECONDS x (files already complete) of dead time -- 26 minutes
+# on a partition that is 13 files in. STOP and PAUSE are still honoured either
+# way, so control does not depend on whether work happened.
 between_files() {
-    local index=$1
+    local index=$1 mode=${2:-}
     if [ -e "$STOP_FILE" ]; then
         log "STOP: found $STOP_FILE after completing a file; exiting cleanly."
         exit 0
     fi
     check_pause "between files"
+    [ "$mode" = nosleep ] && return 0
     if [ "$index" -lt $(( ${#TARGETS[@]} - 1 )) ] && [ "$INTER_FILE_PAUSE_SECONDS" -gt 0 ]; then
         log "Pausing ${INTER_FILE_PAUSE_SECONDS}s before the next file."
         sleep "$INTER_FILE_PAUSE_SECONDS"
@@ -296,7 +303,7 @@ for index in "${!TARGETS[@]}"; do
     SAFE="$(echo "$REL" | tr '/' '_')"
 
     if ! grep -q "$MARKER" "$ABS" 2>/dev/null; then
-        log "SKIP $REL (no '$MARKER')"; between_files "$index"; continue
+        log "SKIP $REL (no '$MARKER')"; between_files "$index" nosleep; continue
     fi
 
     n_main=$(grep -cE '/\*\* *'"$MARKER" "$ABS")
@@ -304,7 +311,7 @@ for index in "${!TARGETS[@]}"; do
     log "### $REL  ($n_main declarations to document)"
 
     if [ "$DRY_RUN" = "true" ]; then
-        log "DRY RUN: would fill+review $REL"; between_files "$index"; continue
+        log "DRY RUN: would fill+review $REL"; between_files "$index" nosleep; continue
     fi
 
     ORIG="$WORK_DIR/${SAFE}.orig"; CODE_BEFORE="$WORK_DIR/${SAFE}.code"
