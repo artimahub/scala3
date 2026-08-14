@@ -32,6 +32,11 @@ Rules for the blocks:
 - The SEARCH section must reproduce the existing text EXACTLY: same indentation,
   same spacing inside declarations, same everything. It is matched literally. A
   block whose SEARCH text does not appear verbatim in the file is discarded.
+- LEADING WHITESPACE especially. Copy the indentation you actually see, do not
+  normalise it. Many of these declarations are nested inside an object, a class
+  or another class, so their comments sit at 4 or 6 spaces rather than 2. Emitting
+  a 2-space block for a 4-space declaration throws away an otherwise perfect
+  comment.
 - The SEARCH text must be UNIQUE in the file. Include the declaration line
   beneath the comment so short comments like `/** TODO FILL IN */` are
   distinguishable from one another. A block matching several places is discarded.

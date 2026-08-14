@@ -52,6 +52,59 @@ BLOCK = re.compile(
 )
 
 
+def _strip_indent(text):
+    """Drop each line's leading whitespace, for indentation-blind comparison."""
+    return "\n".join(l.lstrip() for l in text.split("\n"))
+
+
+def find_dedented(src, search):
+    """Locate `search` in `src` ignoring leading whitespace on every line.
+
+    Returns (start, end, indent) for exactly one match, else None. `indent` is
+    the leading whitespace of the matched region's first line, so the
+    replacement can be re-indented to suit the file rather than the model.
+    Refuses on zero or multiple matches, exactly like the exact-match path.
+    """
+    want = _strip_indent(search).strip("\n")
+    if not want:
+        return None
+    want_lines = want.split("\n")
+    src_lines = src.split("\n")
+    stripped = [l.lstrip() for l in src_lines]
+
+    # byte offset of the start of each line
+    offsets, pos = [], 0
+    for l in src_lines:
+        offsets.append(pos)
+        pos += len(l) + 1
+
+    hits = []
+    for i in range(len(src_lines) - len(want_lines) + 1):
+        if stripped[i:i + len(want_lines)] == want_lines:
+            hits.append(i)
+    if len(hits) != 1:
+        return None
+    i = hits[0]
+    first = src_lines[i]
+    indent = first[: len(first) - len(first.lstrip())]
+    start = offsets[i]
+    end = offsets[i + len(want_lines) - 1] + len(src_lines[i + len(want_lines) - 1])
+    return start, end, indent
+
+
+def reindent(text, indent):
+    """Re-indent `text` so every non-empty line carries `indent`, preserving
+    the relative shape the model produced."""
+    lines = text.strip("\n").split("\n")
+    base = None
+    for l in lines:
+        if l.strip():
+            lead = len(l) - len(l.lstrip())
+            base = lead if base is None else min(base, lead)
+    base = base or 0
+    return "\n".join(indent + l[base:] if l.strip() else "" for l in lines)
+
+
 def post(base_url, api_key, payload, timeout):
     req = urllib.request.Request(
         base_url.rstrip("/") + "/chat/completions",
@@ -197,11 +250,29 @@ def main():
         return 0
 
     blocks = BLOCK.findall(reply)
-    applied = skipped_nomatch = skipped_ambiguous = unchanged = 0
+    applied = skipped_nomatch = skipped_ambiguous = unchanged = reindented = 0
     for search, replace in blocks:
         n = src.count(search)
         if n == 0:
-            skipped_nomatch += 1
+            # Exact match failed. Before giving up, try again ignoring LEADING
+            # WHITESPACE, which is the one thing models reliably get wrong:
+            # BlockContext.scala's markers are indented 4 spaces (nested in an
+            # object) and the writer emitted a 2-space SEARCH block, so a
+            # perfectly good comment could not be applied. 9 of 36 files in the
+            # week-4 partition nest deeper than 2 spaces.
+            #
+            # This stays safe: it still demands EXACTLY ONE match, and it
+            # re-indents the replacement to whatever the file actually uses, so
+            # the result is indented like its neighbours rather than like the
+            # model's guess.
+            hit = find_dedented(src, search)
+            if hit is None:
+                skipped_nomatch += 1
+                continue
+            start, end, indent = hit
+            src = src[:start] + reindent(replace, indent) + src[end:]
+            applied += 1
+            reindented += 1
         elif n > 1:
             # Ambiguous: applying it would edit an arbitrary one of several
             # sites. Refuse rather than guess.
@@ -220,6 +291,8 @@ def main():
     print(f"  applied:         {applied}")
     print(f"  skipped (no match):  {skipped_nomatch}")
     print(f"  skipped (ambiguous): {skipped_ambiguous}")
+    if reindented:
+        print(f"  re-indented:     {reindented} (SEARCH whitespace did not match; matched dedented, unique)")
     if unchanged:
         print(f"  no-op blocks:    {unchanged}")
     return 0
