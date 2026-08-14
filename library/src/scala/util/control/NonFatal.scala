@@ -43,10 +43,9 @@ import scala.language.`2.13`
 object NonFatal {
   /** Returns true if the provided `Throwable` is to be considered non-fatal, or false if it is to be considered fatal */
   @annotation.nowarn("cat=deprecation")  // avoid warning on mention of ThreadDeath
-  /** TODO FILL IN
+  /** Returns `true` if the provided `Throwable` is to be considered non-fatal, or false if it is to be considered fatal
    *
-   *  @param t TODO FILL IN
-   *  @return TODO FILL IN
+   *  @param t the `Throwable` to test for being non-fatal
    */
   def apply(t: Throwable): Boolean = t match {
     // VirtualMachineError includes OutOfMemoryError and other fatal errors

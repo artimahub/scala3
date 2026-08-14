@@ -49,11 +49,12 @@ object boundary:
 
   object Break:
     import caps.unsafe.unsafeAssumePure
-    /** TODO FILL IN
+    /** Creates a new `Break` exception carrying the given `value` and targeting
+     *  the given `label`.
      *
-     *  @tparam T TODO FILL IN
-     *  @param label TODO FILL IN
-     *  @param value TODO FILL IN
+     *  @tparam T the type of the value carried by the `Break` exception
+     *  @param label the label identifying the target `boundary` to exit
+     *  @param value the value to return from the enclosing `boundary` call
      */
     def apply[T](label: Label[T], value: T) =
       // SAFETY: labels cannot leak from [[Break]], and is only used for equality comparison.

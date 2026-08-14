@@ -17,13 +17,12 @@ import scala.language.`2.13`
 import scala.language.implicitConversions
 import language.experimental.captureChecking
 
-/** TODO FILL IN */
+/** Provides implicit conversions that add chaining methods to every type. */
 trait ChainingSyntax {
-  /** TODO FILL IN
+  /** Returns a [[scala.util.ChainingOps]] wrapper for the given value.
    *
-   *  @tparam A TODO FILL IN
-   *  @param a TODO FILL IN
-   *  @return TODO FILL IN
+   *  @tparam A the type of the value to be wrapped
+   *  @param a  the value to be wrapped
    */
   @inline implicit final def scalaUtilChainingOps[A](a: A): ChainingOps[A] = new ChainingOps(a)
 }
