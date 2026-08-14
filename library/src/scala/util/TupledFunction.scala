@@ -13,11 +13,29 @@ import scala.annotation.experimental
 @implicitNotFound("${F} cannot be tupled as ${G}")
 @experimental
 sealed trait TupledFunction[F, G]:
+  /** TODO FILL IN
+   *
+   *  @param f TODO FILL IN
+   *  @return TODO FILL IN
+   */
   def tupled(f: F): G
+  /** TODO FILL IN
+   *
+   *  @param g TODO FILL IN
+   *  @return TODO FILL IN
+   */
   def untupled(g: G): F
 
 @experimental
 private[scala] object TupledFunction:
+  /** TODO FILL IN
+   *
+   *  @tparam F TODO FILL IN
+   *  @tparam G TODO FILL IN
+   *  @param tupledImpl TODO FILL IN
+   *  @param untupledImpl TODO FILL IN
+   *  @return TODO FILL IN
+   */
   def apply[F, G](tupledImpl: F => G, untupledImpl: G => F): TupledFunction[F, G]^{tupledImpl, untupledImpl} =
     new TupledFunction[F, G]:
       def tupled(f: F): G = tupledImpl(f)

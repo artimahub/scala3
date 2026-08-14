@@ -21,7 +21,9 @@ import language.experimental.captureChecking
 
 /** Loads `library.properties` from the jar. */
 object Properties extends PropertiesTrait {
+  /** TODO FILL IN */
   protected def propCategory = "library"
+  /** TODO FILL IN */
   protected def pickJarBasedOn: Class[Option[?]] = classOf[Option[?]]
 
   /** Scala manifest attributes.
@@ -30,7 +32,9 @@ object Properties extends PropertiesTrait {
 }
 
 private[scala] trait PropertiesTrait {
+  /** TODO FILL IN */
   protected def propCategory: String      // specializes the remainder of the values
+  /** TODO FILL IN */
   protected def pickJarBasedOn: Class[?]  // props file comes from jar containing this
 
   /** The name of the properties file. */
@@ -53,24 +57,103 @@ private[scala] trait PropertiesTrait {
         catch   { case _: IOException => }
     }
 
+  /** TODO FILL IN
+   *
+   *  @param name TODO FILL IN
+   *  @return TODO FILL IN
+   */
   def propIsSet(name: String): Boolean                   = System.getProperty(name) != null
+  /** TODO FILL IN
+   *
+   *  @param name TODO FILL IN
+   *  @param value TODO FILL IN
+   */
   def propIsSetTo(name: String, value: String)           = propOrNull(name) == value
+  /** TODO FILL IN
+   *
+   *  @param name TODO FILL IN
+   *  @return TODO FILL IN
+   */
   def propOrNone(name: String): Option[String]           = Option[String](System.getProperty(name))
+  /** TODO FILL IN
+   *
+   *  @param name TODO FILL IN
+   *  @param alt TODO FILL IN
+   *  @return TODO FILL IN
+   */
   def propOrElse(name: String, alt: => String): String   = propOrNone(name).getOrElse(alt)
+  /** TODO FILL IN
+   *
+   *  @param name TODO FILL IN
+   *  @return TODO FILL IN
+   */
   def propOrEmpty(name: String): String                  = propOrElse(name, "")
+  /** TODO FILL IN
+   *
+   *  @param name TODO FILL IN
+   *  @return TODO FILL IN
+   */
   def propOrNull(name: String): String | Null            = propOrNone(name).orNull
+  /** TODO FILL IN
+   *
+   *  @param name TODO FILL IN
+   *  @return TODO FILL IN
+   */
   def propOrFalse(name: String): Boolean                 = propOrNone(name) exists (x => List("yes", "on", "true") contains x.toLowerCase)
+  /** TODO FILL IN
+   *
+   *  @param name TODO FILL IN
+   *  @param value TODO FILL IN
+   *  @return TODO FILL IN
+   */
   def setProp(name: String, value: String): String       = System.setProperty(name, value)
+  /** TODO FILL IN
+   *
+   *  @param name TODO FILL IN
+   *  @return TODO FILL IN
+   */
   def clearProp(name: String): String                    = System.clearProperty(name)
 
+  /** TODO FILL IN
+   *
+   *  @param name TODO FILL IN
+   *  @param alt TODO FILL IN
+   *  @return TODO FILL IN
+   */
   def envOrElse(name: String, alt: => String): String    = Option(System.getenv(name)) getOrElse alt
+  /** TODO FILL IN
+   *
+   *  @param name TODO FILL IN
+   *  @return TODO FILL IN
+   */
   def envOrNone(name: String): Option[String]            = Option(System.getenv(name))
 
+  /** TODO FILL IN
+   *
+   *  @param name TODO FILL IN
+   *  @param alt TODO FILL IN
+   */
   def envOrSome(name: String, alt: => Option[String])    = envOrNone(name) orElse alt
 
   // for values based on propFilename, falling back to System properties
+  /** TODO FILL IN
+   *
+   *  @param name TODO FILL IN
+   *  @param alt TODO FILL IN
+   *  @return TODO FILL IN
+   */
   def scalaPropOrElse(name: String, alt: => String): String = scalaPropOrNone(name).getOrElse(alt)
+  /** TODO FILL IN
+   *
+   *  @param name TODO FILL IN
+   *  @return TODO FILL IN
+   */
   def scalaPropOrEmpty(name: String): String             = scalaPropOrElse(name, "")
+  /** TODO FILL IN
+   *
+   *  @param name TODO FILL IN
+   *  @return TODO FILL IN
+   */
   def scalaPropOrNone(name: String): Option[String]      = Option(scalaProps.getProperty(name)).orElse(propOrNone("scala." + name))
 
   /** The version of the Scala runtime, if this is not a snapshot.
@@ -94,12 +177,14 @@ private[scala] trait PropertiesTrait {
   /** A verbose alternative to [[versionNumberString]].
    */
   val versionString         = s"version ${scalaPropOrElse("version.number", "(unknown)")}"
+  /** TODO FILL IN */
   val copyrightString       = scalaPropOrElse("copyright.string", "Copyright 2002-2025, LAMP/EPFL and Lightbend, Inc. dba Akka")
 
   /** This is the encoding to use reading in source files, overridden with -encoding.
    *  Note that it uses "prop" i.e. looks in the scala jar, not the system properties.
    */
   def sourceEncoding        = scalaPropOrElse("file.encoding", "UTF-8")
+  /** TODO FILL IN */
   def sourceReader          = scalaPropOrElse("source.reader", "scala.tools.nsc.io.SourceReader")
 
   /** This is the default text encoding, overridden (unreliably) with
@@ -112,22 +197,39 @@ private[scala] trait PropertiesTrait {
   def lineSeparator: String = System.lineSeparator()
 
   /* Various well-known properties. */
+  /** TODO FILL IN */
   def javaClassPath         = propOrEmpty("java.class.path")
+  /** TODO FILL IN */
   def javaHome              = propOrEmpty("java.home")
+  /** TODO FILL IN */
   def javaVendor            = propOrEmpty("java.vendor")
+  /** TODO FILL IN */
   def javaVersion           = propOrEmpty("java.version")
+  /** TODO FILL IN */
   def javaVmInfo            = propOrEmpty("java.vm.info")
+  /** TODO FILL IN */
   def javaVmName            = propOrEmpty("java.vm.name")
+  /** TODO FILL IN */
   def javaVmVendor          = propOrEmpty("java.vm.vendor")
+  /** TODO FILL IN */
   def javaVmVersion         = propOrEmpty("java.vm.version")
+  /** TODO FILL IN */
   def javaSpecVersion       = propOrEmpty("java.specification.version")
+  /** TODO FILL IN */
   def javaSpecVendor        = propOrEmpty("java.specification.vendor")
+  /** TODO FILL IN */
   def javaSpecName          = propOrEmpty("java.specification.name")
+  /** TODO FILL IN */
   def osName                = propOrEmpty("os.name")
+  /** TODO FILL IN */
   def scalaHome             = propOrEmpty("scala.home")
+  /** TODO FILL IN */
   def tmpDir                = propOrEmpty("java.io.tmpdir")
+  /** TODO FILL IN */
   def userDir               = propOrEmpty("user.dir")
+  /** TODO FILL IN */
   def userHome              = propOrEmpty("user.home")
+  /** TODO FILL IN */
   def userName              = propOrEmpty("user.name")
 
   /* Some derived values. */
@@ -161,12 +263,16 @@ private[scala] trait PropertiesTrait {
   // This is looking for javac, tools.jar, etc.
   // Tries JDK_HOME first, then the more common but likely jre JAVA_HOME,
   // and finally the system property based javaHome.
+  /** TODO FILL IN */
   def jdkHome               = envOrElse("JDK_HOME", envOrElse("JAVA_HOME", javaHome))
 
   private[scala] def versionFor(command: String) = s"Scala $command $versionString -- $copyrightString"
 
+  /** TODO FILL IN */
   def versionMsg            = versionFor(propCategory)
+  /** TODO FILL IN */
   def scalaCmd              = if (isWin) "scala.bat" else "scala"
+  /** TODO FILL IN */
   def scalacCmd             = if (isWin) "scalac.bat" else "scalac"
 
   /** Compares the given specification version to the specification version of the platform.
@@ -229,6 +335,10 @@ private[scala] trait PropertiesTrait {
   def isJavaAtLeast(version: Int): Boolean = isJavaAtLeast(math.max(version, 0).toString)
 
   // provide a main method so version info can be obtained by running this
+  /** TODO FILL IN
+   *
+   *  @param args TODO FILL IN
+   */
   def main(args: Array[String]): Unit = {
     val writer = new PrintWriter(Console.err, true)
     writer.println(versionMsg)

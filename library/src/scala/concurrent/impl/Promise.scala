@@ -37,12 +37,27 @@ import java.io.{IOException, NotSerializableException, ObjectInputStream, Object
 private[impl] final class CompletionLatch[T] extends AbstractQueuedSynchronizer with (Try[T] => Unit) {
   //@volatie not needed since we use acquire/release
   /*@volatile*/ @annotation.stableNull private var _result: Try[T] | Null = null
+  /** TODO FILL IN */
   final def result: Try[T] | Null = _result
+  /** TODO FILL IN
+   *
+   *  @param ignored TODO FILL IN
+   *  @return TODO FILL IN
+   */
   override protected def tryAcquireShared(ignored: Int): Int = if (getState != 0) 1 else -1
+  /** TODO FILL IN
+   *
+   *  @param ignore TODO FILL IN
+   *  @return TODO FILL IN
+   */
   override protected def tryReleaseShared(ignore: Int): Boolean = {
     setState(1)
     true
   }
+  /** TODO FILL IN
+   *
+   *  @param value TODO FILL IN
+   */
   override def apply(value: Try[T]): Unit = {
     _result = value // This line MUST go before releaseShared
     releaseShared(1)
@@ -116,6 +131,10 @@ private[concurrent] object Promise {
     }
 
   // Left non-final to enable addition of extra fields by Java/Scala converters in scala-java8-compat.
+  /** TODO FILL IN
+   *
+   *  @tparam T TODO FILL IN
+   */
   class DefaultPromise[T] private (initial: AnyRef) extends AtomicReference[AnyRef](initial) with scala.concurrent.Promise[T] with scala.concurrent.Future[T] with (Try[T] => Unit) {
     /** Constructs a new, completed, Promise.
      *
@@ -137,12 +156,35 @@ private[concurrent] object Promise {
     /** Returns the associated `Future` with this `Promise` */
     override final def future: Future[T] = this
 
+    /** TODO FILL IN
+     *
+     *  @tparam S TODO FILL IN
+     *  @param f TODO FILL IN
+     *  @param executor TODO FILL IN
+     *  @return TODO FILL IN
+     */
     override final def transform[S](f: Try[T] => Try[S])(implicit executor: ExecutionContext): Future[S] =
       dispatchOrAddCallbacks(get(), new Transformation[T, S](Xform_transform, f, executor))
 
+    /** TODO FILL IN
+     *
+     *  @tparam S TODO FILL IN
+     *  @param f TODO FILL IN
+     *  @param executor TODO FILL IN
+     *  @return TODO FILL IN
+     */
     override final def transformWith[S](f: Try[T] => Future[S])(implicit executor: ExecutionContext): Future[S] =
       dispatchOrAddCallbacks(get(), new Transformation[T, S](Xform_transformWith, f, executor))
 
+    /** TODO FILL IN
+     *
+     *  @tparam U TODO FILL IN
+     *  @tparam R TODO FILL IN
+     *  @param that TODO FILL IN
+     *  @param f TODO FILL IN
+     *  @param executor TODO FILL IN
+     *  @return TODO FILL IN
+     */
     override final def zipWith[U, R](that: Future[U])(f: (T, U) => R)(implicit executor: ExecutionContext): Future[R] = {
       val state = get()
       if (state.isInstanceOf[Try[?]]) {
@@ -179,52 +221,111 @@ private[concurrent] object Promise {
       }
     }
 
+    /** TODO FILL IN
+     *
+     *  @tparam U TODO FILL IN
+     *  @param f TODO FILL IN
+     *  @param executor TODO FILL IN
+     */
     override final def foreach[U](f: T => U)(implicit executor: ExecutionContext): Unit = {
       val state = get()
       if (!state.isInstanceOf[Failure[?]]) dispatchOrAddCallbacks(state, new Transformation[T, Unit](Xform_foreach, f, executor))
     }
 
+    /** TODO FILL IN
+     *
+     *  @tparam S TODO FILL IN
+     *  @param f TODO FILL IN
+     *  @param executor TODO FILL IN
+     *  @return TODO FILL IN
+     */
     override final def flatMap[S](f: T => Future[S])(implicit executor: ExecutionContext): Future[S] = {
       val state = get()
       if (!state.isInstanceOf[Failure[?]]) dispatchOrAddCallbacks(state, new Transformation[T, S](Xform_flatMap, f, executor))
       else this.asInstanceOf[Future[S]]
     }
 
+    /** TODO FILL IN
+     *
+     *  @tparam S TODO FILL IN
+     *  @param f TODO FILL IN
+     *  @param executor TODO FILL IN
+     *  @return TODO FILL IN
+     */
     override final def map[S](f: T => S)(implicit executor: ExecutionContext): Future[S] = {
       val state = get()
       if (!state.isInstanceOf[Failure[?]]) dispatchOrAddCallbacks(state, new Transformation[T, S](Xform_map, f, executor))
       else this.asInstanceOf[Future[S]]
     }
 
+    /** TODO FILL IN
+     *
+     *  @param p TODO FILL IN
+     *  @param executor TODO FILL IN
+     *  @return TODO FILL IN
+     */
     override final def filter(p: T => Boolean)(implicit executor: ExecutionContext): Future[T] = {
       val state = get()
       if (!state.isInstanceOf[Failure[?]]) dispatchOrAddCallbacks(state, new Transformation[T, T](Xform_filter, p, executor)) // Short-circuit if we get a Success
       else this
     }
 
+    /** TODO FILL IN
+     *
+     *  @tparam S TODO FILL IN
+     *  @param pf TODO FILL IN
+     *  @param executor TODO FILL IN
+     *  @return TODO FILL IN
+     */
     override final def collect[S](pf: PartialFunction[T, S])(implicit executor: ExecutionContext): Future[S] = {
       val state = get()
       if (!state.isInstanceOf[Failure[?]]) dispatchOrAddCallbacks(state, new Transformation[T, S](Xform_collect, pf, executor)) // Short-circuit if we get a Success
       else this.asInstanceOf[Future[S]]
     }
 
+    /** TODO FILL IN
+     *
+     *  @tparam U TODO FILL IN
+     *  @param pf TODO FILL IN
+     *  @param executor TODO FILL IN
+     *  @return TODO FILL IN
+     */
     override final def recoverWith[U >: T](pf: PartialFunction[Throwable, Future[U]])(implicit executor: ExecutionContext): Future[U] = {
       val state = get()
       if (!state.isInstanceOf[Success[?]]) dispatchOrAddCallbacks(state, new Transformation[T, U](Xform_recoverWith, pf, executor)) // Short-circuit if we get a Failure
       else this.asInstanceOf[Future[U]]
     }
 
+    /** TODO FILL IN
+     *
+     *  @tparam U TODO FILL IN
+     *  @param pf TODO FILL IN
+     *  @param executor TODO FILL IN
+     *  @return TODO FILL IN
+     */
     override final def recover[U >: T](pf: PartialFunction[Throwable, U])(implicit executor: ExecutionContext): Future[U] = {
       val state = get()
       if (!state.isInstanceOf[Success[?]]) dispatchOrAddCallbacks(state, new Transformation[T, U](Xform_recover, pf, executor)) // Short-circuit if we get a Failure
       else this.asInstanceOf[Future[U]]
     }
 
+    /** TODO FILL IN
+     *
+     *  @tparam S TODO FILL IN
+     *  @param tag TODO FILL IN
+     *  @return TODO FILL IN
+     */
     override final def mapTo[S](implicit tag: scala.reflect.ClassTag[S]): Future[S] =
       if (!get().isInstanceOf[Failure[?]]) super[Future].mapTo[S](using tag) // Short-circuit if we get a Success
       else this.asInstanceOf[Future[S]]
 
 
+    /** TODO FILL IN
+     *
+     *  @tparam U TODO FILL IN
+     *  @param func TODO FILL IN
+     *  @param executor TODO FILL IN
+     */
     override final def onComplete[U](func: Try[T] => U)(implicit executor: ExecutionContext): Unit =
       dispatchOrAddCallbacks(get(), new Transformation[T, Unit](Xform_onComplete, func, executor))
 
@@ -243,10 +344,12 @@ private[concurrent] object Promise {
       () => unregisterCallback(t)
     }
 
+    /** TODO FILL IN */
     override final def failed: Future[Throwable] =
       if (!get().isInstanceOf[Success[?]]) super.failed
       else Future.failedFailureFuture // Cached instance in case of already known success
 
+    /** TODO FILL IN */
     @tailrec override final def toString(): String = {
       val state = get()
       if (state.isInstanceOf[Try[?]]) "Future("+state+")"
@@ -279,17 +382,31 @@ private[concurrent] object Promise {
 
     @throws(classOf[TimeoutException])
     @throws(classOf[InterruptedException])
+    /** TODO FILL IN
+     *
+     *  @param atMost TODO FILL IN
+     *  @param permit TODO FILL IN
+     *  @return TODO FILL IN
+     */
     final def ready(atMost: Duration)(implicit permit: CanAwait): this.type = {
       tryAwait0(atMost)
       this
     }
 
     @throws(classOf[Exception])
+    /** TODO FILL IN
+     *
+     *  @param atMost TODO FILL IN
+     *  @param permit TODO FILL IN
+     *  @return TODO FILL IN
+     */
     final def result(atMost: Duration)(implicit permit: CanAwait): T =
       tryAwait0(atMost).nn.get // returns the value, or throws the contained exception
 
+    /** TODO FILL IN */
     override final def isCompleted: Boolean = value0 ne null
 
+    /** TODO FILL IN */
     override final def value: Option[Try[T]] = Option(value0)
 
     @tailrec // returns null if not completed
@@ -300,6 +417,11 @@ private[concurrent] object Promise {
       else /*if (state.isInstanceOf[Callbacks[T]])*/ null
     }
 
+    /** TODO FILL IN
+     *
+     *  @param value TODO FILL IN
+     *  @return TODO FILL IN
+     */
     override final def tryComplete(value: Try[T]): Boolean = {
       val state = get()
       if (state.isInstanceOf[Try[?]]) false
@@ -318,6 +440,11 @@ private[concurrent] object Promise {
         (p ne this) && p.tryComplete0(p.get(), resolved) // Use this to get tailcall optimization and avoid re-resolution
       } else /* if(state.isInstanceOf[Try[T]]) */ false
 
+    /** TODO FILL IN
+     *
+     *  @param other TODO FILL IN
+     *  @return TODO FILL IN
+     */
     override final def completeWith(other: Future[T]): this.type = {
       if (other ne this) {
         val state = get()
@@ -440,23 +567,45 @@ private[concurrent] object Promise {
 
   // Constant byte tags for unpacking transformation function inputs or outputs
   // These need to be Ints to get compiled into constants.
+  /** TODO FILL IN */
   final val Xform_noop          = 0
+  /** TODO FILL IN */
   final val Xform_map           = 1
+  /** TODO FILL IN */
   final val Xform_flatMap       = 2
+  /** TODO FILL IN */
   final val Xform_transform     = 3
+  /** TODO FILL IN */
   final val Xform_transformWith = 4
+  /** TODO FILL IN */
   final val Xform_foreach       = 5
+  /** TODO FILL IN */
   final val Xform_onComplete    = 6
+  /** TODO FILL IN */
   final val Xform_recover       = 7
+  /** TODO FILL IN */
   final val Xform_recoverWith   = 8
+  /** TODO FILL IN */
   final val Xform_filter        = 9
+  /** TODO FILL IN */
   final val Xform_collect       = 10
 
     /* Marker trait
    */
+  /** TODO FILL IN
+   *
+   *  @tparam T TODO FILL IN
+   */
   sealed trait Callbacks[-T]
 
+  /** TODO FILL IN
+   *
+   *  @tparam T TODO FILL IN
+   *  @param first TODO FILL IN
+   *  @param rest TODO FILL IN
+   */
   final class ManyCallbacks[-T](final val first: Transformation[T, ?], final val rest: Callbacks[T]) extends Callbacks[T] {
+    /** TODO FILL IN */
     override final def toString(): String = "ManyCallbacks"
   }
 
@@ -476,15 +625,27 @@ private[concurrent] object Promise {
     @annotation.stableNull private final var _arg: Try[F @uncheckedVariance] | Null,
     private final val _xform: Int
   ) extends DefaultPromise[T]() with Callbacks[F] with Runnable with Batchable {
+    /** TODO FILL IN
+     *
+     *  @param xform TODO FILL IN
+     *  @param f TODO FILL IN
+     *  @param ec TODO FILL IN
+     */
     final def this(xform: Int, f: (? => ?) | Null, ec: ExecutionContext) =
       this(f.asInstanceOf[(Any => Any) | Null], ec.prepare(): @nowarn("cat=deprecation"), null, xform)
 
+    /** TODO FILL IN */
     final def benefitsFromBatching: Boolean = _xform != Xform_onComplete && _xform != Xform_foreach
 
     // Gets invoked when a value is available, schedules it to be run():ed by the ExecutionContext
     // submitWithValue *happens-before* run(), through ExecutionContext.execute.
     // Invariant: _arg is `null`, _ec is non-null. `this` ne Noop.
     // requireNonNull(resolved) will hold as guarded by `resolve`
+    /** TODO FILL IN
+     *
+     *  @param resolved TODO FILL IN
+     *  @return TODO FILL IN
+     */
     final def submitWithValue(resolved: Try[F]): this.type = {
       _arg = resolved
       val e = _ec
@@ -513,6 +674,7 @@ private[concurrent] object Promise {
     }
 
     // Gets invoked by the ExecutionContext, when we have a value to transform.
+    /** TODO FILL IN */
     override final def run(): Unit = {
       val v   = _arg.nn
       val fun = _fun.nn

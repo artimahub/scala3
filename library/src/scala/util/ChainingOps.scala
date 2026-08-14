@@ -17,7 +17,14 @@ import scala.language.`2.13`
 import scala.language.implicitConversions
 import language.experimental.captureChecking
 
+/** TODO FILL IN */
 trait ChainingSyntax {
+  /** TODO FILL IN
+   *
+   *  @tparam A TODO FILL IN
+   *  @param a TODO FILL IN
+   *  @return TODO FILL IN
+   */
   @inline implicit final def scalaUtilChainingOps[A](a: A): ChainingOps[A] = new ChainingOps(a)
 }
 

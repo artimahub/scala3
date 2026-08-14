@@ -351,6 +351,11 @@ class Regex private[matching](val pattern: Pattern, groupNames: String*) extends
     else unapplySeq(m.matched.nn)
 
   //  @see UnanchoredRegex
+  /** TODO FILL IN
+   *
+   *  @param m TODO FILL IN
+   *  @return TODO FILL IN
+   */
   protected def runMatcher(m: Matcher): Boolean = m.matches()
 
   /** Returns all non-overlapping matches of this `Regex` in the given character
@@ -618,8 +623,10 @@ class Regex private[matching](val pattern: Pattern, groupNames: String*) extends
    *  @return        The new unanchored regex
    */
   def unanchored: UnanchoredRegex = new Regex(pattern, groupNames*) with UnanchoredRegex { override def anchored = outer }
+  /** TODO FILL IN */
   def anchored: Regex             = this
 
+  /** TODO FILL IN */
   def regex: String = pattern.pattern
 
   /** The string defining the regular expression. */
@@ -631,7 +638,13 @@ class Regex private[matching](val pattern: Pattern, groupNames: String*) extends
  *  @see [[Regex#unanchored]]
  */
 trait UnanchoredRegex extends Regex {
+  /** TODO FILL IN
+   *
+   *  @param m TODO FILL IN
+   *  @return TODO FILL IN
+   */
   override protected def runMatcher(m: Matcher): Boolean = m.find()
+  /** TODO FILL IN */
   override def unanchored: UnanchoredRegex = this
 }
 
@@ -771,10 +784,12 @@ object Regex {
    *  @param _groupNames the names of the capturing groups, if any, used to look up groups by name
    */
   class Match(val source: CharSequence,
+              /** TODO FILL IN */
               protected[matching] val matcher: Matcher,
               _groupNames: Seq[String]) extends MatchData {
 
     @deprecated("groupNames does not include inline group names, and should not be used anymore", "2.13.7")
+    /** TODO FILL IN */
     val groupNames: Seq[String] = _groupNames
 
     /** The index of the first matched character. */
@@ -822,6 +837,11 @@ object Regex {
    *  ```
    */
   object Match {
+    /** TODO FILL IN
+     *
+     *  @param m TODO FILL IN
+     *  @return TODO FILL IN
+     */
     def unapply(m: Match): Some[String] = Some(m.matched.nn)
   }
 
@@ -837,6 +857,11 @@ object Regex {
    *  ```
    */
   object Groups {
+    /** TODO FILL IN
+     *
+     *  @param m TODO FILL IN
+     *  @return TODO FILL IN
+     */
     def unapplySeq(m: Match): Option[Seq[String | Null]] = {
       if (m.groupCount > 0) extractGroupsFromMatch(m) else None
     }
@@ -865,8 +890,10 @@ object Regex {
   extends AbstractIterator[String] with MatchData { self =>
 
     @deprecated("groupNames does not include inline group names, and should not be used anymore", "2.13.7")
+    /** TODO FILL IN */
     val groupNames: Seq[String] = _groupNames
 
+    /** TODO FILL IN */
     protected[Regex] val matcher = regex.pattern.matcher(source)
 
     // 0 = not yet matched, 1 = matched, 2 = advanced to match, 3 = no more matches
@@ -949,17 +976,24 @@ object Regex {
 
   /** Internal trait used by `replaceAllIn` and `replaceSomeIn`. */
   private[matching] trait Replacement {
+    /** TODO FILL IN */
     protected def matcher: Matcher
 
     private val sb = new java.lang.StringBuilder
 
     // Appends the remaining input and returns the result text.
+    /** TODO FILL IN */
     def replaced = {
       matcher.appendTail(sb)
       sb.toString
     }
 
     // Appends the input prefix and the replacement text.
+    /** TODO FILL IN
+     *
+     *  @param replacement TODO FILL IN
+     *  @return TODO FILL IN
+     */
     def replace(replacement: String): Matcher = matcher.appendReplacement(sb, replacement)
   }
 

@@ -65,6 +65,10 @@ object CommandLineParser {
     println(s"Illegal command line$where: ${err.msg}")
   }
 
+  /** TODO FILL IN
+   *
+   *  @tparam T TODO FILL IN
+   */
   trait FromString[T] {
     /** Can throw java.lang.IllegalArgumentException.
      *
@@ -73,6 +77,11 @@ object CommandLineParser {
      */
     def fromString(s: String): T
 
+    /** TODO FILL IN
+     *
+     *  @param s TODO FILL IN
+     *  @return TODO FILL IN
+     */
     def fromStringOption(s: String): Option[T] =
       try Some(fromString(s))
       catch {

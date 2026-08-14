@@ -64,6 +64,13 @@ trait BlockContext {
 
 object BlockContext {
   private object DefaultBlockContext extends BlockContext {
+    /** TODO FILL IN
+     *
+     *  @tparam T TODO FILL IN
+     *  @param thunk TODO FILL IN
+     *  @param permission TODO FILL IN
+     *  @return TODO FILL IN
+     */
     override final def blockOn[T](thunk: => T)(implicit permission: CanAwait): T = thunk
   }
 

@@ -67,7 +67,9 @@ If your application does not define an ExecutionContext elsewhere,
 consider using Scala's global ExecutionContext by defining
 the following:
 
+/** TODO FILL IN */
 implicit val ec: scala.concurrent.ExecutionContext = scala.concurrent.ExecutionContext.global""")
+/** TODO FILL IN */
 trait ExecutionContext {
 
   /** Runs a block of code on this execution context.
@@ -217,8 +219,20 @@ object ExecutionContext {
    *  Any `NonFatal` or `InterruptedException`s will be reported to the `defaultReporter`.
    */
   object parasitic extends ExecutionContextExecutor with BatchingExecutor {
+    /** TODO FILL IN
+     *
+     *  @param runnable TODO FILL IN
+     */
     override final def submitForExecution(runnable: Runnable): Unit = runnable.run()
+    /** TODO FILL IN
+     *
+     *  @param runnable TODO FILL IN
+     */
     override final def execute(runnable: Runnable): Unit = submitSyncBatched(runnable)
+    /** TODO FILL IN
+     *
+     *  @param t TODO FILL IN
+     */
     override final def reportFailure(t: Throwable): Unit = defaultReporter(t)
   }
 

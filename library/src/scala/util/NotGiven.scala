@@ -28,6 +28,7 @@ import language.experimental.captureChecking
  */
 final class NotGiven[+T] private ()
 
+/** TODO FILL IN */
 trait LowPriorityNotGiven {
 
   /** A fallback method used to emulate negation in Scala 2. */

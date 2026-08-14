@@ -519,6 +519,11 @@ sealed abstract class Either[+A, +B] extends Product with Serializable {
     case _        => None
   }
 
+  /** TODO FILL IN
+   *
+   *  @param ev TODO FILL IN
+   *  @return TODO FILL IN
+   */
   def toTry(implicit ev: A <:< Throwable): Try[B] = this match {
     case Right(b) => Success(b)
     case Left(a)  => Failure(a)
@@ -554,7 +559,9 @@ sealed abstract class Either[+A, +B] extends Product with Serializable {
  *  @param value the value wrapped in this `Left`
  */
 final case class Left[+A, +B](value: A) extends Either[A, B] {
+  /** TODO FILL IN */
   def isLeft  = true
+  /** TODO FILL IN */
   def isRight = false
 
   /** Upcasts this `Left[A, B]` to `Either[A, B1]`
@@ -577,7 +584,9 @@ final case class Left[+A, +B](value: A) extends Either[A, B] {
  *  @param value the value wrapped in this `Right`
  */
 final case class Right[+A, +B](value: B) extends Either[A, B] {
+  /** TODO FILL IN */
   def isLeft  = false
+  /** TODO FILL IN */
   def isRight = true
 
   /** Upcasts this `Right[A, B]` to `Either[A1, B]`
@@ -633,6 +642,7 @@ object Either {
    *  @param x the `Either` instance whose left and right types are the same
    */
   implicit class MergeableEither[A](private val x: Either[A, A]) extends AnyVal {
+    /** TODO FILL IN */
     def merge: A = x match {
       case Right(a) => a
       case Left(a)  => a

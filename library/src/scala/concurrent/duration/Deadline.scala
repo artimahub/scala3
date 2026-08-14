@@ -85,6 +85,12 @@ object Deadline {
 
   /** The natural ordering for deadline is determined by the natural order of the underlying (finite) duration. */
   implicit object DeadlineIsOrdered extends Ordering[Deadline] {
+    /** TODO FILL IN
+     *
+     *  @param a TODO FILL IN
+     *  @param b TODO FILL IN
+     *  @return TODO FILL IN
+     */
     def compare(a: Deadline, b: Deadline): Int = a compare b
   }
 

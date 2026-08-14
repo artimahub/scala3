@@ -72,5 +72,6 @@ class DynamicVariable[T](init: T) {
    */
   def value_=(newval: T) = tl.set(newval)
 
+  /** TODO FILL IN */
   override def toString(): String = "DynamicVariable(" + value + ")"
 }

@@ -23,12 +23,14 @@ import scala.language.`2.13`
  *  @note Since JDK 1.7, a similar effect can be achieved with `class Ex extends Throwable(..., writableStackTrace = false)`
  */
 trait NoStackTrace extends Throwable {
+  /** TODO FILL IN */
   override def fillInStackTrace(): Throwable =
     if (NoStackTrace.noSuppression) super.fillInStackTrace()
     else this
 }
 
 object NoStackTrace {
+  /** TODO FILL IN */
   final def noSuppression = _noSuppression
 
   // two-stage init to make checkinit happy, since sys.SystemProperties.noTraceSuppression.value calls back into NoStackTrace.noSuppression

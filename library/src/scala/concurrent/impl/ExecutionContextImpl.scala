@@ -19,16 +19,35 @@ import scala.concurrent.{ BlockContext, ExecutionContext, CanAwait, ExecutionCon
 
 private[scala] class ExecutionContextImpl private[impl] (final val executor: Executor, final val reporter: Throwable => Unit) extends ExecutionContextExecutor {
   require(executor ne null, "Executor must not be null")
+  /** TODO FILL IN
+   *
+   *  @param runnable TODO FILL IN
+   */
   override final def execute(runnable: Runnable): Unit = executor.execute(runnable)
+  /** TODO FILL IN
+   *
+   *  @param t TODO FILL IN
+   */
   override final def reportFailure(t: Throwable): Unit = reporter(t)
 }
 
 private[concurrent] object ExecutionContextImpl {
 
+  /** TODO FILL IN
+   *
+   *  @param daemonic TODO FILL IN
+   *  @param maxBlockers TODO FILL IN
+   *  @param prefix TODO FILL IN
+   *  @param uncaught TODO FILL IN
+   */
   final class DefaultThreadFactory(
+    /** TODO FILL IN */
     final val daemonic: Boolean,
+    /** TODO FILL IN */
     final val maxBlockers: Int,
+    /** TODO FILL IN */
     final val prefix: String,
+    /** TODO FILL IN */
     final val uncaught: Thread.UncaughtExceptionHandler) extends ThreadFactory with ForkJoinPool.ForkJoinWorkerThreadFactory {
 
     require(prefix ne null, "DefaultThreadFactory.prefix must be non null")
@@ -37,6 +56,12 @@ private[concurrent] object ExecutionContextImpl {
     private final val blockerPermits = new Semaphore(maxBlockers)
 
     @annotation.nowarn("cat=deprecation")
+    /** TODO FILL IN
+     *
+     *  @tparam T TODO FILL IN
+     *  @param thread TODO FILL IN
+     *  @return TODO FILL IN
+     */
     def wire[T <: Thread](thread: T): T = {
       thread.setDaemon(daemonic)
       thread.setUncaughtExceptionHandler(uncaught)
@@ -44,8 +69,18 @@ private[concurrent] object ExecutionContextImpl {
       thread
     }
 
+    /** TODO FILL IN
+     *
+     *  @param runnable TODO FILL IN
+     *  @return TODO FILL IN
+     */
     def newThread(runnable: Runnable): Thread = wire(new Thread(runnable))
 
+    /** TODO FILL IN
+     *
+     *  @param fjp TODO FILL IN
+     *  @return TODO FILL IN
+     */
     def newThread(fjp: ForkJoinPool): ForkJoinWorkerThread =
       wire(new ForkJoinWorkerThread(fjp) with BlockContext {
         private final var isBlocked: Boolean = false // This is only ever read & written if this thread is the current thread
@@ -79,6 +114,11 @@ private[concurrent] object ExecutionContextImpl {
       })
   }
 
+  /** TODO FILL IN
+   *
+   *  @param reporter TODO FILL IN
+   *  @return TODO FILL IN
+   */
   def createDefaultExecutorService(reporter: Throwable => Unit): ExecutionContextExecutorService = {
     def getInt(name: String, default: String) = (try System.getProperty(name, default) catch {
       case e: SecurityException => default
@@ -109,12 +149,24 @@ private[concurrent] object ExecutionContextImpl {
     }
   }
 
+  /** TODO FILL IN
+   *
+   *  @param e TODO FILL IN
+   *  @param reporter TODO FILL IN
+   *  @return TODO FILL IN
+   */
   def fromExecutor(e: Executor | Null, reporter: Throwable => Unit = ExecutionContext.defaultReporter): ExecutionContextExecutor =
     e match {
       case null => createDefaultExecutorService(reporter)
       case some => new ExecutionContextImpl(some, reporter)
     }
 
+  /** TODO FILL IN
+   *
+   *  @param es TODO FILL IN
+   *  @param reporter TODO FILL IN
+   *  @return TODO FILL IN
+   */
   def fromExecutorService(es: ExecutorService | Null, reporter: Throwable => Unit = ExecutionContext.defaultReporter):
     ExecutionContextExecutorService = es match {
       case null => createDefaultExecutorService(reporter)

@@ -85,6 +85,13 @@ private[hashing] class MurmurHash3 {
   // In this case, the `seed` already has the case class name mixed in and `ignorePrefix` is set to true.
   // Case classes compiled before 2.13.17 call this method with `productSeed` and `ignorePrefix = false`.
   // See `productHashCode` in `SyntheticMethods` for details.
+  /** TODO FILL IN
+   *
+   *  @param x TODO FILL IN
+   *  @param seed TODO FILL IN
+   *  @param ignorePrefix TODO FILL IN
+   *  @return TODO FILL IN
+   */
   final def productHash(x: Product, seed: Int, ignorePrefix: Boolean = false): Int = {
     val arr = x.productArity
     if (arr == 0)
@@ -407,23 +414,68 @@ private[hashing] class MurmurHash3 {
  *  @see [[https://github.com/aappleby/smhasher]]
  */
 object MurmurHash3 extends MurmurHash3 {
+  /** TODO FILL IN */
   final val arraySeed       = 0x3c074a61
+  /** TODO FILL IN */
   final val stringSeed      = 0xf7ca7fd2
+  /** TODO FILL IN */
   final val productSeed     = 0xcafebabe
+  /** TODO FILL IN */
   final val symmetricSeed   = 0xb592f7ae
+  /** TODO FILL IN */
   final val traversableSeed = 0xe73a8b15
+  /** TODO FILL IN */
   final val seqSeed         = "Seq".hashCode
+  /** TODO FILL IN */
   final val mapSeed         = "Map".hashCode
+  /** TODO FILL IN */
   final val setSeed         = "Set".hashCode
 
+  /** TODO FILL IN
+   *
+   *  @param a TODO FILL IN
+   *  @return TODO FILL IN
+   */
   def arrayHash[@specialized T](a: Array[T]): Int      = arrayHash(a, arraySeed)
+  /** TODO FILL IN
+   *
+   *  @param data TODO FILL IN
+   *  @return TODO FILL IN
+   */
   def bytesHash(data: Array[Byte]): Int                = bytesHash(data, arraySeed)
+  /** TODO FILL IN
+   *
+   *  @param xs TODO FILL IN
+   *  @return TODO FILL IN
+   */
   def orderedHash(xs: IterableOnce[Any]): Int          = orderedHash(xs, symmetricSeed)
+  /** TODO FILL IN
+   *
+   *  @param x TODO FILL IN
+   *  @return TODO FILL IN
+   */
   def stringHash(x: String): Int                       = stringHash(x, stringSeed)
+  /** TODO FILL IN
+   *
+   *  @param xs TODO FILL IN
+   *  @return TODO FILL IN
+   */
   def unorderedHash(xs: IterableOnce[Any]): Int        = unorderedHash(xs, traversableSeed)
+  /** TODO FILL IN
+   *
+   *  @param start TODO FILL IN
+   *  @param step TODO FILL IN
+   *  @param last TODO FILL IN
+   *  @return TODO FILL IN
+   */
   def rangeHash(start: Int, step: Int, last: Int): Int = rangeHash(start, step, last, seqSeed)
 
   @deprecated("use `caseClassHash` instead", "2.13.17")
+  /** TODO FILL IN
+   *
+   *  @param x TODO FILL IN
+   *  @return TODO FILL IN
+   */
   def productHash(x: Product): Int = caseClassHash(x, productSeed, null)
 
   /** Computes the `hashCode` of a case class instance. This method returns the same value as `x.hashCode`
@@ -473,12 +525,24 @@ object MurmurHash3 extends MurmurHash3 {
     case xs => orderedHash(xs, seqSeed)
   }
 
+  /** TODO FILL IN
+   *
+   *  @param xs TODO FILL IN
+   *  @return TODO FILL IN
+   */
   def mapHash(xs: scala.collection.Map[?, ?]): Int = {
     if (xs.isEmpty) emptyMapHash
     else {
       class accum extends Function2[Any, Any, Unit] {
+        /** TODO FILL IN */
         var a, b, n = 0
+        /** TODO FILL IN */
         var c = 1
+        /** TODO FILL IN
+         *
+         *  @param k TODO FILL IN
+         *  @param v TODO FILL IN
+         */
         override def apply(k: Any, v: Any): Unit = {
           val h = tuple2Hash(k, v)
           a += h
@@ -498,35 +562,52 @@ object MurmurHash3 extends MurmurHash3 {
   }
 
   private[scala] val emptyMapHash = unorderedHash(Nil, mapSeed)
+  /** TODO FILL IN
+   *
+   *  @param xs TODO FILL IN
+   *  @return TODO FILL IN
+   */
   def setHash(xs: scala.collection.Set[?]): Int    = unorderedHash(xs, setSeed)
 
+  /** TODO FILL IN */
   class ArrayHashing[@specialized T] extends Hashing[Array[T]] {
+    /** TODO FILL IN
+     *
+     *  @param a TODO FILL IN
+     */
     def hash(a: Array[T]) = arrayHash(a)
   }
 
+  /** TODO FILL IN */
   def arrayHashing[@specialized T] = new ArrayHashing[T]
 
+  /** TODO FILL IN */
   def bytesHashing = new Hashing[Array[Byte]] {
     def hash(data: Array[Byte]) = bytesHash(data)
   }
 
+  /** TODO FILL IN */
   def orderedHashing = new Hashing[IterableOnce[Any]] {
     def hash(xs: IterableOnce[Any]) = orderedHash(xs)
   }
 
   @deprecated("use `caseClassHashing` instead", "2.13.17")
+  /** TODO FILL IN */
   def productHashing = new Hashing[Product] {
     def hash(x: Product) = caseClassHash(x)
   }
 
+  /** TODO FILL IN */
   def caseClassHashing = new Hashing[Product] {
     def hash(x: Product) = caseClassHash(x)
   }
 
+  /** TODO FILL IN */
   def stringHashing = new Hashing[String] {
     def hash(x: String) = stringHash(x)
   }
 
+  /** TODO FILL IN */
   def unorderedHashing = new Hashing[IterableOnce[Any]] {
     def hash(xs: IterableOnce[Any]) = unorderedHash(xs)
   }
