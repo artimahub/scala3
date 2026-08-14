@@ -66,6 +66,7 @@
 #   STYLE_MODEL=mistral-large-latest   STYLE_PROVIDER=mistral
 #   ADJUDICATOR_MODEL=zai-glm-5-2     ADJUDICATOR_PROVIDER=mistral
 #   INTER_FILE_PAUSE_SECONDS=120  PAUSE_SLEEP=30  MAX_TOKENS=32000
+#   WRITER_MAX_PASSES=6  WRITER_PASS_PAUSE=60  PROVIDER_SPACING=45
 #   DRY_RUN=false
 # =============================================================================
 
@@ -86,7 +87,7 @@ STYLE_EMPHASIS=${STYLE_EMPHASIS:-"Your particular focus is STYLE AND READABILITY
 RATE_LIMIT_BACKOFF=${RATE_LIMIT_BACKOFF:-30}   # doubles per retry: 30, 60, 120
 PROVIDER_SPACING=${PROVIDER_SPACING:-45}       # gap between same-provider calls
 WRITER_MAX_PASSES=${WRITER_MAX_PASSES:-6}     # fill passes before review starts
-WRITER_PASS_PAUSE=${WRITER_PASS_PAUSE:-30}    # gap between fill passes
+WRITER_PASS_PAUSE=${WRITER_PASS_PAUSE:-60}    # gap between fill passes
 SUSPICIOUS_REVIEW_BYTES=${SUSPICIOUS_REVIEW_BYTES:-400}
 DRY_RUN=${DRY_RUN:-false}
 MARKER="TODO FILL IN"
