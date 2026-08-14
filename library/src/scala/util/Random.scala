@@ -21,9 +21,9 @@ import scala.collection.immutable.LazyList
 import scala.language.implicitConversions
 import language.experimental.captureChecking
 
-/** TODO FILL IN
+/** A wrapper for `java.util.Random` that provides additional convenience methods.
  *
- *  @param self TODO FILL IN
+ *  @param self the underlying `java.util.Random` instance
  */
 class Random(val self: java.util.Random^) extends AnyRef with Serializable {
   /** Creates a new random number generator using a single long seed.
@@ -256,9 +256,9 @@ class Random(val self: java.util.Random^) extends AnyRef with Serializable {
     (self.nextInt(high - low) + low).toChar
   }
 
-  /** TODO FILL IN
+  /** Sets the seed of this random number generator using a single long seed.
    *
-   *  @param seed TODO FILL IN
+   *  @param seed the new seed for the random number generator
    */
   def setSeed(seed: Long): Unit = { self.setSeed(seed) }
 
@@ -307,10 +307,10 @@ class Random(val self: java.util.Random^) extends AnyRef with Serializable {
  */
 object Random extends Random {
 
-  /** TODO FILL IN
+  /** Converts a `java.util.Random` instance to a `scala.util.Random` instance.
    *
-   *  @param r TODO FILL IN
-   *  @return TODO FILL IN
+   *  @param r the `java.util.Random` instance to convert
+   *  @return a `scala.util.Random` instance wrapping the given `java.util.Random`
    */
   implicit def javaRandomToRandom(r: java.util.Random): Random = new Random(r)
 

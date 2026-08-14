@@ -90,15 +90,14 @@ class Breaks {
   def breakable(op: => Unit): Unit =
     try op catch { case ex: BreakControl if ex eq breakException => }
 
-  /** TODO FILL IN
+  /** A block that may be exited with a `break`, producing a value of type `T`.
    *
-   *  @tparam T TODO FILL IN
+   *  @tparam T the result type of the computation
    */
   sealed trait TryBlock[T] {
-    /** TODO FILL IN
+    /** Returns the result of the computation, or the given fallback value if `break` was invoked.
      *
-     *  @param onBreak TODO FILL IN
-     *  @return TODO FILL IN
+     *  @param onBreak the fallback value to return if the computation was aborted with `break`
      */
     def catchBreak(onBreak: => T): T
   }

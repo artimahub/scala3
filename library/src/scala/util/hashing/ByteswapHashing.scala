@@ -21,9 +21,9 @@ import scala.language.`2.13`
  */
 final class ByteswapHashing[T] extends Hashing[T] {
 
-  /** TODO FILL IN
+  /** Computes the hash code of a value by applying the byteswap32 algorithm to its default hash code.
    *
-   *  @param v TODO FILL IN
+   *  @param v the value to be hashed
    */
   def hash(v: T) = byteswap32(v.##)
 
@@ -33,9 +33,9 @@ final class ByteswapHashing[T] extends Hashing[T] {
 object ByteswapHashing {
 
   private class Chained[T](h: Hashing[T]) extends Hashing[T] {
-    /** TODO FILL IN
+    /** Computes the hash code of a value by applying the byteswap32 algorithm to the result of another hashing function.
      *
-     *  @param v TODO FILL IN
+     *  @param v the value to be hashed
      */
     def hash(v: T) = byteswap32(h.hash(v))
   }

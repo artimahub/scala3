@@ -217,11 +217,11 @@ package concurrent {
     }
 
     private object FutureValue {
-      /** TODO FILL IN
+      /** Extracts the value of a `Future` if the `Awaitable` is a `Future`, otherwise returns `None`.
        *
-       *  @tparam T TODO FILL IN
-       *  @param a TODO FILL IN
-       *  @return TODO FILL IN
+       *  @tparam T the type of the value contained in the `Future`
+       *  @param a the `Awaitable` to extract the value from
+       *  @return `Some(Try[T])` if `a` is a `Future`, otherwise `None`
        */
       def unapply[T](a: Awaitable[T]): Option[Try[T]] = a match {
         case f: Future[T @unchecked] => f.value
