@@ -23,11 +23,23 @@ metadata guessing. Parse the blocks and apply them here.
 
 Safety
 ------
-A block is applied only when its SEARCH text occurs EXACTLY ONCE in the file.
-Zero matches or several matches are skipped and counted, never guessed at. Since
-every edit is an exact-string replacement, the file can only change where a
-block matched, which is a stronger guarantee than a client regenerating the
-file. The caller's strip-comments integrity check still backstops this.
+A block is applied only when its target site is determined, never guessed at.
+A site is determined when the SEARCH text matches exactly one place -- either
+verbatim, or ignoring leading whitespace, since mis-indentation is the mistake
+models make most.
+
+Text alone cannot always decide. Sibling declarations are sometimes identical
+down to the byte, marker block and declaration line alike, so nothing textual
+separates them. For those, position decides: when a reply's unambiguous blocks
+are confirmed to arrive in file order, a duplicated block takes the next site
+not yet consumed. Fewer than two agreeing anchors means no such confirmation,
+and the block is skipped as before.
+
+Every edit replaces one located region and nothing else, so the file can only
+change where a block matched, which is a stronger guarantee than a client
+regenerating the file. Each edit is additionally rejected unless the file's code
+lines come out byte-identical, and the caller's strip-comments integrity check
+still backstops the whole run.
 
 Usage:
   direct-writer.py --file <path> --prompt <path> --model <id> \
@@ -57,17 +69,22 @@ def _strip_indent(text):
     return "\n".join(l.lstrip() for l in text.split("\n"))
 
 
-def find_dedented(src, search):
-    """Locate `search` in `src` ignoring leading whitespace on every line.
+def find_regions(src, search, from_pos=0):
+    """Every region of `src` matching `search` ignoring leading whitespace.
 
-    Returns (start, end, indent) for exactly one match, else None. `indent` is
-    the leading whitespace of the matched region's first line, so the
-    replacement can be re-indented to suit the file rather than the model.
-    Refuses on zero or multiple matches, exactly like the exact-match path.
+    Returns a list of (start, end, indent) in file order, restricted to regions
+    starting at or after `from_pos`. `indent` is the leading whitespace of the
+    matched region's first line, so a replacement can be re-indented to suit the
+    file rather than the model.
+
+    Indentation-blind because that is the one thing models reliably get wrong,
+    and they get it wrong *within* a single block: on duration/package.scala the
+    writer emitted the comment at 2 spaces and the declaration line under it at
+    4, so the block matched nothing at all despite being otherwise perfect.
     """
     want = _strip_indent(search).strip("\n")
     if not want:
-        return None
+        return []
     want_lines = want.split("\n")
     src_lines = src.split("\n")
     stripped = [l.lstrip() for l in src_lines]
@@ -78,18 +95,28 @@ def find_dedented(src, search):
         offsets.append(pos)
         pos += len(l) + 1
 
-    hits = []
+    out = []
     for i in range(len(src_lines) - len(want_lines) + 1):
-        if stripped[i:i + len(want_lines)] == want_lines:
-            hits.append(i)
-    if len(hits) != 1:
-        return None
-    i = hits[0]
-    first = src_lines[i]
-    indent = first[: len(first) - len(first.lstrip())]
-    start = offsets[i]
-    end = offsets[i + len(want_lines) - 1] + len(src_lines[i + len(want_lines) - 1])
-    return start, end, indent
+        if stripped[i:i + len(want_lines)] != want_lines:
+            continue
+        start = offsets[i]
+        if start < from_pos:
+            continue
+        first = src_lines[i]
+        indent = first[: len(first) - len(first.lstrip())]
+        last = i + len(want_lines) - 1
+        out.append((start, offsets[last] + len(src_lines[last]), indent))
+    return out
+
+
+def find_dedented(src, search):
+    """Locate `search` ignoring leading whitespace, for exactly one match.
+
+    Returns (start, end, indent), else None. Refuses on zero or multiple
+    matches, exactly like the exact-match path.
+    """
+    hits = find_regions(src, search)
+    return hits[0] if len(hits) == 1 else None
 
 
 def reindent(text, indent):
@@ -115,6 +142,89 @@ def code_only(text):
             continue
         out.append(l)
     return out
+
+
+def apply_blocks(src, blocks):
+    """Apply SEARCH/REPLACE `blocks` to `src`. Returns (new_src, stats).
+
+    Separate from the HTTP path so the matching rules can be exercised against a
+    saved reply without spending a request. See test-apply-blocks.py.
+    """
+    stats = dict(applied=0, nomatch=0, ambiguous=0, unchanged=0,
+                 reindented=0, would_alter_code=0, order_resolved=0)
+    code_baseline = code_only(src)
+
+    def try_apply(candidate):
+        """Accept an edited file ONLY if it changed no code line.
+
+        Defence at the point of application, not after the fact. The re-indent
+        path below re-indents a replacement to suit the file, and when the
+        model's block has inconsistent relative indentation that arithmetic
+        shifted a `def` line by a space: it fired on 4 files and corrupted 2.
+        Rather than trying to make the arithmetic always right, verify the
+        outcome -- which also covers every other way a block could touch code."""
+        return code_only(candidate) == code_baseline
+
+    # Does this reply list its blocks in file order? Decided from the blocks that
+    # match exactly one place, which cannot be mistaken for anything else.
+    #
+    # Some declarations are indistinguishable by text: IntMult and LongMult in
+    # duration/package.scala hold a byte-identical marker block AND a
+    # byte-identical declaration line under it, so no amount of surrounding
+    # context separates them -- only position does. Assuming file order without
+    # checking would be precisely the guess this writer exists to refuse, so
+    # require two or more anchors that agree. Absent that evidence, ambiguous
+    # blocks are still skipped.
+    anchors = []
+    for search, _ in blocks:
+        hits = find_regions(src, search)
+        if len(hits) == 1:
+            anchors.append(hits[0][0])
+    in_file_order = len(anchors) >= 2 and all(a < b for a, b in zip(anchors, anchors[1:]))
+
+    cursor = 0
+    for search, replace in blocks:
+        if search == replace:
+            stats["unchanged"] += 1
+            continue
+
+        if src.count(search) == 1:
+            start = src.index(search)
+            end = start + len(search)
+            new_text = replace
+        else:
+            # Exact match failed or was ambiguous. Retry ignoring LEADING
+            # WHITESPACE, which is the one thing models reliably get wrong:
+            # BlockContext.scala's markers are indented 4 spaces (nested in an
+            # object) and the writer emitted a 2-space SEARCH block, so a
+            # perfectly good comment could not be applied. 9 of 36 files in the
+            # week-4 partition nest deeper than 2 spaces.
+            hits = find_regions(src, search)
+            if not hits:
+                stats["nomatch"] += 1
+                continue
+            if len(hits) > 1:
+                forward = [h for h in hits if h[0] >= cursor]
+                if not (in_file_order and forward):
+                    stats["ambiguous"] += 1
+                    continue
+                # Blocks arrive in file order, so the next unconsumed site is
+                # this block's site. Every earlier one is already filled.
+                hits = forward[:1]
+                stats["order_resolved"] += 1
+            start, end, indent = hits[0]
+            new_text = reindent(replace, indent)
+            stats["reindented"] += 1
+
+        candidate = src[:start] + new_text + src[end:]
+        if not try_apply(candidate):
+            stats["would_alter_code"] += 1
+            continue
+        src = candidate
+        cursor = start + len(new_text)
+        stats["applied"] += 1
+
+    return src, stats
 
 
 def post(base_url, api_key, payload, timeout):
@@ -262,76 +372,24 @@ def main():
         return 0
 
     blocks = BLOCK.findall(reply)
-    applied = skipped_nomatch = skipped_ambiguous = unchanged = reindented = 0
-    skipped_would_alter_code = 0
+    src, stats = apply_blocks(src, blocks)
 
-    def try_apply(candidate):
-        """Accept an edited file ONLY if it changed no code line.
-
-        Defence at the point of application, not after the fact. The re-indent
-        fallback below re-indents a replacement to suit the file, and when the
-        model's block has inconsistent relative indentation that arithmetic
-        shifted a `def` line by a space: it fired on 4 files and corrupted 2.
-        Rather than trying to make the arithmetic always right, verify the
-        outcome -- which also covers every other way a block could touch code."""
-        return code_only(candidate) == code_baseline
-
-    code_baseline = code_only(src)
-
-    for search, replace in blocks:
-        n = src.count(search)
-        if n == 0:
-            # Exact match failed. Before giving up, try again ignoring LEADING
-            # WHITESPACE, which is the one thing models reliably get wrong:
-            # BlockContext.scala's markers are indented 4 spaces (nested in an
-            # object) and the writer emitted a 2-space SEARCH block, so a
-            # perfectly good comment could not be applied. 9 of 36 files in the
-            # week-4 partition nest deeper than 2 spaces.
-            #
-            # This stays safe: it still demands EXACTLY ONE match, and it
-            # re-indents the replacement to whatever the file actually uses, so
-            # the result is indented like its neighbours rather than like the
-            # model's guess.
-            hit = find_dedented(src, search)
-            if hit is None:
-                skipped_nomatch += 1
-                continue
-            start, end, indent = hit
-            candidate = src[:start] + reindent(replace, indent) + src[end:]
-            if not try_apply(candidate):
-                skipped_would_alter_code += 1
-                continue
-            src = candidate
-            applied += 1
-            reindented += 1
-        elif n > 1:
-            # Ambiguous: applying it would edit an arbitrary one of several
-            # sites. Refuse rather than guess.
-            skipped_ambiguous += 1
-        elif search == replace:
-            unchanged += 1
-        else:
-            candidate = src.replace(search, replace, 1)
-            if not try_apply(candidate):
-                skipped_would_alter_code += 1
-                continue
-            src = candidate
-            applied += 1
-
-    if applied:
+    if stats["applied"]:
         with open(args.file, "w", encoding="utf-8") as fh:
             fh.write(src)
 
     print(f"  blocks parsed:   {len(blocks)}")
-    print(f"  applied:         {applied}")
-    print(f"  skipped (no match):  {skipped_nomatch}")
-    print(f"  skipped (ambiguous): {skipped_ambiguous}")
-    if skipped_would_alter_code:
-        print(f"  REFUSED (would alter code): {skipped_would_alter_code}")
-    if reindented:
-        print(f"  re-indented:     {reindented} (SEARCH whitespace did not match; matched dedented, unique)")
-    if unchanged:
-        print(f"  no-op blocks:    {unchanged}")
+    print(f"  applied:         {stats['applied']}")
+    print(f"  skipped (no match):  {stats['nomatch']}")
+    print(f"  skipped (ambiguous): {stats['ambiguous']}")
+    if stats["would_alter_code"]:
+        print(f"  REFUSED (would alter code): {stats['would_alter_code']}")
+    if stats["order_resolved"]:
+        print(f"  order-resolved:  {stats['order_resolved']} (SEARCH text duplicated; matched by position, blocks verified in file order)")
+    if stats["reindented"]:
+        print(f"  re-indented:     {stats['reindented']} (SEARCH whitespace did not match; matched dedented)")
+    if stats["unchanged"]:
+        print(f"  no-op blocks:    {stats['unchanged']}")
     return 0
 
 
