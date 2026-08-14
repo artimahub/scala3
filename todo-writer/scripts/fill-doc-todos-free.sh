@@ -8,7 +8,7 @@
 #   Writer      (Mistral  zai-glm-5-2)          drafts
 #   repeat up to MAX_ROUNDS:
 #       Accuracy review (Mistral  mistral-medium) ┐ sequential, spaced
-#       Style review    (Cerebras gpt-oss-120b)  ┘
+#       Style review    (Mistral  mistral-large)  ┘
 #       Adjudicator     (Mistral  zai-glm-5-2)  merges both into ONE verdict
 #       if adjudicator approves -> done
 #       else Writer refines against the adjudicated worklist
@@ -20,16 +20,21 @@
 #                  best score seen anywhere, free, 23s for a 42-declaration file
 #   gemma-4-31b    passes both accuracy probes; a DIFFERENT provider and family
 #                  from the writer, which is what makes its dissent meaningful
-#   gpt-oss-120b   1 redundant @return, tied best on the convention rule -- and
-#                  its known weakness is accuracy, which is the OTHER reviewer's
-#                  job. Playing each reviewer to its strength.
+#   mistral-large  specific, actionable, properly graded style findings. Chosen
+#                  over gpt-oss-120b, which reviews well but was throttled into
+#                  148-byte hollow approvals in 3 of 4 rounds: Cerebras limits by
+#                  token VOLUME and a review is inherently large, so pacing
+#                  cannot fix it. Also beat codestral-latest, which filed ten
+#                  identical boilerplate "blockers", and devstral-medium, which
+#                  returned an empty approval.
 #
 # Three families. Reviewer independence matters more than raw reviewer strength:
 # two reviewers that share weights agree for the wrong reasons.
 #
-# Providers are split deliberately: Mistral serves only the writer and the
-# adjudicator, both reviewers are on Cerebras, and EVERY call is sequential and
-# spaced. The first run put writer, style and adjudicator all on Mistral; its
+# Everything is on Mistral now, and EVERY call is sequential and spaced. That is
+# a deliberate trade: one provider outage stops the whole pipeline, but Mistral
+# limits by request RATE (~1 per 5s), which spacing handles, whereas Cerebras
+# limits by token volume, which it cannot. The first run put writer, style and adjudicator all on Mistral; its
 # free tier 429'd everything after the writer, losing the style review, the
 # adjudication and both refines in under two seconds.
 #
@@ -58,7 +63,7 @@
 #   MAX_ROUNDS=2
 #   WRITER_MODEL=zai-glm-5-2          WRITER_PROVIDER=mistral
 #   ACCURACY_MODEL=mistral-medium-latest ACCURACY_PROVIDER=mistral
-#   STYLE_MODEL=gpt-oss-120b          STYLE_PROVIDER=cerebras
+#   STYLE_MODEL=mistral-large-latest   STYLE_PROVIDER=mistral
 #   ADJUDICATOR_MODEL=zai-glm-5-2     ADJUDICATOR_PROVIDER=mistral
 #   INTER_FILE_PAUSE_SECONDS=120  PAUSE_SLEEP=30  MAX_TOKENS=32000
 #   DRY_RUN=false
@@ -69,7 +74,7 @@ set -uo pipefail
 MAX_ROUNDS=${MAX_ROUNDS:-2}
 WRITER_MODEL=${WRITER_MODEL:-zai-glm-5-2};                WRITER_PROVIDER=${WRITER_PROVIDER:-mistral}
 ACCURACY_MODEL=${ACCURACY_MODEL:-mistral-medium-latest};   ACCURACY_PROVIDER=${ACCURACY_PROVIDER:-mistral}
-STYLE_MODEL=${STYLE_MODEL:-gpt-oss-120b};                  STYLE_PROVIDER=${STYLE_PROVIDER:-cerebras}
+STYLE_MODEL=${STYLE_MODEL:-mistral-large-latest};    STYLE_PROVIDER=${STYLE_PROVIDER:-mistral}
 ADJUDICATOR_MODEL=${ADJUDICATOR_MODEL:-zai-glm-5-2};      ADJUDICATOR_PROVIDER=${ADJUDICATOR_PROVIDER:-mistral}
 MAX_TOKENS=${MAX_TOKENS:-32000}
 # Both reviewers get the SAME brief and are both asked to judge accuracy AND
@@ -79,7 +84,7 @@ MAX_TOKENS=${MAX_TOKENS:-32000}
 ACCURACY_EMPHASIS=${ACCURACY_EMPHASIS:-"Your particular focus is FACTUAL CORRECTNESS: API contracts, what the implementation really does, exception and edge-case behaviour, and subtle mismatches between prose and code. Still raise every style problem you see."}
 STYLE_EMPHASIS=${STYLE_EMPHASIS:-"Your particular focus is STYLE AND READABILITY: Scaladoc conventions, the project's tag rules, voice and altitude, and whether the text is genuinely useful to an API reader. Still raise every factual error you see, and treat it as a blocker."}
 RATE_LIMIT_BACKOFF=${RATE_LIMIT_BACKOFF:-30}   # doubles per retry: 30, 60, 120
-PROVIDER_SPACING=${PROVIDER_SPACING:-30}       # gap between same-provider calls
+PROVIDER_SPACING=${PROVIDER_SPACING:-45}       # gap between same-provider calls
 WRITER_MAX_PASSES=${WRITER_MAX_PASSES:-6}     # fill passes before review starts
 WRITER_PASS_PAUSE=${WRITER_PASS_PAUSE:-30}    # gap between fill passes
 SUSPICIOUS_REVIEW_BYTES=${SUSPICIOUS_REVIEW_BYTES:-400}
