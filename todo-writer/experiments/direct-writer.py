@@ -42,6 +42,7 @@ import json
 import os
 import re
 import sys
+import time
 import urllib.error
 import urllib.request
 
@@ -89,6 +90,7 @@ def main():
     ap.add_argument("--max-tokens", type=int, default=32000)
     ap.add_argument("--timeout", type=int, default=900)
     ap.add_argument("--reasoning-effort", default="")
+    ap.add_argument("--retry-backoff", type=int, default=30)
     ap.add_argument("--dump", default="", help="write the raw reply here")
     args = ap.parse_args()
 
@@ -132,13 +134,42 @@ def main():
         else:
             payload["reasoning_effort"] = args.reasoning_effort
 
-    try:
-        resp = post(args.base_url, api_key, payload, args.timeout)
-    except urllib.error.HTTPError as e:
-        print(f"ERROR: HTTP {e.code}: {e.read().decode()[:400]}", file=sys.stderr)
-        return 1
-    except Exception as e:  # network, timeout, malformed JSON
-        print(f"ERROR: {type(e).__name__}: {e}", file=sys.stderr)
+    # Retry on rate limits. Mistral's free tier 429s readily when several roles
+    # fire in quick succession; the first pipeline run lost both refine passes
+    # to it. Everything else fails fast, since retrying a 400 just repeats it.
+    resp = None
+    delay = args.retry_backoff
+    for attempt in range(1, 5):
+        try:
+            resp = post(args.base_url, api_key, payload, args.timeout)
+            break
+        except urllib.error.HTTPError as e:
+            body = e.read().decode()[:400]
+            if e.code in (429, 503) and attempt < 4:
+                print(f"  rate limited (HTTP {e.code}), attempt {attempt}/4; waiting {delay}s")
+                sys.stdout.flush()
+                time.sleep(delay)
+                delay *= 2
+                continue
+            print(f"ERROR: HTTP {e.code}: {body}", file=sys.stderr)
+            return 1
+        except urllib.error.URLError as e:
+            # DNS and transient network failures. Seen live: "Errno -3 Temporary
+            # failure in name resolution" mid-run, with both endpoints healthy
+            # seconds later. Worth retrying rather than losing the file.
+            if attempt < 4:
+                print(f"  network error ({e.reason}), attempt {attempt}/4; waiting {delay}s")
+                sys.stdout.flush()
+                time.sleep(delay)
+                delay *= 2
+                continue
+            print(f"ERROR: URLError: {e}", file=sys.stderr)
+            return 1
+        except Exception as e:  # malformed JSON, anything unexpected
+            print(f"ERROR: {type(e).__name__}: {e}", file=sys.stderr)
+            return 1
+    if resp is None:
+        print("ERROR: exhausted retries", file=sys.stderr)
         return 1
 
     choice = (resp.get("choices") or [{}])[0]
