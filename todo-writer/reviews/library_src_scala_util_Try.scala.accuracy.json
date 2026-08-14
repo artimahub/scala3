@@ -1,0 +1,205 @@
+{
+  "verdict": "revise",
+  "summary": "Multiple factual inaccuracies and style issues in the Scaladoc for Try, Failure, Success, and WithFilter.",
+  "items": [
+    {
+      "symbol": "Try.WithFilter#map",
+      "line": 165,
+      "severity": "blocker",
+      "issue": "The documentation claims the result is 'wrapped in a Try', but the implementation delegates to `Try.this.filter(p).map(f)`, which returns a `Failure` with `NoSuchElementException` if the predicate `p` is not satisfied. This behavior is not mentioned in the return description.",
+      "suggestion": "Clarify that the result is a `Try` containing the mapped value if the predicate is satisfied, or a `Failure` with `NoSuchElementException` if not.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "Try.WithFilter#flatMap",
+      "line": 171,
+      "severity": "blocker",
+      "issue": "The return description states 'the `Try` returned by `f` applied to the value if it satisfies the predicate `p`', but omits that if `p` is not satisfied, a `Failure` with `NoSuchElementException` is returned. This is a critical omission.",
+      "suggestion": "Add: 'or a `Failure` with a `NoSuchElementException` if the predicate `p` is not satisfied'.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "Try.WithFilter#foreach",
+      "line": 177,
+      "severity": "nit",
+      "issue": "The description is accurate but could be more precise. It does not mention that `foreach` is a no-op if the predicate `p` is not satisfied.",
+      "suggestion": "Add: 'if the predicate `p` is satisfied; otherwise, does nothing.'",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "Failure#orElse",
+      "line": 297,
+      "severity": "blocker",
+      "issue": "The return description states 'the `default` `Try`; any non-fatal exception thrown while evaluating `default` is caught and returned as a `Failure`', but the implementation returns `default` directly (not wrapped in a `Try`). The description incorrectly implies the result is always a `Try`, but the return type is `Try[U]`, so the behavior is correct. However, the phrasing is misleading because it suggests the `default` is wrapped, which it is not.",
+      "suggestion": "Rephrase to: 'the `default` `Try`; any non-fatal exception thrown while evaluating `default` is caught and returned as a `Failure` in the resulting `Try`.'",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "Failure#transform",
+      "line": 313,
+      "severity": "blocker",
+      "issue": "The return description states 'the `Try` returned by `f` applied to the exception; any non-fatal exception thrown by `f` is caught and returned as a `Failure`'. However, the implementation catches non-fatal exceptions from `f` and returns them as a `Failure`, but the description does not clarify that the result of `f` is the `Try` returned, not just the value. This is ambiguous.",
+      "suggestion": "Rephrase to: 'the `Try` produced by applying `f` to the exception; any non-fatal exception thrown by `f` is caught and returned as a `Failure`.'",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "Failure#recover",
+      "line": 325,
+      "severity": "blocker",
+      "issue": "The return description states 'a `Success` wrapping the result of applying `pf` to the exception if `pf` is defined for it, or this `Failure` unchanged if `pf` is not defined for the exception; any non-fatal exception thrown by `pf` is caught and returned as a `Failure`'. However, the implementation returns `Success(v)` if `pf` is defined, but the description does not clarify that `v` is the result of `pf(exception)`. Also, the description of the exception case is correct but could be clearer.",
+      "suggestion": "Rephrase to: 'a `Success` containing the result of applying `pf` to the exception if `pf` is defined for it, or this `Failure` unchanged if `pf` is not defined for the exception; any non-fatal exception thrown by `pf` is caught and returned as a `Failure`.'",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "Failure#recoverWith",
+      "line": 333,
+      "severity": "blocker",
+      "issue": "The return description states 'the `Try` produced by applying `pf` to the exception if `pf` is defined for it, or this `Failure` unchanged if `pf` is not defined for the exception; any non-fatal exception thrown by `pf` is caught and returned as a `Failure`'. This is accurate, but the phrasing 'the `Try` produced by applying `pf`' is slightly misleading because `pf` returns a `Try[U]`, not a value to be wrapped. The description should clarify that `pf` itself returns a `Try`.",
+      "suggestion": "Rephrase to: 'the `Try` returned by applying `pf` to the exception if `pf` is defined for it, or this `Failure` unchanged if `pf` is not defined for the exception; any non-fatal exception thrown by `pf` is caught and returned as a `Failure`.'",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "Success#fold",
+      "line": 433,
+      "severity": "blocker",
+      "issue": "The return description states 'the result of applying `fb` to the value; any non-fatal exception thrown by `fb` is caught and passed to `fa`, whose result is then returned'. However, the implementation catches non-fatal exceptions from `fb` and passes them to `fa`, but the description does not clarify that `fa` is applied to the exception, not the original exception of the `Try`. This is a critical omission.",
+      "suggestion": "Rephrase to: 'the result of applying `fb` to the value; any non-fatal exception thrown by `fb` is caught and passed to `fa`, whose result is then returned.'",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "Success#collect",
+      "line": 421,
+      "severity": "blocker",
+      "issue": "The return description states 'a `Success` containing the result of `pf` applied to the value if `pf` is defined at it, a `Failure` with a `NoSuchElementException` if `pf` is not defined at the value; any non-fatal exception thrown by `pf` is caught and returned as a `Failure`'. This is accurate, but the description of the `NoSuchElementException` case is slightly misleading because the exception message includes the value, which is not mentioned.",
+      "suggestion": "Add: 'with a message indicating the value for which the predicate does not hold.'",
+      "confidence": "medium",
+      "needs_human": false
+    },
+    {
+      "symbol": "Failure#failed",
+      "line": 341,
+      "severity": "nit",
+      "issue": "The description is accurate but could be more precise. It does not mention that the returned `Success` wraps the exception from this `Failure`.",
+      "suggestion": "Rephrase to: 'Inverts this `Failure` by returning a `Success` containing the exception from this `Failure`.'",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "Success#failed",
+      "line": 441,
+      "severity": "nit",
+      "issue": "The description is accurate but could be more precise. It does not mention that the `UnsupportedOperationException` is thrown because `Success` cannot logically fail.",
+      "suggestion": "Rephrase to: 'Inverts this `Success` by returning a `Failure` containing an `UnsupportedOperationException`, since a successful computation cannot fail.'",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "Failure#toEither",
+      "line": 343,
+      "severity": "nit",
+      "issue": "The description is accurate but could be more consistent with the style of other descriptions. It should use backticks for `Left` and `exception`.",
+      "suggestion": "Rephrase to: 'Returns `Left` containing the `exception` since this is a `Failure`.'",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "Success#toEither",
+      "line": 443,
+      "severity": "nit",
+      "issue": "The description is accurate but could be more consistent with the style of other descriptions. It should use backticks for `Right` and `value`.",
+      "suggestion": "Rephrase to: 'Returns `Right` containing the `value` since this is a `Success`.'",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "Failure#toOption",
+      "line": 345,
+      "severity": "nit",
+      "issue": "The description is accurate but could be more consistent with the style of other descriptions. It should use backticks for `None`.",
+      "suggestion": "Rephrase to: 'Returns `None` since this is a `Failure`.'",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "Success#toOption",
+      "line": 445,
+      "severity": "nit",
+      "issue": "The description is accurate but could be more consistent with the style of other descriptions. It should use backticks for `Some` and `value`.",
+      "suggestion": "Rephrase to: 'Returns `Some` containing the `value` since this is a `Success`.'",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "Failure#filter",
+      "line": 331,
+      "severity": "nit",
+      "issue": "The description is accurate but could be more concise. It states 'since the predicate `p` is not tested on a failed computation', which is redundant with the return description.",
+      "suggestion": "Rephrase to: 'Returns this `Failure` unchanged, as filtering does not affect a failed computation.'",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "Success#filter",
+      "line": 429,
+      "severity": "nit",
+      "issue": "The description is accurate but could be more precise. It does not mention that the `NoSuchElementException` includes the value in its message.",
+      "suggestion": "Add: 'with a message indicating the value for which the predicate does not hold.'",
+      "confidence": "medium",
+      "needs_human": false
+    },
+    {
+      "symbol": "Failure#foreach",
+      "line": 309,
+      "severity": "nit",
+      "issue": "The description is accurate but could be more consistent with the style of other descriptions. It should use backticks for `f` and `Failure`.",
+      "suggestion": "Rephrase to: 'Does nothing since the function `f` is not applied to a `Failure`.'",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "Success#foreach",
+      "line": 413,
+      "severity": "nit",
+      "issue": "The description is accurate but could be more consistent with the style of other descriptions. It should use backticks for `f` and `Success`.",
+      "suggestion": "Rephrase to: 'Applies the function `f` to the contained value since this is a `Success`.'",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "Failure#map",
+      "line": 319,
+      "severity": "nit",
+      "issue": "The description is accurate but could be more consistent with the style of other descriptions. It should use backticks for `Failure` and `f`.",
+      "suggestion": "Rephrase to: 'Returns this `Failure` unchanged since the function `f` is not applied to a `Failure`.'",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "Success#map",
+      "line": 417,
+      "severity": "blocker",
+      "issue": "The return description states 'a `Success` containing the result of applying `f` to the value; any non-fatal exception thrown by `f` is caught and returned as a `Failure`'. However, the implementation wraps the result of `f(value)` in a `Try`, which means non-fatal exceptions are caught and returned as a `Failure`, but the description does not clarify that the result is always a `Try` (either `Success` or `Failure`). This is accurate but could be clearer.",
+      "suggestion": "Rephrase to: 'a `Try` containing the result of applying `f` to the value; if `f` throws a non-fatal exception, it is caught and returned as a `Failure`.'",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "Success#collect",
+      "line": 421,
+      "severity": "blocker",
+      "issue": "The return description is accurate but the phrasing 'a `Success` containing the result of `pf` applied to the value if `pf` is defined at it' is slightly misleading because `pf` is a partial function, and the result is only a `Success` if `pf` is defined for the value. The description should clarify that the result is a `Try`.",
+      "suggestion": "Rephrase to: 'a `Try` containing the result of applying `pf` to the value if `pf` is defined at it, a `Failure` with a `NoSuchElementException` if `pf` is not defined at the value; any non-fatal exception thrown by `pf` is caught and returned as a `Failure`.'",
+      "confidence": "high",
+      "needs_human": false
+    }
+  ],
+  "bonus_findings": []
+}

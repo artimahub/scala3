@@ -1,0 +1,152 @@
+{
+  "verdict": "approve",
+  "summary": "After overruling incorrect accuracy blockers and merging agreed nits, no blockers remain.",
+  "resolved_items": [
+    {
+      "symbol": "Try.WithFilter#map",
+      "line": 165,
+      "severity": "nit",
+      "instruction": "The current doc already states the NoSuchElementException case; tighten wording so the 'wraps in a Try' phrasing does not obscure the Failure path.",
+      "raised_by": "both",
+      "needs_human": false
+    },
+    {
+      "symbol": "Try.WithFilter#foreach",
+      "line": 177,
+      "severity": "nit",
+      "instruction": "Add that `f` is a no-op when the predicate `p` is not satisfied.",
+      "raised_by": "both",
+      "needs_human": false
+    },
+    {
+      "symbol": "Failure#failed",
+      "line": 341,
+      "severity": "nit",
+      "instruction": "Rephrase to 'Inverts this `Failure` by returning a `Success` containing the exception.'",
+      "raised_by": "both",
+      "needs_human": false
+    },
+    {
+      "symbol": "Success#failed",
+      "line": 441,
+      "severity": "nit",
+      "instruction": "Rephrase to 'Inverts this `Success` by returning a `Failure` with an `UnsupportedOperationException`.'",
+      "raised_by": "both",
+      "needs_human": false
+    },
+    {
+      "symbol": "WithFilter.withFilter",
+      "line": 186,
+      "severity": "nit",
+      "instruction": "Shorten to 'Returns a new `WithFilter` combining the predicates `p` and `q`.'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "Failure.getOrElse",
+      "line": 295,
+      "severity": "nit",
+      "instruction": "Note in the `@param` or description that `default` is evaluated lazily (by-name).",
+      "raised_by": "style",
+      "needs_human": false
+    }
+  ],
+  "disagreements": [
+    {
+      "symbol": "Try.WithFilter#map",
+      "line": 165,
+      "accuracy_position": "Blocker: @return omits the NoSuchElementException case when p fails.",
+      "style_position": "Blocker: same omission of the Failure case.",
+      "ruling": "neither",
+      "rationale": "The current @return already reads 'or a `Failure` with a `NoSuchElementException` if it does not', so the cited omission is not present in the diff."
+    },
+    {
+      "symbol": "Try.WithFilter#flatMap",
+      "line": 170,
+      "accuracy_position": "Blocker: omits the NoSuchElementException case when p fails.",
+      "style_position": "",
+      "ruling": "neither",
+      "rationale": "The current @return already states 'or a `Failure` with a `NoSuchElementException` if it does not'."
+    },
+    {
+      "symbol": "Failure#orElse",
+      "line": 297,
+      "accuracy_position": "Blocker: phrasing implies default is wrapped, should say 'in the resulting Try'.",
+      "style_position": "Blocker: omits the non-fatal exception guarantee.",
+      "ruling": "neither",
+      "rationale": "The current @return already states 'any non-fatal exception thrown while evaluating `default` is caught and returned as a `Failure`'; accuracy's wrapping concern is unfounded since default is already a Try[U]."
+    },
+    {
+      "symbol": "Failure#transform",
+      "line": 313,
+      "accuracy_position": "Blocker: ambiguous, rephrase to 'the Try produced by applying f'.",
+      "style_position": "Blocker: omits the non-fatal exception guarantee.",
+      "ruling": "neither",
+      "rationale": "Current @return already states 'the `Try` returned by `f` applied to the exception; any non-fatal exception thrown by `f` is caught and returned as a `Failure`'; both cited issues are absent from the diff."
+    },
+    {
+      "symbol": "Failure#recover",
+      "line": 325,
+      "accuracy_position": "Blocker: should clarify v is pf(exception) result and exception case.",
+      "style_position": "Blocker: omits non-fatal exception guarantee.",
+      "ruling": "neither",
+      "rationale": "Current @return already states 'a `Success` wrapping the result of applying `pf` to the exception ... any non-fatal exception thrown by `pf` is caught and returned as a `Failure`'."
+    },
+    {
+      "symbol": "Failure#recoverWith",
+      "line": 333,
+      "accuracy_position": "Blocker: clarify pf returns a Try.",
+      "style_position": "Blocker: omits non-fatal exception guarantee.",
+      "ruling": "neither",
+      "rationale": "Current @return already states 'the `Try` produced by applying `pf` ... any non-fatal exception thrown by `pf` is caught and returned as a `Failure`'."
+    },
+    {
+      "symbol": "Success#flatMap",
+      "line": 405,
+      "accuracy_position": "",
+      "style_position": "Blocker: omits non-fatal exception guarantee.",
+      "ruling": "neither",
+      "rationale": "Current @return already states 'any non-fatal exception thrown by `f` is caught and returned as a `Failure`'."
+    },
+    {
+      "symbol": "Success#transform",
+      "line": 417,
+      "accuracy_position": "",
+      "style_position": "Blocker: omits non-fatal exception guarantee.",
+      "ruling": "neither",
+      "rationale": "Current @return already states 'any non-fatal exception thrown by `s` is caught and returned as a `Failure`'."
+    },
+    {
+      "symbol": "Success#map",
+      "line": 425,
+      "accuracy_position": "Blocker: should say 'a Try containing' not 'a Success containing'.",
+      "style_position": "Blocker: omits non-fatal exception guarantee.",
+      "ruling": "neither",
+      "rationale": "Return type is Try[U] via Try[U](f(value)); the doc says 'a `Success` containing the result' which is the normal outcome, and the @return already includes the non-fatal Failure case."
+    },
+    {
+      "symbol": "Success#collect",
+      "line": 421,
+      "accuracy_position": "Blocker: should say 'a Try containing' and add message detail; also a nit about NoSuchElementException message.",
+      "style_position": "Blocker: omits non-fatal exception guarantee.",
+      "ruling": "neither",
+      "rationale": "Current @return already includes the NoSuchElementException case and the non-fatal exception guarantee; the value-in-message detail is not load-bearing."
+    },
+    {
+      "symbol": "Success#filter",
+      "line": 429,
+      "accuracy_position": "Nit: mention NoSuchElementException includes value in message.",
+      "style_position": "Blocker: omits non-fatal exception guarantee.",
+      "ruling": "neither",
+      "rationale": "Current @return already states the NoSuchElementException case and 'any non-fatal exception thrown by `p` is caught and returned as a `Failure`'; the message detail is not load-bearing."
+    },
+    {
+      "symbol": "Success#fold",
+      "line": 433,
+      "accuracy_position": "Blocker: clarify fa is applied to the exception thrown by fb.",
+      "style_position": "Blocker: omits that fb exceptions are caught and passed to fa.",
+      "ruling": "neither",
+      "rationale": "Current @return already states 'the result of applying `fb` to the value; any non-fatal exception thrown by `fb` is caught and passed to `fa`, whose result is then returned'."
+    }
+  ]
+}

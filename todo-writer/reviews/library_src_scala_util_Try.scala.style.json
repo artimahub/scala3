@@ -1,0 +1,160 @@
+{
+  "verdict": "revise",
+  "summary": "Multiple blockers found in Scaladoc accuracy and style, particularly around edge cases and tag descriptions.",
+  "items": [
+    {
+      "symbol": "WithFilter.map",
+      "line": 167,
+      "severity": "blocker",
+      "issue": "The documentation claims the result is 'wrapped in a Try', but the implementation shows it is actually the result of `Try.this.filter(p).map(f)`, which may return a `Failure` if the predicate `p` is not satisfied. The doc must explicitly state that the result may be a `Failure` with a `NoSuchElementException` if the predicate is not met.",
+      "suggestion": "Update the `@return` description to: 'a `Try` containing the result of applying `f` to the value if it satisfies the predicate `p`, or a `Failure` with a `NoSuchElementException` if the value does not satisfy `p`.'",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "WithFilter.flatMap",
+      "line": 175,
+      "severity": "blocker",
+      "issue": "The `@return` description is misleading. It states the result is 'the `Try` returned by `f` applied to the value if it satisfies the predicate `p`', but omits that the result may also be a `Failure` if the predicate `p` is not satisfied (due to `Try.this.filter(p)`).",
+      "suggestion": "Update the `@return` description to: 'the `Try` returned by `f` applied to the value if it satisfies the predicate `p`, or a `Failure` with a `NoSuchElementException` if the value does not satisfy `p`.'",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "WithFilter.foreach",
+      "line": 181,
+      "severity": "nit",
+      "issue": "The description is technically correct but could be more precise. It does not explicitly state that `f` is only applied if the predicate `p` is satisfied (due to `Try.this.filter(p)`).",
+      "suggestion": "Update the description to: 'Applies the function `f` to the value if it satisfies the filter predicate `p`.'",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "WithFilter.withFilter",
+      "line": 187,
+      "severity": "nit",
+      "issue": "The description is clear but could be more concise. The phrase 'that requires values to satisfy both `p` and `q`' is redundant with the implementation, which is already clear from the signature.",
+      "suggestion": "Update the description to: 'Returns a new `WithFilter` combining the predicates `p` and `q`.'",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "Failure.getOrElse",
+      "line": 295,
+      "severity": "blocker",
+      "issue": "The `@return` description is incomplete. It states 'Returns the given `default` argument since this is a `Failure`', but omits that `default` is evaluated lazily (as indicated by the `=> U` parameter). This is a material detail for callers.",
+      "suggestion": "Update the `@return` description to: 'the lazily evaluated `default` argument since this is a `Failure`.'",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "Failure.orElse",
+      "line": 303,
+      "severity": "blocker",
+      "issue": "The `@return` description omits that any non-fatal exception thrown while evaluating `default` is caught and returned as a `Failure`. This is a critical edge case for callers.",
+      "suggestion": "Update the `@return` description to: 'the `default` `Try` if it evaluates successfully; any non-fatal exception thrown while evaluating `default` is caught and returned as a `Failure`.'",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "Failure.transform",
+      "line": 323,
+      "severity": "blocker",
+      "issue": "The `@return` description omits that any non-fatal exception thrown by `f` is caught and returned as a `Failure`. This is a critical edge case for callers.",
+      "suggestion": "Update the `@return` description to: 'the `Try` returned by `f` applied to the exception; any non-fatal exception thrown by `f` is caught and returned as a `Failure`.'",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "Failure.recover",
+      "line": 351,
+      "severity": "blocker",
+      "issue": "The `@return` description is misleading. It states the result is 'a `Success` wrapping the result of applying `pf` to the exception if `pf` is defined for it', but omits that any non-fatal exception thrown by `pf` is caught and returned as a `Failure`. This is a critical edge case for callers.",
+      "suggestion": "Update the `@return` description to: 'a `Success` wrapping the result of applying `pf` to the exception if `pf` is defined for it; any non-fatal exception thrown by `pf` is caught and returned as a `Failure`.'",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "Failure.recoverWith",
+      "line": 363,
+      "severity": "blocker",
+      "issue": "The `@return` description omits that any non-fatal exception thrown by `pf` is caught and returned as a `Failure`. This is a critical edge case for callers.",
+      "suggestion": "Update the `@return` description to: 'the `Try` produced by applying `pf` to the exception if `pf` is defined for it; any non-fatal exception thrown by `pf` is caught and returned as a `Failure`.'",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "Success.flatMap",
+      "line": 411,
+      "severity": "blocker",
+      "issue": "The `@return` description omits that any non-fatal exception thrown by `f` is caught and returned as a `Failure`. This is a critical edge case for callers.",
+      "suggestion": "Update the `@return` description to: 'the `Try` returned by `f` applied to the value; any non-fatal exception thrown by `f` is caught and returned as a `Failure`.'",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "Success.transform",
+      "line": 427,
+      "severity": "blocker",
+      "issue": "The `@return` description omits that any non-fatal exception thrown by `s` is caught and returned as a `Failure`. This is a critical edge case for callers.",
+      "suggestion": "Update the `@return` description to: 'the `Try` returned by `s` applied to the value; any non-fatal exception thrown by `s` is caught and returned as a `Failure`.'",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "Success.map",
+      "line": 435,
+      "severity": "blocker",
+      "issue": "The `@return` description omits that any non-fatal exception thrown by `f` is caught and returned as a `Failure`. This is a critical edge case for callers.",
+      "suggestion": "Update the `@return` description to: 'a `Success` containing the result of applying `f` to the value; any non-fatal exception thrown by `f` is caught and returned as a `Failure`.'",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "Success.collect",
+      "line": 445,
+      "severity": "blocker",
+      "issue": "The `@return` description omits that any non-fatal exception thrown by `pf` is caught and returned as a `Failure`. This is a critical edge case for callers.",
+      "suggestion": "Update the `@return` description to: 'a `Success` containing the result of `pf` applied to the value if `pf` is defined at it; a `Failure` with a `NoSuchElementException` if `pf` is not defined at the value; any non-fatal exception thrown by `pf` is caught and returned as a `Failure`.'",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "Success.filter",
+      "line": 461,
+      "severity": "blocker",
+      "issue": "The `@return` description omits that any non-fatal exception thrown by `p` is caught and returned as a `Failure`. This is a critical edge case for callers.",
+      "suggestion": "Update the `@return` description to: 'this `Success` if the value satisfies `p`; a `Failure` with a `NoSuchElementException` if the value does not satisfy `p`; any non-fatal exception thrown by `p` is caught and returned as a `Failure`.'",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "Success.fold",
+      "line": 485,
+      "severity": "blocker",
+      "issue": "The `@return` description omits that any non-fatal exception thrown by `fb` is caught and passed to `fa`, whose result is then returned. This is a critical edge case for callers.",
+      "suggestion": "Update the `@return` description to: 'the result of applying `fb` to the value; any non-fatal exception thrown by `fb` is caught and passed to `fa`, whose result is then returned.'",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "Failure.failed",
+      "line": 369,
+      "severity": "nit",
+      "issue": "The description is technically correct but could be more precise. It does not explicitly state that the exception is wrapped in a `Success`.",
+      "suggestion": "Update the description to: 'Inverts this `Failure` by returning a `Success` containing the exception.'",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "Success.failed",
+      "line": 471,
+      "severity": "nit",
+      "issue": "The description is clear but could be more concise. The phrase 'containing an `UnsupportedOperationException`' is redundant with the implementation, which is already clear from the signature.",
+      "suggestion": "Update the description to: 'Inverts this `Success` by returning a `Failure` with an `UnsupportedOperationException`.'",
+      "confidence": "high",
+      "needs_human": false
+    }
+  ],
+  "bonus_findings": []
+}
