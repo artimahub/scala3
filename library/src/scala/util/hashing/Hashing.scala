@@ -27,38 +27,38 @@ import scala.annotation.implicitNotFound
   */
 @implicitNotFound(msg = "No implicit Hashing defined for ${T}.")
 trait Hashing[T] extends Serializable {
-  /** TODO FILL IN
+  /** Computes the hash code for the given value.
    *
-   *  @param x TODO FILL IN
-   *  @return TODO FILL IN
+   *  @param x the value to hash
+   *  @return the hash code of `x`
    */
   def hash(x: T): Int
 }
 
 object Hashing {
-  /** TODO FILL IN
+  /** A default hashing strategy that delegates to the `##` method of the value.
    *
-   *  @tparam T TODO FILL IN
+   *  @tparam T the type of values to hash
    */
   final class Default[T] extends Hashing[T] {
-    /** TODO FILL IN
+    /** Computes the hash code by calling `##` on the given value.
      *
-     *  @param x TODO FILL IN
+     *  @param x the value to hash
      */
     def hash(x: T) = x.##
   }
 
-  /** TODO FILL IN
+  /** Provides the default hashing strategy for type `T`.
    *
-   *  @tparam T TODO FILL IN
-   *  @return TODO FILL IN
+   *  @tparam T the type for which to provide the default hashing strategy
+   *  @return a `Default` hashing instance for `T`
    */
   implicit def default[T]: Default[T] = new Default[T]
 
-  /** TODO FILL IN
+  /** Creates a `Hashing` instance from a function that computes hash codes.
    *
-   *  @tparam T TODO FILL IN
-   *  @param f TODO FILL IN
+   *  @tparam T the type of values to hash
+   *  @param f the function that computes hash codes for values of type `T`
    */
   def fromFunction[T](f: T => Int) = new Hashing[T] {
     def hash(x: T) = f(x)

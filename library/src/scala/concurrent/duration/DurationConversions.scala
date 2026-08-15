@@ -17,226 +17,226 @@ import DurationConversions._
 
 // Would be nice to limit the visibility of this trait a little bit,
 // but it crashes scalac to do so.
-/** TODO FILL IN */
+/** Provides conversions from durations to various time units and classifiers. */
 trait DurationConversions extends Any {
-  /** TODO FILL IN
+  /** Returns the duration in the specified time unit.
    *
-   *  @param unit TODO FILL IN
-   *  @return TODO FILL IN
+   *  @param unit the time unit to convert to
+   *  @return the duration in the specified time unit
    */
   protected def durationIn(unit: TimeUnit): FiniteDuration
 
-  /** TODO FILL IN */
+  /** Returns the duration in nanoseconds. */
   def nanoseconds: FiniteDuration  = durationIn(NANOSECONDS)
-  /** TODO FILL IN */
+  /** Returns the duration in nanoseconds. */
   def nanos: FiniteDuration        = nanoseconds
-  /** TODO FILL IN */
+  /** Returns the duration in nanoseconds. */
   def nanosecond: FiniteDuration   = nanoseconds
-  /** TODO FILL IN */
+  /** Returns the duration in nanoseconds. */
   def nano: FiniteDuration         = nanoseconds
 
-  /** TODO FILL IN */
+  /** Returns the duration in microseconds. */
   def microseconds: FiniteDuration = durationIn(MICROSECONDS)
-  /** TODO FILL IN */
+  /** Returns the duration in microseconds. */
   def micros: FiniteDuration       = microseconds
-  /** TODO FILL IN */
+  /** Returns the duration in microseconds. */
   def microsecond: FiniteDuration  = microseconds
-  /** TODO FILL IN */
+  /** Returns the duration in microseconds. */
   def micro: FiniteDuration        = microseconds
 
-  /** TODO FILL IN */
+  /** Returns the duration in milliseconds. */
   def milliseconds: FiniteDuration = durationIn(MILLISECONDS)
-  /** TODO FILL IN */
+  /** Returns the duration in milliseconds. */
   def millis: FiniteDuration       = milliseconds
-  /** TODO FILL IN */
+  /** Returns the duration in milliseconds. */
   def millisecond: FiniteDuration  = milliseconds
-  /** TODO FILL IN */
+  /** Returns the duration in milliseconds. */
   def milli: FiniteDuration        = milliseconds
 
-  /** TODO FILL IN */
+  /** Returns the duration in seconds. */
   def seconds: FiniteDuration      = durationIn(SECONDS)
-  /** TODO FILL IN */
+  /** Returns the duration in seconds. */
   def second: FiniteDuration       = seconds
 
-  /** TODO FILL IN */
+  /** Returns the duration in minutes. */
   def minutes: FiniteDuration      = durationIn(MINUTES)
-  /** TODO FILL IN */
+  /** Returns the duration in minutes. */
   def minute: FiniteDuration       = minutes
 
-  /** TODO FILL IN */
+  /** Returns the duration in hours. */
   def hours: FiniteDuration        = durationIn(HOURS)
-  /** TODO FILL IN */
+  /** Returns the duration in hours. */
   def hour: FiniteDuration         = hours
 
-  /** TODO FILL IN */
+  /** Returns the duration in days. */
   def days: FiniteDuration         = durationIn(DAYS)
-  /** TODO FILL IN */
+  /** Returns the duration in days. */
   def day: FiniteDuration          = days
 
-  /** TODO FILL IN
+  /** Converts the duration in nanoseconds using the given classifier.
    *
-   *  @tparam C TODO FILL IN
-   *  @param c TODO FILL IN
-   *  @param ev TODO FILL IN
-   *  @return TODO FILL IN
+   *  @tparam C the type of the classifier
+   *  @param c the classifier instance
+   *  @param ev the implicit classifier instance
+   *  @return the result of converting the duration using the classifier
    */
   def nanoseconds[C](c: C)(implicit ev: Classifier[C]): ev.R  = ev.convert(nanoseconds)
-  /** TODO FILL IN
+  /** Converts the duration in nanoseconds using the given classifier.
    *
-   *  @tparam C TODO FILL IN
-   *  @param c TODO FILL IN
-   *  @param ev TODO FILL IN
-   *  @return TODO FILL IN
+   *  @tparam C the type of the classifier
+   *  @param c the classifier instance
+   *  @param ev the implicit classifier instance
+   *  @return the result of converting the duration using the classifier
    */
   def nanos[C](c: C)(implicit ev: Classifier[C]): ev.R        = nanoseconds(c)
-  /** TODO FILL IN
+  /** Converts the duration in nanoseconds using the given classifier.
    *
-   *  @tparam C TODO FILL IN
-   *  @param c TODO FILL IN
-   *  @param ev TODO FILL IN
-   *  @return TODO FILL IN
+   *  @tparam C the type of the classifier
+   *  @param c the classifier instance
+   *  @param ev the implicit classifier instance
+   *  @return the result of converting the duration using the classifier
    */
   def nanosecond[C](c: C)(implicit ev: Classifier[C]): ev.R   = nanoseconds(c)
-  /** TODO FILL IN
+  /** Converts the duration in nanoseconds using the given classifier.
    *
-   *  @tparam C TODO FILL IN
-   *  @param c TODO FILL IN
-   *  @param ev TODO FILL IN
-   *  @return TODO FILL IN
+   *  @tparam C the type of the classifier
+   *  @param c the classifier instance
+   *  @param ev the implicit classifier instance
+   *  @return the result of converting the duration using the classifier
    */
   def nano[C](c: C)(implicit ev: Classifier[C]): ev.R         = nanoseconds(c)
 
-  /** TODO FILL IN
+  /** Converts the duration in microseconds using the given classifier.
    *
-   *  @tparam C TODO FILL IN
-   *  @param c TODO FILL IN
-   *  @param ev TODO FILL IN
-   *  @return TODO FILL IN
+   *  @tparam C the type of the classifier
+   *  @param c the classifier instance
+   *  @param ev the implicit classifier instance
+   *  @return the result of converting the duration using the classifier
    */
   def microseconds[C](c: C)(implicit ev: Classifier[C]): ev.R = ev.convert(microseconds)
-  /** TODO FILL IN
+  /** Converts the duration in microseconds using the given classifier.
    *
-   *  @tparam C TODO FILL IN
-   *  @param c TODO FILL IN
-   *  @param ev TODO FILL IN
-   *  @return TODO FILL IN
+   *  @tparam C the type of the classifier
+   *  @param c the classifier instance
+   *  @param ev the implicit classifier instance
+   *  @return the result of converting the duration using the classifier
    */
   def micros[C](c: C)(implicit ev: Classifier[C]): ev.R       = microseconds(c)
-  /** TODO FILL IN
+  /** Converts the duration in microseconds using the given classifier.
    *
-   *  @tparam C TODO FILL IN
-   *  @param c TODO FILL IN
-   *  @param ev TODO FILL IN
-   *  @return TODO FILL IN
+   *  @tparam C the type of the classifier
+   *  @param c the classifier instance
+   *  @param ev the implicit classifier instance
+   *  @return the result of converting the duration using the classifier
    */
   def microsecond[C](c: C)(implicit ev: Classifier[C]): ev.R  = microseconds(c)
-  /** TODO FILL IN
+  /** Converts the duration in microseconds using the given classifier.
    *
-   *  @tparam C TODO FILL IN
-   *  @param c TODO FILL IN
-   *  @param ev TODO FILL IN
-   *  @return TODO FILL IN
+   *  @tparam C the type of the classifier
+   *  @param c the classifier instance
+   *  @param ev the implicit classifier instance
+   *  @return the result of converting the duration using the classifier
    */
   def micro[C](c: C)(implicit ev: Classifier[C]): ev.R        = microseconds(c)
 
-  /** TODO FILL IN
+  /** Converts the duration in milliseconds using the given classifier.
    *
-   *  @tparam C TODO FILL IN
-   *  @param c TODO FILL IN
-   *  @param ev TODO FILL IN
-   *  @return TODO FILL IN
+   *  @tparam C the type of the classifier
+   *  @param c the classifier instance
+   *  @param ev the implicit classifier instance
+   *  @return the result of converting the duration using the classifier
    */
   def milliseconds[C](c: C)(implicit ev: Classifier[C]): ev.R = ev.convert(milliseconds)
-  /** TODO FILL IN
+  /** Converts the duration in milliseconds using the given classifier.
    *
-   *  @tparam C TODO FILL IN
-   *  @param c TODO FILL IN
-   *  @param ev TODO FILL IN
-   *  @return TODO FILL IN
+   *  @tparam C the type of the classifier
+   *  @param c the classifier instance
+   *  @param ev the implicit classifier instance
+   *  @return the result of converting the duration using the classifier
    */
   def millis[C](c: C)(implicit ev: Classifier[C]): ev.R       = milliseconds(c)
-  /** TODO FILL IN
+  /** Converts the duration in milliseconds using the given classifier.
    *
-   *  @tparam C TODO FILL IN
-   *  @param c TODO FILL IN
-   *  @param ev TODO FILL IN
-   *  @return TODO FILL IN
+   *  @tparam C the type of the classifier
+   *  @param c the classifier instance
+   *  @param ev the implicit classifier instance
+   *  @return the result of converting the duration using the classifier
    */
   def millisecond[C](c: C)(implicit ev: Classifier[C]): ev.R  = milliseconds(c)
-  /** TODO FILL IN
+  /** Converts the duration in milliseconds using the given classifier.
    *
-   *  @tparam C TODO FILL IN
-   *  @param c TODO FILL IN
-   *  @param ev TODO FILL IN
-   *  @return TODO FILL IN
+   *  @tparam C the type of the classifier
+   *  @param c the classifier instance
+   *  @param ev the implicit classifier instance
+   *  @return the result of converting the duration using the classifier
    */
   def milli[C](c: C)(implicit ev: Classifier[C]): ev.R        = milliseconds(c)
 
-  /** TODO FILL IN
+  /** Converts the duration in seconds using the given classifier.
    *
-   *  @tparam C TODO FILL IN
-   *  @param c TODO FILL IN
-   *  @param ev TODO FILL IN
-   *  @return TODO FILL IN
+   *  @tparam C the type of the classifier
+   *  @param c the classifier instance
+   *  @param ev the implicit classifier instance
+   *  @return the result of converting the duration using the classifier
    */
   def seconds[C](c: C)(implicit ev: Classifier[C]): ev.R      = ev.convert(seconds)
-  /** TODO FILL IN
+  /** Converts the duration in seconds using the given classifier.
    *
-   *  @tparam C TODO FILL IN
-   *  @param c TODO FILL IN
-   *  @param ev TODO FILL IN
-   *  @return TODO FILL IN
+   *  @tparam C the type of the classifier
+   *  @param c the classifier instance
+   *  @param ev the implicit classifier instance
+   *  @return the result of converting the duration using the classifier
    */
   def second[C](c: C)(implicit ev: Classifier[C]): ev.R       = seconds(c)
 
-  /** TODO FILL IN
+  /** Converts the duration in minutes using the given classifier.
    *
-   *  @tparam C TODO FILL IN
-   *  @param c TODO FILL IN
-   *  @param ev TODO FILL IN
-   *  @return TODO FILL IN
+   *  @tparam C the type of the classifier
+   *  @param c the classifier instance
+   *  @param ev the implicit classifier instance
+   *  @return the result of converting the duration using the classifier
    */
   def minutes[C](c: C)(implicit ev: Classifier[C]): ev.R      = ev.convert(minutes)
-  /** TODO FILL IN
+  /** Converts the duration in minutes using the given classifier.
    *
-   *  @tparam C TODO FILL IN
-   *  @param c TODO FILL IN
-   *  @param ev TODO FILL IN
-   *  @return TODO FILL IN
+   *  @tparam C the type of the classifier
+   *  @param c the classifier instance
+   *  @param ev the implicit classifier instance
+   *  @return the result of converting the duration using the classifier
    */
   def minute[C](c: C)(implicit ev: Classifier[C]): ev.R       = minutes(c)
 
-  /** TODO FILL IN
+  /** Converts the duration in hours using the given classifier.
    *
-   *  @tparam C TODO FILL IN
-   *  @param c TODO FILL IN
-   *  @param ev TODO FILL IN
-   *  @return TODO FILL IN
+   *  @tparam C the type of the classifier
+   *  @param c the classifier instance
+   *  @param ev the implicit classifier instance
+   *  @return the result of converting the duration using the classifier
    */
   def hours[C](c: C)(implicit ev: Classifier[C]): ev.R        = ev.convert(hours)
-  /** TODO FILL IN
+  /** Converts the duration in hours using the given classifier.
    *
-   *  @tparam C TODO FILL IN
-   *  @param c TODO FILL IN
-   *  @param ev TODO FILL IN
-   *  @return TODO FILL IN
+   *  @tparam C the type of the classifier
+   *  @param c the classifier instance
+   *  @param ev the implicit classifier instance
+   *  @return the result of converting the duration using the classifier
    */
   def hour[C](c: C)(implicit ev: Classifier[C]): ev.R         = hours(c)
 
-  /** TODO FILL IN
+  /** Converts the duration in days using the given classifier.
    *
-   *  @tparam C TODO FILL IN
-   *  @param c TODO FILL IN
-   *  @param ev TODO FILL IN
-   *  @return TODO FILL IN
+   *  @tparam C the type of the classifier
+   *  @param c the classifier instance
+   *  @param ev the implicit classifier instance
+   *  @return the result of converting the duration using the classifier
    */
   def days[C](c: C)(implicit ev: Classifier[C]): ev.R         = ev.convert(days)
-  /** TODO FILL IN
+  /** Converts the duration in days using the given classifier.
    *
-   *  @tparam C TODO FILL IN
-   *  @param c TODO FILL IN
-   *  @param ev TODO FILL IN
-   *  @return TODO FILL IN
+   *  @tparam C the type of the classifier
+   *  @param c the classifier instance
+   *  @param ev the implicit classifier instance
+   *  @return the result of converting the duration using the classifier
    */
   def day[C](c: C)(implicit ev: Classifier[C]): ev.R          = days(c)
 }
@@ -245,36 +245,36 @@ trait DurationConversions extends Any {
  * This object just holds some cogs which make the DSL machine work, not for direct consumption.
  */
 object DurationConversions {
-  /** TODO FILL IN
+  /** A classifier that converts a duration to a result type.
    *
-   *  @tparam C TODO FILL IN
+   *  @tparam C the type of the classifier
    */
   trait Classifier[C] {
     type R
-    /** TODO FILL IN
+    /** Converts the given duration to the result type.
      *
-     *  @param d TODO FILL IN
-     *  @return TODO FILL IN
+     *  @param d the duration to convert
+     *  @return the converted result
      */
     def convert(d: FiniteDuration): R
   }
 
   implicit object spanConvert extends Classifier[span.type] {
     type R = FiniteDuration
-    /** TODO FILL IN
+    /** Returns the duration unchanged.
      *
-     *  @param d TODO FILL IN
-     *  @return TODO FILL IN
+     *  @param d the duration to return
+     *  @return the same duration
      */
     def convert(d: FiniteDuration): FiniteDuration = d
   }
 
   implicit object fromNowConvert extends Classifier[fromNow.type] {
     type R = Deadline
-    /** TODO FILL IN
+    /** Converts the duration to a deadline starting from now.
      *
-     *  @param d TODO FILL IN
-     *  @return TODO FILL IN
+     *  @param d the duration to add to the current time
+     *  @return a deadline representing the current time plus the duration
      */
     def convert(d: FiniteDuration): Deadline = Deadline.now + d
   }

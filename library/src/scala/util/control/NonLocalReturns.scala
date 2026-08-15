@@ -24,21 +24,21 @@ import scala.compiletime.uninitialized
 @deprecated("Use scala.util.boundary instead", "3.3")
 object NonLocalReturns {
   @deprecated("Use scala.util.boundary.Break instead", "3.3")
-  /** TODO FILL IN
+  /** A throwable used to implement nonlocal returns.
    *
-   *  @tparam T TODO FILL IN
+   *  @tparam T the type of the result to be returned
    */
   class ReturnThrowable[T] extends ControlThrowable {
     private var myResult: T = uninitialized
-    /** TODO FILL IN
+    /** Throws this exception with the given result.
      *
-     *  @param result TODO FILL IN
+     *  @param result the value to be returned
      */
     def throwReturn(result: T): Nothing = {
       myResult = result
       throw this
     }
-    /** TODO FILL IN */
+    /** Returns the result stored in this exception. */
     def result: T = myResult
   }
 

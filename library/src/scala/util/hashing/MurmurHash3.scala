@@ -85,12 +85,12 @@ private[hashing] class MurmurHash3 {
   // In this case, the `seed` already has the case class name mixed in and `ignorePrefix` is set to true.
   // Case classes compiled before 2.13.17 call this method with `productSeed` and `ignorePrefix = false`.
   // See `productHashCode` in `SyntheticMethods` for details.
-  /** TODO FILL IN
+  /** Computes the hash code of a Product instance.
    *
-   *  @param x TODO FILL IN
-   *  @param seed TODO FILL IN
-   *  @param ignorePrefix TODO FILL IN
-   *  @return TODO FILL IN
+   *  @param x the Product instance to hash
+   *  @param seed the initial seed for the hash computation
+   *  @param ignorePrefix whether to ignore the product prefix in the hash computation
+   *  @return the hash code of `x`, derived from the product prefix (if not ignored) and each product element
    */
   final def productHash(x: Product, seed: Int, ignorePrefix: Boolean = false): Int = {
     val arr = x.productArity
@@ -414,67 +414,67 @@ private[hashing] class MurmurHash3 {
  *  @see [[https://github.com/aappleby/smhasher]]
  */
 object MurmurHash3 extends MurmurHash3 {
-  /** TODO FILL IN */
+  /** The default seed value used for array hashing. */
   final val arraySeed       = 0x3c074a61
-  /** TODO FILL IN */
+  /** The default seed value used for string hashing. */
   final val stringSeed      = 0xf7ca7fd2
-  /** TODO FILL IN */
+  /** The default seed value used for product (case class) hashing. */
   final val productSeed     = 0xcafebabe
-  /** TODO FILL IN */
+  /** The default seed value used for symmetric (unordered) hashing. */
   final val symmetricSeed   = 0xb592f7ae
-  /** TODO FILL IN */
+  /** The default seed value used for traversable (unordered) hashing. */
   final val traversableSeed = 0xe73a8b15
-  /** TODO FILL IN */
+  /** The default seed value used for sequence hashing. */
   final val seqSeed         = "Seq".hashCode
-  /** TODO FILL IN */
+  /** The default seed value used for map hashing. */
   final val mapSeed         = "Map".hashCode
-  /** TODO FILL IN */
+  /** The default seed value used for set hashing. */
   final val setSeed         = "Set".hashCode
 
-  /** TODO FILL IN
+  /** Computes the hash of an array using the default array seed.
    *
-   *  @param a TODO FILL IN
-   *  @return TODO FILL IN
+   *  @param a the array to hash
+   *  @return the hash of `a`, computed with the default array seed
    */
   def arrayHash[@specialized T](a: Array[T]): Int      = arrayHash(a, arraySeed)
-  /** TODO FILL IN
+  /** Computes the hash of a byte array using the default array seed.
    *
-   *  @param data TODO FILL IN
-   *  @return TODO FILL IN
+   *  @param data the byte array to hash
+   *  @return the hash of `data`, computed with the default array seed
    */
   def bytesHash(data: Array[Byte]): Int                = bytesHash(data, arraySeed)
-  /** TODO FILL IN
+  /** Computes the order-dependent hash of an iterable collection using the default symmetric seed.
    *
-   *  @param xs TODO FILL IN
-   *  @return TODO FILL IN
+   *  @param xs the elements to hash in traversal order
+   *  @return the order-dependent hash of `xs`, computed with the default symmetric seed
    */
   def orderedHash(xs: IterableOnce[Any]): Int          = orderedHash(xs, symmetricSeed)
-  /** TODO FILL IN
+  /** Computes the hash of a string using the default string seed.
    *
-   *  @param x TODO FILL IN
-   *  @return TODO FILL IN
+   *  @param x the string to hash
+   *  @return the hash of `x`, computed with the default string seed
    */
   def stringHash(x: String): Int                       = stringHash(x, stringSeed)
-  /** TODO FILL IN
+  /** Computes the order-independent hash of an iterable collection using the default traversable seed.
    *
-   *  @param xs TODO FILL IN
-   *  @return TODO FILL IN
+   *  @param xs the elements to hash (order-independent)
+   *  @return the order-independent hash of `xs`, computed with the default traversable seed
    */
   def unorderedHash(xs: IterableOnce[Any]): Int        = unorderedHash(xs, traversableSeed)
-  /** TODO FILL IN
+  /** Computes the hash of a range using the default sequence seed.
    *
-   *  @param start TODO FILL IN
-   *  @param step TODO FILL IN
-   *  @param last TODO FILL IN
-   *  @return TODO FILL IN
+   *  @param start the first element of the range
+   *  @param step the increment between successive elements
+   *  @param last the actual last element produced by the range
+   *  @return the hash of the range, computed with the default sequence seed
    */
   def rangeHash(start: Int, step: Int, last: Int): Int = rangeHash(start, step, last, seqSeed)
 
   @deprecated("use `caseClassHash` instead", "2.13.17")
-  /** TODO FILL IN
+  /** Computes the hash code of a Product instance using the default product seed.
    *
-   *  @param x TODO FILL IN
-   *  @return TODO FILL IN
+   *  @param x the Product instance to hash
+   *  @return the hash code of `x`, derived from the product prefix and each product element
    */
   def productHash(x: Product): Int = caseClassHash(x, productSeed, null)
 
@@ -525,23 +525,23 @@ object MurmurHash3 extends MurmurHash3 {
     case xs => orderedHash(xs, seqSeed)
   }
 
-  /** TODO FILL IN
+  /** Computes the hash of a map using the default map seed.
    *
-   *  @param xs TODO FILL IN
-   *  @return TODO FILL IN
+   *  @param xs the map to hash
+   *  @return the hash of `xs`, computed with the default map seed
    */
   def mapHash(xs: scala.collection.Map[?, ?]): Int = {
     if (xs.isEmpty) emptyMapHash
     else {
       class accum extends Function2[Any, Any, Unit] {
-        /** TODO FILL IN */
+        /** Accumulates hash values for map entries. */
         var a, b, n = 0
-        /** TODO FILL IN */
+        /** Accumulates the product of hash values for map entries. */
         var c = 1
-        /** TODO FILL IN
+        /** Processes a map entry by updating the accumulated hash values.
          *
-         *  @param k TODO FILL IN
-         *  @param v TODO FILL IN
+         *  @param k the key of the map entry
+         *  @param v the value of the map entry
          */
         override def apply(k: Any, v: Any): Unit = {
           val h = tuple2Hash(k, v)
@@ -562,52 +562,52 @@ object MurmurHash3 extends MurmurHash3 {
   }
 
   private[scala] val emptyMapHash = unorderedHash(Nil, mapSeed)
-  /** TODO FILL IN
+  /** Computes the hash of a set using the default set seed.
    *
-   *  @param xs TODO FILL IN
-   *  @return TODO FILL IN
+   *  @param xs the set to hash
+   *  @return the hash of `xs`, computed with the default set seed
    */
   def setHash(xs: scala.collection.Set[?]): Int    = unorderedHash(xs, setSeed)
 
-  /** TODO FILL IN */
+  /** A Hashing implementation for arrays. */
   class ArrayHashing[@specialized T] extends Hashing[Array[T]] {
-    /** TODO FILL IN
+    /** Computes the hash of an array.
      *
-     *  @param a TODO FILL IN
+     *  @param a the array to hash
      */
     def hash(a: Array[T]) = arrayHash(a)
   }
 
-  /** TODO FILL IN */
+  /** Creates a Hashing instance for arrays. */
   def arrayHashing[@specialized T] = new ArrayHashing[T]
 
-  /** TODO FILL IN */
+  /** Creates a Hashing instance for byte arrays. */
   def bytesHashing = new Hashing[Array[Byte]] {
     def hash(data: Array[Byte]) = bytesHash(data)
   }
 
-  /** TODO FILL IN */
+  /** Creates a Hashing instance for order-dependent collections. */
   def orderedHashing = new Hashing[IterableOnce[Any]] {
     def hash(xs: IterableOnce[Any]) = orderedHash(xs)
   }
 
   @deprecated("use `caseClassHashing` instead", "2.13.17")
-  /** TODO FILL IN */
+  /** Creates a Hashing instance for products (case classes). */
   def productHashing = new Hashing[Product] {
     def hash(x: Product) = caseClassHash(x)
   }
 
-  /** TODO FILL IN */
+  /** Creates a Hashing instance for case classes. */
   def caseClassHashing = new Hashing[Product] {
     def hash(x: Product) = caseClassHash(x)
   }
 
-  /** TODO FILL IN */
+  /** Creates a Hashing instance for strings. */
   def stringHashing = new Hashing[String] {
     def hash(x: String) = stringHash(x)
   }
 
-  /** TODO FILL IN */
+  /** Creates a Hashing instance for order-independent collections. */
   def unorderedHashing = new Hashing[IterableOnce[Any]] {
     def hash(xs: IterableOnce[Any]) = unorderedHash(xs)
   }

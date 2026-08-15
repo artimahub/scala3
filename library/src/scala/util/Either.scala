@@ -519,10 +519,13 @@ sealed abstract class Either[+A, +B] extends Product with Serializable {
     case _        => None
   }
 
-  /** TODO FILL IN
+  /** Converts this `Either` to a `Try`.
    *
-   *  @param ev TODO FILL IN
-   *  @return TODO FILL IN
+   *  If this is a `Right`, returns a `Success` containing the right value.
+   *  If this is a `Left`, returns a `Failure` containing the left value, which must be a `Throwable`.
+   *
+   *  @param ev evidence that `A` is a subtype of `Throwable`
+   *  @return a `Try` representing the same computation as this `Either`
    */
   def toTry(implicit ev: A <:< Throwable): Try[B] = this match {
     case Right(b) => Success(b)
@@ -559,9 +562,9 @@ sealed abstract class Either[+A, +B] extends Product with Serializable {
  *  @param value the value wrapped in this `Left`
  */
 final case class Left[+A, +B](value: A) extends Either[A, B] {
-  /** TODO FILL IN */
+  /** Returns `true` since this is a `Left` instance. */
   def isLeft  = true
-  /** TODO FILL IN */
+  /** Returns `false` since this is a `Left` instance. */
   def isRight = false
 
   /** Upcasts this `Left[A, B]` to `Either[A, B1]`
@@ -584,9 +587,9 @@ final case class Left[+A, +B](value: A) extends Either[A, B] {
  *  @param value the value wrapped in this `Right`
  */
 final case class Right[+A, +B](value: B) extends Either[A, B] {
-  /** TODO FILL IN */
+  /** Returns `false` since this is a `Right` instance. */
   def isLeft  = false
-  /** TODO FILL IN */
+  /** Returns `true` since this is a `Right` instance. */
   def isRight = true
 
   /** Upcasts this `Right[A, B]` to `Either[A1, B]`
@@ -642,7 +645,10 @@ object Either {
    *  @param x the `Either` instance whose left and right types are the same
    */
   implicit class MergeableEither[A](private val x: Either[A, A]) extends AnyVal {
-    /** TODO FILL IN */
+    /** Extracts the value from this `Either` regardless of whether it is `Left` or `Right`.
+     *
+     *  @return the contained value, whether it is from the `Left` or `Right` side
+     */
     def merge: A = x match {
       case Right(a) => a
       case Left(a)  => a

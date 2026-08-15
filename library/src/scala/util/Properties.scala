@@ -21,9 +21,9 @@ import language.experimental.captureChecking
 
 /** Loads `library.properties` from the jar. */
 object Properties extends PropertiesTrait {
-  /** TODO FILL IN */
+  /** The category of properties to load, used to construct the properties file name. */
   protected def propCategory = "library"
-  /** TODO FILL IN */
+  /** The class used to determine which JAR contains the properties file. */
   protected def pickJarBasedOn: Class[Option[?]] = classOf[Option[?]]
 
   /** Scala manifest attributes.
@@ -32,9 +32,9 @@ object Properties extends PropertiesTrait {
 }
 
 private[scala] trait PropertiesTrait {
-  /** TODO FILL IN */
+  /** The category of properties to load, used to construct the properties file name. */
   protected def propCategory: String      // specializes the remainder of the values
-  /** TODO FILL IN */
+  /** The class used to determine which JAR contains the properties file. */
   protected def pickJarBasedOn: Class[?]  // props file comes from jar containing this
 
   /** The name of the properties file. */
@@ -57,102 +57,89 @@ private[scala] trait PropertiesTrait {
         catch   { case _: IOException => }
     }
 
-  /** TODO FILL IN
+  /** Returns whether the system property with the given name is set.
    *
-   *  @param name TODO FILL IN
-   *  @return TODO FILL IN
+   *  @param name the name of the system property to check
    */
   def propIsSet(name: String): Boolean                   = System.getProperty(name) != null
-  /** TODO FILL IN
+  /** Returns whether the system property with the given name is set to the given value.
    *
-   *  @param name TODO FILL IN
-   *  @param value TODO FILL IN
+   *  @param name the name of the system property to check
+   *  @param value the expected value of the system property
    */
   def propIsSetTo(name: String, value: String)           = propOrNull(name) == value
-  /** TODO FILL IN
+  /** Returns the system property with the given name as an `Option`.
    *
-   *  @param name TODO FILL IN
-   *  @return TODO FILL IN
+   *  @param name the name of the system property to retrieve
    */
   def propOrNone(name: String): Option[String]           = Option[String](System.getProperty(name))
-  /** TODO FILL IN
+  /** Returns the system property with the given name, or the given alternative if the property is not set.
    *
-   *  @param name TODO FILL IN
-   *  @param alt TODO FILL IN
-   *  @return TODO FILL IN
+   *  @param name the name of the system property to retrieve
+   *  @param alt the alternative value to return if the property is not set
    */
   def propOrElse(name: String, alt: => String): String   = propOrNone(name).getOrElse(alt)
-  /** TODO FILL IN
+  /** Returns the system property with the given name, or an empty string if the property is not set.
    *
-   *  @param name TODO FILL IN
-   *  @return TODO FILL IN
+   *  @param name the name of the system property to retrieve
    */
   def propOrEmpty(name: String): String                  = propOrElse(name, "")
-  /** TODO FILL IN
+  /** Returns the system property with the given name, or `null` if the property is not set.
    *
-   *  @param name TODO FILL IN
-   *  @return TODO FILL IN
+   *  @param name the name of the system property to retrieve
    */
   def propOrNull(name: String): String | Null            = propOrNone(name).orNull
-  /** TODO FILL IN
+  /** Returns whether the system property with the given name is set to a value that represents `true`.
    *
-   *  @param name TODO FILL IN
-   *  @return TODO FILL IN
+   *  @param name the name of the system property to check
    */
   def propOrFalse(name: String): Boolean                 = propOrNone(name) exists (x => List("yes", "on", "true") contains x.toLowerCase)
-  /** TODO FILL IN
+  /** Sets the system property with the given name to the given value.
    *
-   *  @param name TODO FILL IN
-   *  @param value TODO FILL IN
-   *  @return TODO FILL IN
+   *  @param name the name of the system property to set
+   *  @param value the value to set the system property to
    */
   def setProp(name: String, value: String): String       = System.setProperty(name, value)
-  /** TODO FILL IN
+  /** Clears the system property with the given name.
    *
-   *  @param name TODO FILL IN
-   *  @return TODO FILL IN
+   *  @param name the name of the system property to clear
    */
   def clearProp(name: String): String                    = System.clearProperty(name)
 
-  /** TODO FILL IN
+  /** Returns the environment variable with the given name, or the given alternative if the variable is not set.
    *
-   *  @param name TODO FILL IN
-   *  @param alt TODO FILL IN
-   *  @return TODO FILL IN
+   *  @param name the name of the environment variable to retrieve
+   *  @param alt the alternative value to return if the variable is not set
    */
   def envOrElse(name: String, alt: => String): String    = Option(System.getenv(name)) getOrElse alt
-  /** TODO FILL IN
+  /** Returns the environment variable with the given name as an `Option`.
    *
-   *  @param name TODO FILL IN
-   *  @return TODO FILL IN
+   *  @param name the name of the environment variable to retrieve
    */
   def envOrNone(name: String): Option[String]            = Option(System.getenv(name))
 
-  /** TODO FILL IN
+  /** Returns the environment variable with the given name, or the given alternative `Option` if the variable is not set.
    *
-   *  @param name TODO FILL IN
-   *  @param alt TODO FILL IN
+   *  @param name the name of the environment variable to retrieve
+   *  @param alt the alternative `Option` to return if the variable is not set
    */
   def envOrSome(name: String, alt: => Option[String])    = envOrNone(name) orElse alt
 
   // for values based on propFilename, falling back to System properties
-  /** TODO FILL IN
+  /** Returns the Scala property with the given name, or the given alternative if the property is not set.
    *
-   *  @param name TODO FILL IN
-   *  @param alt TODO FILL IN
-   *  @return TODO FILL IN
+   *  @param name the name of the Scala property to retrieve
+   *  @param alt the alternative value to return if the property is not set
    */
   def scalaPropOrElse(name: String, alt: => String): String = scalaPropOrNone(name).getOrElse(alt)
-  /** TODO FILL IN
+  /** Returns the Scala property with the given name, or an empty string if the property is not set.
    *
-   *  @param name TODO FILL IN
-   *  @return TODO FILL IN
+   *  @param name the name of the Scala property to retrieve
    */
   def scalaPropOrEmpty(name: String): String             = scalaPropOrElse(name, "")
-  /** TODO FILL IN
+  /** Returns the Scala property with the given name as an `Option`.
    *
-   *  @param name TODO FILL IN
-   *  @return TODO FILL IN
+   *  @param name the name of the Scala property to retrieve
    */
   def scalaPropOrNone(name: String): Option[String]      = Option(scalaProps.getProperty(name)).orElse(propOrNone("scala." + name))
 
@@ -177,14 +164,14 @@ private[scala] trait PropertiesTrait {
   /** A verbose alternative to [[versionNumberString]].
    */
   val versionString         = s"version ${scalaPropOrElse("version.number", "(unknown)")}"
-  /** TODO FILL IN */
+  /** The copyright string for the Scala runtime. */
   val copyrightString       = scalaPropOrElse("copyright.string", "Copyright 2002-2025, LAMP/EPFL and Lightbend, Inc. dba Akka")
 
   /** This is the encoding to use reading in source files, overridden with -encoding.
    *  Note that it uses "prop" i.e. looks in the scala jar, not the system properties.
    */
   def sourceEncoding        = scalaPropOrElse("file.encoding", "UTF-8")
-  /** TODO FILL IN */
+  /** The default source reader class for the Scala runtime. */
   def sourceReader          = scalaPropOrElse("source.reader", "scala.tools.nsc.io.SourceReader")
 
   /** This is the default text encoding, overridden (unreliably) with
@@ -197,39 +184,39 @@ private[scala] trait PropertiesTrait {
   def lineSeparator: String = System.lineSeparator()
 
   /* Various well-known properties. */
-  /** TODO FILL IN */
+  /** The Java class path. */
   def javaClassPath         = propOrEmpty("java.class.path")
-  /** TODO FILL IN */
+  /** The Java home directory. */
   def javaHome              = propOrEmpty("java.home")
-  /** TODO FILL IN */
+  /** The Java vendor. */
   def javaVendor            = propOrEmpty("java.vendor")
-  /** TODO FILL IN */
+  /** The Java version. */
   def javaVersion           = propOrEmpty("java.version")
-  /** TODO FILL IN */
+  /** The Java VM info. */
   def javaVmInfo            = propOrEmpty("java.vm.info")
-  /** TODO FILL IN */
+  /** The Java VM name. */
   def javaVmName            = propOrEmpty("java.vm.name")
-  /** TODO FILL IN */
+  /** The Java VM vendor. */
   def javaVmVendor          = propOrEmpty("java.vm.vendor")
-  /** TODO FILL IN */
+  /** The Java VM version. */
   def javaVmVersion         = propOrEmpty("java.vm.version")
-  /** TODO FILL IN */
+  /** The Java specification version. */
   def javaSpecVersion       = propOrEmpty("java.specification.version")
-  /** TODO FILL IN */
+  /** The Java specification vendor. */
   def javaSpecVendor        = propOrEmpty("java.specification.vendor")
-  /** TODO FILL IN */
+  /** The Java specification name. */
   def javaSpecName          = propOrEmpty("java.specification.name")
-  /** TODO FILL IN */
+  /** The operating system name. */
   def osName                = propOrEmpty("os.name")
-  /** TODO FILL IN */
+  /** The Scala home directory. */
   def scalaHome             = propOrEmpty("scala.home")
-  /** TODO FILL IN */
+  /** The temporary directory. */
   def tmpDir                = propOrEmpty("java.io.tmpdir")
-  /** TODO FILL IN */
+  /** The user's current working directory. */
   def userDir               = propOrEmpty("user.dir")
-  /** TODO FILL IN */
+  /** The user's home directory. */
   def userHome              = propOrEmpty("user.home")
-  /** TODO FILL IN */
+  /** The user's name. */
   def userName              = propOrEmpty("user.name")
 
   /* Some derived values. */
@@ -263,16 +250,16 @@ private[scala] trait PropertiesTrait {
   // This is looking for javac, tools.jar, etc.
   // Tries JDK_HOME first, then the more common but likely jre JAVA_HOME,
   // and finally the system property based javaHome.
-  /** TODO FILL IN */
+  /** The JDK home directory, determined by checking the `JDK_HOME` environment variable, then `JAVA_HOME`, and finally the `java.home` system property. */
   def jdkHome               = envOrElse("JDK_HOME", envOrElse("JAVA_HOME", javaHome))
 
   private[scala] def versionFor(command: String) = s"Scala $command $versionString -- $copyrightString"
 
-  /** TODO FILL IN */
+  /** The version message for the Scala runtime. */
   def versionMsg            = versionFor(propCategory)
-  /** TODO FILL IN */
+  /** The name of the Scala command, depending on the operating system. */
   def scalaCmd              = if (isWin) "scala.bat" else "scala"
-  /** TODO FILL IN */
+  /** The name of the Scala compiler command, depending on the operating system. */
   def scalacCmd             = if (isWin) "scalac.bat" else "scalac"
 
   /** Compares the given specification version to the specification version of the platform.
@@ -335,9 +322,9 @@ private[scala] trait PropertiesTrait {
   def isJavaAtLeast(version: Int): Boolean = isJavaAtLeast(math.max(version, 0).toString)
 
   // provide a main method so version info can be obtained by running this
-  /** TODO FILL IN
+  /** Prints the version message to the standard error stream.
    *
-   *  @param args TODO FILL IN
+   *  @param args the command-line arguments (not used)
    */
   def main(args: Array[String]): Unit = {
     val writer = new PrintWriter(Console.err, true)

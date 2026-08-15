@@ -19,35 +19,36 @@ import scala.concurrent.{ BlockContext, ExecutionContext, CanAwait, ExecutionCon
 
 private[scala] class ExecutionContextImpl private[impl] (final val executor: Executor, final val reporter: Throwable => Unit) extends ExecutionContextExecutor {
   require(executor ne null, "Executor must not be null")
-  /** TODO FILL IN
+  /** Executes the given runnable task using the underlying executor.
    *
-   *  @param runnable TODO FILL IN
+   *  @param runnable the task to execute
    */
   override final def execute(runnable: Runnable): Unit = executor.execute(runnable)
-  /** TODO FILL IN
+  /** Reports the given throwable to the configured reporter.
    *
-   *  @param t TODO FILL IN
+   *  @param t the throwable to report
    */
   override final def reportFailure(t: Throwable): Unit = reporter(t)
 }
 
 private[concurrent] object ExecutionContextImpl {
 
-  /** TODO FILL IN
+  /** A thread factory that creates daemon or non-daemon threads with configurable
+   *  blocking behavior and exception handling.
    *
-   *  @param daemonic TODO FILL IN
-   *  @param maxBlockers TODO FILL IN
-   *  @param prefix TODO FILL IN
-   *  @param uncaught TODO FILL IN
+   *  @param daemonic whether created threads should be daemon threads
+   *  @param maxBlockers the maximum number of threads that can block simultaneously
+   *  @param prefix the prefix to use for thread names
+   *  @param uncaught the handler for uncaught exceptions in created threads
    */
   final class DefaultThreadFactory(
-    /** TODO FILL IN */
+    /** Whether created threads should be daemon threads */
     final val daemonic: Boolean,
-    /** TODO FILL IN */
+    /** The maximum number of threads that can block simultaneously */
     final val maxBlockers: Int,
-    /** TODO FILL IN */
+    /** The prefix to use for thread names */
     final val prefix: String,
-    /** TODO FILL IN */
+    /** The handler for uncaught exceptions in created threads */
     final val uncaught: Thread.UncaughtExceptionHandler) extends ThreadFactory with ForkJoinPool.ForkJoinWorkerThreadFactory {
 
     require(prefix ne null, "DefaultThreadFactory.prefix must be non null")
@@ -56,11 +57,11 @@ private[concurrent] object ExecutionContextImpl {
     private final val blockerPermits = new Semaphore(maxBlockers)
 
     @annotation.nowarn("cat=deprecation")
-    /** TODO FILL IN
+    /** Configures the given thread with daemon status, exception handler, and name.
      *
-     *  @tparam T TODO FILL IN
-     *  @param thread TODO FILL IN
-     *  @return TODO FILL IN
+     *  @tparam T the type of thread to configure
+     *  @param thread the thread to configure
+     *  @return the configured thread
      */
     def wire[T <: Thread](thread: T): T = {
       thread.setDaemon(daemonic)
@@ -69,17 +70,17 @@ private[concurrent] object ExecutionContextImpl {
       thread
     }
 
-    /** TODO FILL IN
+    /** Creates a new thread that will execute the given runnable.
      *
-     *  @param runnable TODO FILL IN
-     *  @return TODO FILL IN
+     *  @param runnable the task the thread will execute
+     *  @return the newly created thread
      */
     def newThread(runnable: Runnable): Thread = wire(new Thread(runnable))
 
-    /** TODO FILL IN
+    /** Creates a new ForkJoinWorkerThread that supports blocking operations.
      *
-     *  @param fjp TODO FILL IN
-     *  @return TODO FILL IN
+     *  @param fjp the ForkJoinPool this thread will belong to
+     *  @return the newly created ForkJoinWorkerThread
      */
     def newThread(fjp: ForkJoinPool): ForkJoinWorkerThread =
       wire(new ForkJoinWorkerThread(fjp) with BlockContext {
@@ -114,10 +115,10 @@ private[concurrent] object ExecutionContextImpl {
       })
   }
 
-  /** TODO FILL IN
+  /** Creates a default ForkJoinPool-based ExecutionContextExecutorService.
    *
-   *  @param reporter TODO FILL IN
-   *  @return TODO FILL IN
+   *  @param reporter the function to report uncaught exceptions
+   *  @return a new ExecutionContextExecutorService
    */
   def createDefaultExecutorService(reporter: Throwable => Unit): ExecutionContextExecutorService = {
     def getInt(name: String, default: String) = (try System.getProperty(name, default) catch {
@@ -149,11 +150,11 @@ private[concurrent] object ExecutionContextImpl {
     }
   }
 
-  /** TODO FILL IN
+  /** Creates an ExecutionContextExecutor from the given executor.
    *
-   *  @param e TODO FILL IN
-   *  @param reporter TODO FILL IN
-   *  @return TODO FILL IN
+   *  @param e the executor to wrap, or null to use the default
+   *  @param reporter the function to report uncaught exceptions
+   *  @return a new ExecutionContextExecutor
    */
   def fromExecutor(e: Executor | Null, reporter: Throwable => Unit = ExecutionContext.defaultReporter): ExecutionContextExecutor =
     e match {
@@ -161,11 +162,11 @@ private[concurrent] object ExecutionContextImpl {
       case some => new ExecutionContextImpl(some, reporter)
     }
 
-  /** TODO FILL IN
+  /** Creates an ExecutionContextExecutorService from the given executor service.
    *
-   *  @param es TODO FILL IN
-   *  @param reporter TODO FILL IN
-   *  @return TODO FILL IN
+   *  @param es the executor service to wrap, or null to use the default
+   *  @param reporter the function to report uncaught exceptions
+   *  @return a new ExecutionContextExecutorService
    */
   def fromExecutorService(es: ExecutorService | Null, reporter: Throwable => Unit = ExecutionContext.defaultReporter):
     ExecutionContextExecutorService = es match {
