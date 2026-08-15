@@ -12,40 +12,42 @@ The file {FILE_PATH} contains `TODO FILL IN` placeholders of three kinds:
 2. Tag placeholders: `@param x TODO FILL IN`, `@tparam T TODO FILL IN`, `@return TODO FILL IN`.
 
 Your task: replace every `TODO FILL IN` with accurate documentation grounded in
-the code, using *SEARCH/REPLACE* blocks. The file is already in the chat, so you
-have its full contents; ground every description in what the code actually does.
+the code. The file is already in the chat, so you have its full contents; ground
+every description in what the code actually does.
 
 OUTPUT FORMAT -- read this twice, it is where runs fail.
 
-Reply with NOTHING but *SEARCH/REPLACE* blocks, in exactly this form:
+After the file you will find a numbered worklist, MARKERS TO FILL. Every comment
+needing work has an ID. You do not have to say WHERE anything goes: the ID says
+that. You only supply the finished comment.
 
-{FILE_PATH}
-```scala
-<<<<<<< SEARCH
-<the exact existing lines, copied character for character>
-=======
-<the same lines with the TODOs filled in>
->>>>>>> REPLACE
-```
+Reply with NOTHING but ID blocks, in exactly this form:
+
+<<<<<<< 1
+/** The finished comment, opening delimiter to closing delimiter.
+ *
+ *  @param x what x is for
+ */
+>>>>>>>
 
 Rules for the blocks:
-- The SEARCH section must reproduce the existing text EXACTLY: same indentation,
-  same spacing inside declarations, same everything. It is matched literally. A
-  block whose SEARCH text does not appear verbatim in the file is discarded.
-- LEADING WHITESPACE especially. Copy the indentation you actually see, do not
-  normalise it. Many of these declarations are nested inside an object, a class
-  or another class, so their comments sit at 4 or 6 spaces rather than 2. Emitting
-  a 2-space block for a 4-space declaration throws away an otherwise perfect
-  comment.
-- The SEARCH text must be UNIQUE in the file. Include the declaration line
-  beneath the comment so short comments like `/** TODO FILL IN */` are
-  distinguishable from one another. A block matching several places is discarded.
-- Keep each block small: the comment plus the one declaration line under it.
-  Do not echo whole classes.
-- Emit one block per declaration you are filling.
+- The number after `<<<<<<<` is the ID from the worklist. Use it exactly.
+- Between the delimiters put the COMPLETE replacement comment, starting with
+  `/**` and ending with `*/`. Not a fragment, not just the changed line.
+- Do NOT include the declaration line (the `def`, `val`, `class` ...). The
+  comment only. Anything you write that is not a comment is rejected, and the
+  whole block with it.
+- Indentation inside the comment is normalised for you, so do not worry about
+  matching the file's leading whitespace. Keep the usual relative shape: `/**`
+  then continuation lines beginning with ` *`.
+- One block per ID. Emit them in ascending ID order.
+- Only fill IDs that appear in the worklist. An ID that is not on the list is
+  ignored.
 - No preamble, no commentary between blocks, no summary at the end. Blocks only.
 - Do NOT output the corrected file, or corrected regions, as plain code fences.
-  Only the SEARCH/REPLACE form above is applied; anything else is thrown away.
+  Only the ID form above is applied; anything else is thrown away.
+- You are editing comments only. Any block that would change a line of code is
+  rejected outright, so never let code text leak into a comment body.
 - BEFORE emitting each block, check the @return rule below. If your description
   begins with "Returns" and already states the whole return value, DELETE the
   `@return` line rather than filling it. A tag that merely restates the
@@ -157,7 +159,7 @@ STRICT SCOPE — this is important:
 - Replace ONLY the literal `TODO FILL IN` text. Leave every other character of every
   comment exactly as it is. (The ONE exception is dropping a redundant `@return TODO FILL
   IN` line, and its orphaned blank ` *` line, per the @return rule above.)
-- The REPLACE side of every block must be byte-identical to the SEARCH side except
+- Each block's comment must be byte-identical to the one on the worklist except
   for the filled-in documentation. Never alter a declaration, a body, an import,
   or indentation.
 - If a pre-existing (non-TODO) comment looks WRONG or outdated, do NOT fix it and do NOT
@@ -170,4 +172,5 @@ Do NOT:
   `@return TODO FILL IN` per the @return rule above is the ONE allowed removal.)
 - Modify code outside Scaladoc comments.
 
-Emit the *SEARCH/REPLACE* blocks for {FILE_PATH} now. Blocks only, no other output.
+Emit the ID blocks for {FILE_PATH} now, one per worklist entry, in ascending ID
+order. Blocks only, no other output.
