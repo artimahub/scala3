@@ -5,11 +5,11 @@
 #
 # Every role on a FREE model. No Claude Code, no Codex, no subscription spend.
 #
-#   Writer      (Mistral  devstral-2512)        drafts
+#   Writer      (Mistral  devstral-latest)        drafts
 #   repeat up to MAX_ROUNDS:
-#       Accuracy review (Mistral  mistral-medium-2508) ┐ sequential, spaced
-#       Style review    (Mistral  mistral-large-2512)  ┘
-#       Adjudicator     (Mistral  devstral-2512) merges both into ONE verdict
+#       Accuracy review (Mistral  mistral-medium-latest) ┐ sequential, spaced
+#       Style review    (Mistral  mistral-large-latest)  ┘
+#       Adjudicator     (Mistral  devstral-latest) merges both into ONE verdict
 #       if adjudicator approves -> done
 #       else Writer refines against the adjudicated worklist
 #
@@ -61,10 +61,10 @@
 #
 # Env overrides:
 #   MAX_ROUNDS=2
-#   WRITER_MODEL=devstral-2512        WRITER_PROVIDER=mistral
-#   ACCURACY_MODEL=mistral-medium-2508  ACCURACY_PROVIDER=mistral
-#   STYLE_MODEL=mistral-large-2512    STYLE_PROVIDER=mistral
-#   ADJUDICATOR_MODEL=devstral-2512   ADJUDICATOR_PROVIDER=mistral
+#   WRITER_MODEL=devstral-latest        WRITER_PROVIDER=mistral
+#   ACCURACY_MODEL=mistral-medium-latest  ACCURACY_PROVIDER=mistral
+#   STYLE_MODEL=mistral-large-latest    STYLE_PROVIDER=mistral
+#   ADJUDICATOR_MODEL=devstral-latest   ADJUDICATOR_PROVIDER=mistral
 #   INTER_FILE_PAUSE_SECONDS=120  PAUSE_SLEEP=30  MAX_TOKENS=32000
 #   WRITER_MAX_PASSES=6  WRITER_PASS_PAUSE=60  PROVIDER_SPACING=45
 #   DRY_RUN=false
@@ -73,10 +73,10 @@
 set -uo pipefail
 
 MAX_ROUNDS=${MAX_ROUNDS:-2}
-WRITER_MODEL=${WRITER_MODEL:-devstral-2512};               WRITER_PROVIDER=${WRITER_PROVIDER:-mistral}
-ACCURACY_MODEL=${ACCURACY_MODEL:-mistral-medium-2508};     ACCURACY_PROVIDER=${ACCURACY_PROVIDER:-mistral}
-STYLE_MODEL=${STYLE_MODEL:-mistral-large-2512};      STYLE_PROVIDER=${STYLE_PROVIDER:-mistral}
-ADJUDICATOR_MODEL=${ADJUDICATOR_MODEL:-devstral-2512};    ADJUDICATOR_PROVIDER=${ADJUDICATOR_PROVIDER:-mistral}
+WRITER_MODEL=${WRITER_MODEL:-devstral-latest};             WRITER_PROVIDER=${WRITER_PROVIDER:-mistral}
+ACCURACY_MODEL=${ACCURACY_MODEL:-mistral-medium-latest};   ACCURACY_PROVIDER=${ACCURACY_PROVIDER:-mistral}
+STYLE_MODEL=${STYLE_MODEL:-mistral-large-latest};    STYLE_PROVIDER=${STYLE_PROVIDER:-mistral}
+ADJUDICATOR_MODEL=${ADJUDICATOR_MODEL:-devstral-latest};  ADJUDICATOR_PROVIDER=${ADJUDICATOR_PROVIDER:-mistral}
 MAX_TOKENS=${MAX_TOKENS:-32000}
 # Both reviewers get the SAME brief and are both asked to judge accuracy AND
 # style. These only tilt the attention. The aim is two full passes over the same
