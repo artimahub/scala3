@@ -351,10 +351,10 @@ class Regex private[matching](val pattern: Pattern, groupNames: String*) extends
     else unapplySeq(m.matched.nn)
 
   //  @see UnanchoredRegex
-  /** TODO FILL IN
+  /** Runs the matcher to determine if the pattern matches the input.
    *
-   *  @param m TODO FILL IN
-   *  @return TODO FILL IN
+   *  @param m the matcher to run
+   *  @return true if the pattern matches the input, false otherwise
    */
   protected def runMatcher(m: Matcher): Boolean = m.matches()
 
@@ -623,10 +623,10 @@ class Regex private[matching](val pattern: Pattern, groupNames: String*) extends
    *  @return        The new unanchored regex
    */
   def unanchored: UnanchoredRegex = new Regex(pattern, groupNames*) with UnanchoredRegex { override def anchored = outer }
-  /** TODO FILL IN */
+  /** Returns this Regex, which is already anchored. */
   def anchored: Regex             = this
 
-  /** TODO FILL IN */
+  /** Returns the pattern string of this Regex. */
   def regex: String = pattern.pattern
 
   /** The string defining the regular expression. */
@@ -638,13 +638,13 @@ class Regex private[matching](val pattern: Pattern, groupNames: String*) extends
  *  @see [[Regex#unanchored]]
  */
 trait UnanchoredRegex extends Regex {
-  /** TODO FILL IN
+  /** Runs the matcher to find the next occurrence of the pattern in the input.
    *
-   *  @param m TODO FILL IN
-   *  @return TODO FILL IN
+   *  @param m the matcher to run
+   *  @return true if the pattern is found in the input, false otherwise
    */
   override protected def runMatcher(m: Matcher): Boolean = m.find()
-  /** TODO FILL IN */
+  /** Returns this UnanchoredRegex, which is already unanchored. */
   override def unanchored: UnanchoredRegex = this
 }
 
@@ -784,7 +784,7 @@ object Regex {
    *  @param _groupNames the names of the capturing groups, if any, used to look up groups by name
    */
   class Match(val source: CharSequence,
-              /** TODO FILL IN */
+              /** The underlying Matcher that performed the match. */
               protected[matching] val matcher: Matcher,
               _groupNames: Seq[String]) extends MatchData {
 
@@ -837,10 +837,10 @@ object Regex {
    *  ```
    */
   object Match {
-    /** TODO FILL IN
+    /** Extracts the matched string from a Match.
      *
-     *  @param m TODO FILL IN
-     *  @return TODO FILL IN
+     *  @param m the Match to extract from
+     *  @return the matched string wrapped in Some
      */
     def unapply(m: Match): Some[String] = Some(m.matched.nn)
   }
@@ -857,10 +857,10 @@ object Regex {
    *  ```
    */
   object Groups {
-    /** TODO FILL IN
+    /** Extracts the matched groups from a Match.
      *
-     *  @param m TODO FILL IN
-     *  @return TODO FILL IN
+     *  @param m the Match to extract groups from
+     *  @return the matched groups as a sequence, or None if there are no groups
      */
     def unapplySeq(m: Match): Option[Seq[String | Null]] = {
       if (m.groupCount > 0) extractGroupsFromMatch(m) else None
@@ -893,7 +893,7 @@ object Regex {
     /** TODO FILL IN */
     val groupNames: Seq[String] = _groupNames
 
-    /** TODO FILL IN */
+    /** The underlying Matcher used to find matches. */
     protected[Regex] val matcher = regex.pattern.matcher(source)
 
     // 0 = not yet matched, 1 = matched, 2 = advanced to match, 3 = no more matches
@@ -976,23 +976,23 @@ object Regex {
 
   /** Internal trait used by `replaceAllIn` and `replaceSomeIn`. */
   private[matching] trait Replacement {
-    /** TODO FILL IN */
+    /** The underlying Matcher used for replacement. */
     protected def matcher: Matcher
 
     private val sb = new java.lang.StringBuilder
 
     // Appends the remaining input and returns the result text.
-    /** TODO FILL IN */
+    /** Returns the final string after all replacements have been made. */
     def replaced = {
       matcher.appendTail(sb)
       sb.toString
     }
 
     // Appends the input prefix and the replacement text.
-    /** TODO FILL IN
+    /** Appends the replacement text to the result buffer.
      *
-     *  @param replacement TODO FILL IN
-     *  @return TODO FILL IN
+     *  @param replacement the text to append
+     *  @return the matcher
      */
     def replace(replacement: String): Matcher = matcher.appendReplacement(sb, replacement)
   }

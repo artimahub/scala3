@@ -43,75 +43,76 @@ package object duration {
   object fromNow
 
   type TimeUnit          = java.util.concurrent.TimeUnit
-  /** TODO FILL IN */
+  /** A time unit representing days. */
   final val DAYS         = java.util.concurrent.TimeUnit.DAYS
-  /** TODO FILL IN */
+  /** A time unit representing hours. */
   final val HOURS        = java.util.concurrent.TimeUnit.HOURS
-  /** TODO FILL IN */
+  /** A time unit representing microseconds. */
   final val MICROSECONDS = java.util.concurrent.TimeUnit.MICROSECONDS
-  /** TODO FILL IN */
+  /** A time unit representing milliseconds. */
   final val MILLISECONDS = java.util.concurrent.TimeUnit.MILLISECONDS
-  /** TODO FILL IN */
+  /** A time unit representing minutes. */
   final val MINUTES      = java.util.concurrent.TimeUnit.MINUTES
-  /** TODO FILL IN */
+  /** A time unit representing nanoseconds. */
   final val NANOSECONDS  = java.util.concurrent.TimeUnit.NANOSECONDS
-  /** TODO FILL IN */
+  /** A time unit representing seconds. */
   final val SECONDS      = java.util.concurrent.TimeUnit.SECONDS
 
-  /** TODO FILL IN
+  /** Converts a pair of Int and TimeUnit to a Duration.
    *
-   *  @param p TODO FILL IN
-   *  @return TODO FILL IN
+   *  @param p the pair of Int and TimeUnit to convert
+   *  @return a Duration representing the given pair
    */
   implicit def pairIntToDuration(p: (Int, TimeUnit)): Duration         = Duration(p._1.toLong, p._2)
-  /** TODO FILL IN
+  /** Converts a pair of Long and TimeUnit to a FiniteDuration.
    *
-   *  @param p TODO FILL IN
-   *  @return TODO FILL IN
+   *  @param p the pair of Long and TimeUnit to convert
+   *  @return a FiniteDuration representing the given pair
    */
   implicit def pairLongToDuration(p: (Long, TimeUnit)): FiniteDuration = Duration(p._1, p._2)
-  /** TODO FILL IN
+  /** Converts a Duration to a pair of Long and TimeUnit.
    *
-   *  @param d TODO FILL IN
-   *  @return TODO FILL IN
+   *  @param d the Duration to convert
+   *  @return a pair of Long and TimeUnit representing the given Duration
    */
   implicit def durationToPair(d: Duration): (Long, TimeUnit)           = (d.length, d.unit)
 
-  /** TODO FILL IN
+  /** Provides duration conversion methods for Int values.
    *
-   *  @param n TODO FILL IN
+   *  @param n the Int value to convert
    */
   implicit final class DurationInt(private val n: Int) extends AnyVal with DurationConversions {
-    /** TODO FILL IN
+    /** Creates a FiniteDuration from this Int and the given TimeUnit.
      *
-     *  @param unit TODO FILL IN
-     *  @return TODO FILL IN
+     *  @param unit the TimeUnit to use for the duration
+     *  @return a FiniteDuration representing this Int in the given TimeUnit
      */
     override protected def durationIn(unit: TimeUnit): FiniteDuration  = Duration(n.toLong, unit)
   }
 
-  /** TODO FILL IN
+  /** Provides duration conversion methods for Long values.
    *
-   *  @param n TODO FILL IN
+   *  @param n the Long value to convert
    */
   implicit final class DurationLong(private val n: Long) extends AnyVal with DurationConversions {
-    /** TODO FILL IN
+    /** Creates a FiniteDuration from this Long and the given TimeUnit.
      *
-     *  @param unit TODO FILL IN
-     *  @return TODO FILL IN
+     *  @param unit the TimeUnit to use for the duration
+     *  @return a FiniteDuration representing this Long in the given TimeUnit
      */
     override protected def durationIn(unit: TimeUnit): FiniteDuration  = Duration(n, unit)
   }
 
-  /** TODO FILL IN
+  /** Provides duration conversion methods for Double values.
    *
-   *  @param d TODO FILL IN
+   *  @param d the Double value to convert
    */
   implicit final class DurationDouble(private val d: Double) extends AnyVal with DurationConversions {
-    /** TODO FILL IN
+    /** Creates a FiniteDuration from this Double and the given TimeUnit.
      *
-     *  @param unit TODO FILL IN
-     *  @return TODO FILL IN
+     *  @param unit the TimeUnit to use for the duration
+     *  @return a FiniteDuration representing this Double in the given TimeUnit
+     *  @throws IllegalArgumentException if the resulting Duration is not finite
      */
     override protected def durationIn(unit: TimeUnit): FiniteDuration  =
       Duration(d, unit) match {
@@ -123,9 +124,9 @@ package object duration {
   /*
    * Avoid reflection based invocation by using non-duck type
    */
-  /** TODO FILL IN
+  /** Provides multiplication methods for Int values with Duration.
    *
-   *  @param i TODO FILL IN
+   *  @param i the Int value to multiply
    */
   implicit final class IntMult(private val i: Int) extends AnyVal {
     /** TODO FILL IN
@@ -142,9 +143,9 @@ package object duration {
     def *(d: FiniteDuration): FiniteDuration = d * i.toLong
   }
 
-  /** TODO FILL IN
+  /** Provides multiplication methods for Long values with Duration.
    *
-   *  @param i TODO FILL IN
+   *  @param i the Long value to multiply
    */
   implicit final class LongMult(private val i: Long) extends AnyVal {
     /** TODO FILL IN
@@ -161,15 +162,15 @@ package object duration {
     def *(d: FiniteDuration): FiniteDuration = d * i.toLong
   }
 
-  /** TODO FILL IN
+  /** Provides multiplication methods for Double values with Duration.
    *
-   *  @param f TODO FILL IN
+   *  @param f the Double value to multiply
    */
   implicit final class DoubleMult(private val f: Double) extends AnyVal {
-    /** TODO FILL IN
+    /** Multiplies this Double with a Duration.
      *
-     *  @param d TODO FILL IN
-     *  @return TODO FILL IN
+     *  @param d the Duration to multiply
+     *  @return the product of this Double and the given Duration
      */
     def *(d: Duration): Duration             = d * f.toDouble
   }

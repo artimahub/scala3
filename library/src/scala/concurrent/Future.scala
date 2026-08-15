@@ -619,11 +619,11 @@ object Future {
 
     @throws[TimeoutException]
     @throws[InterruptedException]
-    /** TODO FILL IN
+    /** Blocks until this future is completed or the specified timeout is reached.
      *
-     *  @param atMost TODO FILL IN
-     *  @param permit TODO FILL IN
-     *  @return TODO FILL IN
+     *  @param atMost the maximum duration to wait
+     *  @param permit the permission to block
+     *  @return this future instance
      */
     override final def ready(atMost: Duration)(implicit permit: CanAwait): this.type = {
       import Duration.{Undefined, Inf, MinusInf}
@@ -653,10 +653,10 @@ object Future {
 
     @throws[TimeoutException]
     @throws[InterruptedException]
-    /** TODO FILL IN
+    /** Returns the result of this future if it's completed within the specified timeout.
      *
-     *  @param atMost TODO FILL IN
-     *  @param permit TODO FILL IN
+     *  @param atMost the maximum duration to wait
+     *  @param permit the permission to block
      */
     override final def result(atMost: Duration)(implicit permit: CanAwait): Nothing = {
       ready(atMost)
@@ -683,13 +683,13 @@ object Future {
      *  @param executor TODO FILL IN
      */
     override final def foreach[U](f: Nothing => U)(implicit executor: ExecutionContext): Unit = ()
-    /** TODO FILL IN
+    /** Transforms both the success and failure values of this future.
      *
-     *  @tparam S TODO FILL IN
-     *  @param s TODO FILL IN
-     *  @param f TODO FILL IN
-     *  @param executor TODO FILL IN
-     *  @return TODO FILL IN
+     *  @tparam S the type of the resulting future
+     *  @param s the function to apply to successful results
+     *  @param f the function to apply to failures
+     *  @param executor the execution context for the transformation
+     *  @return a new future with the transformed result
      */
     override final def transform[S](s: Nothing => S, f: Throwable => Throwable)(implicit executor: ExecutionContext): Future[S] = this
     /** TODO FILL IN
@@ -724,26 +724,26 @@ object Future {
      *  @return TODO FILL IN
      */
     override final def flatMap[S](f: Nothing => Future[S])(implicit executor: ExecutionContext): Future[S] = this
-    /** TODO FILL IN
+    /** Flattens a nested future structure.
      *
-     *  @tparam S TODO FILL IN
-     *  @param ev TODO FILL IN
-     *  @return TODO FILL IN
+     *  @tparam S the type of the inner future
+     *  @param ev the evidence that T is a Future[S]
+     *  @return a new future with the flattened result
      */
     override final def flatten[S](implicit ev: Nothing <:< Future[S]): Future[S] = this
-    /** TODO FILL IN
+    /** Filters the successful result of this future using the given predicate.
      *
-     *  @param p TODO FILL IN
-     *  @param executor TODO FILL IN
-     *  @return TODO FILL IN
+     *  @param p the predicate function
+     *  @param executor the execution context for the filtering
+     *  @return a new future with the filtered result
      */
     override final def filter(p: Nothing => Boolean)(implicit executor: ExecutionContext): Future[Nothing] = this
-    /** TODO FILL IN
+    /** Collects the successful result of this future using the given partial function.
      *
-     *  @tparam S TODO FILL IN
-     *  @param pf TODO FILL IN
-     *  @param executor TODO FILL IN
-     *  @return TODO FILL IN
+     *  @tparam S the type of the resulting future
+     *  @param pf the partial function to apply
+     *  @param executor the execution context for the collection
+     *  @return a new future with the collected result
      */
     override final def collect[S](pf: PartialFunction[Nothing, S])(implicit executor: ExecutionContext): Future[S] = this
     /** TODO FILL IN
@@ -769,14 +769,14 @@ object Future {
      *  @return TODO FILL IN
      */
     override final def zip[U](that: Future[U]): Future[(Nothing, U)] = this
-    /** TODO FILL IN
+    /** Zips this future with another future using the given function.
      *
-     *  @tparam U TODO FILL IN
-     *  @tparam R TODO FILL IN
-     *  @param that TODO FILL IN
-     *  @param f TODO FILL IN
-     *  @param executor TODO FILL IN
-     *  @return TODO FILL IN
+     *  @tparam U the type of the other future
+     *  @tparam R the type of the resulting future
+     *  @param that the other future to zip with
+     *  @param f the function to apply to both results
+     *  @param executor the execution context for the zipping
+     *  @return a new future with the result of the function
      */
     override final def zipWith[U, R](that: Future[U])(f: (Nothing, U) => R)(implicit executor: ExecutionContext): Future[R] = this
     /** TODO FILL IN
@@ -786,11 +786,11 @@ object Future {
      *  @return TODO FILL IN
      */
     override final def fallbackTo[U >: Nothing](that: Future[U]): Future[U] = this
-    /** TODO FILL IN
+    /** Maps the result of this future to the specified type.
      *
-     *  @tparam S TODO FILL IN
-     *  @param tag TODO FILL IN
-     *  @return TODO FILL IN
+     *  @tparam S the target type
+     *  @param tag the class tag for the target type
+     *  @return a new future with the cast result
      */
     override final def mapTo[S](implicit tag: ClassTag[S]): Future[S] = this
     /** TODO FILL IN
