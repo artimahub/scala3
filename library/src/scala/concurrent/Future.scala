@@ -617,14 +617,14 @@ object Future {
   /** A Future which is never completed. */
   object never extends Future[Nothing] {
 
-    @throws[TimeoutException]
-    @throws[InterruptedException]
     /** Blocks until this future is completed or the specified timeout is reached.
      *
      *  @param atMost the maximum duration to wait
      *  @param permit the permission to block
      *  @return this future instance
      */
+    @throws[TimeoutException]
+    @throws[InterruptedException]
     override final def ready(atMost: Duration)(implicit permit: CanAwait): this.type = {
       import Duration.{Undefined, Inf, MinusInf}
       atMost match {
@@ -651,36 +651,49 @@ object Future {
       timeoutError(atMost)
     }
 
-    @throws[TimeoutException]
-    @throws[InterruptedException]
     /** Returns the result of this future if it's completed within the specified timeout.
      *
      *  @param atMost the maximum duration to wait
      *  @param permit the permission to block
      */
+    @throws[TimeoutException]
+    @throws[InterruptedException]
     override final def result(atMost: Duration)(implicit permit: CanAwait): Nothing = {
       ready(atMost)
       timeoutError(atMost)
     }
 
-    /** TODO FILL IN
+    /** Registers a callback to be executed when this future completes.
      *
-     *  @tparam U TODO FILL IN
-     *  @param f TODO FILL IN
-     *  @param executor TODO FILL IN
+     *  Since this future is never completed, the callback will never be executed.
+     *
+     *  @tparam U the type of the result of the callback function
+     *  @param f the callback function to be executed when this future completes
+     *  @param executor the execution context on which the callback will be executed
      */
     override final def onComplete[U](f: Try[Nothing] => U)(implicit executor: ExecutionContext): Unit = ()
-    /** TODO FILL IN */
-    override final def isCompleted: Boolean = false
-    /** TODO FILL IN */
-    override final def value: Option[Try[Nothing]] = None
-    /** TODO FILL IN */
-    override final def failed: Future[Throwable] = this
-    /** TODO FILL IN
+    /** Returns whether this future has been completed.
      *
-     *  @tparam U TODO FILL IN
-     *  @param f TODO FILL IN
-     *  @param executor TODO FILL IN
+     *  Since this future is never completed, this method always returns `false`.
+     */
+    override final def isCompleted: Boolean = false
+    /** Returns the current value of this future.
+     *
+     *  Since this future is never completed, this method always returns `None`.
+     */
+    override final def value: Option[Try[Nothing]] = None
+    /** Returns a failed projection of this future.
+     *
+     *  Since this future is never completed, this method returns the future itself.
+     */
+    override final def failed: Future[Throwable] = this
+    /** Applies the given function to the result of this future if it is completed successfully.
+     *
+     *  Since this future is never completed, the function will never be executed.
+     *
+     *  @tparam U the type of the result of the function
+     *  @param f the function to be applied to the result of this future
+     *  @param executor the execution context on which the function will be executed
      */
     override final def foreach[U](f: Nothing => U)(implicit executor: ExecutionContext): Unit = ()
     /** Transforms both the success and failure values of this future.
@@ -692,36 +705,44 @@ object Future {
      *  @return a new future with the transformed result
      */
     override final def transform[S](s: Nothing => S, f: Throwable => Throwable)(implicit executor: ExecutionContext): Future[S] = this
-    /** TODO FILL IN
+    /** Transforms both the success and failure values of this future.
      *
-     *  @tparam S TODO FILL IN
-     *  @param f TODO FILL IN
-     *  @param executor TODO FILL IN
-     *  @return TODO FILL IN
+     *  Since this future is never completed, this method returns the future itself.
+     *
+     *  @tparam S the type of the resulting future
+     *  @param f the function to apply to the result of this future
+     *  @param executor the execution context for the transformation
+     *  @return a new future with the transformed result
      */
     override final def transform[S](f: Try[Nothing] => Try[S])(implicit executor: ExecutionContext): Future[S] = this
-    /** TODO FILL IN
+    /** Transforms the result of this future by applying the given function.
      *
-     *  @tparam S TODO FILL IN
-     *  @param f TODO FILL IN
-     *  @param executor TODO FILL IN
-     *  @return TODO FILL IN
+     *  Since this future is never completed, this method returns the future itself.
+     *
+     *  @tparam S the type of the resulting future
+     *  @param f the function to apply to the result of this future
+     *  @param executor the execution context for the transformation
+     *  @return a new future with the transformed result
      */
     override final def transformWith[S](f: Try[Nothing] => Future[S])(implicit executor: ExecutionContext): Future[S] = this
-    /** TODO FILL IN
+    /** Creates a new future by applying a function to the successful result of this future.
      *
-     *  @tparam S TODO FILL IN
-     *  @param f TODO FILL IN
-     *  @param executor TODO FILL IN
-     *  @return TODO FILL IN
+     *  Since this future is never completed, this method returns the future itself.
+     *
+     *  @tparam S the type of the resulting future
+     *  @param f the function to be applied to the successful result of this future
+     *  @param executor the execution context on which the function will be executed
+     *  @return a future which will be completed with the result of the application of the function
      */
     override final def map[S](f: Nothing => S)(implicit executor: ExecutionContext): Future[S] = this
-    /** TODO FILL IN
+    /** Creates a new future by applying a function to the successful result of this future.
      *
-     *  @tparam S TODO FILL IN
-     *  @param f TODO FILL IN
-     *  @param executor TODO FILL IN
-     *  @return TODO FILL IN
+     *  Since this future is never completed, this method returns the future itself.
+     *
+     *  @tparam S the type of the resulting future
+     *  @param f the function to be applied to the successful result of this future
+     *  @param executor the execution context on which the function will be executed
+     *  @return a future which will be completed with the result of the application of the function
      */
     override final def flatMap[S](f: Nothing => Future[S])(implicit executor: ExecutionContext): Future[S] = this
     /** Flattens a nested future structure.
@@ -746,27 +767,33 @@ object Future {
      *  @return a new future with the collected result
      */
     override final def collect[S](pf: PartialFunction[Nothing, S])(implicit executor: ExecutionContext): Future[S] = this
-    /** TODO FILL IN
+    /** Creates a new future that will handle any matching throwable that this future might contain.
      *
-     *  @tparam U TODO FILL IN
-     *  @param pf TODO FILL IN
-     *  @param executor TODO FILL IN
-     *  @return TODO FILL IN
+     *  Since this future is never completed, this method returns the future itself.
+     *
+     *  @tparam U the type of the returned future
+     *  @param pf the partial function to apply if this future fails
+     *  @param executor the execution context on which the callback will be executed
+     *  @return a future with the successful value of this future or the result of the partial function
      */
     override final def recover[U >: Nothing](pf: PartialFunction[Throwable, U])(implicit executor: ExecutionContext): Future[U] = this
-    /** TODO FILL IN
+    /** Creates a new future that will handle any matching throwable that this future might contain.
      *
-     *  @tparam U TODO FILL IN
-     *  @param pf TODO FILL IN
-     *  @param executor TODO FILL IN
-     *  @return TODO FILL IN
+     *  Since this future is never completed, this method returns the future itself.
+     *
+     *  @tparam U the type of the returned future
+     *  @param pf the partial function to apply if this future fails
+     *  @param executor the execution context on which the partial function will be executed
+     *  @return a future with the successful value of this future or the outcome of the future returned by the partial function
      */
     override final def recoverWith[U >: Nothing](pf: PartialFunction[Throwable, Future[U]])(implicit executor: ExecutionContext): Future[U] = this
-    /** TODO FILL IN
+    /** Zips the values of this and that future, and creates a new future holding the tuple of their results.
      *
-     *  @tparam U TODO FILL IN
-     *  @param that TODO FILL IN
-     *  @return TODO FILL IN
+     *  Since this future is never completed, this method returns the future itself.
+     *
+     *  @tparam U the type of the other future
+     *  @param that the other future
+     *  @return a future with the results of both futures or the failure of the first of them that failed
      */
     override final def zip[U](that: Future[U]): Future[(Nothing, U)] = this
     /** Zips this future with another future using the given function.
@@ -779,11 +806,13 @@ object Future {
      *  @return a new future with the result of the function
      */
     override final def zipWith[U, R](that: Future[U])(f: (Nothing, U) => R)(implicit executor: ExecutionContext): Future[R] = this
-    /** TODO FILL IN
+    /** Creates a new future which holds the result of this future if it was completed successfully, or the result of the that future if this future fails.
      *
-     *  @tparam U TODO FILL IN
-     *  @param that TODO FILL IN
-     *  @return TODO FILL IN
+     *  Since this future is never completed, this method returns the future itself.
+     *
+     *  @tparam U the type of the other future and the resulting future
+     *  @param that the future whose result we want to use if this future fails
+     *  @return a future with the successful result of this or that future or the failure of this future if both fail
      */
     override final def fallbackTo[U >: Nothing](that: Future[U]): Future[U] = this
     /** Maps the result of this future to the specified type.
@@ -793,15 +822,20 @@ object Future {
      *  @return a new future with the cast result
      */
     override final def mapTo[S](implicit tag: ClassTag[S]): Future[S] = this
-    /** TODO FILL IN
+    /** Applies the side-effecting function to the result of this future, and returns a new future with the result of this future.
      *
-     *  @tparam U TODO FILL IN
-     *  @param pf TODO FILL IN
-     *  @param executor TODO FILL IN
-     *  @return TODO FILL IN
+     *  Since this future is never completed, this method returns the future itself.
+     *
+     *  @tparam U only used to accept any return type of the given partial function
+     *  @param pf a partial function which will be conditionally applied to the outcome of this future
+     *  @param executor the execution context on which the callback will be executed
+     *  @return a future which will be completed with the exact same outcome as this future but after the partial function has been executed
      */
     override final def andThen[U](pf: PartialFunction[Try[Nothing], U])(implicit executor: ExecutionContext): Future[Nothing] = this
-    /** TODO FILL IN */
+    /** Returns a string representation of this future.
+     *
+     *  Since this future is never completed, this method returns the string "Future(<never>)".
+     */
     override final def toString(): String = "Future(<never>)"
   }
 
@@ -1075,8 +1109,11 @@ object Future {
     }.map(_.result())(using if (executor.isInstanceOf[BatchingExecutor]) executor else parasitic)
 }
 
+/** A trait for runnables that can be batched together for more efficient execution.
+ *
+ *  This trait is deprecated and superseded by `scala.concurrent.Batchable`.
+ */
 @deprecated("Superseded by `scala.concurrent.Batchable`", "2.13.0")
-/** TODO FILL IN */
 trait OnCompleteRunnable extends Batchable {
   self: Runnable =>
 }

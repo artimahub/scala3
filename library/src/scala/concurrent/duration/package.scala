@@ -129,16 +129,16 @@ package object duration {
    *  @param i the Int value to multiply
    */
   implicit final class IntMult(private val i: Int) extends AnyVal {
-    /** TODO FILL IN
+    /** Multiplies this Int with a Duration.
      *
-     *  @param d TODO FILL IN
-     *  @return TODO FILL IN
+     *  @param d the Duration to multiply
+     *  @return the product of this Int and the given Duration
      */
     def *(d: Duration): Duration             = d * i.toDouble
-    /** TODO FILL IN
+    /** Multiplies this Int with a FiniteDuration.
      *
-     *  @param d TODO FILL IN
-     *  @return TODO FILL IN
+     *  @param d the FiniteDuration to multiply
+     *  @return the product of this Int and the given FiniteDuration
      */
     def *(d: FiniteDuration): FiniteDuration = d * i.toLong
   }
@@ -148,16 +148,16 @@ package object duration {
    *  @param i the Long value to multiply
    */
   implicit final class LongMult(private val i: Long) extends AnyVal {
-    /** TODO FILL IN
+    /** Multiplies this Long with a Duration.
      *
-     *  @param d TODO FILL IN
-     *  @return TODO FILL IN
+     *  @param d the Duration to multiply
+     *  @return the product of this Long and the given Duration
      */
     def *(d: Duration): Duration             = d * i.toDouble
-    /** TODO FILL IN
+    /** Multiplies this Long with a FiniteDuration.
      *
-     *  @param d TODO FILL IN
-     *  @return TODO FILL IN
+     *  @param d the FiniteDuration to multiply
+     *  @return the product of this Long and the given FiniteDuration
      */
     def *(d: FiniteDuration): FiniteDuration = d * i.toLong
   }

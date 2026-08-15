@@ -788,8 +788,8 @@ object Regex {
               protected[matching] val matcher: Matcher,
               _groupNames: Seq[String]) extends MatchData {
 
+    /** The names of the capturing groups, if any, used to look up groups by name. */
     @deprecated("groupNames does not include inline group names, and should not be used anymore", "2.13.7")
-    /** TODO FILL IN */
     val groupNames: Seq[String] = _groupNames
 
     /** The index of the first matched character. */
@@ -889,8 +889,8 @@ object Regex {
   class MatchIterator(val source: CharSequence, val regex: Regex, private[Regex] val _groupNames: Seq[String])
   extends AbstractIterator[String] with MatchData { self =>
 
+    /** The names of the capturing groups, if any, used to look up groups by name. */
     @deprecated("groupNames does not include inline group names, and should not be used anymore", "2.13.7")
-    /** TODO FILL IN */
     val groupNames: Seq[String] = _groupNames
 
     /** The underlying Matcher used to find matches. */
