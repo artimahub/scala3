@@ -386,26 +386,26 @@ private[concurrent] object Promise {
         }
       } else Future.waitUndefinedError()
 
-    @throws(classOf[TimeoutException])
-    @throws(classOf[InterruptedException])
     /** Awaits the completion of this Future and returns this Future.
      *
      *  @param atMost the maximum duration to wait
      *  @param permit the CanAwait permission
      *  @return this Future
      */
+    @throws(classOf[TimeoutException])
+    @throws(classOf[InterruptedException])
     final def ready(atMost: Duration)(implicit permit: CanAwait): this.type = {
       tryAwait0(atMost)
       this
     }
 
-    @throws(classOf[Exception])
     /** Awaits the completion of this Future and returns its result.
      *
      *  @param atMost the maximum duration to wait
      *  @param permit the CanAwait permission
      *  @return the result of this Future
      */
+    @throws(classOf[Exception])
     final def result(atMost: Duration)(implicit permit: CanAwait): T =
       tryAwait0(atMost).nn.get // returns the value, or throws the contained exception
 

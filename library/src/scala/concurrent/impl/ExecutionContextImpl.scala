@@ -56,13 +56,13 @@ private[concurrent] object ExecutionContextImpl {
 
     private final val blockerPermits = new Semaphore(maxBlockers)
 
-    @annotation.nowarn("cat=deprecation")
     /** Configures the given thread with daemon status, exception handler, and name.
      *
      *  @tparam T the type of thread to configure
      *  @param thread the thread to configure
      *  @return the configured thread
      */
+    @annotation.nowarn("cat=deprecation")
     def wire[T <: Thread](thread: T): T = {
       thread.setDaemon(daemonic)
       thread.setUncaughtExceptionHandler(uncaught)

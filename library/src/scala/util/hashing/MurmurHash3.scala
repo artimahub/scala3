@@ -470,12 +470,12 @@ object MurmurHash3 extends MurmurHash3 {
    */
   def rangeHash(start: Int, step: Int, last: Int): Int = rangeHash(start, step, last, seqSeed)
 
-  @deprecated("use `caseClassHash` instead", "2.13.17")
   /** Computes the hash code of a Product instance using the default product seed.
    *
    *  @param x the Product instance to hash
    *  @return the hash code of `x`, derived from the product prefix and each product element
    */
+  @deprecated("use `caseClassHash` instead", "2.13.17")
   def productHash(x: Product): Int = caseClassHash(x, productSeed, null)
 
   /** Computes the `hashCode` of a case class instance. This method returns the same value as `x.hashCode`
@@ -591,8 +591,8 @@ object MurmurHash3 extends MurmurHash3 {
     def hash(xs: IterableOnce[Any]) = orderedHash(xs)
   }
 
-  @deprecated("use `caseClassHashing` instead", "2.13.17")
   /** Creates a Hashing instance for products (case classes). */
+  @deprecated("use `caseClassHashing` instead", "2.13.17")
   def productHashing = new Hashing[Product] {
     def hash(x: Product) = caseClassHash(x)
   }

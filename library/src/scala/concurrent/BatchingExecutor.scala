@@ -114,8 +114,8 @@ private[concurrent] trait BatchingExecutor extends Executor {
   */
   private sealed abstract class AbstractBatch protected (
     /** The first `Runnable` in the batch, stored unboxed for efficiency. */
-    @annotation.stableNull protected final var first: Runnable | Null,
     /** An array storing additional `Runnable` tasks beyond the first one. */
+    @annotation.stableNull protected final var first: Runnable | Null,
     protected final var other: Array[Runnable | Null],
     /** The current number of `Runnable` tasks in the batch. */
     protected final var size: Int
