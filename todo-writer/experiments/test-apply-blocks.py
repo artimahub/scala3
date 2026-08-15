@@ -126,6 +126,11 @@ def main():
     print("  [5] replay: duration/package.scala, duplicates-only reply")
     if not (os.path.exists(real) and os.path.exists(reply)):
         print("    SKIP  (file or saved reply not present)")
+    elif "TODO FILL IN" not in open(real, encoding="utf-8").read():
+        # Only meaningful on a branch mid-partition. On feature-todo-writer the
+        # library file is upstream and marker-free, so the saved blocks match
+        # nothing and there is no ambiguity left to refuse.
+        print("    SKIP  (file holds no markers on this branch)")
     else:
         rsrc = open(real, encoding="utf-8").read()
         rblocks = w.BLOCK.findall(open(reply, encoding="utf-8").read())
