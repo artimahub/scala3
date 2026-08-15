@@ -63,6 +63,8 @@ BLOCK = re.compile(
     re.DOTALL,
 )
 
+MARKER = "TODO FILL IN"
+
 
 def _strip_indent(text):
     """Drop each line's leading whitespace, for indentation-blind comparison."""
@@ -142,6 +144,105 @@ def code_only(text):
             continue
         out.append(l)
     return out
+
+
+ID_BLOCK = re.compile(r"<<<<<<< (\d+)\n(.*?)\n>>>>>>>", re.DOTALL)
+
+# A Scaladoc comment, captured with the indentation of its opening line.
+DOC_COMMENT = re.compile(r"(?m)^([ \t]*)/\*\*.*?\*/", re.DOTALL)
+
+
+def find_marker_blocks(src, marker="TODO FILL IN"):
+    """Every Scaladoc comment containing `marker`, numbered from 1.
+
+    Each entry is the WHOLE comment: byte range, indentation, current text, and
+    the first code line beneath it. This is the writer's authoritative map of
+    what needs filling, computed from the file rather than inferred from what a
+    model claims about it.
+    """
+    lines = src.split("\n")
+    offsets, pos = [], 0
+    for l in lines:
+        offsets.append(pos)
+        pos += len(l) + 1
+
+    def line_of(off):
+        lo, hi = 0, len(offsets) - 1
+        while lo < hi:
+            mid = (lo + hi + 1) // 2
+            if offsets[mid] <= off:
+                lo = mid
+            else:
+                hi = mid - 1
+        return lo
+
+    out = []
+    for m in DOC_COMMENT.finditer(src):
+        if marker not in m.group(0):
+            continue
+        ln = line_of(m.start())
+        end_ln = line_of(m.end() - 1)
+        decl = ""
+        for j in range(end_ln + 1, min(end_ln + 6, len(lines))):
+            t = lines[j].strip()
+            if t:
+                decl = t
+                break
+        out.append({
+            "id": len(out) + 1,
+            "start": m.start(),
+            "end": m.end(),
+            "line": ln + 1,
+            "indent": m.group(1),
+            "text": m.group(0),
+            "decl": decl,
+        })
+    return out
+
+
+def marker_manifest(blocks):
+    """The numbered worklist appended to the prompt.
+
+    Gives the model an ID per comment plus the declaration it documents, so it
+    never has to describe a location by quoting text back at us.
+    """
+    parts = [f"MARKERS TO FILL ({len(blocks)}). Reply with one block per ID.\n"]
+    for b in blocks:
+        body = "\n".join("    " + l for l in b["text"].split("\n"))
+        parts.append(
+            f"----- ID {b['id']}  (line {b['line']}, documents: {b['decl']})\n{body}\n"
+        )
+    return "\n".join(parts)
+
+
+def apply_by_id(src, filled, blocks):
+    """Replace each marker comment by ID. No text matching anywhere.
+
+    `filled` maps id -> replacement comment text. Edits run from the bottom of
+    the file upwards so earlier byte offsets stay valid, and each one is still
+    rejected unless the file's code lines come out byte-identical.
+    """
+    stats = dict(applied=0, unknown_id=0, unchanged=0, would_alter_code=0)
+    code_baseline = code_only(src)
+    by_id = {b["id"]: b for b in blocks}
+
+    for mid in sorted(filled, reverse=True):
+        b = by_id.get(mid)
+        if b is None:
+            stats["unknown_id"] += 1
+            continue
+        new_text = reindent(filled[mid], b["indent"])
+        if new_text == b["text"]:
+            stats["unchanged"] += 1
+            continue
+        candidate = src[: b["start"]] + new_text + src[b["end"]:]
+        if code_only(candidate) != code_baseline:
+            stats["would_alter_code"] += 1
+            continue
+        src = candidate
+        stats["applied"] += 1
+
+    return src, stats
 
 
 def apply_blocks(src, blocks):
@@ -277,12 +378,20 @@ def main():
     src = open(args.file, encoding="utf-8").read()
     instructions = open(args.prompt, encoding="utf-8").read()
 
+    # The worklist, numbered from the file itself. We already know where every
+    # marker is, so the model is never asked to describe a location -- which is
+    # the whole reason SEARCH/REPLACE failed on repetitive files, where a dozen
+    # comments are byte-identical and nothing it could quote would be unique.
+    marker_blocks = find_marker_blocks(src, MARKER)
+    print(f"  markers found:   {len(marker_blocks)}")
+
     # One user message: the instructions, then the file. Deliberately no system
     # prompt -- that is what silenced GLM through aider.
     content = (
         f"{instructions}\n\n"
         f"Here is the current content of {args.file}:\n\n"
-        f"```scala\n{src}\n```\n"
+        f"```scala\n{src}\n```\n\n"
+        f"{marker_manifest(marker_blocks)}"
     )
     payload = {
         "model": args.model,
@@ -371,6 +480,28 @@ def main():
         print("  blocks parsed:   0")
         return 0
 
+    # ID replies are preferred. SEARCH/REPLACE is still accepted so an older
+    # prompt, or a model that reverts to the format it knows best, still works.
+    id_hits = ID_BLOCK.findall(reply)
+    if id_hits:
+        filled = {}
+        for mid, body in id_hits:
+            filled[int(mid)] = body
+        src, stats = apply_by_id(src, filled, marker_blocks)
+        if stats["applied"]:
+            with open(args.file, "w", encoding="utf-8") as fh:
+                fh.write(src)
+        print(f"  protocol:        ids")
+        print(f"  blocks parsed:   {len(id_hits)}")
+        print(f"  applied:         {stats['applied']}")
+        if stats["unknown_id"]:
+            print(f"  skipped (unknown id): {stats['unknown_id']}")
+        if stats["unchanged"]:
+            print(f"  no-op blocks:    {stats['unchanged']}")
+        if stats["would_alter_code"]:
+            print(f"  REFUSED (would alter code): {stats['would_alter_code']}")
+        return 0
+
     blocks = BLOCK.findall(reply)
     src, stats = apply_blocks(src, blocks)
 
@@ -378,6 +509,7 @@ def main():
         with open(args.file, "w", encoding="utf-8") as fh:
             fh.write(src)
 
+    print(f"  protocol:        search/replace (no ID blocks in reply)")
     print(f"  blocks parsed:   {len(blocks)}")
     print(f"  applied:         {stats['applied']}")
     print(f"  skipped (no match):  {stats['nomatch']}")

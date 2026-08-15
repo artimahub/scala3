@@ -142,6 +142,99 @@ def main():
                               rst["ambiguous"], len(rblocks))
         failures += not check("file untouched", rout == rsrc, True)
 
+    # ---- 6. ID protocol: the case SEARCH/REPLACE cannot do ------------------
+    # Identical comments on declarations with DIFFERENT meanings. Text matching
+    # must refuse these; by ID there is nothing to be ambiguous about.
+    print("  [6] ID protocol on byte-identical comments, different declarations")
+    src6 = (
+        "trait T {\n"
+        "  /** TODO FILL IN */\n"
+        "  def foreach(f: A => Unit): Unit\n"
+        "\n"
+        "  /** TODO FILL IN */\n"
+        "  def onComplete(f: A => Unit): Unit\n"
+        "}\n"
+    )
+    mb = w.find_marker_blocks(src6)
+    failures += not check("markers found", len(mb), 2)
+    failures += not check("ids are 1..n", [b["id"] for b in mb], [1, 2])
+    failures += not check("block 1 sees its declaration",
+                          mb[0]["decl"], "def foreach(f: A => Unit): Unit")
+    failures += not check("block 2 sees its declaration",
+                          mb[1]["decl"], "def onComplete(f: A => Unit): Unit")
+    out6, st6 = w.apply_by_id(
+        src6,
+        {1: "/** Applies `f` to each element. */",
+         2: "/** Registers a completion callback. */"},
+        mb)
+    failures += not check("applied", st6["applied"], 2)
+    failures += not check("markers left", out6.count("TODO FILL IN"), 0)
+    failures += not check("code unchanged",
+                          w.code_only(out6) == w.code_only(src6), True)
+    failures += not check("foreach got the foreach doc",
+                          out6.index("Applies `f`") < out6.index("def foreach"), True)
+    failures += not check("onComplete got the onComplete doc",
+                          out6.index("Registers a completion") < out6.index("def onComplete")
+                          and out6.index("Registers a completion") > out6.index("def foreach"),
+                          True)
+    failures += not check("indentation preserved",
+                          "  /** Applies `f` to each element. */" in out6, True)
+
+    # ---- 7. ID protocol rejects a body that would change code ---------------
+    print("  [7] ID block whose text carries a code line -> refused")
+    out7, st7 = w.apply_by_id(src6, {1: "/** Doc. */\n  def foreach(f: A => Int): Unit"}, mb)
+    failures += not check("applied", st7["applied"], 0)
+    failures += not check("would_alter_code", st7["would_alter_code"], 1)
+    failures += not check("file untouched", out7 == src6, True)
+
+    # ---- 8. Multi-line comments, nesting, and an unknown ID -----------------
+    print("  [8] nested indentation, multi-line comment, unknown ID ignored")
+    src8 = (
+        "object O {\n"
+        "  class C {\n"
+        "      /** TODO FILL IN\n"
+        "       *\n"
+        "       *  @param x TODO FILL IN\n"
+        "       */\n"
+        "      def m(x: Int): Int = x\n"
+        "  }\n"
+        "}\n"
+    )
+    mb8 = w.find_marker_blocks(src8)
+    failures += not check("markers found", len(mb8), 1)
+    failures += not check("indent captured", mb8[0]["indent"], "      ")
+    out8, st8 = w.apply_by_id(
+        src8,
+        {1: "/** Doubles `x`.\n *\n *  @param x the input\n */", 99: "/** nope */"},
+        mb8)
+    failures += not check("applied", st8["applied"], 1)
+    failures += not check("unknown_id", st8["unknown_id"], 1)
+    failures += not check("markers left", out8.count("TODO FILL IN"), 0)
+    failures += not check("code unchanged",
+                          w.code_only(out8) == w.code_only(src8), True)
+    failures += not check("re-indented to 6 spaces",
+                          "      /** Doubles `x`." in out8, True)
+    failures += not check("continuation lines aligned",
+                          "       *  @param x the input" in out8, True)
+
+    # ---- 9. The real leftovers enumerate cleanly ----------------------------
+    print("  [9] enumerate the real stranded files")
+    for rel, want in (("concurrent/Future.scala", None),
+                      ("concurrent/duration/package.scala", None),
+                      ("util/matching/Regex.scala", None)):
+        p = os.path.join(args.repo, "library/src/scala", rel)
+        if not os.path.exists(p):
+            print(f"    SKIP  {rel}")
+            continue
+        s = open(p, encoding="utf-8").read()
+        bs = w.find_marker_blocks(s)
+        n_markers = s.count("TODO FILL IN")
+        every = all(b["decl"] for b in bs)
+        print(f"    {rel}: {len(bs)} comments hold {n_markers} markers")
+        failures += not check(f"{rel}: every block has a declaration", every, True)
+        failures += not check(f"{rel}: ids contiguous",
+                              [b["id"] for b in bs] == list(range(1, len(bs) + 1)), True)
+
     print(f"\n  {'ALL PASS' if not failures else str(failures) + ' FAILURE(S)'}")
     return 1 if failures else 0
 
