@@ -80,6 +80,16 @@ object Fixer:
       if block.synthetic then
         // Insert a brand-new Scaladoc stub before the declaration line.
         if insertTodo && (needsDescription || tparamsToInsert.nonEmpty || paramsToInsert.nonEmpty || returnToInsert) then
+          // Defense in depth: never write a stub at a line that sits inside a
+          // string literal. A comment-shaped marker there is NOT a comment -- it
+          // silently changes the string's value. Fail loudly instead of leaving
+          // a corrupt marker behind.
+          if ScaladocChecker.isLineStartInsideStringOrComment(currentText, block.startIndex) then
+            throw IllegalStateException(
+              s"Refusing to insert a Scaladoc stub at line ${block.lineNumber}: " +
+              "the line starts inside a string literal or block comment, so the marker " +
+              "would corrupt the source. This should never happen; the undocumented-declaration " +
+              "scan is supposed to skip such lines.")
           val newStub = buildNewScaladocStub(currentText, block.startIndex, tparamsToInsert, paramsToInsert, returnToInsert)
           currentText = currentText.substring(0, block.startIndex) + newStub + "\n" + currentText.substring(block.startIndex)
           fixCount += 1
