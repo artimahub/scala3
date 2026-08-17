@@ -7,6 +7,9 @@ on:
         required: true
         type: string
 
+permissions:
+  contents: read
+
 jobs:
   release-maven-artifacts:
     runs-on: ubuntu-latest
@@ -19,12 +22,12 @@ jobs:
       NIGHTLYBUILD          : ${{ vars.NIGHTLYBUILD }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: actions/setup-java@03ad4de0992f5dab5e18fcb136590ce7c4a0ac95 # v5.6.0
+      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
         with:
           distribution: 'adopt'
           java-version: 17
           cache: 'sbt'
-      - uses: sbt/setup-sbt@bfea3c5f48abd221b04a6df4798aa5eb8b6a2baf # v1.5.6
+      - uses: sbt/setup-sbt@8feba82adc7f01ddcf8165b86f778bdb5b82cebc # v1.5.7
       - name: Import Scala PGP Key
         uses: crazy-max/ghaction-import-gpg@2dc316deee8e90f13e1a351ab510b4d5bc0c82cd # v7.0.0
         with:
@@ -61,12 +64,12 @@ jobs:
         with:
           repository: scala/scala3-lts
           ref: lts-3.3
-      - uses: actions/setup-java@03ad4de0992f5dab5e18fcb136590ce7c4a0ac95 # v5.6.0
+      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
         with:
           distribution: 'temurin'
           java-version: 8
           cache: 'sbt'
-      - uses: sbt/setup-sbt@bfea3c5f48abd221b04a6df4798aa5eb8b6a2baf # v1.5.6
+      - uses: sbt/setup-sbt@8feba82adc7f01ddcf8165b86f778bdb5b82cebc # v1.5.7
       - name: Setup PGP Key
         run: |
           echo -n "$PGP_SECRET" | gpg --batch --import

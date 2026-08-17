@@ -58,20 +58,19 @@ class Inlining extends MacroTransform, IdentityDenotTransformer {
       Arrays.sort(deps)
       Arrays.sort(names)
 
-      unit.source.file.jpath match
-        case jpath: io.JPath =>
-          val pw = io.File(jpath)(using Codec.UTF8).changeExtension(io.FileExtension.Inc).toFile.printWriter()
-          // val pw = Console.out
-          try
-            pw.println("Used Names:")
-            pw.println("===========")
-            names.foreach(pw.println)
-            pw.println()
-            pw.println("Dependencies:")
-            pw.println("=============")
-            deps.foreach(pw.println)
-          finally pw.close()
-        case null => ()
+      unit.source.jfile.ifPresent(jpath => {
+        val pw = io.File(jpath.toPath)(using Codec.UTF8).changeExtension(io.FileExtension.Inc).toFile.printWriter()
+        // val pw = Console.out
+        try
+          pw.println("Used Names:")
+          pw.println("===========")
+          names.foreach(pw.println)
+          pw.println()
+          pw.println("Dependencies:")
+          pw.println("=============")
+          deps.foreach(pw.println)
+        finally pw.close()
+      })
 
     rec.sendToZinc()
 
@@ -81,7 +80,7 @@ class Inlining extends MacroTransform, IdentityDenotTransformer {
         new TreeTraverser {
           def traverse(tree: Tree)(using Context): Unit =
             tree match
-              case tree: RefTree if !Inlines.inInlineMethod && StagingLevel.level == 0 =>
+              case tree: RefTree if !Inlines.inInlineContext && StagingLevel.level == 0 =>
                 assert(!tree.symbol.isInlineMethod, tree.show)
               case _ =>
                 traverseChildren(tree)
