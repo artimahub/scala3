@@ -597,6 +597,13 @@ json_call() {
         # missed entirely, so a plain throttle failed fast instead of backing
         # off. Match the shapes actually observed, plus transient network.
         case "$err" in
+            # An empty or unparseable body is transient far more often than it
+            # is fatal: a provider hiccup, a dropped connection, a reply that
+            # arrived without content. It used to break out on the first
+            # occurrence, spending a whole round on one flaky response.
+            *"no parseable content"*|*"unparseable JSON"*)
+                log "      $prov/$model returned nothing usable (attempt $attempt/4); waiting ${delay}s"
+                sleep "$delay"; delay=$((delay * 2)) ;;
             *response_format*|*json_object*|*"JSON mode"*|*json_schema*)
                 if [ "$json_mode" = true ]; then
                     log "      $prov/$model rejected JSON mode; retrying without response_format"
@@ -922,7 +929,17 @@ for index in "${!TARGETS[@]}"; do
         json_call "$ADJUDICATOR_PROVIDER" "$ADJUDICATOR_MODEL" \
                   "$WORK_DIR/${SAFE}.adjsys" "$WORK_DIR/${SAFE}.adjusr" "$final_adj"
 
-        adj_verdict=$(jq -r '.verdict // "revise"' "$final_adj" 2>/dev/null || echo revise)
+        # A DEAD ADJUDICATOR IS NOT A VERDICT. `.verdict // "revise"` turned a
+        # failed call into a confident-looking "revise" carrying an empty
+        # worklist, and the writer was then sent to "work the adjudicated list"
+        # against nothing at all. Seen on TrieMap.scala in the week-5 rerun:
+        # devstral returned no content, and the round became a no-op refine that
+        # burned one of the three.
+        #
+        # Same rule as everywhere else in this script: an absent answer is
+        # UNAVAILABLE, never a decision. verdict_of reports that, and the caller
+        # skips the refine and tries the next round.
+        adj_verdict=$(verdict_of "$final_adj")
         local n_items n_dis
         n_items=$(jq -r '(.resolved_items // []) | length' "$final_adj" 2>/dev/null || echo 0)
         n_dis=$(jq -r '(.disagreements // []) | length' "$final_adj" 2>/dev/null || echo 0)
@@ -992,6 +1009,12 @@ for index in "${!TARGETS[@]}"; do
         if [ "$acc_verdict" = UNAVAILABLE ]; then
             verify_verdict="UNAVAILABLE"
             note_not_reviewed "$REL" "verification review did not run (accuracy=$acc_verdict style=$sty_verdict)"
+        elif [ "$adj_verdict" = UNAVAILABLE ]; then
+            # The file WAS looked at; only the summing-up went missing. Worth a
+            # human's eye, but for a different reason than open blockers, and
+            # the list is read by a person who deserves the accurate one.
+            verified_final=true
+            note_not_reviewed "$REL" "verification reviewed the file but the adjudicator never answered"
         elif [ "$adj_verdict" != "approve" ]; then
             verified_final=true   # it WAS reviewed; it just did not come back clean
             note_not_reviewed "$REL" "final refine still has open blockers after $MAX_ROUNDS rounds"
