@@ -3,12 +3,13 @@
 # =============================================================================
 # fill-doc-todos-free.sh
 #
-# Free models everywhere EXCEPT the accuracy reviewer, which is paid. See
-# "WEEK 4 POST-MORTEM" below for why that one role is worth money.
+# Free API models everywhere EXCEPT the accuracy reviewer, which runs on the
+# local `claude` CLI against the Claude subscription signed in on this machine.
+# See "WEEK 4 POST-MORTEM" below for why that one role gets the good model.
 #
 #   Writer      (Mistral    devstral-latest)      drafts
 #   repeat up to MAX_ROUNDS:
-#       Accuracy review (OpenRouter  claude-sonnet-5)    ┐ sequential, spaced
+#       Accuracy review (claude CLI  sonnet)             ┐ sequential, spaced
 #       Style review    (Mistral     mistral-large-latest) ┘
 #       Adjudicator     (Mistral  devstral-latest) merges both into ONE verdict
 #       if adjudicator approves -> done
@@ -46,10 +47,15 @@
 # wrong. Accepted deliberately -- it arbitrates BETWEEN reviewers rather than
 # re-reviewing the diff -- but it is the weakest link in this arrangement.
 #
-# All four roles are plain JSON-mode HTTP calls except the writer, which uses
-# direct-writer.py. No coding-agent client is involved anywhere. Of the four
-# clients tried (aider, Codex CLI, pool, direct), only `direct` worked for every
-# model; aider alone broke three of four. See RESULTS.md.
+# Transports: the writer uses direct-writer.py, the style reviewer and the
+# adjudicator are plain JSON-mode HTTP calls, and the accuracy reviewer runs
+# through the `claude` CLI in headless print mode (`-p --output-format json`),
+# reading `.result` out of the envelope. Of the four writer clients tried
+# (aider, Codex CLI, pool, direct), only `direct` worked for every model; aider
+# alone broke three of four. See RESULTS.md.
+#
+# The CLI is deliberately confined to Read, Grep and Glob. It is reviewing, and
+# a reviewer that can edit is a second writer with no integrity check behind it.
 #
 # -----------------------------------------------------------------------------
 # WEEK 4 POST-MORTEM (util + concurrent, PR #75). Read before changing any of
@@ -102,14 +108,24 @@
 # Env overrides:
 #   MAX_ROUNDS=3
 #   WRITER_MODEL=devstral-latest        WRITER_PROVIDER=mistral
-#   ACCURACY_MODEL=anthropic/claude-sonnet-5  ACCURACY_PROVIDER=openrouter
+#   ACCURACY_MODEL=sonnet               ACCURACY_PROVIDER=claude-cli
 #   STYLE_MODEL=mistral-large-latest    STYLE_PROVIDER=mistral
 #   ADJUDICATOR_MODEL=devstral-latest   ADJUDICATOR_PROVIDER=mistral
 #   INTER_FILE_PAUSE_SECONDS=120  PAUSE_SLEEP=30  MAX_TOKENS=32000
 #   WRITER_MAX_PASSES=6  WRITER_PASS_PAUSE=60  PROVIDER_SPACING=45
 #   REVIEW_FILE_MAX_LINES=1500  REVIEW_DIFF_CONTEXT=25  REPEAT_GROUP_MIN=3
 #   FINAL_VERIFY=true  SUSPICIOUS_REVIEW_BYTES=400  SUSPICIOUS_RETRY_PAUSE=45
-#   DRY_RUN=false
+#   CLI_TIMEOUT=1800  DRY_RUN=false
+#
+# PROVIDERS. Any role takes any provider; they come in two kinds.
+#   HTTP + API key:  mistral, cerebras, openrouter, poolside
+#   local CLI:       claude-cli, codex-cli
+# A CLI role costs subscription time instead of API credit, and gets Read, Grep
+# and Glob over the repo -- so a reviewer can open the file an override or an
+# implicit comes from, which no HTTP role can do at any price. Models are named
+# the way that CLI names them (`sonnet`, `opus`; `gpt-5.6-terra` for codex).
+#
+#   ACCURACY_PROVIDER=codex-cli ACCURACY_MODEL=gpt-5.6-terra ./fill-doc-todos-free.sh ...
 #
 # To go back to an all-free run (and accept week 4's failure mode):
 #   ACCURACY_PROVIDER=mistral ACCURACY_MODEL=mistral-medium-latest ./fill-doc-todos-free.sh ...
@@ -126,10 +142,17 @@ set -uo pipefail
 # verification pass.
 MAX_ROUNDS=${MAX_ROUNDS:-3}
 WRITER_MODEL=${WRITER_MODEL:-devstral-latest};             WRITER_PROVIDER=${WRITER_PROVIDER:-mistral}
-# The one paid role. Week 4 proved that a weak or throttled accuracy reviewer is
-# worse than none: it produces a verdict that LOOKS like review and stops anyone
-# looking further. Everything else stays free.
-ACCURACY_MODEL=${ACCURACY_MODEL:-anthropic/claude-sonnet-5}; ACCURACY_PROVIDER=${ACCURACY_PROVIDER:-openrouter}
+# The one role that is not on a free API model. Week 4 proved that a weak or
+# throttled accuracy reviewer is worse than none: it produces a verdict that
+# LOOKS like review and stops anyone looking further.
+#
+# It runs through the local `claude` CLI, so the work is billed to the Claude
+# subscription already signed in on this machine rather than to a per-token API
+# key. That also buys something no API-key route can: with Read/Grep/Glob the
+# reviewer can open the OTHER files a declaration depends on. Reviewing
+# `Ordering.scala` means following `Numeric`; reviewing an override means
+# reading the member it overrides.
+ACCURACY_MODEL=${ACCURACY_MODEL:-sonnet};   ACCURACY_PROVIDER=${ACCURACY_PROVIDER:-claude-cli}
 STYLE_MODEL=${STYLE_MODEL:-mistral-large-latest};    STYLE_PROVIDER=${STYLE_PROVIDER:-mistral}
 ADJUDICATOR_MODEL=${ADJUDICATOR_MODEL:-devstral-latest};  ADJUDICATOR_PROVIDER=${ADJUDICATOR_PROVIDER:-mistral}
 MAX_TOKENS=${MAX_TOKENS:-32000}
@@ -153,6 +176,7 @@ REVIEW_FILE_MAX_LINES=${REVIEW_FILE_MAX_LINES:-1500}
 REVIEW_DIFF_CONTEXT=${REVIEW_DIFF_CONTEXT:-25}
 REPEAT_GROUP_MIN=${REPEAT_GROUP_MIN:-3}   # identical doc blocks before grouping
 FINAL_VERIFY=${FINAL_VERIFY:-true}        # review the final refine, do not ship it blind
+CLI_TIMEOUT=${CLI_TIMEOUT:-1800}          # per call, for claude-cli / codex-cli
 DRY_RUN=${DRY_RUN:-false}
 MARKER="TODO FILL IN"
 
@@ -181,6 +205,14 @@ mkdir -p "$REVIEWS_DIR"
 ENV_FILE=${ENV_FILE:-/home/node/.aider/.env}
 [ -r "$ENV_FILE" ] && { set -a; . "$ENV_FILE"; set +a; }
 
+# Two kinds of provider. Most are an OpenAI-compatible HTTP endpoint plus an API
+# key. `claude-cli` and `codex-cli` are the coding-agent binaries installed on
+# this machine, driven in headless print mode: no key, billed to whatever
+# subscription is signed in, and -- the part that matters for a reviewer -- able
+# to open files the prompt did not include.
+is_cli_provider() { case "$1" in claude-cli|codex-cli) return 0 ;; *) return 1 ;; esac; }
+cli_binary()      { echo "${1%-cli}"; }
+
 # Map a provider name to its base URL and key. Keeping this in one place is what
 # lets any role be moved to any provider by changing two env vars.
 provider_base() {
@@ -205,6 +237,12 @@ provider_key() {
 for role in "$WRITER_PROVIDER:$WRITER_MODEL" "$ACCURACY_PROVIDER:$ACCURACY_MODEL" \
             "$STYLE_PROVIDER:$STYLE_MODEL" "$ADJUDICATOR_PROVIDER:$ADJUDICATOR_MODEL"; do
     prov="${role%%:*}"
+    if is_cli_provider "$prov"; then
+        bin=$(cli_binary "$prov")
+        command -v "$bin" >/dev/null || {
+            echo "Provider '$prov' needs the '$bin' CLI on PATH." >&2; exit 2; }
+        continue
+    fi
     [ -n "$(provider_base "$prov")" ] || { echo "Unknown provider: $prov" >&2; exit 2; }
     [ -n "$(provider_key  "$prov")" ] || { echo "No API key for provider '$prov' (looked in $ENV_FILE)" >&2; exit 2; }
 done
@@ -267,12 +305,124 @@ clean_json() { sed -e 's/^```json//' -e 's/^```//' | awk '/^[[:space:]]*\{/{f=1}
 # Non-comment, non-blank lines. Two files identical here differ only in Scaladoc.
 code_lines() { grep -vE '^\s*(\*|/\*\*|\*/)' "$1" | grep -v '^\s*$'; }
 
+# What a role may open depends on its transport, and the prompt must say which.
+# An HTTP reviewer told to "read the file" cannot, and invents; a CLI reviewer
+# told it has no tools will not look, which wastes the one advantage it has.
+tools_note() {   # $1 = provider
+    echo
+    echo "=== WHAT YOU CAN OPEN ==="
+    if is_cli_provider "$1"; then
+        cat <<'EOT'
+You have Read, Grep and Glob over this repository. When the source below does
+not settle a question -- an overridden member defined elsewhere, a type from
+another file, a helper the body calls -- open the file and read it. Prefer
+looking to guessing; that is why you have the tools.
+
+Everything you assert must still be supported by text you actually read, here or
+in a file you opened. Do not edit anything: you are reviewing, and a reviewer
+that writes is just an unreviewed second writer.
+EOT
+    else
+        cat <<'EOT'
+You have no tools and cannot open anything else. Everything you assert must be
+supported by text visible in this prompt. If the answer depends on a file you
+were not given, say so in the item and set confidence "low" rather than
+guessing.
+EOT
+    fi
+}
+
 HOUSE_RULES_FILE="${HOUSE_RULES_FILE:-$TODO_WRITER_DIR/docs/house-rules.md}"
 house_rules() {
   if [ -s "$HOUSE_RULES_FILE" ]; then
     echo; echo "=== LEARNED HOUSE RULES (from reviewer feedback on earlier PRs; apply these) ==="
     cat "$HOUSE_RULES_FILE"
   fi
+}
+
+# ---- one call through a local coding-agent CLI -----------------------------
+# Same contract as json_call: validated JSON in $out and return 0, or '{}' and
+# return 1. Only the transport differs.
+#
+# The CLI is given Read, Grep and Glob and nothing else. A reviewer that can
+# open the file it is reviewing is worth more than any amount of context
+# stuffing, and a reviewer that could EDIT would quietly become a second writer
+# with no integrity check behind it.
+#
+# Note what is NOT here: max_tokens, response_format, temperature. The CLI owns
+# those. The schema still reaches the model, because the caller appends it to
+# the system prompt, which is also how the old subscription pipeline did it.
+cli_call() {
+    local prov=$1 model=$2 sysf=$3 usrf=$4 out=$5
+    local bin tag raw errf attempt delay err rc cost
+    bin=$(cli_binary "$prov")
+    tag=$(basename "$out" .json)
+    raw="$WORK_DIR/raw.$tag.json"; errf="$WORK_DIR/err.$tag.txt"
+    delay=$RATE_LIMIT_BACKOFF
+
+    for attempt in 1 2 3 4; do
+        rc=0; err=""
+        : > "$raw"; : > "$errf"
+        case "$prov" in
+            claude-cli)
+                # Run from the repo root so a relative path in the prompt
+                # resolves, and so Read/Grep/Glob are rooted at the source tree.
+                cat "$sysf" "$usrf" \
+                  | ( cd "$REPO_ROOT" && timeout "$CLI_TIMEOUT" "$bin" \
+                        --dangerously-skip-permissions -p --model "$model" \
+                        --allowedTools Read,Grep,Glob --output-format json ) \
+                    > "$raw" 2> "$errf" || rc=$?
+                if [ "$rc" -eq 124 ]; then
+                    err="claude CLI timed out after ${CLI_TIMEOUT}s"
+                elif [ ! -s "$raw" ]; then
+                    err="claude CLI produced no output (rc=$rc): $(head -c 200 "$errf")"
+                elif [ "$(jq -r '.is_error // false' "$raw" 2>/dev/null)" = "true" ]; then
+                    err="claude CLI reported an error: $(jq -r '.result // ""' "$raw" | head -c 200)"
+                else
+                    jq -r '.result // empty' "$raw" 2>/dev/null | clean_json > "$out"
+                    cost=$(jq -r '.total_cost_usd // empty' "$raw" 2>/dev/null)
+                    [ -n "$cost" ] && log "      ($prov/$model: \$$cost against the subscription)"
+                fi
+                ;;
+            codex-cli)
+                # codex writes its last message straight to a file, so there is
+                # no envelope to unwrap.
+                cat "$sysf" "$usrf" \
+                  | timeout "$CLI_TIMEOUT" "$bin" exec --model "$model" -s read-only \
+                        --skip-git-repo-check -C "$REPO_ROOT" \
+                        --output-schema "$SCHEMA" --output-last-message "$WORK_DIR/last.$tag" - \
+                    > "$errf" 2>&1 || rc=$?
+                if [ "$rc" -eq 124 ]; then
+                    err="codex CLI timed out after ${CLI_TIMEOUT}s"
+                elif [ ! -s "$WORK_DIR/last.$tag" ]; then
+                    err="codex CLI produced no last message (rc=$rc): $(tail -c 200 "$errf")"
+                else
+                    clean_json < "$WORK_DIR/last.$tag" > "$out"
+                fi
+                ;;
+        esac
+
+        if [ -z "$err" ]; then
+            if [ -s "$out" ] && jq empty "$out" 2>/dev/null; then return 0; fi
+            err="reply was not usable JSON ($(wc -c < "$out" 2>/dev/null || echo 0) bytes)"
+        fi
+
+        # Same shapes as the HTTP path, plus the ones a subscription CLI uses
+        # when the plan's window is exhausted. That is a wait, not a failure.
+        case "$err" in
+            *[Rr]ate*limit*|*429*|*"limit exceeded"*|*"usage limit"*|*[Qq]uota*|\
+            *[Oo]verloaded*|*[Tt]emporar*|*"timed out"*|*503*)
+                log "      $prov throttled or slow (attempt $attempt/4): $(echo "$err" | head -c 120)"
+                log "      waiting ${delay}s"
+                sleep "$delay"; delay=$((delay * 2)) ;;
+            *)
+                log "      !! $prov/$model call FAILED: $(echo "$err" | head -c 200)"
+                break ;;
+        esac
+    done
+    log "      !! $prov/$model produced no usable JSON -- downstream verdicts from this call are NOT real"
+    echo '{}' > "$out"
+    return 1
 }
 
 # ---- one JSON-mode call ----------------------------------------------------
@@ -284,6 +434,7 @@ house_rules() {
 json_call() {
     local prov=$1 model=$2 sysf=$3 usrf=$4 out=$5
     local base key req raw attempt delay err
+    if is_cli_provider "$prov"; then cli_call "$prov" "$model" "$sysf" "$usrf" "$out"; return $?; fi
     base=$(provider_base "$prov"); key=$(provider_key "$prov")
     # Unique per CALL, not per process. $$ is the script's pid and is identical
     # inside both background subshells, so the two reviewers running in parallel
@@ -588,15 +739,19 @@ for index in "${!TARGETS[@]}"; do
     run_reviewers() {
         build_review_input
 
-        # One shared brief, rendered twice with different emphasis.
-        render_review() {   # $1 = emphasis text
+        # One shared brief, rendered twice with different emphasis. The two
+        # reviewers may be on different transports, and a reviewer must be told
+        # the truth about what it can open: one of them can read the repository,
+        # the other cannot, and each fails differently if it believes otherwise.
+        render_review() {   # $1 = emphasis text  $2 = that role's provider
             render "$ABS" "$PROMPTS_DIR/doc-review-prompt.txt" \
               | awk -v e="$1" '{gsub(/\{EMPHASIS\}/, e); print}'
+            tools_note "$2"
             house_rules
             echo; echo "=== SCHEMA (conform exactly) ==="; cat "$SCHEMA"
         }
-        render_review "$ACCURACY_EMPHASIS" > "$WORK_DIR/${SAFE}.accsys"
-        render_review "$STYLE_EMPHASIS"    > "$WORK_DIR/${SAFE}.stysys"
+        render_review "$ACCURACY_EMPHASIS" "$ACCURACY_PROVIDER" > "$WORK_DIR/${SAFE}.accsys"
+        render_review "$STYLE_EMPHASIS"    "$STYLE_PROVIDER"    > "$WORK_DIR/${SAFE}.stysys"
 
         # The accuracy reviewer may share a provider with the writer; space it.
         if [ "$ACCURACY_PROVIDER" = "$WRITER_PROVIDER" ] && [ "$PROVIDER_SPACING" -gt 0 ]; then

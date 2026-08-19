@@ -57,14 +57,23 @@ trim per-file cost on the low-risk early PRs with `MAX_ROUNDS=1` and/or a cheape
 `WRITER_MODEL`/`STYLE_MODEL`; keep full quality (default `MAX_ROUNDS=3`) for the
 `collection` PRs.
 
-Since week 5 the accuracy reviewer is a paid model (`openrouter/claude-sonnet-5`)
-and everything else is still free, so the bill is essentially
-`accuracy calls x price`. A file that never converges costs `MAX_ROUNDS + 1`
-accuracy calls, counting the verification review of the final refine, plus one
-`adversarial-gate.sh` call at the end of the PR. Measured on week 4's Try.scala:
-$0.22 per accuracy call (23.8k prompt, 17k completion, nearly all of it
-reasoning), so a 25-file PR at `MAX_ROUNDS=3` lands around $25 to $30. Check the
-balance before starting a partition:
+Since week 5 the accuracy reviewer and the adversarial gate run on the local
+`claude` CLI (`ACCURACY_PROVIDER=claude-cli`), so they spend Claude subscription
+time rather than API credit; every other role is still on a free API model. The
+budget to watch is therefore the subscription's usage window, not a dollar
+balance.
 
-    curl -s -H "Authorization: Bearer $OPENROUTER_API_KEY" \
-      https://openrouter.ai/api/v1/credits
+What that window has to absorb, per partition: a file that never converges costs
+`MAX_ROUNDS + 1` accuracy calls, counting the verification review of the final
+refine, plus one gate call at the end. At `MAX_ROUNDS=3` a 25-file PR is about
+100 accuracy calls and 25 gate calls, each one reading a whole source file. That
+is a lot to run in one sitting. Two levers if it runs into the limit:
+
+- `INTER_FILE_PAUSE_SECONDS` (default 120) already spreads the run out; raising
+  it spreads it further.
+- the run is resumable. Files that are already filled and reviewed are skipped
+  on a second pass, so a run stopped by a usage limit can simply be restarted.
+
+The CLI reports what each call would have cost on the API, and the script logs
+it (`$0.05 against the subscription`), which is a useful proxy for how much of
+the window a partition is consuming even though no card is charged.

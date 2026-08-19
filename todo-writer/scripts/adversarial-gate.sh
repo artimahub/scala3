@@ -31,22 +31,29 @@
 #   ./adversarial-gate.sh <file> [file ...]
 #   ./adversarial-gate.sh $(git diff --name-only)
 #
-# Env overrides:
-#   GATE_MODEL=anthropic/claude-sonnet-5   GATE_PROVIDER=openrouter
-#   GATE_BASE_REF=HEAD          what the docs are diffed against
-#   GATE_MAX_TOKENS=32000       GATE_SPACING=10
+# It runs through the local `claude` CLI, so it costs subscription time rather
+# than API credit, and it can open other files: reviewing an override, it can go
+# and read the member being overridden.
 #
-# To gate with an OpenAI model instead:
-#   GATE_MODEL=openai/gpt-5.6-terra ./adversarial-gate.sh <files>
+# Env overrides:
+#   GATE_MODEL=sonnet           GATE_PROVIDER=claude-cli
+#   GATE_BASE_REF=HEAD          what the docs are diffed against
+#   GATE_MAX_TOKENS=32000       GATE_SPACING=10   GATE_TIMEOUT=1800
+#
+# To gate with Codex instead (also a local CLI, also a subscription):
+#   GATE_PROVIDER=codex-cli GATE_MODEL=gpt-5.6-terra ./adversarial-gate.sh <files>
+# Or through an HTTP provider, billed per token:
+#   GATE_PROVIDER=openrouter GATE_MODEL=anthropic/claude-sonnet-5 ./adversarial-gate.sh <files>
 # =============================================================================
 
 set -uo pipefail
 
-GATE_MODEL=${GATE_MODEL:-anthropic/claude-sonnet-5}
-GATE_PROVIDER=${GATE_PROVIDER:-openrouter}
+GATE_MODEL=${GATE_MODEL:-sonnet}
+GATE_PROVIDER=${GATE_PROVIDER:-claude-cli}
 GATE_BASE_REF=${GATE_BASE_REF:-HEAD}
 GATE_MAX_TOKENS=${GATE_MAX_TOKENS:-32000}
 GATE_SPACING=${GATE_SPACING:-10}
+GATE_TIMEOUT=${GATE_TIMEOUT:-1800}
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TODO_WRITER_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
@@ -60,14 +67,21 @@ LOG_FILE="$TODO_WRITER_DIR/adversarial-gate.log"
 ENV_FILE=${ENV_FILE:-/home/node/.aider/.env}
 [ -r "$ENV_FILE" ] && { set -a; . "$ENV_FILE"; set +a; }
 
+IS_CLI=false
 case "$GATE_PROVIDER" in
+    claude-cli|codex-cli)
+        IS_CLI=true; CLI_BIN="${GATE_PROVIDER%-cli}"
+        command -v "$CLI_BIN" >/dev/null || {
+            echo "Provider '$GATE_PROVIDER' needs the '$CLI_BIN' CLI on PATH." >&2; exit 2; } ;;
     mistral)    BASE="${MISTRAL_API_BASE:-https://api.mistral.ai/v1}";    KEY="${MISTRAL_API_KEY:-}" ;;
     cerebras)   BASE="${CEREBRAS_API_BASE:-https://api.cerebras.ai/v1}";  KEY="${CEREBRAS_API_KEY:-}" ;;
     openrouter) BASE="${OPENROUTER_API_BASE:-https://openrouter.ai/api/v1}"; KEY="${OPENROUTER_API_KEY:-}" ;;
     poolside)   BASE="${OPENAI_API_BASE:-https://inference.poolside.ai/v1}"; KEY="${OPENAI_API_KEY:-}" ;;
     *) echo "Unknown provider: $GATE_PROVIDER" >&2; exit 2 ;;
 esac
-[ -n "$KEY" ] || { echo "No API key for provider '$GATE_PROVIDER' (looked in $ENV_FILE)" >&2; exit 2; }
+if [ "$IS_CLI" = false ]; then
+    [ -n "$KEY" ] || { echo "No API key for provider '$GATE_PROVIDER' (looked in $ENV_FILE)" >&2; exit 2; }
+fi
 [ -r "$PROMPT" ] || { echo "Missing prompt: $PROMPT" >&2; exit 2; }
 for tool in jq curl python3; do
     command -v "$tool" >/dev/null || { echo "Missing required tool: $tool" >&2; exit 2; }
@@ -110,30 +124,80 @@ for FILE in "$@"; do
     } > "$USR"
 
     SYS="$WORK_DIR/${SAFE}.sys"
-    sed "s|{FILE_PATH}|$REL|g" "$PROMPT" > "$SYS"
+    {
+        sed "s|{FILE_PATH}|$REL|g" "$PROMPT"
+        echo
+        echo "=== WHAT YOU CAN OPEN ==="
+        if [ "$IS_CLI" = true ]; then
+            cat <<'EOT'
+You have Read, Grep and Glob over this repository. When the source below does
+not settle a question -- an overridden member defined elsewhere, a type from
+another file, a helper the body calls -- open the file and read it. Do not edit
+anything; you are reading to decide, not to fix.
+EOT
+        else
+            cat <<'EOT'
+You have no tools and cannot open anything else. Everything you assert must be
+supported by text visible in this prompt. Where the answer depends on a file you
+were not given, say so rather than guessing.
+EOT
+        fi
+    } > "$SYS"
 
     REQ="$WORK_DIR/${SAFE}.req"; RAW="$WORK_DIR/${SAFE}.raw"
-    jq -n --arg m "$GATE_MODEL" --arg s "$(cat "$SYS")" --arg u "$(cat "$USR")" \
-          --argjson mt "$GATE_MAX_TOKENS" \
-      '{model:$m, max_tokens:$mt,
-        messages:[{role:"system",content:$s},{role:"user",content:$u}]}' > "$REQ"
-
     OUT="$REVIEWS_DIR/${SAFE}.gate.md"
+    : > "$OUT"
     delay=30
     for attempt in 1 2 3; do
-        curl -s --max-time 900 "$BASE/chat/completions" \
-            -H "Authorization: Bearer $KEY" -H "Content-Type: application/json" \
-            -H "User-Agent: curl/8.5.0" --data @"$REQ" > "$RAW"
-        err=$(jq -r '.error.message // .message // empty' "$RAW" 2>/dev/null)
-        if [ -z "$err" ]; then
-            jq -r '.choices[0].message.content // empty' "$RAW" > "$OUT" 2>/dev/null
-            [ -s "$OUT" ] && break
-            err="reply had no parseable content"
+        err=""
+        if [ "$IS_CLI" = true ]; then
+            rc=0
+            case "$GATE_PROVIDER" in
+                claude-cli)
+                    cat "$SYS" "$USR" \
+                      | ( cd "$REPO_ROOT" && timeout "$GATE_TIMEOUT" "$CLI_BIN" \
+                            --dangerously-skip-permissions -p --model "$GATE_MODEL" \
+                            --allowedTools Read,Grep,Glob --output-format json ) \
+                        > "$RAW" 2> "$WORK_DIR/${SAFE}.err" || rc=$?
+                    if [ "$rc" -eq 124 ]; then
+                        err="claude CLI timed out after ${GATE_TIMEOUT}s"
+                    elif [ ! -s "$RAW" ]; then
+                        err="claude CLI produced no output (rc=$rc): $(head -c 200 "$WORK_DIR/${SAFE}.err")"
+                    elif [ "$(jq -r '.is_error // false' "$RAW" 2>/dev/null)" = "true" ]; then
+                        err="claude CLI reported an error: $(jq -r '.result // ""' "$RAW" | head -c 200)"
+                    else
+                        jq -r '.result // empty' "$RAW" > "$OUT" 2>/dev/null
+                        cost=$(jq -r '.total_cost_usd // empty' "$RAW" 2>/dev/null)
+                        [ -n "$cost" ] && log "    (\$$cost against the subscription)"
+                    fi ;;
+                codex-cli)
+                    cat "$SYS" "$USR" \
+                      | timeout "$GATE_TIMEOUT" "$CLI_BIN" exec --model "$GATE_MODEL" -s read-only \
+                            --skip-git-repo-check -C "$REPO_ROOT" \
+                            --output-last-message "$OUT" - \
+                        > "$WORK_DIR/${SAFE}.err" 2>&1 || rc=$?
+                    [ "$rc" -eq 124 ] && err="codex CLI timed out after ${GATE_TIMEOUT}s"
+                    [ -s "$OUT" ] || err="codex CLI produced no last message (rc=$rc): $(tail -c 200 "$WORK_DIR/${SAFE}.err")" ;;
+            esac
+        else
+            jq -n --arg m "$GATE_MODEL" --arg s "$(cat "$SYS")" --arg u "$(cat "$USR")" \
+                  --argjson mt "$GATE_MAX_TOKENS" \
+              '{model:$m, max_tokens:$mt,
+                messages:[{role:"system",content:$s},{role:"user",content:$u}]}' > "$REQ"
+            curl -s --max-time 900 "$BASE/chat/completions" \
+                -H "Authorization: Bearer $KEY" -H "Content-Type: application/json" \
+                -H "User-Agent: curl/8.5.0" --data @"$REQ" > "$RAW"
+            err=$(jq -r '.error.message // .message // empty' "$RAW" 2>/dev/null)
+            if [ -z "$err" ]; then
+                jq -r '.choices[0].message.content // empty' "$RAW" > "$OUT" 2>/dev/null
+                [ -s "$OUT" ] || err="reply had no parseable content"
+            fi
         fi
+        [ -z "$err" ] && [ -s "$OUT" ] && break
         case "$err" in
-            *[Rr]ate*limit*|*429*|*"limit exceeded"*|*"too many"*|*[Qq]uota*|\
-            *[Oo]verloaded*|*[Tt]emporar*|*"name resolution"*|*503*)
-                log "    rate limited (attempt $attempt/3); waiting ${delay}s"
+            *[Rr]ate*limit*|*429*|*"limit exceeded"*|*"too many"*|*"usage limit"*|*[Qq]uota*|\
+            *[Oo]verloaded*|*[Tt]emporar*|*"timed out"*|*"name resolution"*|*503*)
+                log "    throttled or slow (attempt $attempt/3): $(echo "$err" | head -c 120); waiting ${delay}s"
                 sleep "$delay"; delay=$((delay * 2)) ;;
             *)
                 log "    !! gate call FAILED: $(echo "$err" | head -c 160)"; break ;;

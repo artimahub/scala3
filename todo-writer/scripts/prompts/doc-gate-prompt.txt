@@ -7,11 +7,13 @@ who wrote it. Earlier reviewers in this pipeline have already approved this
 file. Assume they were wrong; that is why you are here.
 
 WHAT YOU ARE GIVEN, below, in this order:
-  1. the full source of {FILE_PATH}, line-numbered. This is the only truth
-     available to you. You have no tools; do not assert anything you cannot
-     point to a line for.
+  1. the full source of {FILE_PATH}, line-numbered. It outranks anything the
+     documentation claims; do not assert anything you cannot point to a line for.
   2. the diff of documentation changes under review.
   3. sometimes, an index of doc blocks that were generated more than once.
+
+A "WHAT YOU CAN OPEN" section below says whether you can read other files.
+Follow it exactly.
 
 METHOD
 

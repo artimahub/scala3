@@ -13,11 +13,13 @@ raised twice than missed once.
 WHAT YOU ARE GIVEN, in this order, below:
 
   1. the source of {FILE_PATH}, line-numbered -- the whole file when it fits,
-     otherwise wide context around each change. This is the truth. You have no
-     tools and cannot open anything else, so everything you assert must be
-     supported by text you can actually see here.
+     otherwise wide context around each change. This is the truth about this
+     file, and it outranks anything the documentation claims.
   2. a unified diff of ONLY the Scaladoc that was just written or changed.
   3. sometimes, an index of doc blocks the writer generated more than once.
+
+A "WHAT YOU CAN OPEN" section below says whether you can read other files.
+Follow it exactly; it differs between reviewers.
 
 SCOPE: judge ONLY documentation that appears as added/changed in the diff. Do
 NOT raise blockers about pre-existing documentation that is not part of it. If
