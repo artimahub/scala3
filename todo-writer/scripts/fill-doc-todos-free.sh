@@ -959,6 +959,23 @@ for index in "${!TARGETS[@]}"; do
         n_items=$(jq -r '(.resolved_items // []) | length' "$final_adj" 2>/dev/null || echo 0)
         n_dis=$(jq -r '(.disagreements // []) | length' "$final_adj" 2>/dev/null || echo 0)
         log "    adjudicator: $adj_verdict  (${n_items} item(s), ${n_dis} disagreement(s) settled)"
+
+        # NITS ALONE NEVER BLOCK -- the adjudicator's own rule, enforced here
+        # because it does not always follow it. On TrieMap.scala round 3 both
+        # reviewers APPROVED, and the adjudicator answered "revise" with 63
+        # items, 25 of them nits. 61 edits then landed on prose that had just
+        # been passed, and the next accuracy review went from approve to revise
+        # with three blockers about claims the rewritten text now made.
+        #
+        # Churning approved prose over wording preferences is not free: every
+        # edit is a chance to introduce a claim the code does not support. If
+        # nothing in the worklist is a blocker, the file is done.
+        local adj_blockers
+        adj_blockers=$(jq -r '[(.resolved_items // [])[] | select(.severity=="blocker")] | length' "$final_adj" 2>/dev/null || echo 0)
+        if [ "$adj_verdict" = "revise" ] && [ "${adj_blockers:-0}" -eq 0 ] && [ "${n_items:-0}" -gt 0 ]; then
+            log "    ...but 0 of those ${n_items} items are blockers; nits alone never block, so this is an approve"
+            adj_verdict=approve
+        fi
     }
 
     # verified_final answers the only question that matters at the end: was the
