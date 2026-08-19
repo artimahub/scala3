@@ -816,6 +816,17 @@ for index in "${!TARGETS[@]}"; do
     }
 
     DIFF_BLOCK="$WORK_DIR/${SAFE}.review-input"
+    # The adjudicator gets its own, much smaller payload. It is NOT a third
+    # reviewer -- its prompt says so -- and it judges only what the two reviewers
+    # raised, so the source would be dead weight to it.
+    #
+    # Dead weight with teeth, as it turned out. When the reviewers started
+    # getting the full source, the adjudicator was reusing the same block, and
+    # its payload went from about 30 KB to 131 KB. Mistral answered a 131 KB
+    # adjudication with an empty body, twice in a row on TrieMap.scala, and each
+    # failure cost a whole round. Reviewers need the code; the adjudicator needs
+    # the diff and the two opinions.
+    ADJ_BLOCK="$WORK_DIR/${SAFE}.adj-input"
 
     # ---- what the reviewers actually get ------------------------------------
     # The diff alone is not reviewable. Week 4's reviewers were handed `diff -u`
@@ -825,6 +836,13 @@ for index in "${!TARGETS[@]}"; do
     # repeated-block index.
     build_review_input() {
         local nlines; nlines=$(wc -l < "$ABS")
+        {
+            echo "=== DIFF OF DOCS TO REVIEW (judge only these additions) ==="
+            diff -U "$REVIEW_DIFF_CONTEXT" "$ORIG" "$ABS" || true
+            if [ -x "$REPEAT_FINDER" ]; then
+                python3 "$REPEAT_FINDER" --orig "$ORIG" --new "$ABS" --min "$REPEAT_GROUP_MIN" 2>/dev/null || true
+            fi
+        } > "$ADJ_BLOCK"
         {
             if [ "$nlines" -le "$REVIEW_FILE_MAX_LINES" ]; then
                 echo "=== FULL SOURCE OF $REL (line-numbered; this is the truth to check against) ==="
@@ -836,11 +854,7 @@ for index in "${!TARGETS[@]}"; do
                 echo "rather than guessing: set confidence \"low\" and explain what you could not see."
             fi
             echo
-            echo "=== DIFF OF DOCS TO REVIEW (judge only these additions) ==="
-            diff -U "$REVIEW_DIFF_CONTEXT" "$ORIG" "$ABS" || true
-            if [ -x "$REPEAT_FINDER" ]; then
-                python3 "$REPEAT_FINDER" --orig "$ORIG" --new "$ABS" --min "$REPEAT_GROUP_MIN" 2>/dev/null || true
-            fi
+            cat "$ADJ_BLOCK"
         } > "$DIFF_BLOCK"
         if [ "$nlines" -le "$REVIEW_FILE_MAX_LINES" ]; then
             log "    review input: full source ($nlines lines) + diff"
@@ -923,9 +937,10 @@ for index in "${!TARGETS[@]}"; do
         log "    adjudicating ($ADJUDICATOR_PROVIDER/$ADJUDICATOR_MODEL)..."
         { render "$ABS" "$PROMPTS_DIR/doc-adjudicator-prompt.txt"; house_rules
           echo; echo "=== ADJUDICATION SCHEMA (conform exactly) ==="; cat "$ADJ_SCHEMA"; } > "$WORK_DIR/${SAFE}.adjsys"
-        { cat "$DIFF_BLOCK"
+        { cat "$ADJ_BLOCK"
           echo; echo "=== ACCURACY REVIEW (JSON) ==="; cat "$final_acc"
           echo; echo "=== STYLE REVIEW (JSON) ==="; cat "$final_sty"; } > "$WORK_DIR/${SAFE}.adjusr"
+        log "    adjudication payload: $(( $(wc -c < "$WORK_DIR/${SAFE}.adjusr") / 1024 )) KB"
         json_call "$ADJUDICATOR_PROVIDER" "$ADJUDICATOR_MODEL" \
                   "$WORK_DIR/${SAFE}.adjsys" "$WORK_DIR/${SAFE}.adjusr" "$final_adj"
 
