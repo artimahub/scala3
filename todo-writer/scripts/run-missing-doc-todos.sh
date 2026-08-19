@@ -14,11 +14,22 @@
 #      any changed file that falls outside it (the same "run broad, revert the
 #      rest" workaround used by run-cleanup-todos.sh for root files and for
 #      collection-core's excluded subtrees);
-#   3. calls fill-doc-todos.sh on the remaining marked files, which fills each
-#      stub with a Writer (Opus) / Accuracy (Codex) + Style (Sonnet) review loop.
+#   3. calls the fill script on the remaining marked files, which fills each
+#      stub with a Writer / Accuracy + Style / Adjudicator loop.
+#
+# The fill script is fill-doc-todos-free.sh (free models, except a paid accuracy
+# reviewer). Override with FILL_SCRIPT=... to use the older subscription
+# pipeline in fill-doc-todos.sh.
 #
 # The result is left UNCOMMITTED in the working tree for you to review and turn
 # into one PR. Process one partition, review, commit, then run the next.
+#
+# BEFORE COMMITTING, run the adversarial gate over the partition:
+#
+#   scripts/adversarial-gate.sh $(git diff --name-only)
+#
+# It is one strong-model pass per file that tries to prove the new docs wrong.
+# On week 4 that pass found what 50 in-pipeline reviewer calls had missed.
 #
 # This mirrors the directory split documented in docs/pr-directory-breakdown.md
 # (the "Undocumented batch"), with collection and the loose root files split
@@ -35,8 +46,8 @@
 #   ./run-missing-doc-todos.sh --fill-only <partition> [more...] # fill existing TODO markers, no generation
 #   ./run-missing-doc-todos.sh <partition> [more...]        # generate + fill (leaves changes in tree)
 #
-# Env overrides (forwarded to fill-doc-todos.sh): MAX_ROUNDS, WRITER_MODEL,
-# STYLE_MODEL, ACCURACY_MODEL (default: gpt-5.6-terra)
+# Env overrides (forwarded to the fill script): MAX_ROUNDS, WRITER_MODEL,
+# STYLE_MODEL, ACCURACY_MODEL, and FILL_SCRIPT to pick the fill script itself.
 # =============================================================================
 
 set -euo pipefail
@@ -44,7 +55,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TODO_WRITER_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 REPO_ROOT="$(git -C "$SCRIPT_DIR" rev-parse --show-toplevel)"
-FILL="$SCRIPT_DIR/fill-doc-todos.sh"
+FILL="${FILL_SCRIPT:-$SCRIPT_DIR/fill-doc-todos-free.sh}"
 MARKER="TODO FILL IN"
 
 # ---- Partition table --------------------------------------------------------
@@ -224,12 +235,29 @@ fill_targets() {
 
   local start_ts; start_ts=$(date '+%H:%M:%S')
   SECONDS=0
-  echo ">>> filling ${#targets[@]} file(s) for PR '$label'  (started $start_ts)"
-  "$FILL" "${targets[@]}"
+  echo ">>> filling ${#targets[@]} file(s) for PR '$label'  (started $start_ts)  using $(basename "$FILL")"
+  # Exit 3 from the fill script means "filled, but some file never got a real
+  # review". That is information, not a crash, and `set -e` must not swallow the
+  # rest of this function before it can be reported.
+  local rc=0
+  "$FILL" "${targets[@]}" || rc=$?
   echo
   echo "PR '$label' done in $(fmt_elapsed "$SECONDS")  (started $start_ts, finished $(date '+%H:%M:%S'))."
-  echo "Review the working tree, then commit as one PR."
-  echo "Before the next PR, fold reviewer feedback into docs/house-rules.md."
+  if [ "$rc" -eq 3 ]; then
+    echo
+    echo "!! Some files were FILLED BUT NOT REVIEWED. See:"
+    echo "!!   $TODO_WRITER_DIR/reviews/NOT-REVIEWED.txt"
+    echo "!! Do not put those in the PR until you have read them yourself."
+  elif [ "$rc" -ne 0 ]; then
+    echo "!! fill script exited $rc."
+  fi
+  echo
+  echo "Next:"
+  echo "  1. scripts/adversarial-gate.sh \$(git diff --name-only)   # prove the docs wrong"
+  echo "  2. read reviews/GATE-REPORT.md and fix what it found"
+  echo "  3. review the working tree, then commit as one PR"
+  echo "  4. when the human reviewer replies, fold their feedback into docs/house-rules.md"
+  return "$rc"
 }
 
 main() {
@@ -276,11 +304,11 @@ main() {
       shift
       [ $# -ge 1 ] || { echo "--fill-only needs at least one partition name" >&2; exit 2; }
       mapfile -t targets < <(existing_targets "$@")
-      fill_targets "$*" "${targets[@]}"
+      fill_targets "$*" "${targets[@]}" || exit $?
       exit 0 ;;
     *)
       mapfile -t targets < <(prepare_partition "$@")
-      fill_targets "$*" "${targets[@]}"
+      fill_targets "$*" "${targets[@]}" || exit $?
       exit 0 ;;
   esac
 }

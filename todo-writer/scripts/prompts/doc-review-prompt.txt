@@ -10,23 +10,41 @@ raised twice than missed once.
 
 {EMPHASIS}
 
-SCOPE: At the end of this prompt you are given a unified diff of ONLY the
-Scaladoc that was just written/changed. Judge ONLY documentation that appears
-as added/changed in that diff. Read the file at {FILE_PATH} for context
-(implementations, surrounding code), but do NOT raise blockers about
-pre-existing documentation that is not part of the diff. If you happen to
-notice a real inaccuracy or important style problem in PRE-EXISTING docs
-(outside the diff), put it in the separate `bonus_findings` array — NOT in
-`items` — so it is logged for a human without affecting the verdict.
-`bonus_findings` must never make the verdict "revise". Use an empty array when
-there are none.
+WHAT YOU ARE GIVEN, in this order, below:
+
+  1. the source of {FILE_PATH}, line-numbered -- the whole file when it fits,
+     otherwise wide context around each change. This is the truth. You have no
+     tools and cannot open anything else, so everything you assert must be
+     supported by text you can actually see here.
+  2. a unified diff of ONLY the Scaladoc that was just written or changed.
+  3. sometimes, an index of doc blocks the writer generated more than once.
+
+SCOPE: judge ONLY documentation that appears as added/changed in the diff. Do
+NOT raise blockers about pre-existing documentation that is not part of it. If
+you happen to notice a real inaccuracy or important style problem in
+PRE-EXISTING docs (outside the diff), put it in the separate `bonus_findings`
+array — NOT in `items` — so it is logged for a human without affecting the
+verdict. `bonus_findings` must never make the verdict "revise". Use an empty
+array when there are none.
 
 Read the actual implementation of each documented declaration in the diff (its
-body, enclosing type, overridden members, related types) and check the
-documentation against what the code REALLY does. For conventions, apply the
-official Scala style guide: https://docs.scala-lang.org/style/scaladoc.html A tag (`@param` etc.) is
+body, enclosing type, overridden members, related types) in the source above,
+and check the documentation against what the code REALLY does. This is the
+whole job, and it is the step most often skipped: a sentence that sounds like
+correct Scaladoc for a method of that NAME can be flatly false of the method as
+WRITTEN. A previous run approved `map` on a never-completing future as
+"creates a new future by applying a function", when the body was `= this`: the
+function is never applied and no future is created. The signature and the name
+will mislead you. The body will not.
+
+For conventions, apply the official Scala style guide:
+https://docs.scala-lang.org/style/scaladoc.html A tag (`@param` etc.) is
 meaningless without its description, so when a diff adds a tag to an EXISTING
 comment, also read that whole comment's description.
+
+If the source you were given does not show you what a member does, do not guess
+and do not approve it either: raise the item with confidence "low" and say
+plainly what you could not see.
 
 For every changed declaration, check both of the following.
 
@@ -52,6 +70,19 @@ STYLE AND SCALEADOC CONVENTIONS
   already fully states the return; otherwise a material return detail or edge
   case belongs in the tag.
 
+REPEATED BLOCKS
+If a "REPEATED DOC BLOCKS" or "REPEATED TAG LINES" section appears below, the
+writer applied one piece of writing to several declarations. Judge each group
+ONCE and raise at most ONE item for it, whose `issue` states the occurrence
+count and lines, e.g. "applies to all 20 occurrences (lines 78, 86, 94, ...)".
+Filing the same finding once per copy is what this section exists to prevent:
+it wasted a human reviewer's time on 20 identical comments for one mistake.
+
+The reverse error matters more, though. Text that is true of the first
+declaration in a group can be false of the rest, because the declarations are
+what differ. Check the shared text against every member listed, and if it does
+not fit them all, name the ones it does not fit.
+
 Also flag a `@note NEEDS-HUMAN: ...` marker from the writer, setting
 `needs_human=true` and surfacing its question.
 
@@ -76,6 +107,13 @@ For each declaration you assess, decide:
 
 Approve (verdict "approve") ONLY if no declaration is a blocker. Otherwise
 "revise".
+
+An approval carrying no items at all is a strong claim: it says every changed
+comment was checked against its implementation and every one is true. If you
+make it, your `summary` must say what you checked -- name the declarations you
+verified and the behaviour you confirmed. A bare "the documentation is accurate
+and follows the conventions" is not an approval anyone can rely on, and the
+pipeline discards it as a dead call rather than treating it as a pass.
 
 Output your final message as JSON conforming to the provided schema. Items with
 severity "ok" may be omitted; always include every blocker and every

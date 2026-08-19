@@ -17,6 +17,10 @@ HOW TO EDIT — this is where runs fail:
   lines.
 
 HOW TO HANDLE EACH ITEM:
+- An instruction saying it "applies to all N occurrences" (with a list of lines)
+  is one fix to make N times. Apply it at EVERY line listed, not just the first.
+  These come from text you generated once and reused across a family of similar
+  members, so the correction has to travel the same way.
 - `severity: blocker` — fix it.
 - `severity: nit` — apply when it clearly improves the doc; you may leave it.
 - `needs_human: true` — keep your best-guess wording AND make sure an

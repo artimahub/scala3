@@ -3,15 +3,18 @@
 # =============================================================================
 # fill-doc-todos-free.sh
 #
-# Every role on a FREE model. No Claude Code, no Codex, no subscription spend.
+# Free models everywhere EXCEPT the accuracy reviewer, which is paid. See
+# "WEEK 4 POST-MORTEM" below for why that one role is worth money.
 #
-#   Writer      (Mistral  devstral-latest)        drafts
+#   Writer      (Mistral    devstral-latest)      drafts
 #   repeat up to MAX_ROUNDS:
-#       Accuracy review (Mistral  mistral-medium-latest) ┐ sequential, spaced
-#       Style review    (Mistral  mistral-large-latest)  ┘
+#       Accuracy review (OpenRouter  claude-sonnet-5)    ┐ sequential, spaced
+#       Style review    (Mistral     mistral-large-latest) ┘
 #       Adjudicator     (Mistral  devstral-latest) merges both into ONE verdict
 #       if adjudicator approves -> done
 #       else Writer refines against the adjudicated worklist
+#   after the final refine: one VERIFICATION review (no further refine), so the
+#   last edit made to a file is never the unreviewed one
 #
 # Model choices come from 26 writer trials on the same input; see
 # docs/../experiments/RESULTS.md. Briefly:
@@ -48,7 +51,44 @@
 # clients tried (aider, Codex CLI, pool, direct), only `direct` worked for every
 # model; aider alone broke three of four. See RESULTS.md.
 #
+# -----------------------------------------------------------------------------
+# WEEK 4 POST-MORTEM (util + concurrent, PR #75). Read before changing any of
+# the integrity rules below; each one is here because week 4 shipped without it.
+#
+#   * The accuracy reviewer was dead for the whole partition. mistral-medium-2508
+#     returned {"verdict":"approve","items":[]} in 129-166 bytes, 42 times in a
+#     row: 19 of the 23 files got a zero-item accuracy review. The script noticed
+#     every one of them and only LOGGED a warning, so a dead reviewer was
+#     indistinguishable from a clean bill of health. The human reviewer then
+#     filed 51 comments, ~46 of them factual errors -- exactly the class the
+#     accuracy reviewer exists to catch. A hollow approval is now retried once
+#     and then treated as NO REVIEW AT ALL (see graded_review).
+#
+#   * The reviewers never saw the code. They got `diff -u` (3 lines of context)
+#     plus a prompt telling them to "read the file at <path>", which a plain
+#     chat completion cannot do. Every error the human found required reading a
+#     body: `= this` in Future.never, `catch { case NonFatal(e) => fa(e) }` in
+#     Success.fold. The source now goes into the review payload (see
+#     build_review_input).
+#
+#   * The last edit to a file was never reviewed. 23 of 26 files ended on
+#     "final refine (not re-reviewed)". FINAL_VERIFY closes that.
+#
+#   * One templated mistake became 20 review comments. DurationConversions got
+#     `@param c the classifier instance` (wrong; `ev` is the classifier) copied
+#     across 20 near-identical methods. Repeated blocks are now grouped and
+#     judged once, with the ruling applied to the whole group.
+#
+#   * docs/house-rules.md was still empty after four PRs, so four rounds of human
+#     feedback taught the pipeline nothing. It is seeded now; keep appending.
+# -----------------------------------------------------------------------------
+#
 # This script does NOT commit. It edits the working tree.
+#
+# Exit status: 0 when every file was filled AND reviewed; 3 when at least one
+# file ended NOT REVIEWED (its name is in reviews/NOT-REVIEWED.txt). A nonzero
+# exit is not a crash: the docs are in the tree, but do not put an unreviewed
+# file in a PR without reading it yourself.
 #
 # Usage:
 #   ./fill-doc-todos-free.sh <file> [file ...]
@@ -62,19 +102,27 @@
 # Env overrides:
 #   MAX_ROUNDS=2
 #   WRITER_MODEL=devstral-latest        WRITER_PROVIDER=mistral
-#   ACCURACY_MODEL=mistral-medium-latest  ACCURACY_PROVIDER=mistral
+#   ACCURACY_MODEL=anthropic/claude-sonnet-5  ACCURACY_PROVIDER=openrouter
 #   STYLE_MODEL=mistral-large-latest    STYLE_PROVIDER=mistral
 #   ADJUDICATOR_MODEL=devstral-latest   ADJUDICATOR_PROVIDER=mistral
 #   INTER_FILE_PAUSE_SECONDS=120  PAUSE_SLEEP=30  MAX_TOKENS=32000
 #   WRITER_MAX_PASSES=6  WRITER_PASS_PAUSE=60  PROVIDER_SPACING=45
+#   REVIEW_FILE_MAX_LINES=1500  REVIEW_DIFF_CONTEXT=25  REPEAT_GROUP_MIN=3
+#   FINAL_VERIFY=true  SUSPICIOUS_REVIEW_BYTES=400  SUSPICIOUS_RETRY_PAUSE=45
 #   DRY_RUN=false
+#
+# To go back to an all-free run (and accept week 4's failure mode):
+#   ACCURACY_PROVIDER=mistral ACCURACY_MODEL=mistral-medium-latest ./fill-doc-todos-free.sh ...
 # =============================================================================
 
 set -uo pipefail
 
 MAX_ROUNDS=${MAX_ROUNDS:-2}
 WRITER_MODEL=${WRITER_MODEL:-devstral-latest};             WRITER_PROVIDER=${WRITER_PROVIDER:-mistral}
-ACCURACY_MODEL=${ACCURACY_MODEL:-mistral-medium-latest};   ACCURACY_PROVIDER=${ACCURACY_PROVIDER:-mistral}
+# The one paid role. Week 4 proved that a weak or throttled accuracy reviewer is
+# worse than none: it produces a verdict that LOOKS like review and stops anyone
+# looking further. Everything else stays free.
+ACCURACY_MODEL=${ACCURACY_MODEL:-anthropic/claude-sonnet-5}; ACCURACY_PROVIDER=${ACCURACY_PROVIDER:-openrouter}
 STYLE_MODEL=${STYLE_MODEL:-mistral-large-latest};    STYLE_PROVIDER=${STYLE_PROVIDER:-mistral}
 ADJUDICATOR_MODEL=${ADJUDICATOR_MODEL:-devstral-latest};  ADJUDICATOR_PROVIDER=${ADJUDICATOR_PROVIDER:-mistral}
 MAX_TOKENS=${MAX_TOKENS:-32000}
@@ -89,6 +137,15 @@ PROVIDER_SPACING=${PROVIDER_SPACING:-45}       # gap between same-provider calls
 WRITER_MAX_PASSES=${WRITER_MAX_PASSES:-6}     # fill passes before review starts
 WRITER_PASS_PAUSE=${WRITER_PASS_PAUSE:-60}    # gap between fill passes
 SUSPICIOUS_REVIEW_BYTES=${SUSPICIOUS_REVIEW_BYTES:-400}
+SUSPICIOUS_RETRY_PAUSE=${SUSPICIOUS_RETRY_PAUSE:-45}  # wait before the one retry
+# Reviewers get the source, not just the diff. Whole file when it fits, so the
+# reviewer can follow an override to the member it overrides; a wide diff
+# otherwise. 1500 lines is roughly 20k tokens of Scala, comfortable for every
+# reviewer model in use.
+REVIEW_FILE_MAX_LINES=${REVIEW_FILE_MAX_LINES:-1500}
+REVIEW_DIFF_CONTEXT=${REVIEW_DIFF_CONTEXT:-25}
+REPEAT_GROUP_MIN=${REPEAT_GROUP_MIN:-3}   # identical doc blocks before grouping
+FINAL_VERIFY=${FINAL_VERIFY:-true}        # review the final refine, do not ship it blind
 DRY_RUN=${DRY_RUN:-false}
 MARKER="TODO FILL IN"
 
@@ -99,8 +156,10 @@ PROMPTS_DIR="$SCRIPT_DIR/prompts"
 SCHEMA="$SCRIPT_DIR/schemas/doc-review.schema.json"
 ADJ_SCHEMA="$SCRIPT_DIR/schemas/doc-adjudication.schema.json"
 DIRECT_WRITER="$TODO_WRITER_DIR/experiments/direct-writer.py"
+REPEAT_FINDER="$SCRIPT_DIR/repeated-doc-blocks.py"
 REVIEWS_DIR="$TODO_WRITER_DIR/reviews"
 LOG_FILE="$TODO_WRITER_DIR/fill-doc-todos-free.log"
+NOT_REVIEWED_FILE="$REVIEWS_DIR/NOT-REVIEWED.txt"
 
 INTER_FILE_PAUSE_SECONDS=${INTER_FILE_PAUSE_SECONDS:-120}
 PAUSE_FILE=${PAUSE_FILE:-"$TODO_WRITER_DIR/PAUSE"}
@@ -226,9 +285,25 @@ json_call() {
     # not. Keying off the output path gives one file per role.
     local tag; tag=$(basename "$out" .json)
     req="$WORK_DIR/req.$tag.json"; raw="$WORK_DIR/raw.$tag.json"
-    jq -n --arg m "$model" --arg s "$(cat "$sysf")" --arg u "$(cat "$usrf")" --argjson mt "$MAX_TOKENS" \
-      '{model:$m, max_tokens:$mt, response_format:{type:"json_object"},
-        messages:[{role:"system",content:$s},{role:"user",content:$u}]}' > "$req"
+
+    # JSON mode is requested but not required. Not every provider/model pair
+    # accepts response_format, and a 400 over the response FORMAT would lose a
+    # review whose CONTENT was fine. build_request re-runs without it if the
+    # provider objects; the prompts carry the schema and clean_json strips code
+    # fences, so a plain reply still parses.
+    local json_mode=true
+    build_request() {
+        if [ "$json_mode" = true ]; then
+            jq -n --arg m "$model" --arg s "$(cat "$sysf")" --arg u "$(cat "$usrf")" --argjson mt "$MAX_TOKENS" \
+              '{model:$m, max_tokens:$mt, response_format:{type:"json_object"},
+                messages:[{role:"system",content:$s},{role:"user",content:$u}]}' > "$req"
+        else
+            jq -n --arg m "$model" --arg s "$(cat "$sysf")" --arg u "$(cat "$usrf")" --argjson mt "$MAX_TOKENS" \
+              '{model:$m, max_tokens:$mt,
+                messages:[{role:"system",content:$s},{role:"user",content:$u}]}' > "$req"
+        fi
+    }
+    build_request
 
     # Retry on rate limits. Mistral's free tier 429s readily when several roles
     # fire in quick succession, and the first pipeline run lost its style review,
@@ -266,6 +341,13 @@ json_call() {
         # missed entirely, so a plain throttle failed fast instead of backing
         # off. Match the shapes actually observed, plus transient network.
         case "$err" in
+            *response_format*|*json_object*|*"JSON mode"*|*json_schema*)
+                if [ "$json_mode" = true ]; then
+                    log "      $prov/$model rejected JSON mode; retrying without response_format"
+                    json_mode=false; build_request; continue
+                fi
+                log "      !! $prov/$model call FAILED: $(echo "$err" | head -c 160)"
+                break ;;
             *[Rr]ate*limit*|*429*|*"limit exceeded"*|*"too many"*|*[Qq]uota*|\
             *[Oo]verloaded*|*[Tt]emporar*|*"name resolution"*|*503*)
                 log "      rate limited by $prov (attempt $attempt/4); waiting ${delay}s"
@@ -281,13 +363,59 @@ json_call() {
     return 1
 }
 
+# ---- hollow-approval detection --------------------------------------------
+# A THROTTLED reviewer is the nastiest failure here, because a truncated reply
+# can still be valid JSON. gpt-oss-120b returned 152 bytes of
+# {"verdict":"approve","items":[]} while Cerebras was refusing it on
+# tokens-per-minute; mistral-medium-2508 did the same 42 times across week 4.
+# Both are indistinguishable from a genuine clean bill of health, and the
+# adjudicator converges on them. Size is the tell.
+is_hollow() {   # $1 = review json
+    local sz v n
+    sz=$(wc -c < "$1" 2>/dev/null || echo 0)
+    v=$(jq -r '.verdict // ""' "$1" 2>/dev/null)
+    n=$(jq -r '(.items // []) | length' "$1" 2>/dev/null)
+    [ "$v" = approve ] && [ "${n:-0}" -eq 0 ] && [ "${sz:-0}" -lt "$SUSPICIOUS_REVIEW_BYTES" ]
+}
+
+# A review call that comes back hollow is retried once and then declared
+# UNAVAILABLE. Week 4's whole failure was that this only logged a warning: the
+# verdict still counted as `approve`, so 19 of 23 files were recorded as
+# reviewed when no review had taken place. Writing '{}' here makes verdict_of
+# report UNAVAILABLE, which the caller must handle -- an absent review can no
+# longer masquerade as a passing one.
+graded_review() {   # $1 label  $2 prov  $3 model  $4 sysf  $5 usrf  $6 out
+    local label=$1 prov=$2 model=$3 sysf=$4 usrf=$5 out=$6 attempt sz
+    for attempt in 1 2; do
+        json_call "$prov" "$model" "$sysf" "$usrf" "$out"
+        if ! is_hollow "$out"; then return 0; fi
+        sz=$(wc -c < "$out" 2>/dev/null || echo 0)
+        log "      ?? $label ($prov/$model) approved with 0 items in only ${sz} bytes -- suspiciously terse."
+        if [ "$attempt" -eq 1 ]; then
+            log "      ?? Treating that as no review at all; retrying once in ${SUSPICIOUS_RETRY_PAUSE}s."
+            sleep "$SUSPICIOUS_RETRY_PAUSE"
+        fi
+    done
+    log "      !! $label review UNAVAILABLE: two hollow approvals in a row from $prov/$model."
+    echo '{}' > "$out"
+    return 1
+}
+
+# Files whose accuracy review never happened. These are NOT done, whatever the
+# working tree looks like, and the run exits nonzero because of them.
+NOT_REVIEWED=()
+note_not_reviewed() {   # $1 = file  $2 = reason
+    NOT_REVIEWED+=("$1 -- $2")
+    log "  !! NOT REVIEWED: $1 ($2)"
+}
+
 if [ "$#" -eq 0 ]; then
     echo "Usage: $(basename "$0") <file> [file ...]" >&2; exit 2
 fi
 TARGETS=("$@")
 
 log "=============================================="
-log "fill-doc-todos-free.sh starting  (all roles on free models)"
+log "fill-doc-todos-free.sh starting"
 log "Files: ${#TARGETS[@]} | rounds: $MAX_ROUNDS"
 log "  writer      $WRITER_PROVIDER/$WRITER_MODEL"
 log "  accuracy    $ACCURACY_PROVIDER/$ACCURACY_MODEL"
@@ -404,17 +532,57 @@ for index in "${!TARGETS[@]}"; do
     final_sty="$REVIEWS_DIR/${SAFE}.style.json"
     final_adj="$REVIEWS_DIR/${SAFE}.adjudication.json"
 
-    round=1; converged=false; final_refinement=false
-    while [ "$round" -le "$MAX_ROUNDS" ]; do
-        check_pause "before review round $round: $REL"
-        log "  round $round/$MAX_ROUNDS: accuracy ($ACCURACY_MODEL) then style ($STYLE_MODEL)..."
+    # A review that did not parse is UNAVAILABLE, not "revise". Collapsing
+    # the two hid a dead reviewer behind a plausible verdict.
+    verdict_of() {
+        jq -e 'has("verdict")' "$1" >/dev/null 2>&1 || { echo "UNAVAILABLE"; return; }
+        jq -r '.verdict' "$1" 2>/dev/null
+    }
 
-        DIFF_BLOCK="$WORK_DIR/${SAFE}.diff"
-        { echo; echo "=== DIFF OF DOCS TO REVIEW (judge only these additions) ==="
-          diff -u "$ORIG" "$ABS" || true; } > "$DIFF_BLOCK"
+    DIFF_BLOCK="$WORK_DIR/${SAFE}.review-input"
+
+    # ---- what the reviewers actually get ------------------------------------
+    # The diff alone is not reviewable. Week 4's reviewers were handed `diff -u`
+    # (3 lines of context) under a prompt telling them to "read the file", which
+    # a chat completion cannot do, and every miss the human later caught needed
+    # a method body to see. So: the source first, then the diff, then the
+    # repeated-block index.
+    build_review_input() {
+        local nlines; nlines=$(wc -l < "$ABS")
+        {
+            if [ "$nlines" -le "$REVIEW_FILE_MAX_LINES" ]; then
+                echo "=== FULL SOURCE OF $REL (line-numbered; this is the truth to check against) ==="
+                cat -n "$ABS"
+            else
+                echo "=== SOURCE OF $REL ($nlines lines, too large to inline in full) ==="
+                echo "The diff below carries ${REVIEW_DIFF_CONTEXT} lines of context on each side."
+                echo "Where that is not enough to see what a member does, say so in the item"
+                echo "rather than guessing: set confidence \"low\" and explain what you could not see."
+            fi
+            echo
+            echo "=== DIFF OF DOCS TO REVIEW (judge only these additions) ==="
+            diff -U "$REVIEW_DIFF_CONTEXT" "$ORIG" "$ABS" || true
+            if [ -x "$REPEAT_FINDER" ]; then
+                python3 "$REPEAT_FINDER" --orig "$ORIG" --new "$ABS" --min "$REPEAT_GROUP_MIN" 2>/dev/null || true
+            fi
+        } > "$DIFF_BLOCK"
+        if [ "$nlines" -le "$REVIEW_FILE_MAX_LINES" ]; then
+            log "    review input: full source ($nlines lines) + diff"
+        else
+            log "    review input: diff -U${REVIEW_DIFF_CONTEXT} only ($nlines lines is over REVIEW_FILE_MAX_LINES=$REVIEW_FILE_MAX_LINES)"
+        fi
+    }
+
+    # ---- one accuracy + style pass ------------------------------------------
+    # Sets acc_verdict / sty_verdict. Sequential, not parallel: the two calls
+    # once raced over a shared temp file, and firing two requests at one
+    # provider within a second is exactly what free-tier limits punish.
+    # Reviewer independence comes from different models, not from concurrency.
+    run_reviewers() {
+        build_review_input
 
         # One shared brief, rendered twice with different emphasis.
-        render_review() {   # $1 = emphasis text, $2 = destination
+        render_review() {   # $1 = emphasis text
             render "$ABS" "$PROMPTS_DIR/doc-review-prompt.txt" \
               | awk -v e="$1" '{gsub(/\{EMPHASIS\}/, e); print}'
             house_rules
@@ -427,58 +595,33 @@ for index in "${!TARGETS[@]}"; do
         if [ "$ACCURACY_PROVIDER" = "$WRITER_PROVIDER" ] && [ "$PROVIDER_SPACING" -gt 0 ]; then
             sleep "$PROVIDER_SPACING"
         fi
-
-        # Sequential, not parallel. There is no hurry, and running them
-        # concurrently bought nothing but risk: the two calls raced over a shared
-        # temp file, and firing two requests at one provider within a second is
-        # exactly what free-tier limits punish. Reviewer independence comes from
-        # different models, not from concurrency.
-        json_call "$ACCURACY_PROVIDER" "$ACCURACY_MODEL" "$WORK_DIR/${SAFE}.accsys" "$DIFF_BLOCK" "$final_acc"
+        graded_review accuracy "$ACCURACY_PROVIDER" "$ACCURACY_MODEL" \
+                      "$WORK_DIR/${SAFE}.accsys" "$DIFF_BLOCK" "$final_acc"
         if [ "$STYLE_PROVIDER" = "$ACCURACY_PROVIDER" ] && [ "$PROVIDER_SPACING" -gt 0 ]; then
             sleep "$PROVIDER_SPACING"
         fi
-        json_call "$STYLE_PROVIDER" "$STYLE_MODEL" "$WORK_DIR/${SAFE}.stysys" "$DIFF_BLOCK" "$final_sty"
+        graded_review style "$STYLE_PROVIDER" "$STYLE_MODEL" \
+                      "$WORK_DIR/${SAFE}.stysys" "$DIFF_BLOCK" "$final_sty"
 
-        # A review that did not parse is UNAVAILABLE, not "revise". Collapsing
-        # the two hid a dead reviewer behind a plausible verdict.
-        verdict_of() {
-            jq -e 'has("verdict")' "$1" >/dev/null 2>&1 || { echo "UNAVAILABLE"; return; }
-            jq -r '.verdict' "$1" 2>/dev/null
-        }
-        # A THROTTLED reviewer is the nastiest failure here, because a
-        # truncated reply can still be valid JSON. gpt-oss-120b returned 152
-        # bytes of {"verdict":"approve","items":[]} while Cerebras was refusing
-        # it on tokens-per-minute -- indistinguishable from a genuine clean bill
-        # of health, and the adjudicator converged on it. The same model given a
-        # clear window returned real blockers. Size is the tell.
-        flag_suspicious() {   # $1 = json, $2 = label
-            local sz v n
-            sz=$(wc -c < "$1" 2>/dev/null || echo 0)
-            v=$(jq -r '.verdict // ""' "$1" 2>/dev/null)
-            n=$(jq -r '(.items // []) | length' "$1" 2>/dev/null)
-            if [ "$v" = approve ] && [ "${n:-0}" -eq 0 ] && [ "${sz:-0}" -lt "$SUSPICIOUS_REVIEW_BYTES" ]; then
-                log "      ?? $2 approved with 0 items in only ${sz} bytes -- suspiciously terse."
-                log "      ?? A throttled or truncated reply can still parse as a clean approval. Treat with doubt."
-            fi
-        }
-        flag_suspicious "$final_acc" "$ACCURACY_PROVIDER/$ACCURACY_MODEL"
-        flag_suspicious "$final_sty" "$STYLE_PROVIDER/$STYLE_MODEL"
         acc_verdict=$(verdict_of "$final_acc")
         sty_verdict=$(verdict_of "$final_sty")
         log "    reviewers: accuracy=$acc_verdict  style=$sty_verdict"
-        if [ "$acc_verdict" = UNAVAILABLE ] && [ "$sty_verdict" = UNAVAILABLE ]; then
-            log "    !! BOTH reviews unavailable -- nothing to adjudicate; treating this round as unreviewed"
-        fi
+        # One real accuracy review anywhere in the file's life is the bar. A
+        # single dead round is a provider hiccup; never getting one at all is
+        # the week-4 failure and must not pass silently.
+        [ "$acc_verdict" != UNAVAILABLE ] && acc_ever_ran=true
+        return 0
+    }
 
-        check_pause "before adjudication round $round: $REL"
-
+    # ---- adjudication -------------------------------------------------------
+    # Sets adj_verdict.
+    run_adjudicator() {
+        check_pause "before adjudication: $REL"
         # Space this away from the writer call on the same provider. The reviews
         # above take a few seconds; on a free tier that is not enough headroom.
         if [ "$ADJUDICATOR_PROVIDER" = "$WRITER_PROVIDER" ] && [ "$PROVIDER_SPACING" -gt 0 ]; then
             sleep "$PROVIDER_SPACING"
         fi
-
-        # ---- Adjudicator ----------------------------------------------------
         log "    adjudicating ($ADJUDICATOR_PROVIDER/$ADJUDICATOR_MODEL)..."
         { render "$ABS" "$PROMPTS_DIR/doc-adjudicator-prompt.txt"; house_rules
           echo; echo "=== ADJUDICATION SCHEMA (conform exactly) ==="; cat "$ADJ_SCHEMA"; } > "$WORK_DIR/${SAFE}.adjsys"
@@ -489,14 +632,30 @@ for index in "${!TARGETS[@]}"; do
                   "$WORK_DIR/${SAFE}.adjsys" "$WORK_DIR/${SAFE}.adjusr" "$final_adj"
 
         adj_verdict=$(jq -r '.verdict // "revise"' "$final_adj" 2>/dev/null || echo revise)
+        local n_items n_dis
         n_items=$(jq -r '(.resolved_items // []) | length' "$final_adj" 2>/dev/null || echo 0)
         n_dis=$(jq -r '(.disagreements // []) | length' "$final_adj" 2>/dev/null || echo 0)
         log "    adjudicator: $adj_verdict  (${n_items} item(s), ${n_dis} disagreement(s) settled)"
+    }
+
+    round=1; converged=false; final_refinement=false
+    acc_ever_ran=false; verify_verdict=skipped
+    while [ "$round" -le "$MAX_ROUNDS" ]; do
+        check_pause "before review round $round: $REL"
+        log "  round $round/$MAX_ROUNDS: accuracy ($ACCURACY_MODEL) then style ($STYLE_MODEL)..."
+
+        run_reviewers
+        if [ "$acc_verdict" = UNAVAILABLE ] && [ "$sty_verdict" = UNAVAILABLE ]; then
+            log "    !! BOTH reviews unavailable -- nothing to adjudicate; treating this round as unreviewed"
+        fi
+
+        run_adjudicator
 
         if [ "$adj_verdict" = "approve" ]; then converged=true; break; fi
 
         if [ "$round" -eq "$MAX_ROUNDS" ]; then
-            final_refinement=true; log "    final refine (not re-reviewed)..."
+            final_refinement=true
+            log "    final refine (a verification review follows; see FINAL_VERIFY)..."
         else
             log "    refine: working the adjudicated list..."
         fi
@@ -511,16 +670,47 @@ for index in "${!TARGETS[@]}"; do
         round=$((round + 1))
     done
 
+    # ---- verification review ------------------------------------------------
+    # The refine after the last round used to ship unlooked-at: 23 of 26 files
+    # in week 4 ended on "final refine (not re-reviewed)", so the LAST edit made
+    # to almost every file was the one nobody checked. This pass does not feed
+    # another refine -- there is no budget for an endless loop -- but it records
+    # a real verdict, and a `revise` here means the file needs human eyes.
+    if [ "$final_refinement" = "true" ] && [ "$FINAL_VERIFY" = "true" ]; then
+        check_pause "before verification review: $REL"
+        log "  verification review of the final refine (no further refine follows)..."
+        run_reviewers
+        run_adjudicator
+        verify_verdict="$adj_verdict"
+        if [ "$adj_verdict" != "approve" ]; then
+            note_not_reviewed "$REL" "final refine still has open blockers after $MAX_ROUNDS rounds"
+        fi
+    fi
+
+    # An accuracy review that never ran is the week-4 failure. Say so loudly and
+    # keep the file out of the "done" pile, whatever is in the working tree.
+    if [ "$acc_ever_ran" != "true" ]; then
+        note_not_reviewed "$REL" "accuracy reviewer was UNAVAILABLE ($ACCURACY_PROVIDER/$ACCURACY_MODEL)"
+    fi
+
     # ---- Digest -------------------------------------------------------------
     DIGEST="$REVIEWS_DIR/${SAFE}.digest.md"
     {
         echo "# Doc review digest: $REL"; echo
         echo "- models: writer $WRITER_MODEL | accuracy $ACCURACY_MODEL | style $STYLE_MODEL | adjudicator $ADJUDICATOR_MODEL"
         echo "- converged: $converged (up to $MAX_ROUNDS rounds)"
-        echo "- final refinement after review limit: $final_refinement (not re-reviewed)"
-        echo "- accuracy verdict: $(jq -r '.verdict // "?"' "$final_acc" 2>/dev/null)"
-        echo "- style verdict: $(jq -r '.verdict // "?"' "$final_sty" 2>/dev/null)"
+        echo "- final refinement after review limit: $final_refinement"
+        echo "- verification review of that refine: $verify_verdict"
+        echo "- a real accuracy review ran: $acc_ever_ran"
+        echo "- accuracy verdict: $(jq -r '.verdict // "UNAVAILABLE"' "$final_acc" 2>/dev/null)"
+        echo "- style verdict: $(jq -r '.verdict // "UNAVAILABLE"' "$final_sty" 2>/dev/null)"
         echo "- ADJUDICATOR verdict (final): $(jq -r '.verdict // "?"' "$final_adj" 2>/dev/null)"
+        if [ "$acc_ever_ran" != "true" ] || { [ "$verify_verdict" != "approve" ] && [ "$verify_verdict" != "skipped" ]; }; then
+            echo
+            echo "> **NOT REVIEWED.** Do not put this file in a PR on the strength of this"
+            echo "> digest. Read the diff yourself, or re-run the file once the reviewer is"
+            echo "> healthy. See reviews/NOT-REVIEWED.txt."
+        fi
         echo; echo "## Reviewer disagreements the adjudicator settled"; echo
         jq -r '(.disagreements // [])[]
           | "- L\(.line) `\(.symbol)` -> ruled for **\(.ruling)**\n  - accuracy: \(.accuracy_position)\n  - style: \(.style_position)\n  - why: \(.rationale)"' \
@@ -544,4 +734,25 @@ log ""
 log "=============================================="
 log "COMPLETE. Reviews + digests in: $REVIEWS_DIR"
 log "Changes are in the working tree, UNCOMMITTED."
+
+# The run's most important output. Week 4 had no equivalent: 19 files went into
+# a PR carrying an approval nobody had actually given, and the first person to
+# find out was the human reviewer, 51 comments later.
+if [ "${#NOT_REVIEWED[@]}" -gt 0 ]; then
+    : > "$NOT_REVIEWED_FILE"
+    log ""
+    log "!! ${#NOT_REVIEWED[@]} file(s) are FILLED BUT NOT REVIEWED:"
+    for entry in "${NOT_REVIEWED[@]}"; do
+        log "!!   $entry"
+        echo "$entry" >> "$NOT_REVIEWED_FILE"
+    done
+    log "!! Listed in: $NOT_REVIEWED_FILE"
+    log "!! Read these diffs yourself, or re-run those files, before opening the PR."
+    log "=============================================="
+    exit 3
+fi
+
+rm -f "$NOT_REVIEWED_FILE"
+log "Every file got a real accuracy review. Next: run adversarial-gate.sh over"
+log "the partition, then fold the human's PR feedback into docs/house-rules.md."
 log "=============================================="

@@ -42,6 +42,10 @@ WHAT YOU MUST DO
 WHAT NOT TO DO
 
 - Do not add findings the reviewers did not raise.
+- Do not split a group item into one item per occurrence. When a reviewer says
+  a finding "applies to all N occurrences", keep it as ONE `resolved_item` and
+  carry that phrase into the `instruction`, so the writer fixes every copy in
+  one pass. Splitting it turns one fix into N revisions of the same sentence.
 - Do not restate a reviewer's point back to them; `instruction` is addressed to
   the WRITER and must be an actionable change to a specific comment.
 - Do not mark something `needs_human` merely because the reviewers disagreed.
