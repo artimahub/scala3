@@ -969,7 +969,7 @@ for index in "${!TARGETS[@]}"; do
     # that converged with a usable accuracy review and no edit after it, or a
     # verification pass with a usable accuracy review.
     round=1; converged=false; final_refinement=false
-    acc_ever_ran=false; verified_final=false; verify_verdict=skipped
+    acc_ever_ran=false; verified_final=false; verify_verdict=skipped; refine_failed=0
     while [ "$round" -le "$MAX_ROUNDS" ]; do
         check_pause "before review round $round: $REL"
         log "  round $round/$MAX_ROUNDS: accuracy ($ACCURACY_MODEL) then style ($STYLE_MODEL)..."
@@ -1000,10 +1000,37 @@ for index in "${!TARGETS[@]}"; do
         fi
 
         check_pause "before refine round $round: $REL"
-        { render "$ABS" "$PROMPTS_DIR/doc-refine-prompt-agent.txt"; house_rules
+        # doc-refine-prompt-DIRECT, not -agent. The -agent prompt was written for
+        # a coding-agent client that edits files itself (the old Claude Code and
+        # aider pipeline) and it names no reply format at all. When the writer
+        # moved to direct-writer.py, the FILL path got a direct prompt spelling
+        # out the ID-block protocol and the refine path was left on the agent
+        # one -- so every refine reply came back as prose plus a ```scala
+        # snippet, parsed to zero blocks, and was discarded.
+        #
+        # That was true of EVERY refine in every run, weeks 1 through 5: 100% of
+        # them logged `blocks parsed: 0  applied: 0` and nothing ever noticed.
+        # The whole review loop was ornamental. Every doc comment shipped so far
+        # is the writer's first pass, which is why week 4 drew 51 review comments
+        # after "two rounds of review", and why reviewers kept re-finding the
+        # same items on text that never changed.
+        { render "$ABS" "$PROMPTS_DIR/doc-refine-prompt-direct.txt"; house_rules
           echo; cat "$final_adj"; } > "$WORK_DIR/${SAFE}.rprompt"
         run_writer "$WORK_DIR/${SAFE}.rprompt" "$REVIEWS_DIR/${SAFE}.refine${round}.log"
         integrity_ok "refine round $round" || break
+
+        # A refine that applied nothing is a failed refine, and it must say so.
+        # The counters were printed all along; nothing read them, so a no-op
+        # round looked exactly like a successful one.
+        r_applied=$(grep -oE "^ *applied: +[0-9]+" "$REVIEWS_DIR/${SAFE}.refine${round}.log" 2>/dev/null | awk '{print $2}' | head -1)
+        r_items=$(jq -r '(.resolved_items // []) | length' "$final_adj" 2>/dev/null || echo 0)
+        if [ "${r_applied:-0}" -eq 0 ] && [ "${r_items:-0}" -gt 0 ]; then
+            log "    !! refine applied NOTHING against ${r_items} adjudicated item(s)"
+            log "    !! the reviewers' findings did not reach the file; see ${SAFE}.refine${round}.log"
+            refine_failed=$(( refine_failed + 1 ))
+        else
+            log "    refine applied ${r_applied:-0} edit(s) against ${r_items} item(s)"
+        fi
 
         [ "$final_refinement" = "true" ] && break
         round=$((round + 1))
@@ -1042,6 +1069,8 @@ for index in "${!TARGETS[@]}"; do
     # keep the file out of the "done" pile, whatever is in the working tree.
     if [ "$acc_ever_ran" != "true" ]; then
         note_not_reviewed "$REL" "accuracy reviewer was UNAVAILABLE ($ACCURACY_PROVIDER/$ACCURACY_MODEL)"
+    elif [ "$refine_failed" -gt 0 ] && [ "$converged" != "true" ]; then
+        note_not_reviewed "$REL" "$refine_failed refine(s) applied nothing; reviewer findings never reached the file"
     elif [ "$verified_final" != "true" ]; then
         # Reviews happened, but not on what is now on disk: the last usable one
         # was followed by an edit, or the rounds ran out mid-loop.

@@ -1,0 +1,61 @@
+You are refining the Scaladoc you wrote for {FILE_PATH}.
+
+Two reviewers judged it and an adjudicator has already reconciled their opinions
+into the single worklist at the end of this prompt. The reconciliation is done:
+conflicts between the reviewers have been settled, duplicates merged, and any
+reviewer point that was wrong about the code has been dropped. Work the list as
+given.
+
+HOW TO REPLY -- THIS IS THE PART THAT DECIDES WHETHER YOUR WORK COUNTS
+
+You have no file access. You cannot edit anything. The ONLY thing that reaches
+the file is a SEARCH/REPLACE block in exactly this form:
+
+<<<<<<< SEARCH
+   *  @param c the classifier instance
+=======
+   *  @param c the value to convert
+>>>>>>> REPLACE
+
+Rules, all of them load-bearing:
+
+- Reply with NOTHING but these blocks. No preamble, no explanation, no summary
+  of what you changed, no ```scala fence around a corrected snippet. Anything
+  that is not a SEARCH/REPLACE block is thrown away unread. A reply that
+  explains the fix instead of emitting it changes nothing at all, and the same
+  review findings will come back on the next round unaltered.
+- The SEARCH text must appear in the file EXACTLY once, byte for byte, including
+  leading whitespace and the ` *  ` comment furniture. If a line is not unique
+  on its own, include the neighbouring comment lines until the block is.
+- Copy the SEARCH text from the file you were given. Do not retype it from
+  memory and do not reformat it.
+- One block per change. Several blocks in one reply is normal and expected.
+- Change ONLY Scaladoc comment lines. Never put a declaration, a body, an
+  annotation, an import or a blank line inside a REPLACE unless it is being
+  carried through unchanged as context, and if you do carry it, reproduce it
+  byte for byte. Any reply that alters a non-comment line gets the whole file
+  reverted and abandoned.
+- To DELETE a line (a redundant `@return`, say), put it in SEARCH and leave the
+  REPLACE side holding only the lines that survive.
+
+HOW TO HANDLE EACH ITEM:
+- An instruction saying it "applies to all N occurrences" (with a list of lines)
+  is one fix to make N times. Emit a separate block for EVERY occurrence listed,
+  not just the first. These come from text you generated once and reused across
+  a family of similar members, so the correction has to travel the same way.
+- `severity: blocker` -- fix it.
+- `severity: nit` -- apply when it clearly improves the doc; you may leave it.
+- `needs_human: true` -- keep your best-guess wording AND make sure an
+  `@note NEEDS-HUMAN: <the specific question>` line remains in that comment, so
+  a human sees it.
+- RIGHT OF REPLY: if you are confident an instruction is wrong per the code, you
+  may leave that comment alone. Do not silently ignore it -- either fix it, or
+  be certain it is already correct. This is a narrow escape hatch: the
+  adjudicator has already removed the points that were wrong, so an item
+  reaching you is very likely real.
+
+If, after all that, there is genuinely nothing to change, emit no blocks. That
+is a legitimate answer, but it is rare, and it will be reported as a refine that
+did nothing.
+
+ADJUDICATED WORKLIST (JSON):
