@@ -170,9 +170,19 @@ SUSPICIOUS_REVIEW_BYTES=${SUSPICIOUS_REVIEW_BYTES:-400}
 SUSPICIOUS_RETRY_PAUSE=${SUSPICIOUS_RETRY_PAUSE:-45}  # wait before the one retry
 # Reviewers get the source, not just the diff. Whole file when it fits, so the
 # reviewer can follow an override to the member it overrides; a wide diff
-# otherwise. 1500 lines is roughly 20k tokens of Scala, comfortable for every
-# reviewer model in use.
-REVIEW_FILE_MAX_LINES=${REVIEW_FILE_MAX_LINES:-1500}
+# otherwise.
+#
+# Measured against the file WITH its new documentation in it, which is the thing
+# actually being sent -- and that is the trap this number has to clear. Week 5
+# set it to 1500 after checking that all 23 files in the partition were under
+# it. TrieMap.scala is 1241 lines in the repo; with 99 doc comments added it
+# became 1639, crossed the line, and all four of its reviews silently fell back
+# to diff-only. The hardest file in the partition, a lock-free concurrent map,
+# got the least context, which is exactly backwards.
+#
+# 3000 lines is roughly 40k tokens of Scala. Every current reviewer handles it,
+# and it leaves room for documentation to inflate a file by half its length.
+REVIEW_FILE_MAX_LINES=${REVIEW_FILE_MAX_LINES:-3000}
 REVIEW_DIFF_CONTEXT=${REVIEW_DIFF_CONTEXT:-25}
 REPEAT_GROUP_MIN=${REPEAT_GROUP_MIN:-3}   # identical doc blocks before grouping
 FINAL_VERIFY=${FINAL_VERIFY:-true}        # review the final refine, do not ship it blind
@@ -321,6 +331,11 @@ looking to guessing; that is why you have the tools.
 Everything you assert must still be supported by text you actually read, here or
 in a file you opened. Do not edit anything: you are reviewing, and a reviewer
 that writes is just an unreviewed second writer.
+
+However many turns you spend looking, your FINAL message must be the JSON object
+and nothing else. Finishing a long investigation with a prose write-up is the
+one way to make all of that work count for nothing: the JSON is what is read,
+and prose is discarded unread.
 EOT
     else
         cat <<'EOT'
@@ -410,9 +425,15 @@ cli_call() {
         # Same shapes as the HTTP path, plus the ones a subscription CLI uses
         # when the plan's window is exhausted. That is a wait, not a failure.
         case "$err" in
+            # A coding-agent CLI does not always end where you asked it to. On
+            # TrieMap.scala the reviewer worked for 26 turns, found four real
+            # blockers, and then wrote them up as PROSE -- a perfectly good
+            # review that no downstream step could read. That is worth another
+            # try, not a dead call, so it retries alongside the throttles.
+            *"not usable JSON"*|\
             *[Rr]ate*limit*|*429*|*"limit exceeded"*|*"usage limit"*|*[Qq]uota*|\
             *[Oo]verloaded*|*[Tt]emporar*|*"timed out"*|*503*)
-                log "      $prov throttled or slow (attempt $attempt/4): $(echo "$err" | head -c 120)"
+                log "      $prov throttled, slow, or off-format (attempt $attempt/4): $(echo "$err" | head -c 120)"
                 log "      waiting ${delay}s"
                 sleep "$delay"; delay=$((delay * 2)) ;;
             *)
@@ -563,6 +584,14 @@ graded_review() {   # $1 label  $2 prov  $3 model  $4 sysf  $5 usrf  $6 out
 # working tree looks like, and the run exits nonzero because of them.
 NOT_REVIEWED=()
 note_not_reviewed() {   # $1 = file  $2 = reason
+    local e
+    # One entry per file. A file can trip two checks at once (a verification
+    # pass that did not run also means its final state was never seen), and the
+    # list is a to-do for a human, not a tally of internal states. First reason
+    # wins because it is the most specific one.
+    for e in ${NOT_REVIEWED[@]+"${NOT_REVIEWED[@]}"}; do
+        case "$e" in "$1 -- "*) return 0 ;; esac
+    done
     NOT_REVIEWED+=("$1 -- $2")
     log "  !! NOT REVIEWED: $1 ($2)"
 }
@@ -727,7 +756,8 @@ for index in "${!TARGETS[@]}"; do
         if [ "$nlines" -le "$REVIEW_FILE_MAX_LINES" ]; then
             log "    review input: full source ($nlines lines) + diff"
         else
-            log "    review input: diff -U${REVIEW_DIFF_CONTEXT} only ($nlines lines is over REVIEW_FILE_MAX_LINES=$REVIEW_FILE_MAX_LINES)"
+            log "    !! review input: diff -U${REVIEW_DIFF_CONTEXT} ONLY -- $nlines lines exceeds REVIEW_FILE_MAX_LINES=$REVIEW_FILE_MAX_LINES"
+            log "    !! this file is being reviewed with less context than the rest; weigh its verdict accordingly"
         fi
     }
 
@@ -778,6 +808,23 @@ for index in "${!TARGETS[@]}"; do
     # ---- adjudication -------------------------------------------------------
     # Sets adj_verdict.
     run_adjudicator() {
+        # NOTHING TO ADJUDICATE IS NOT APPROVAL. Handed two empty reviews the
+        # adjudicator answers "approve", because it can see no blockers in
+        # them -- and that verdict then converges the round or stamps the
+        # verification pass as passed. Week 5 hit this on TrieMap.scala: the
+        # accuracy reviewer drifted to prose after 26 tool turns, the style
+        # reviewer truncated at its output limit, and 49 seconds later the file
+        # was recorded as "verification review of that refine: approve" with
+        # both reviewers UNAVAILABLE two lines below it in the same digest.
+        #
+        # This is the week-4 pathology wearing a different hat, so it gets the
+        # same answer: an absent review is UNAVAILABLE, never a pass.
+        if [ "$acc_verdict" = UNAVAILABLE ] && [ "$sty_verdict" = UNAVAILABLE ]; then
+            log "    !! both reviews unavailable -- NOT adjudicating; this pass reviewed nothing"
+            echo '{}' > "$final_adj"
+            adj_verdict=UNAVAILABLE
+            return 0
+        fi
         check_pause "before adjudication: $REL"
         # Space this away from the writer call on the same provider. The reviews
         # above take a few seconds; on a free tier that is not enough headroom.
@@ -800,20 +847,36 @@ for index in "${!TARGETS[@]}"; do
         log "    adjudicator: $adj_verdict  (${n_items} item(s), ${n_dis} disagreement(s) settled)"
     }
 
+    # verified_final answers the only question that matters at the end: was the
+    # file, AS IT NOW STANDS ON DISK, looked at by a working accuracy reviewer?
+    # Not "did one ever run" (acc_ever_ran, which stays true even if the last
+    # three edits went unseen) and not "did the adjudicator approve" (which it
+    # will do on an empty pass). It is set only where the two coincide: a round
+    # that converged with a usable accuracy review and no edit after it, or a
+    # verification pass with a usable accuracy review.
     round=1; converged=false; final_refinement=false
-    acc_ever_ran=false; verify_verdict=skipped
+    acc_ever_ran=false; verified_final=false; verify_verdict=skipped
     while [ "$round" -le "$MAX_ROUNDS" ]; do
         check_pause "before review round $round: $REL"
         log "  round $round/$MAX_ROUNDS: accuracy ($ACCURACY_MODEL) then style ($STYLE_MODEL)..."
 
         run_reviewers
-        if [ "$acc_verdict" = UNAVAILABLE ] && [ "$sty_verdict" = UNAVAILABLE ]; then
-            log "    !! BOTH reviews unavailable -- nothing to adjudicate; treating this round as unreviewed"
-        fi
-
         run_adjudicator
 
-        if [ "$adj_verdict" = "approve" ]; then converged=true; break; fi
+        if [ "$adj_verdict" = "approve" ]; then
+            converged=true
+            [ "$acc_verdict" != UNAVAILABLE ] && verified_final=true
+            break
+        fi
+
+        # A round that reviewed nothing has no worklist to refine against.
+        # Refining from an empty adjudication would send the writer off to
+        # rewrite prose on no evidence, which is worse than leaving it alone.
+        if [ "$adj_verdict" = UNAVAILABLE ]; then
+            log "    round $round reviewed nothing; skipping the refine and trying again"
+            round=$((round + 1))
+            continue
+        fi
 
         if [ "$round" -eq "$MAX_ROUNDS" ]; then
             final_refinement=true
@@ -844,8 +907,14 @@ for index in "${!TARGETS[@]}"; do
         run_reviewers
         run_adjudicator
         verify_verdict="$adj_verdict"
-        if [ "$adj_verdict" != "approve" ]; then
+        if [ "$acc_verdict" = UNAVAILABLE ]; then
+            verify_verdict="UNAVAILABLE"
+            note_not_reviewed "$REL" "verification review did not run (accuracy=$acc_verdict style=$sty_verdict)"
+        elif [ "$adj_verdict" != "approve" ]; then
+            verified_final=true   # it WAS reviewed; it just did not come back clean
             note_not_reviewed "$REL" "final refine still has open blockers after $MAX_ROUNDS rounds"
+        else
+            verified_final=true
         fi
     fi
 
@@ -853,6 +922,10 @@ for index in "${!TARGETS[@]}"; do
     # keep the file out of the "done" pile, whatever is in the working tree.
     if [ "$acc_ever_ran" != "true" ]; then
         note_not_reviewed "$REL" "accuracy reviewer was UNAVAILABLE ($ACCURACY_PROVIDER/$ACCURACY_MODEL)"
+    elif [ "$verified_final" != "true" ]; then
+        # Reviews happened, but not on what is now on disk: the last usable one
+        # was followed by an edit, or the rounds ran out mid-loop.
+        note_not_reviewed "$REL" "the file's final state was never seen by a working accuracy reviewer"
     fi
 
     # ---- Digest -------------------------------------------------------------
@@ -863,11 +936,12 @@ for index in "${!TARGETS[@]}"; do
         echo "- converged: $converged (up to $MAX_ROUNDS rounds)"
         echo "- final refinement after review limit: $final_refinement"
         echo "- verification review of that refine: $verify_verdict"
-        echo "- a real accuracy review ran: $acc_ever_ran"
+        echo "- a real accuracy review ran at some point: $acc_ever_ran"
+        echo "- the file AS IT NOW STANDS was accuracy-reviewed: $verified_final"
         echo "- accuracy verdict: $(jq -r '.verdict // "UNAVAILABLE"' "$final_acc" 2>/dev/null)"
         echo "- style verdict: $(jq -r '.verdict // "UNAVAILABLE"' "$final_sty" 2>/dev/null)"
         echo "- ADJUDICATOR verdict (final): $(jq -r '.verdict // "?"' "$final_adj" 2>/dev/null)"
-        if [ "$acc_ever_ran" != "true" ] || { [ "$verify_verdict" != "approve" ] && [ "$verify_verdict" != "skipped" ]; }; then
+        if [ "$verified_final" != "true" ] || { [ "$verify_verdict" != "approve" ] && [ "$verify_verdict" != "skipped" ]; }; then
             echo
             echo "> **NOT REVIEWED.** Do not put this file in a PR on the strength of this"
             echo "> digest. Read the diff yourself, or re-run the file once the reviewer is"

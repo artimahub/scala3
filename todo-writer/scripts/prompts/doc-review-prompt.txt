@@ -117,6 +117,20 @@ verified and the behaviour you confirmed. A bare "the documentation is accurate
 and follows the conventions" is not an approval anyone can rely on, and the
 pipeline discards it as a dead call rather than treating it as a pass.
 
-Output your final message as JSON conforming to the provided schema. Items with
-severity "ok" may be omitted; always include every blocker and every
+Output your final message as JSON conforming to the provided schema, and NOTHING
+ELSE. No preamble, no prose summary of your findings before or after the object,
+no closing remark. Whatever you write instead of the JSON object is discarded
+unread, and the review then counts as never having happened -- a reviewer that
+worked for 26 turns, found four real blockers and wrote them up in prose is
+worth precisely as much as a reviewer that never ran. Put the findings in
+`items` and your summing-up in `summary`.
+
+Items with severity "ok" may be omitted; always include every blocker and every
 needs_human item.
+
+CAP: at most 25 items. A file with more than 25 problems does not need them
+enumerated; it needs the worst ones fixed and another pass. If you are over the
+cap, keep every blocker first, then the most serious nits, and say in `summary`
+how many you left out. This is not a style preference: a reply long enough to
+hit the model's output limit is truncated mid-JSON and thrown away whole, which
+has already cost one review of a 99-declaration file.
