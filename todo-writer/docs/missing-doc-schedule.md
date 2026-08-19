@@ -52,7 +52,19 @@ the heavy files) — that pushes to 12 weeks.
 
 ## Cost lever
 
-PR grouping changes the calendar, not the token total. If the token budget is
-tight, trim per-file cost on the low-risk early PRs with `MAX_ROUNDS=1` and/or a
-cheaper `WRITER_MODEL`/`STYLE_MODEL`; keep full quality (default `MAX_ROUNDS=2`)
-for the `collection` PRs.
+PR grouping changes the calendar, not the token total. If the budget is tight,
+trim per-file cost on the low-risk early PRs with `MAX_ROUNDS=1` and/or a cheaper
+`WRITER_MODEL`/`STYLE_MODEL`; keep full quality (default `MAX_ROUNDS=3`) for the
+`collection` PRs.
+
+Since week 5 the accuracy reviewer is a paid model (`openrouter/claude-sonnet-5`)
+and everything else is still free, so the bill is essentially
+`accuracy calls x price`. A file that never converges costs `MAX_ROUNDS + 1`
+accuracy calls, counting the verification review of the final refine, plus one
+`adversarial-gate.sh` call at the end of the PR. Measured on week 4's Try.scala:
+$0.22 per accuracy call (23.8k prompt, 17k completion, nearly all of it
+reasoning), so a 25-file PR at `MAX_ROUNDS=3` lands around $25 to $30. Check the
+balance before starting a partition:
+
+    curl -s -H "Authorization: Bearer $OPENROUTER_API_KEY" \
+      https://openrouter.ai/api/v1/credits

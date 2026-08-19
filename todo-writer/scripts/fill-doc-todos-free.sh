@@ -100,7 +100,7 @@
 #             file completes
 #
 # Env overrides:
-#   MAX_ROUNDS=2
+#   MAX_ROUNDS=3
 #   WRITER_MODEL=devstral-latest        WRITER_PROVIDER=mistral
 #   ACCURACY_MODEL=anthropic/claude-sonnet-5  ACCURACY_PROVIDER=openrouter
 #   STYLE_MODEL=mistral-large-latest    STYLE_PROVIDER=mistral
@@ -117,7 +117,14 @@
 
 set -uo pipefail
 
-MAX_ROUNDS=${MAX_ROUNDS:-2}
+# 3 for week 5 (math + coll-generic). Week 4 ran 2 and converged 3 times in 26
+# files, but its round 1 was worthless: the accuracy reviewer was dead, so both
+# rounds were the style reviewer relitigating wording. With a real accuracy
+# review in round 1, the extra round is a real second chance at a real finding.
+# Each round is 3 calls (accuracy, style, adjudicator) plus a refine, and a
+# non-converging file now costs MAX_ROUNDS+1 accuracy calls counting the
+# verification pass.
+MAX_ROUNDS=${MAX_ROUNDS:-3}
 WRITER_MODEL=${WRITER_MODEL:-devstral-latest};             WRITER_PROVIDER=${WRITER_PROVIDER:-mistral}
 # The one paid role. Week 4 proved that a weak or throttled accuracy reviewer is
 # worse than none: it produces a verdict that LOOKS like review and stops anyone
