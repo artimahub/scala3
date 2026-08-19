@@ -99,11 +99,19 @@
 # Usage:
 #   ./fill-doc-todos-free.sh <file> [file ...]
 #
-# Control files (create/remove while it runs):
-#   PAUSE  -> todo-writer/PAUSE   waits at the next phase boundary, rechecking
-#             every PAUSE_SLEEP seconds until the file is removed
-#   STOP   -> todo-writer/stop-fill-doc-todos   exits cleanly after the current
-#             file completes
+# Control files (create/remove while it runs). All three are honoured at every
+# phase boundary AND during the sleeps between them, within STOP_POLL seconds:
+#
+#   PAUSE    -> todo-writer/PAUSE
+#               holds at the next phase boundary and waits, rechecking every
+#               PAUSE_SLEEP seconds, until you remove the file
+#   STOP     -> todo-writer/stop-fill-doc-todos
+#               finishes the file in hand, then exits cleanly. Nothing is left
+#               half-done, but on a big file "the file in hand" can be an hour
+#   STOP NOW -> todo-writer/stop-fill-doc-todos-now
+#               exits within seconds, REVERTING the file it interrupts. That
+#               revert is the point: a file left filled-but-unreviewed has no
+#               markers, so every later run would skip it as already done
 #
 # Env overrides:
 #   MAX_ROUNDS=3
@@ -115,7 +123,7 @@
 #   WRITER_MAX_PASSES=6  WRITER_PASS_PAUSE=60  PROVIDER_SPACING=45
 #   REVIEW_FILE_MAX_LINES=1500  REVIEW_DIFF_CONTEXT=25  REPEAT_GROUP_MIN=3
 #   FINAL_VERIFY=true  SUSPICIOUS_REVIEW_BYTES=400  SUSPICIOUS_RETRY_PAUSE=45
-#   CLI_TIMEOUT=1800  DRY_RUN=false
+#   CLI_TIMEOUT=1800  STOP_POLL=5  DRY_RUN=false
 #
 # PROVIDERS. Any role takes any provider; they come in two kinds.
 #   HTTP + API key:  mistral, cerebras, openrouter, poolside
@@ -206,6 +214,8 @@ INTER_FILE_PAUSE_SECONDS=${INTER_FILE_PAUSE_SECONDS:-120}
 PAUSE_FILE=${PAUSE_FILE:-"$TODO_WRITER_DIR/PAUSE"}
 PAUSE_SLEEP=${PAUSE_SLEEP:-30}
 STOP_FILE=${STOP_FILE:-"$TODO_WRITER_DIR/stop-fill-doc-todos"}
+STOP_NOW_FILE=${STOP_NOW_FILE:-"$TODO_WRITER_DIR/stop-fill-doc-todos-now"}
+STOP_POLL=${STOP_POLL:-5}     # how long a sleep can ignore a stop request
 WORK_DIR="$(mktemp -d)"
 trap 'rm -rf "$WORK_DIR"' EXIT
 
@@ -273,9 +283,73 @@ log() { local m="[$(date '+%H:%M:%S')] $1"; echo "$m"; echo "$m" >> "$LOG_FILE";
 # latency -- removing the file does nothing until the next wake-up. 30s suits
 # stepping through a run and inspecting each phase. For an unattended overnight
 # run where a pause is a genuine hold, raise it: PAUSE_SLEEP=1200.
+# ---- STOP, in two flavours -------------------------------------------------
+# STOP_FILE is graceful: finish the file in hand, then exit. It is the right
+# default, because the alternative is leaving a file half-processed.
+#
+# STOP_NOW_FILE is immediate: abandon the current file and exit within seconds.
+# It exists because "graceful" can mean a very long wait -- TrieMap.scala held
+# the pipeline for an hour, and a stop requested at minute two would not have
+# been honoured until minute sixty.
+#
+# An immediate stop REVERTS the file it interrupts, and that is the whole point
+# rather than a nicety. A killed run left DefaultSerializationProxy.scala fully
+# filled but never reviewed; since the resume logic skips any file with no
+# markers left, that file would have been silently skipped forever after and
+# shipped with no review at all. Reverting puts its markers back, so the next
+# run picks it up as unfinished work, which is what it is.
+FILE_IN_PROGRESS=false      # true between the ORIG snapshot and the digest
+
+check_stop_now() {
+    local where=$1
+    [ -e "$STOP_NOW_FILE" ] || return 0
+    log "STOP NOW at [$where]: found $STOP_NOW_FILE."
+    if [ "$FILE_IN_PROGRESS" = true ] && [ -n "${ORIG:-}" ] && [ -r "${ORIG:-}" ]; then
+        cp -f "$ORIG" "$ABS"
+        log "        reverted $REL to its pre-writer state; it is unfinished, not done."
+        log "        (leaving it filled but unreviewed would let the next run skip it)"
+    fi
+    log "        exiting now. Remove the file before restarting:  rm $STOP_NOW_FILE"
+    exit 0
+}
+
+# Graceful stop, honoured only where stopping is safe: between files.
+check_stop_graceful() {
+    local where=$1
+    [ -e "$STOP_FILE" ] || return 0
+    log "STOP at [$where]: found $STOP_FILE; exiting cleanly at a file boundary."
+    exit 0
+}
+
+# Interruptible sleep. A pause that cannot be interrupted is a pause that eats
+# your stop request: the old inter-file sleep checked STOP before it slept and
+# not after, so a stop touched during those 120 seconds did nothing until the
+# NEXT file had also finished.
+#
+# $1 seconds  $2 where  $3 "boundary" if a graceful stop may exit here
+sleep_interruptible() {
+    local total=$1 where=$2 kind=${3:-} slept=0 slice
+    while [ "$slept" -lt "$total" ]; do
+        check_stop_now "$where"
+        [ "$kind" = boundary ] && check_stop_graceful "$where"
+        slice=$(( total - slept )); [ "$slice" -gt "$STOP_POLL" ] && slice=$STOP_POLL
+        sleep "$slice"
+        slept=$(( slept + slice ))
+    done
+    check_stop_now "$where"
+    [ "$kind" = boundary ] && check_stop_graceful "$where"
+    return 0
+}
+
 check_pause() {
     local where=$1 first=true
+    # Every existing check_pause call site becomes an immediate-stop checkpoint
+    # too, which is what puts STOP NOW at all seven phase boundaries -- before
+    # the writer, each writer pass, each review round, adjudication, each refine,
+    # the verification review, and between files -- instead of one.
+    check_stop_now "$where"
     while [ -e "$PAUSE_FILE" ]; do
+        check_stop_now "$where"
         if [ "$first" = true ]; then
             log "PAUSED at [$where]: found $PAUSE_FILE."
             log "        Sleeping ${PAUSE_SLEEP}s at a time. Remove the file to resume:  rm $PAUSE_FILE"
@@ -297,16 +371,19 @@ check_pause() {
 # way, so control does not depend on whether work happened.
 between_files() {
     local index=$1 mode=${2:-}
-    if [ -e "$STOP_FILE" ]; then
-        log "STOP: found $STOP_FILE after completing a file; exiting cleanly."
-        exit 0
-    fi
+    check_stop_now "between files"
+    check_stop_graceful "between files"
     check_pause "between files"
     [ "$mode" = nosleep ] && return 0
     if [ "$index" -lt $(( ${#TARGETS[@]} - 1 )) ] && [ "$INTER_FILE_PAUSE_SECONDS" -gt 0 ]; then
-        log "Pausing ${INTER_FILE_PAUSE_SECONDS}s before the next file."
-        sleep "$INTER_FILE_PAUSE_SECONDS"
+        log "Pausing ${INTER_FILE_PAUSE_SECONDS}s before the next file (stop/pause honoured within ${STOP_POLL}s)."
+        sleep_interruptible "$INTER_FILE_PAUSE_SECONDS" "between files" boundary
     fi
+    # Checked AFTER the pause as well as before it. A stop or pause touched
+    # while the pipeline was sleeping used to be invisible until another whole
+    # file had been processed.
+    check_stop_graceful "after the inter-file pause"
+    check_pause "after the inter-file pause"
 }
 
 render() { sed "s|{FILE_PATH}|$1|g" "$2"; }
@@ -631,6 +708,10 @@ for index in "${!TARGETS[@]}"; do
 
     ORIG="$WORK_DIR/${SAFE}.orig"; CODE_BEFORE="$WORK_DIR/${SAFE}.code"
     cp -f "$ABS" "$ORIG"; code_lines "$ABS" > "$CODE_BEFORE"
+    # From here to the digest, an immediate stop must undo this file rather than
+    # leave it half-processed. Outside this window ORIG still names the PREVIOUS
+    # file, and reverting to it would destroy finished work.
+    FILE_IN_PROGRESS=true
 
     # Any step that changes a non-comment line gets its file reverted and the
     # file abandoned. Two models silently deleted code while filling comments,
@@ -695,11 +776,11 @@ for index in "${!TARGETS[@]}"; do
         fi
         [ "$wpass" -lt "$WRITER_MAX_PASSES" ] && {
             log "    pausing ${WRITER_PASS_PAUSE}s before the next writer pass"
-            sleep "$WRITER_PASS_PAUSE"
+            sleep_interruptible "$WRITER_PASS_PAUSE" "between writer passes"
         }
         wpass=$((wpass + 1))
     done
-    integrity_ok "writer" || { between_files "$index"; continue; }
+    integrity_ok "writer" || { FILE_IN_PROGRESS=false; between_files "$index"; continue; }
 
     # Do NOT review a file the writer did not change. A DNS failure once killed
     # the writer, the script carried on, and BOTH reviewers approved an empty
@@ -711,6 +792,7 @@ for index in "${!TARGETS[@]}"; do
         log "  !! WRITER PRODUCED NOTHING on $REL (exit $writer_rc, markers ${markers_before:-?} -> ${markers_after:-?})"
         log "  !! skipping review: there is no diff to judge. This file is UNTOUCHED, not done."
         cp -f "$ORIG" "$ABS"
+        FILE_IN_PROGRESS=false
         between_files "$index"; continue
     fi
     log "  writer filled $(( ${markers_before:-0} - ${markers_after:-0} )) marker(s); ${markers_after:-0} left"
@@ -963,6 +1045,7 @@ for index in "${!TARGETS[@]}"; do
     remaining=$(grep -c "$MARKER" "$ABS" 2>/dev/null || true)
     log "  done: converged=$converged | NEEDS-HUMAN=${flagged:-0} | unfilled markers left=${remaining:-0}"
     log "  digest: $DIGEST"
+    FILE_IN_PROGRESS=false
     between_files "$index"
 done
 
