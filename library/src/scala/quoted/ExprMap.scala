@@ -23,8 +23,13 @@ trait ExprMap:
    *  @param e the expression whose direct sub-expressions will be transformed via `transform`
    *  @return an expression of type `T` in which the direct sub-expressions of `e` have been
    *          replaced by the result of applying `transform` to them. Not every direct child is
-   *          transformed: the left-hand side of an `Assign`, the type arguments of a `TypeApply`
-   *          and the expression of a `Return` are left as they are.
+   *          transformed: the left-hand side of an `Assign`, the type arguments of a `TypeApply`,
+   *          the `call` of an `Inlined` tree and the expression of a `Return` are left as they
+   *          are.
+   *  @note If `e` is itself a bare `Closure` term, which the reflection API's `Closure.apply`
+   *        can build directly rather than in the `Block`-wrapped form the compiler normally
+   *        produces, it is returned completely unmodified and none of its structure, including
+   *        its body, is visited.
    */
   def transformChildren[T](e: Expr[T])(using Type[T])(using Quotes): Expr[T] = {
     import quotes.reflect.*
@@ -76,19 +81,21 @@ trait ExprMap:
 
       /** Transforms the sub-trees of a term, rebuilding `tree` from the transformed children.
        *  Some children are left as they are rather than transformed: the left-hand side of an
-       *  `Assign`, the type arguments of a `TypeApply` and, as described below, the expression
-       *  of a `Return`.
+       *  `Assign`, the type arguments of a `TypeApply`, the `call` of an `Inlined` tree and, as
+       *  described below, the expression of a `Return` and the `meth` of a `Closure`.
        *
        *  @param tree the term whose children are transformed
        *  @param tpe the expected type of `tree`, propagated to the children that share it,
        *         such as the branches of an `If` or the result expression of a `Block`
        *  @param owner the symbol that owns `tree`
        *  @return a copy of `tree` with its children transformed. `tree` itself is returned when
-       *          it has no children to transform, as for an `Ident`, a `Literal` or a `Closure`,
-       *          and also when transforming its children produces no change. A `Return` is
-       *          likewise returned unchanged, but only as a workaround for the owner symbol being
-       *          wrong at that point (see the `FIXME` in the body), so its `expr` is left
-       *          untransformed even though it is a real child.
+       *          it has no children to transform, as for an `Ident`, a `Literal`, a `This` or a
+       *          `Super`, and also when transforming its children produces no change. A `Return`
+       *          is likewise returned unchanged, but only as a workaround for the owner symbol
+       *          being wrong at that point (see the `FIXME` in the body), so its `expr` is left
+       *          untransformed even though it is a real child. A `Closure` is also returned
+       *          unchanged, so its `meth` is left untransformed even though it too is a real
+       *          child.
        */
       def transformTermChildren(tree: Term, tpe: TypeRepr)(owner: Symbol): Term = tree match {
         case Ident(name) =>
