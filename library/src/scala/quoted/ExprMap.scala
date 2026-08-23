@@ -2,6 +2,7 @@ package scala.quoted
 
 import language.experimental.captureChecking
 
+/** A transformation on quoted expressions that maps an expression to an expression of the same type. */
 trait ExprMap:
 
   /** Maps an expression `e` with a type `T`.
@@ -26,6 +27,13 @@ trait ExprMap:
     import quotes.reflect.*
     final class MapChildren() {
 
+      /** Transforms a statement, delegating to `transformTerm` for terms and to
+       *  `transformDefinition` for definitions.
+       *
+       *  @param tree the statement to transform
+       *  @param owner the symbol that owns `tree`
+       *  @return the transformed statement; an `Import` or `Export` is returned unchanged
+       */
       def transformStatement(tree: Statement)(owner: Symbol): Statement = {
         tree match {
           case tree: Term =>
@@ -37,6 +45,14 @@ trait ExprMap:
         }
       }
 
+      /** Transforms the right-hand side of a `ValDef` or `DefDef`, or the body of a `ClassDef`.
+       *
+       *  @param tree the definition to transform
+       *  @param owner the symbol that owns `tree`, used when transforming the body of a
+       *         `ClassDef` (the definition's own symbol owns the right-hand side of a
+       *         `ValDef` or `DefDef`)
+       *  @return the transformed definition; a `TypeDef` is returned unchanged
+       */
       def transformDefinition(tree: Definition)(owner: Symbol): Definition = {
         tree match {
           case tree: ValDef =>
@@ -54,6 +70,15 @@ trait ExprMap:
         }
       }
 
+      /** Transforms the sub-trees of a term, rebuilding `tree` from the transformed children.
+       *
+       *  @param tree the term whose children are transformed
+       *  @param tpe the expected type of `tree`, propagated to the children that share it,
+       *         such as the branches of an `If` or the result expression of a `Block`
+       *  @param owner the symbol that owns `tree`
+       *  @return a copy of `tree` with its children transformed, or `tree` itself when it has
+       *          no children to transform, as for an `Ident`, a `Literal` or a `Closure`
+       */
       def transformTermChildren(tree: Term, tpe: TypeRepr)(owner: Symbol): Term = tree match {
         case Ident(name) =>
           tree
@@ -112,6 +137,15 @@ trait ExprMap:
           Inlined.copy(tree)(call, transformDefinitions(bindings)(owner), transformTerm(expansion, tpe)(owner))
       }
 
+      /** Transforms a term by applying `transform` to it when it is an expression, and by
+       *  transforming its children otherwise.
+       *
+       *  @param tree the term to transform
+       *  @param tpe the expected type of `tree`, used as the `Type` argument of `transform`
+       *  @param owner the symbol that owns `tree`
+       *  @return the transformed term; a `Closure` is returned unchanged and an `Inlined` tree
+       *          has only its children transformed
+       */
       def transformTerm(tree: Term, tpe: TypeRepr)(owner: Symbol): Term =
         tree match
           case _: Closure =>
@@ -130,20 +164,60 @@ trait ExprMap:
           case _ =>
             transformTermChildren(tree, tpe)(owner)
 
+      /** Returns `tree` unchanged, since type trees are not transformed.
+       *
+       *  @param tree the type tree
+       *  @param owner the symbol that owns `tree` (never used)
+       */
       def transformTypeTree(tree: TypeTree)(owner: Symbol): TypeTree = tree
 
+      /** Transforms the guard and the right-hand side of a case, leaving its pattern unchanged.
+       *
+       *  @param tree the case to transform
+       *  @param tpe the expected type of the right-hand side of `tree`
+       *  @param owner the symbol that owns `tree`
+       *  @return a copy of `tree` with its guard transformed as a `Boolean` and its right-hand
+       *          side transformed at type `tpe`
+       */
       def transformCaseDef(tree: CaseDef, tpe: TypeRepr)(owner: Symbol): CaseDef =
         CaseDef.copy(tree)(tree.pattern, tree.guard.map(x => transformTerm(x, TypeRepr.of[Boolean])(owner)), transformTerm(tree.rhs, tpe)(owner))
 
+      /** Transforms the pattern and the right-hand side of a type case.
+       *
+       *  @param tree the type case to transform
+       *  @param owner the symbol that owns `tree`
+       *  @return a copy of `tree` with `transformTypeTree` applied to its pattern and to its
+       *          right-hand side
+       */
       def transformTypeCaseDef(tree: TypeCaseDef)(owner: Symbol): TypeCaseDef =
         TypeCaseDef.copy(tree)(transformTypeTree(tree.pattern)(owner), transformTypeTree(tree.rhs)(owner))
 
+      /** Transforms each statement of `trees` with `transformStatement`.
+       *
+       *  @param trees the statements to transform
+       *  @param owner the symbol that owns the statements
+       *  @return the transformed statements, or `trees` itself if no statement changed
+       */
       def transformStats(trees: List[Statement])(owner: Symbol): List[Statement] =
         trees.mapConserve(x => transformStatement(x)(owner))
 
+      /** Transforms each definition of `trees` with `transformDefinition`.
+       *
+       *  @param trees the definitions to transform
+       *  @param owner the symbol that owns the definitions
+       *  @return the transformed definitions, or `trees` itself if no definition changed
+       */
       def transformDefinitions(trees: List[Definition])(owner: Symbol): List[Definition] =
         trees.mapConserve(x => transformDefinition(x)(owner))
 
+      /** Transforms each term of `trees`, using the type at the same position in `tpes` as its
+       *  expected type.
+       *
+       *  @param trees the terms to transform
+       *  @param tpes the expected types, in the same order as `trees` and at least as many
+       *  @param owner the symbol that owns the terms
+       *  @return the transformed terms, or `trees` itself if no term changed
+       */
       def transformTerms(trees: List[Term], tpes: List[TypeRepr])(owner: Symbol): List[Term] =
         var tpes2 = tpes // TODO use proper zipConserve
         trees.mapConserve{ x =>
@@ -152,15 +226,41 @@ trait ExprMap:
           transformTerm(x, tpe)(owner)
         }
 
+      /** Transforms each term of `trees` with `tpe` as the expected type of every term.
+       *
+       *  @param trees the terms to transform
+       *  @param tpe the expected type shared by all the terms
+       *  @param owner the symbol that owns the terms
+       *  @return the transformed terms, or `trees` itself if no term changed
+       */
       def transformTerms(trees: List[Term], tpe: TypeRepr)(owner: Symbol): List[Term] =
         trees.mapConserve(x => transformTerm(x, tpe)(owner))
 
+      /** Transforms each type tree of `trees` with `transformTypeTree`.
+       *
+       *  @param trees the type trees to transform
+       *  @param owner the symbol that owns the type trees
+       *  @return `trees` itself, since type trees are not transformed
+       */
       def transformTypeTrees(trees: List[TypeTree])(owner: Symbol): List[TypeTree] =
         trees.mapConserve(x => transformTypeTree(x)(owner))
 
+      /** Transforms each case of `trees` with `tpe` as the expected type of every right-hand side.
+       *
+       *  @param trees the cases to transform
+       *  @param tpe the expected type of the right-hand side of each case
+       *  @param owner the symbol that owns the cases
+       *  @return the transformed cases, or `trees` itself if no case changed
+       */
       def transformCaseDefs(trees: List[CaseDef], tpe: TypeRepr)(owner: Symbol): List[CaseDef] =
         trees.mapConserve(x => transformCaseDef(x, tpe)(owner))
 
+      /** Transforms each type case of `trees` with `transformTypeCaseDef`.
+       *
+       *  @param trees the type cases to transform
+       *  @param owner the symbol that owns the type cases
+       *  @return the transformed type cases, or `trees` itself if no type case changed
+       */
       def transformTypeCaseDefs(trees: List[TypeCaseDef])(owner: Symbol): List[TypeCaseDef] =
         trees.mapConserve(x => transformTypeCaseDef(x)(owner))
 
