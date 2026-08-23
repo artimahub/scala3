@@ -1,0 +1,7 @@
+All three worklist items applied as targeted comment-only patches; diff shows 161 insertions, 0 deletions, and no non-comment line changed.
+
+- **`LongAccumulatorStepper.nextStep` (blocker)** — replaced the false "throws if no elements remain" guarantee. The doc now says exhaustion is not reliably detected because the guard tests the loaded block's count rather than the overall remaining count, warns to call only while `hasStep` is `true`, and narrows the `@throws` to the case the guard actually catches (an empty loaded block, i.e. an empty accumulator).
+- **`update(idx: Int, elem: Long)` (nit)** — the "can never wrap onto an occupied slot" absolute is now qualified: lossless `Int`→`Long` widening rules out wraparound from `idx`'s magnitude alone, but the wraparound comes from `totalSize`/`index` arithmetic narrowed to `Int`, so it remains possible for a large enough accumulator.
+- **`update(idx: Long, elem: Long)` (nit)** — added the second path: `seekSlot` also narrows to `Int` when locating a `history` slot, so an out-of-range index can silently overwrite there too.
+
+One consequential extra: both `@throws ArrayIndexOutOfBoundsException` tags said the write throws unless the offset lands in unused current-array capacity, which after these edits contradicted the descriptions. I extended each tag to also except a slot reached by `Int` narrowing, rather than leave a tag disagreeing with the prose above it. Committed as `b7016e775c`.

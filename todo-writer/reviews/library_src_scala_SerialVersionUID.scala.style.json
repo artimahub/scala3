@@ -1,0 +1,20 @@
+{
+  "verdict": "approve",
+  "findings": [
+    {
+      "declaration": "class SerialVersionUID",
+      "severity": "ok",
+      "confidence": "high",
+      "needs_human": false,
+      "note": "First sentence 'Attaches a `serialVersionUID` field with the given value to the annotated serializable class.' is declarative, third-person, present tense, stands alone as an index summary, and uses backticks correctly. No self-reference, no HTML, not redundant with the signature."
+    },
+    {
+      "declaration": "@param value",
+      "severity": "ok",
+      "confidence": "high",
+      "needs_human": false,
+      "note": "'the `serialVersionUID` to assign to the annotated class' — lowercase, no trailing period, backtick-wrapped code reference. Follows tag-continuation conventions."
+    }
+  ],
+  "bonus_findings": []
+}

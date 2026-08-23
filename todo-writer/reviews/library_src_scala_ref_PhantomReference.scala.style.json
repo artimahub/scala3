@@ -1,0 +1,34 @@
+{
+  "verdict": "approve",
+  "findings": [
+    {
+      "declaration": "class PhantomReference — @tparam T",
+      "severity": "nit",
+      "confidence": "high",
+      "needs_human": false,
+      "comment": "The description says 'the covariant type of the phantom-referenced object, must be a subtype of `AnyRef`'. Both pieces of extra information are already encoded in the signature `[+T <: AnyRef]`: the `+` communicates covariance and `<: AnyRef` communicates the bound. Per the altitude rule, @tparam text should not restate what the signature already shows. Prefer: 'the type of the phantom-referenced object'."
+    },
+    {
+      "declaration": "class PhantomReference — class doc first sentence",
+      "severity": "ok",
+      "confidence": "high",
+      "needs_human": false,
+      "comment": "Declarative, third-person, no self-reference, backtick around the Java class name. Stands alone as an index summary."
+    },
+    {
+      "declaration": "class PhantomReference — @param value",
+      "severity": "ok",
+      "confidence": "high",
+      "needs_human": false,
+      "comment": "Concise, lowercase, no trailing period."
+    },
+    {
+      "declaration": "class PhantomReference — @param queue",
+      "severity": "ok",
+      "confidence": "high",
+      "needs_human": false,
+      "comment": "Informative, lowercase, no trailing period. Future tense ('will be enqueued') is appropriate for behavioral description."
+    }
+  ],
+  "bonus_findings": []
+}

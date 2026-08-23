@@ -1,0 +1,832 @@
+<<<<<<< 1
+/** Returns the cached reverse ordering of this ordering.
+ */
+>>>>>>>
+
+<<<<<<< 2
+/** Returns whether the given ordering is the cached reverse of this ordering.
+ *
+ *  @param other the ordering to check
+ *  @return `true` if `other` is the cached reverse of this ordering, `false` otherwise
+ */
+>>>>>>>
+
+<<<<<<< 3
+/** Returns the original ordering that this ordering reverses.
+ */
+>>>>>>>
+
+<<<<<<< 4
+/** Returns whether the given ordering is the original ordering that this ordering reverses.
+ *
+ *  @param other the ordering to check
+ *  @return `true` if `other` is the original ordering that this ordering reverses, `false` otherwise
+ */
+>>>>>>>
+
+<<<<<<< 5
+/** Compares two values in reverse order.
+ *
+ *  @param x the first value to compare
+ *  @param y the second value to compare
+ *  @return a negative integer, zero, or a positive integer as `x` is greater than, equal to, or less than `y`
+ */
+>>>>>>>
+
+<<<<<<< 6
+/** Returns true if `x` is greater than or equal to `y` in the original ordering.
+ *
+ *  @param x the first value to compare
+ *  @param y the second value to compare
+ *  @return `true` if `x` >= `y` in the original ordering, `false` otherwise
+ */
+>>>>>>>
+
+<<<<<<< 7
+/** Returns true if `x` is less than or equal to `y` in the original ordering.
+ *
+ *  @param x the first value to compare
+ *  @param y the second value to compare
+ *  @return `true` if `x` <= `y` in the original ordering, `false` otherwise
+ */
+>>>>>>>
+
+<<<<<<< 8
+/** Returns true if `x` is greater than `y` in the original ordering.
+ *
+ *  @param x the first value to compare
+ *  @param y the second value to compare
+ *  @return `true` if `x` > `y` in the original ordering, `false` otherwise
+ */
+>>>>>>>
+
+<<<<<<< 9
+/** Returns true if `x` is less than `y` in the original ordering.
+ *
+ *  @param x the first value to compare
+ *  @param y the second value to compare
+ *  @return `true` if `x` < `y` in the original ordering, `false` otherwise
+ */
+>>>>>>>
+
+<<<<<<< 10
+/** Returns true if `x` is equivalent to `y` in the original ordering.
+ *
+ *  @param x the first value to compare
+ *  @param y the second value to compare
+ *  @return `true` if `x` == `y` in the original ordering, `false` otherwise
+ */
+>>>>>>>
+
+<<<<<<< 11
+/** Returns the minimum of `x` and `y` in the original ordering.
+ *
+ *  @tparam U a subtype of `T`, used to preserve the specific type in the return value
+ *  @param x the first candidate value
+ *  @param y the second candidate value
+ *  @return the minimum of `x` and `y` in the original ordering
+ */
+>>>>>>>
+
+<<<<<<< 12
+/** Returns the maximum of `x` and `y` in the original ordering.
+ *
+ *  @tparam U a subtype of `T`, used to preserve the specific type in the return value
+ *  @param x the first candidate value
+ *  @param y the second candidate value
+ *  @return the maximum of `x` and `y` in the original ordering
+ */
+>>>>>>>
+
+<<<<<<< 13
+/** Returns whether the given object is equal to this ordering.
+ *
+ *  @param obj the object to compare with this ordering
+ *  @return `true` if `obj` is equal to this ordering, `false` otherwise
+ */
+>>>>>>>
+
+<<<<<<< 14
+/** Returns a hash code for this ordering.
+ */
+>>>>>>>
+
+<<<<<<< 15
+/** Compares two iterables lexicographically using the element ordering.
+ *
+ *  @param x the first iterable to compare
+ *  @param y the second iterable to compare
+ *  @return a negative integer, zero, or a positive integer as `x` is less than, equal to, or greater than `y`
+ */
+>>>>>>>
+
+<<<<<<< 16
+/** Returns whether the given object is equal to this ordering.
+ *
+ *  @param obj the object to compare with this ordering
+ *  @return `true` if `obj` is equal to this ordering, `false` otherwise
+ */
+>>>>>>>
+
+<<<<<<< 17
+/** Returns a hash code for this ordering.
+ */
+>>>>>>>
+
+<<<<<<< 18
+/** Provides additional implicit orderings that are not in the default scope.
+ */
+>>>>>>>
+
+<<<<<<< 19
+/** Creates an ordering for sorted sets using the element ordering.
+ *
+ *  @tparam CC the higher-kinded type constructor for the sorted set type, bounded by `scala.collection.SortedSet`
+ *  @tparam T the element type of the sorted sets being compared
+ *  @param ord the implicit `Ordering` used to compare elements of type `T`
+ *  @return an `Ordering[CC[T]]` that compares sorted sets lexicographically using `ord`
+ */
+>>>>>>>
+
+<<<<<<< 20
+/** An ordering for `Unit` values.
+ */
+>>>>>>>
+
+<<<<<<< 21
+/** Compares two `Unit` values.
+ *
+ *  @param x the first `Unit` value to compare
+ *  @param y the second `Unit` value to compare
+ */
+>>>>>>>
+
+<<<<<<< 22
+/** An ordering for `Boolean` values.
+ */
+>>>>>>>
+
+<<<<<<< 23
+/** Compares two `Boolean` values.
+ *
+ *  @param x the first `Boolean` value to compare
+ *  @param y the second `Boolean` value to compare
+ *  @return a negative integer, zero, or a positive integer as `x` is less than, equal to, or greater than `y`
+ */
+>>>>>>>
+
+<<<<<<< 24
+/** An ordering for `Byte` values.
+ */
+>>>>>>>
+
+<<<<<<< 25
+/** Compares two `Byte` values.
+ *
+ *  @param x the first `Byte` value to compare
+ *  @param y the second `Byte` value to compare
+ *  @return a negative integer, zero, or a positive integer as `x` is less than, equal to, or greater than `y`
+ */
+>>>>>>>
+
+<<<<<<< 26
+/** An ordering for `Char` values.
+ */
+>>>>>>>
+
+<<<<<<< 27
+/** Compares two `Char` values.
+ *
+ *  @param x the first `Char` value to compare
+ *  @param y the second `Char` value to compare
+ *  @return a negative integer, zero, or a positive integer as `x` is less than, equal to, or greater than `y`
+ */
+>>>>>>>
+
+<<<<<<< 28
+/** An ordering for `Short` values.
+ */
+>>>>>>>
+
+<<<<<<< 29
+/** Compares two `Short` values.
+ *
+ *  @param x the first `Short` value to compare
+ *  @param y the second `Short` value to compare
+ *  @return a negative integer, zero, or a positive integer as `x` is less than, equal to, or greater than `y`
+ */
+>>>>>>>
+
+<<<<<<< 30
+/** An ordering for `Int` values.
+ */
+>>>>>>>
+
+<<<<<<< 31
+/** Compares two `Int` values.
+ *
+ *  @param x the first `Int` value to compare
+ *  @param y the second `Int` value to compare
+ *  @return a negative integer, zero, or a positive integer as `x` is less than, equal to, or greater than `y`
+ */
+>>>>>>>
+
+<<<<<<< 32
+/** An ordering for `Long` values.
+ */
+>>>>>>>
+
+<<<<<<< 33
+/** Compares two `Long` values.
+ *
+ *  @param x the first `Long` value to compare
+ *  @param y the second `Long` value to compare
+ *  @return a negative integer, zero, or a positive integer as `x` is less than, equal to, or greater than `y`
+ */
+>>>>>>>
+
+<<<<<<< 34
+/** Compares two `Float` values using the total ordering.
+ *
+ *  @param x the first `Float` value to compare
+ *  @param y the second `Float` value to compare
+ */
+>>>>>>>
+
+<<<<<<< 35
+/** Compares two `Float` values using the total ordering.
+ *
+ *  @param x the first `Float` value to compare
+ *  @param y the second `Float` value to compare
+ */
+>>>>>>>
+
+<<<<<<< 36
+/** Returns true if `x` is less than or equal to `y` using IEEE 754 semantics.
+ *
+ *  @param x the first `Float` value to compare
+ *  @param y the second `Float` value to compare
+ *  @return `true` if `x` <= `y`, `false` otherwise
+ */
+>>>>>>>
+
+<<<<<<< 37
+/** Returns true if `x` is greater than or equal to `y` using IEEE 754 semantics.
+ *
+ *  @param x the first `Float` value to compare
+ *  @param y the second `Float` value to compare
+ *  @return `true` if `x` >= `y`, `false` otherwise
+ */
+>>>>>>>
+
+<<<<<<< 38
+/** Returns true if `x` is less than `y` using IEEE 754 semantics.
+ *
+ *  @param x the first `Float` value to compare
+ *  @param y the second `Float` value to compare
+ *  @return `true` if `x` < `y`, `false` otherwise
+ */
+>>>>>>>
+
+<<<<<<< 39
+/** Returns true if `x` is greater than `y` using IEEE 754 semantics.
+ *
+ *  @param x the first `Float` value to compare
+ *  @param y the second `Float` value to compare
+ *  @return `true` if `x` > `y`, `false` otherwise
+ */
+>>>>>>>
+
+<<<<<<< 40
+/** Returns true if `x` is equivalent to `y` using IEEE 754 semantics.
+ *
+ *  @param x the first `Float` value to compare
+ *  @param y the second `Float` value to compare
+ *  @return `true` if `x` == `y`, `false` otherwise
+ */
+>>>>>>>
+
+<<<<<<< 41
+/** Returns the maximum of `x` and `y` using IEEE 754 semantics.
+ *
+ *  @tparam U a subtype of `Float`, used to preserve the specific type in the return value
+ *  @param x the first candidate value
+ *  @param y the second candidate value
+ *  @return the maximum of `x` and `y`
+ */
+>>>>>>>
+
+<<<<<<< 42
+/** Returns the minimum of `x` and `y` using IEEE 754 semantics.
+ *
+ *  @tparam U a subtype of `Float`, used to preserve the specific type in the return value
+ *  @param x the first candidate value
+ *  @param y the second candidate value
+ *  @return the minimum of `x` and `y`
+ */
+>>>>>>>
+
+<<<<<<< 43
+/** Compares two `Double` values using the total ordering.
+ *
+ *  @param x the first `Double` value to compare
+ *  @param y the second `Double` value to compare
+ */
+>>>>>>>
+
+<<<<<<< 44
+/** Compares two `Double` values using the total ordering.
+ *
+ *  @param x the first `Double` value to compare
+ *  @param y the second `Double` value to compare
+ */
+>>>>>>>
+
+<<<<<<< 45
+/** Returns true if `x` is less than or equal to `y` using IEEE 754 semantics.
+ *
+ *  @param x the first `Double` value to compare
+ *  @param y the second `Double` value to compare
+ *  @return `true` if `x` <= `y`, `false` otherwise
+ */
+>>>>>>>
+
+<<<<<<< 46
+/** Returns true if `x` is greater than or equal to `y` using IEEE 754 semantics.
+ *
+ *  @param x the first `Double` value to compare
+ *  @param y the second `Double` value to compare
+ *  @return `true` if `x` >= `y`, `false` otherwise
+ */
+>>>>>>>
+
+<<<<<<< 47
+/** Returns true if `x` is less than `y` using IEEE 754 semantics.
+ *
+ *  @param x the first `Double` value to compare
+ *  @param y the second `Double` value to compare
+ *  @return `true` if `x` < `y`, `false` otherwise
+ */
+>>>>>>>
+
+<<<<<<< 48
+/** Returns true if `x` is greater than `y` using IEEE 754 semantics.
+ *
+ *  @param x the first `Double` value to compare
+ *  @param y the second `Double` value to compare
+ *  @return `true` if `x` > `y`, `false` otherwise
+ */
+>>>>>>>
+
+<<<<<<< 49
+/** Returns true if `x` is equivalent to `y` using IEEE 754 semantics.
+ *
+ *  @param x the first `Double` value to compare
+ *  @param y the second `Double` value to compare
+ *  @return `true` if `x` == `y`, `false` otherwise
+ */
+>>>>>>>
+
+<<<<<<< 50
+/** Returns the maximum of `x` and `y` using IEEE 754 semantics.
+ *
+ *  @tparam U a subtype of `Double`, used to preserve the specific type in the return value
+ *  @param x the first candidate value
+ *  @param y the second candidate value
+ *  @return the maximum of `x` and `y`
+ */
+>>>>>>>
+
+<<<<<<< 51
+/** Returns the minimum of `x` and `y` using IEEE 754 semantics.
+ *
+ *  @tparam U a subtype of `Double`, used to preserve the specific type in the return value
+ *  @param x the first candidate value
+ *  @param y the second candidate value
+ *  @return the minimum of `x` and `y`
+ */
+>>>>>>>
+
+<<<<<<< 52
+/** An ordering for `BigInt` values.
+ */
+>>>>>>>
+
+<<<<<<< 53
+/** Compares two `BigInt` values.
+ *
+ *  @param x the first `BigInt` value to compare
+ *  @param y the second `BigInt` value to compare
+ */
+>>>>>>>
+
+<<<<<<< 54
+/** An ordering for `BigDecimal` values.
+ */
+>>>>>>>
+
+<<<<<<< 55
+/** Compares two `BigDecimal` values.
+ *
+ *  @param x the first `BigDecimal` value to compare
+ *  @param y the second `BigDecimal` value to compare
+ */
+>>>>>>>
+
+<<<<<<< 56
+/** An ordering for `String` values.
+ */
+>>>>>>>
+
+<<<<<<< 57
+/** Compares two `String` values.
+ *
+ *  @param x the first `String` value to compare
+ *  @param y the second `String` value to compare
+ */
+>>>>>>>
+
+<<<<<<< 58
+/** An ordering for `Symbol` values.
+ */
+>>>>>>>
+
+<<<<<<< 59
+/** Compares two `Symbol` values by their names.
+ *
+ *  @param x the first `Symbol` value to compare
+ *  @param y the second `Symbol` value to compare
+ *  @return a negative integer, zero, or a positive integer as `x` is less than, equal to, or greater than `y`
+ */
+>>>>>>>
+
+<<<<<<< 60
+/** An ordering for `Option` values.
+ *
+ *  @tparam T the type of the values contained in the `Option`
+ */
+>>>>>>>
+
+<<<<<<< 61
+/** The ordering used to compare the values contained in the `Option`.
+ */
+>>>>>>>
+
+<<<<<<< 62
+/** Compares two `Option` values.
+ *
+ *  @param x the first `Option` value to compare
+ *  @param y the second `Option` value to compare
+ */
+>>>>>>>
+
+<<<<<<< 63
+/** Returns whether the given object is equal to this ordering.
+ *
+ *  @param obj the object to compare with this ordering
+ *  @return `true` if `obj` is equal to this ordering, `false` otherwise
+ */
+>>>>>>>
+
+<<<<<<< 64
+/** Returns a hash code for this ordering.
+ */
+>>>>>>>
+
+<<<<<<< 65
+/** Creates an ordering for `Option` values using the given element ordering.
+ *
+ *  @tparam T the type of the values contained in the `Option`
+ *  @param ord the implicit `Ordering` used to compare the values contained in the `Option`
+ *  @return an `Ordering[Option[T]]` that compares `Option` values using `ord`
+ */
+>>>>>>>
+
+<<<<<<< 66
+/** Creates an ordering for `Iterable` values using the given element ordering.
+ *
+ *  @tparam T the type of the elements contained in the `Iterable`
+ *  @param ord the implicit `Ordering` used to compare elements of type `T`
+ *  @return an `Ordering[Iterable[T]]` that compares `Iterable` values lexicographically using `ord`
+ */
+>>>>>>>
+
+<<<<<<< 67
+/** Creates an ordering for tuples of two elements using the given element orderings.
+ *
+ *  @tparam T1 the type of the first element in the tuple
+ *  @tparam T2 the type of the second element in the tuple
+ *  @param ord1 the implicit `Ordering` used to compare the first element
+ *  @param ord2 the implicit `Ordering` used to compare the second element
+ *  @return an `Ordering[(T1, T2)]` that compares tuples lexicographically using `ord1` and `ord2`
+ */
+>>>>>>>
+
+<<<<<<< 68
+/** Compares two tuples of two elements lexicographically.
+ *
+ *  @param x the first tuple to compare
+ *  @param y the second tuple to compare
+ *  @return a negative integer, zero, or a positive integer as `x` is less than, equal to, or greater than `y`
+ */
+>>>>>>>
+
+<<<<<<< 69
+/** Returns whether the given object is equal to this ordering.
+ *
+ *  @param obj the object to compare with this ordering
+ *  @return `true` if `obj` is equal to this ordering, `false` otherwise
+ */
+>>>>>>>
+
+<<<<<<< 70
+/** Returns a hash code for this ordering.
+ */
+>>>>>>>
+
+<<<<<<< 71
+/** Creates an ordering for tuples of three elements using the given element orderings.
+ *
+ *  @tparam T1 the type of the first element in the tuple
+ *  @tparam T2 the type of the second element in the tuple
+ *  @tparam T3 the type of the third element in the tuple
+ *  @param ord1 the implicit `Ordering` used to compare the first element
+ *  @param ord2 the implicit `Ordering` used to compare the second element
+ *  @param ord3 the implicit `Ordering` used to compare the third element
+ *  @return an `Ordering[(T1, T2, T3)]` that compares tuples lexicographically using `ord1`, `ord2`, and `ord3`
+ */
+>>>>>>>
+
+<<<<<<< 72
+/** Compares two tuples of three elements lexicographically.
+ *
+ *  @param x the first tuple to compare
+ *  @param y the second tuple to compare
+ *  @return a negative integer, zero, or a positive integer as `x` is less than, equal to, or greater than `y`
+ */
+>>>>>>>
+
+<<<<<<< 73
+/** Returns whether the given object is equal to this ordering.
+ *
+ *  @param obj the object to compare with this ordering
+ *  @return `true` if `obj` is equal to this ordering, `false` otherwise
+ */
+>>>>>>>
+
+<<<<<<< 74
+/** Returns a hash code for this ordering.
+ */
+>>>>>>>
+
+<<<<<<< 75
+/** Creates an ordering for tuples of four elements using the given element orderings.
+ *
+ *  @tparam T1 the type of the first element in the tuple
+ *  @tparam T2 the type of the second element in the tuple
+ *  @tparam T3 the type of the third element in the tuple
+ *  @tparam T4 the type of the fourth element in the tuple
+ *  @param ord1 the implicit `Ordering` used to compare the first element
+ *  @param ord2 the implicit `Ordering` used to compare the second element
+ *  @param ord3 the implicit `Ordering` used to compare the third element
+ *  @param ord4 the implicit `Ordering` used to compare the fourth element
+ *  @return an `Ordering[(T1, T2, T3, T4)]` that compares tuples lexicographically using `ord1`, `ord2`, `ord3`, and `ord4`
+ */
+>>>>>>>
+
+<<<<<<< 76
+/** Compares two tuples of four elements lexicographically.
+ *
+ *  @param x the first tuple to compare
+ *  @param y the second tuple to compare
+ *  @return a negative integer, zero, or a positive integer as `x` is less than, equal to, or greater than `y`
+ */
+>>>>>>>
+
+<<<<<<< 77
+/** Returns whether the given object is equal to this ordering.
+ *
+ *  @param obj the object to compare with this ordering
+ *  @return `true` if `obj` is equal to this ordering, `false` otherwise
+ */
+>>>>>>>
+
+<<<<<<< 78
+/** Returns a hash code for this ordering.
+ */
+>>>>>>>
+
+<<<<<<< 79
+/** Creates an ordering for tuples of five elements using the given element orderings.
+ *
+ *  @tparam T1 the type of the first element in the tuple
+ *  @tparam T2 the type of the second element in the tuple
+ *  @tparam T3 the type of the third element in the tuple
+ *  @tparam T4 the type of the fourth element in the tuple
+ *  @tparam T5 the type of the fifth element in the tuple
+ *  @param ord1 the implicit `Ordering` used to compare the first element
+ *  @param ord2 the implicit `Ordering` used to compare the second element
+ *  @param ord3 the implicit `Ordering` used to compare the third element
+ *  @param ord4 the implicit `Ordering` used to compare the fourth element
+ *  @param ord5 the implicit `Ordering` used to compare the fifth element
+ *  @return an `Ordering[(T1, T2, T3, T4, T5)]` that compares tuples lexicographically using `ord1`, `ord2`, `ord3`, `ord4`, and `ord5`
+ */
+>>>>>>>
+
+<<<<<<< 80
+/** Compares two tuples of five elements lexicographically.
+ *
+ *  @param x the first tuple to compare
+ *  @param y the second tuple to compare
+ *  @return a negative integer, zero, or a positive integer as `x` is less than, equal to, or greater than `y`
+ */
+>>>>>>>
+
+<<<<<<< 81
+/** Returns whether the given object is equal to this ordering.
+ *
+ *  @param obj the object to compare with this ordering
+ *  @return `true` if `obj` is equal to this ordering, `false` otherwise
+ */
+>>>>>>>
+
+<<<<<<< 82
+/** Returns a hash code for this ordering.
+ */
+>>>>>>>
+
+<<<<<<< 83
+/** Creates an ordering for tuples of six elements using the given element orderings.
+ *
+ *  @tparam T1 the type of the first element in the tuple
+ *  @tparam T2 the type of the second element in the tuple
+ *  @tparam T3 the type of the third element in the tuple
+ *  @tparam T4 the type of the fourth element in the tuple
+ *  @tparam T5 the type of the fifth element in the tuple
+ *  @tparam T6 the type of the sixth element in the tuple
+ *  @param ord1 the implicit `Ordering` used to compare the first element
+ *  @param ord2 the implicit `Ordering` used to compare the second element
+ *  @param ord3 the implicit `Ordering` used to compare the third element
+ *  @param ord4 the implicit `Ordering` used to compare the fourth element
+ *  @param ord5 the implicit `Ordering` used to compare the fifth element
+ *  @param ord6 the implicit `Ordering` used to compare the sixth element
+ *  @return an `Ordering[(T1, T2, T3, T4, T5, T6)]` that compares tuples lexicographically using `ord1`, `ord2`, `ord3`, `ord4`, `ord5`, and `ord6`
+ */
+>>>>>>>
+
+<<<<<<< 84
+/** Compares two tuples of six elements lexicographically.
+ *
+ *  @param x the first tuple to compare
+ *  @param y the second tuple to compare
+ *  @return a negative integer, zero, or a positive integer as `x` is less than, equal to, or greater than `y`
+ */
+>>>>>>>
+
+<<<<<<< 85
+/** Returns whether the given object is equal to this ordering.
+ *
+ *  @param obj the object to compare with this ordering
+ *  @return `true` if `obj` is equal to this ordering, `false` otherwise
+ */
+>>>>>>>
+
+<<<<<<< 86
+/** Returns a hash code for this ordering.
+ */
+>>>>>>>
+
+<<<<<<< 87
+/** Creates an ordering for tuples of seven elements using the given element orderings.
+ *
+ *  @tparam T1 the type of the first element in the tuple
+ *  @tparam T2 the type of the second element in the tuple
+ *  @tparam T3 the type of the third element in the tuple
+ *  @tparam T4 the type of the fourth element in the tuple
+ *  @tparam T5 the type of the fifth element in the tuple
+ *  @tparam T6 the type of the sixth element in the tuple
+ *  @tparam T7 the type of the seventh element in the tuple
+ *  @param ord1 the implicit `Ordering` used to compare the first element
+ *  @param ord2 the implicit `Ordering` used to compare the second element
+ *  @param ord3 the implicit `Ordering` used to compare the third element
+ *  @param ord4 the implicit `Ordering` used to compare the fourth element
+ *  @param ord5 the implicit `Ordering` used to compare the fifth element
+ *  @param ord6 the implicit `Ordering` used to compare the sixth element
+ *  @param ord7 the implicit `Ordering` used to compare the seventh element
+ *  @return an `Ordering[(T1, T2, T3, T4, T5, T6, T7)]` that compares tuples lexicographically using `ord1`, `ord2`, `ord3`, `ord4`, `ord5`, `ord6`, and `ord7`
+ */
+>>>>>>>
+
+<<<<<<< 88
+/** Compares two tuples of seven elements lexicographically.
+ *
+ *  @param x the first tuple to compare
+ *  @param y the second tuple to compare
+ *  @return a negative integer, zero, or a positive integer as `x` is less than, equal to, or greater than `y`
+ */
+>>>>>>>
+
+<<<<<<< 89
+/** Returns whether the given object is equal to this ordering.
+ *
+ *  @param obj the object to compare with this ordering
+ *  @return `true` if `obj` is equal to this ordering, `false` otherwise
+ */
+>>>>>>>
+
+<<<<<<< 90
+/** Returns a hash code for this ordering.
+ */
+>>>>>>>
+
+<<<<<<< 91
+/** Creates an ordering for tuples of eight elements using the given element orderings.
+ *
+ *  @tparam T1 the type of the first element in the tuple
+ *  @tparam T2 the type of the second element in the tuple
+ *  @tparam T3 the type of the third element in the tuple
+ *  @tparam T4 the type of the fourth element in the tuple
+ *  @tparam T5 the type of the fifth element in the tuple
+ *  @tparam T6 the type of the sixth element in the tuple
+ *  @tparam T7 the type of the seventh element in the tuple
+ *  @tparam T8 the type of the eighth element in the tuple
+ *  @param ord1 the implicit `Ordering` used to compare the first element
+ *  @param ord2 the implicit `Ordering` used to compare the second element
+ *  @param ord3 the implicit `Ordering` used to compare the third element
+ *  @param ord4 the implicit `Ordering` used to compare the fourth element
+ *  @param ord5 the implicit `Ordering` used to compare the fifth element
+ *  @param ord6 the implicit `Ordering` used to compare the sixth element
+ *  @param ord7 the implicit `Ordering` used to compare the seventh element
+ *  @param ord8 the implicit `Ordering` used to compare the eighth element
+ *  @return an `Ordering[(T1, T2, T3, T4, T5, T6, T7, T8)]` that compares tuples lexicographically using `ord1`, `ord2`, `ord3`, `ord4`, `ord5`, `ord6`, `ord7`, and `ord8`
+ */
+>>>>>>>
+
+<<<<<<< 92
+/** Compares two tuples of eight elements lexicographically.
+ *
+ *  @param x the first tuple to compare
+ *  @param y the second tuple to compare
+ *  @return a negative integer, zero, or a positive integer as `x` is less than, equal to, or greater than `y`
+ */
+>>>>>>>
+
+<<<<<<< 93
+/** Returns whether the given object is equal to this ordering.
+ *
+ *  @param obj the object to compare with this ordering
+ *  @return `true` if `obj` is equal to this ordering, `false` otherwise
+ */
+>>>>>>>
+
+<<<<<<< 94
+/** Returns a hash code for this ordering.
+ */
+>>>>>>>
+
+<<<<<<< 95
+/** Creates an ordering for tuples of nine elements using the given element orderings.
+ *
+ *  @tparam T1 the type of the first element in the tuple
+ *  @tparam T2 the type of the second element in the tuple
+ *  @tparam T3 the type of the third element in the tuple
+ *  @tparam T4 the type of the fourth element in the tuple
+ *  @tparam T5 the type of the fifth element in the tuple
+ *  @tparam T6 the type of the sixth element in the tuple
+ *  @tparam T7 the type of the seventh element in the tuple
+ *  @tparam T8 the type of the eighth element in the tuple
+ *  @tparam T9 the type of the ninth element in the tuple
+ *  @param ord1 the implicit `Ordering` used to compare the first element
+ *  @param ord2 the implicit `Ordering` used to compare the second element
+ *  @param ord3 the implicit `Ordering` used to compare the third element
+ *  @param ord4 the implicit `Ordering` used to compare the fourth element
+ *  @param ord5 the implicit `Ordering` used to compare the fifth element
+ *  @param ord6 the implicit `Ordering` used to compare the sixth element
+ *  @param ord7 the implicit `Ordering` used to compare the seventh element
+ *  @param ord8 the implicit `Ordering` used to compare the eighth element
+ *  @param ord9 the implicit `Ordering` used to compare the ninth element
+ *  @return an `Ordering[(T1, T2, T3, T4, T5, T6, T7, T8, T9)]` that compares tuples lexicographically using `ord1`, `ord2`, `ord3`, `ord4`, `ord5`, `ord6`, `ord7`, `ord8`, and `ord9`
+ */
+>>>>>>>
+
+<<<<<<< 96
+/** Compares two tuples of nine elements lexicographically.
+ *
+ *  @param x the first tuple to compare
+ *  @param y the second tuple to compare
+ *  @return a negative integer, zero, or a positive integer as `x` is less than, equal to, or greater than `y`
+ */
+>>>>>>>
+
+<<<<<<< 97
+/** Returns whether the given object is equal to this ordering.
+ *
+ *  @param obj the object to compare with this ordering
+ *  @return `true` if `obj` is equal to this ordering, `false` otherwise
+ */
+>>>>>>>
+
+<<<<<<< 98
+/** Returns a hash code for this ordering.
+ */
+>>>>>>>

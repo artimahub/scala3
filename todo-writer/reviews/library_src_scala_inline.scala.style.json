@@ -1,0 +1,13 @@
+{
+  "verdict": "approve",
+  "findings": [
+    {
+      "declaration": "class inline (first-sentence rewrite)",
+      "severity": "nit",
+      "confidence": "medium",
+      "needs_human": false,
+      "comment": "\"the call at the annotated callsite\" is slightly redundant — a callsite is already the location of a call, so \"the call at the callsite\" is tautological. A tighter phrasing would be \"the annotated method or callsite\" (dropping \"the call at\"). Not a blocker; the meaning is clear."
+    }
+  ],
+  "bonus_findings": []
+}

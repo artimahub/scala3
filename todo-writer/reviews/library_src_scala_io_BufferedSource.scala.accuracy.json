@@ -1,0 +1,1 @@
+{"verdict":"approve","summary":"The added Scaladoc matches the implementation for the reviewed declarations.","items":[],"bonus_findings":[{"symbol":"BufferedSource","line":27,"issue":"Pre-existing class documentation says \"This object\" even though BufferedSource is a class.","suggestion":"Change \"This object\" to \"This class\"."}]}

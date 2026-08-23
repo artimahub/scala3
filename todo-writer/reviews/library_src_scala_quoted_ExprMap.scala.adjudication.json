@@ -1,0 +1,48 @@
+{
+  "verdict": "revise",
+  "summary": "Two blockers stand: the type-tree list helpers' `owner` tags omit that the parameter has no effect; the rest are style nits.",
+  "resolved_items": [
+    {
+      "symbol": "transformTypeTrees",
+      "line": 267,
+      "severity": "blocker",
+      "instruction": "State that `owner` is passed to `transformTypeTree`, which ignores it, so its value has no effect.",
+      "raised_by": "accuracy",
+      "needs_human": false
+    },
+    {
+      "symbol": "transformTypeCaseDefs",
+      "line": 285,
+      "severity": "blocker",
+      "instruction": "State that `owner` is passed through `transformTypeCaseDef` to `transformTypeTree`, which ignores it, so its value has no effect.",
+      "raised_by": "accuracy",
+      "needs_human": false
+    },
+    {
+      "symbol": "ExprMap",
+      "line": 6,
+      "severity": "nit",
+      "instruction": "Reword the trait summary as a declarative, verb-first sentence, e.g. \"Maps quoted expressions to expressions of the same type.\"",
+      "raised_by": "accuracy",
+      "needs_human": false
+    },
+    {
+      "symbol": "transformChildren",
+      "line": 18,
+      "severity": "nit",
+      "instruction": "Reword the `@return` from present-perfect (\"have been replaced\") to simple present (\"are replaced\") for tense consistency with the rest of the file.",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "transformStatement",
+      "line": 42,
+      "severity": "nit",
+      "instruction": "Optionally reword the repeated `@param owner the symbol that owns \\`tree\\`` tag (applies to all 4 occurrences, lines 42, 90, 167, 200) to something like \"the current owner symbol in whose scope `tree` is transformed\" for precision.",
+      "raised_by": "style",
+      "needs_human": false
+    }
+  ],
+  "disagreements": []
+}
+

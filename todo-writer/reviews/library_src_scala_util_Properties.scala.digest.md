@@ -1,0 +1,131 @@
+# Doc review digest: library/src/scala/util/Properties.scala
+
+- models: writer devstral-2512 | accuracy mistral-medium-2508 | style mistral-large-2512 | adjudicator devstral-2512
+- converged: false (up to 2 rounds)
+- final refinement after review limit: true (not re-reviewed)
+- accuracy verdict: approve
+- style verdict: revise
+- ADJUDICATOR verdict (final): revise
+
+## Reviewer disagreements the adjudicator settled
+
+- L59 `propIsSet` -> ruled for **style**
+  - accuracy: 
+  - style: Add an `@return` tag: '@return `true` if the system property is set (non-null), `false` otherwise.'
+  - why: The `@return` tag is necessary to fully describe the return value, which is not covered in the description.
+- L65 `propIsSetTo` -> ruled for **style**
+  - accuracy: 
+  - style: Add an `@return` tag: '@return `true` if the system property is set to the given value, `false` otherwise.'
+  - why: The `@return` tag is necessary to fully describe the return value, which is not covered in the description.
+- L70 `propOrNone` -> ruled for **style**
+  - accuracy: 
+  - style: Add an `@return` tag: '@return `Some(value)` if the system property is set, `None` otherwise.'
+  - why: The `@return` tag is necessary to fully describe the return value, which is not covered in the description.
+- L75 `propOrElse` -> ruled for **style**
+  - accuracy: 
+  - style: Add an `@return` tag: '@return the value of the system property if set, otherwise the result of evaluating `alt`.'
+  - why: The `@return` tag is necessary to fully describe the return value, which is not covered in the description.
+- L80 `propOrEmpty` -> ruled for **style**
+  - accuracy: 
+  - style: Add an `@return` tag: '@return the value of the system property if set, otherwise an empty string.'
+  - why: The `@return` tag is necessary to fully describe the return value, which is not covered in the description.
+- L85 `propOrNull` -> ruled for **style**
+  - accuracy: 
+  - style: Add an `@return` tag: '@return the value of the system property if set, otherwise `null`.'
+  - why: The `@return` tag is necessary to fully describe the return value, which is not covered in the description.
+- L90 `propOrFalse` -> ruled for **style**
+  - accuracy: 
+  - style: Add an `@return` tag: '@return `true` if the system property is set to 'yes', 'on', or 'true' (case-insensitive), `false` otherwise.'
+  - why: The `@return` tag is necessary to fully describe the return value, which is not covered in the description.
+- L95 `setProp` -> ruled for **style**
+  - accuracy: 
+  - style: Add an `@return` tag: '@return the previous value of the system property, or `null` if it was not set.'
+  - why: The `@return` tag is necessary to fully describe the return value, which is not covered in the description.
+- L100 `clearProp` -> ruled for **style**
+  - accuracy: 
+  - style: Add an `@return` tag: '@return the previous value of the system property, or `null` if it was not set.'
+  - why: The `@return` tag is necessary to fully describe the return value, which is not covered in the description.
+- L105 `envOrElse` -> ruled for **style**
+  - accuracy: 
+  - style: Add an `@return` tag: '@return the value of the environment variable if set, otherwise the result of evaluating `alt`.'
+  - why: The `@return` tag is necessary to fully describe the return value, which is not covered in the description.
+- L110 `envOrNone` -> ruled for **style**
+  - accuracy: 
+  - style: Add an `@return` tag: '@return `Some(value)` if the environment variable is set, `None` otherwise.'
+  - why: The `@return` tag is necessary to fully describe the return value, which is not covered in the description.
+- L115 `envOrSome` -> ruled for **style**
+  - accuracy: 
+  - style: Add an `@return` tag: '@return `Some(value)` if the environment variable is set, otherwise the result of evaluating `alt`.'
+  - why: The `@return` tag is necessary to fully describe the return value, which is not covered in the description.
+- L122 `scalaPropOrElse` -> ruled for **style**
+  - accuracy: 
+  - style: Add an `@return` tag: '@return the value of the Scala property if set, otherwise the result of evaluating `alt`.'
+  - why: The `@return` tag is necessary to fully describe the return value, which is not covered in the description.
+- L127 `scalaPropOrEmpty` -> ruled for **style**
+  - accuracy: 
+  - style: Add an `@return` tag: '@return the value of the Scala property if set, otherwise an empty string.'
+  - why: The `@return` tag is necessary to fully describe the return value, which is not covered in the description.
+- L132 `scalaPropOrNone` -> ruled for **style**
+  - accuracy: 
+  - style: Add an `@return` tag: '@return `Some(value)` if the Scala property is set in `scalaProps` or as a system property with the 'scala.' prefix, `None` otherwise.'
+  - why: The `@return` tag is necessary to fully describe the return value, which is not covered in the description.
+- L167 `copyrightString` -> ruled for **style**
+  - accuracy: 
+  - style: Clarify the purpose, e.g., 'The copyright notice included in version messages and other runtime outputs.'
+  - why: The clarification improves the documentation without conflicting with accuracy.
+- L173 `sourceReader` -> ruled for **style**
+  - accuracy: 
+  - style: Clarify the purpose, e.g., 'The class name of the default source reader used by the Scala compiler to read source files.'
+  - why: The clarification improves the documentation without conflicting with accuracy.
+- L253 `jdkHome` -> ruled for **style**
+  - accuracy: 
+  - style: Clarify the priority, e.g., 'The JDK home directory, determined by the `JDK_HOME` environment variable if set, otherwise the `JAVA_HOME` environment variable, and finally the `java.home` system property.'
+  - why: The clarification improves the documentation without conflicting with accuracy.
+- L258 `versionMsg` -> ruled for **style**
+  - accuracy: 
+  - style: Clarify the purpose, e.g., 'The version message displayed by the Scala runtime, including the version number and copyright notice.'
+  - why: The clarification improves the documentation without conflicting with accuracy.
+- L260 `scalaCmd` -> ruled for **style**
+  - accuracy: 
+  - style: Clarify the purpose, e.g., 'The name of the script or batch file used to launch the Scala REPL, adjusted for the operating system.'
+  - why: The clarification improves the documentation without conflicting with accuracy.
+- L262 `scalacCmd` -> ruled for **style**
+  - accuracy: 
+  - style: Clarify the purpose, e.g., 'The name of the script or batch file used to launch the Scala compiler, adjusted for the operating system.'
+  - why: The clarification improves the documentation without conflicting with accuracy.
+- L327 `main` -> ruled for **style**
+  - accuracy: 
+  - style: Clarify the side effect: 'Prints the version message to the standard error stream.'
+  - why: The clarification improves the documentation without conflicting with accuracy.
+
+## Outstanding worklist at the end
+
+- L59 `propIsSet` [blocker/style]: Add an `@return` tag: '@return `true` if the system property is set (non-null), `false` otherwise.'
+- L65 `propIsSetTo` [blocker/style]: Add an `@return` tag: '@return `true` if the system property is set to the given value, `false` otherwise.'
+- L70 `propOrNone` [blocker/style]: Add an `@return` tag: '@return `Some(value)` if the system property is set, `None` otherwise.'
+- L75 `propOrElse` [blocker/style]: Add an `@return` tag: '@return the value of the system property if set, otherwise the result of evaluating `alt`.'
+- L80 `propOrEmpty` [blocker/style]: Add an `@return` tag: '@return the value of the system property if set, otherwise an empty string.'
+- L85 `propOrNull` [blocker/style]: Add an `@return` tag: '@return the value of the system property if set, otherwise `null`.'
+- L90 `propOrFalse` [blocker/style]: Add an `@return` tag: '@return `true` if the system property is set to 'yes', 'on', or 'true' (case-insensitive), `false` otherwise.'
+- L95 `setProp` [blocker/style]: Add an `@return` tag: '@return the previous value of the system property, or `null` if it was not set.'
+- L100 `clearProp` [blocker/style]: Add an `@return` tag: '@return the previous value of the system property, or `null` if it was not set.'
+- L105 `envOrElse` [blocker/style]: Add an `@return` tag: '@return the value of the environment variable if set, otherwise the result of evaluating `alt`.'
+- L110 `envOrNone` [blocker/style]: Add an `@return` tag: '@return `Some(value)` if the environment variable is set, `None` otherwise.'
+- L115 `envOrSome` [blocker/style]: Add an `@return` tag: '@return `Some(value)` if the environment variable is set, otherwise the result of evaluating `alt`.'
+- L122 `scalaPropOrElse` [blocker/style]: Add an `@return` tag: '@return the value of the Scala property if set, otherwise the result of evaluating `alt`.'
+- L127 `scalaPropOrEmpty` [blocker/style]: Add an `@return` tag: '@return the value of the Scala property if set, otherwise an empty string.'
+- L132 `scalaPropOrNone` [blocker/style]: Add an `@return` tag: '@return `Some(value)` if the Scala property is set in `scalaProps` or as a system property with the 'scala.' prefix, `None` otherwise.'
+- L327 `main` [blocker/style]: Clarify the side effect: 'Prints the version message to the standard error stream.'
+- L24 `propCategory` [nit/style]: Rewrite the first sentence to describe what the property category is used for, e.g., 'Determines the base name of the properties file to load from the JAR.'
+- L26 `pickJarBasedOn` [nit/style]: Clarify the purpose, e.g., 'The class used to locate the JAR file containing the properties file, typically a class from the Scala library.'
+- L33 `propCategory` [nit/style]: Rewrite the first sentence to describe its purpose, e.g., 'Determines the base name of the properties file to load for this trait.'
+- L35 `pickJarBasedOn` [nit/style]: Clarify the purpose, e.g., 'The class used to locate the JAR file containing the properties file for this trait.'
+- L167 `copyrightString` [nit/style]: Clarify the purpose, e.g., 'The copyright notice included in version messages and other runtime outputs.'
+- L173 `sourceReader` [nit/style]: Clarify the purpose, e.g., 'The class name of the default source reader used by the Scala compiler to read source files.'
+- L253 `jdkHome` [nit/style]: Clarify the priority, e.g., 'The JDK home directory, determined by the `JDK_HOME` environment variable if set, otherwise the `JAVA_HOME` environment variable, and finally the `java.home` system property.'
+- L258 `versionMsg` [nit/style]: Clarify the purpose, e.g., 'The version message displayed by the Scala runtime, including the version number and copyright notice.'
+- L260 `scalaCmd` [nit/style]: Clarify the purpose, e.g., 'The name of the script or batch file used to launch the Scala REPL, adjusted for the operating system.'
+- L262 `scalacCmd` [nit/style]: Clarify the purpose, e.g., 'The name of the script or batch file used to launch the Scala compiler, adjusted for the operating system.'
+
+## Inline NEEDS-HUMAN markers left in source
+(none)

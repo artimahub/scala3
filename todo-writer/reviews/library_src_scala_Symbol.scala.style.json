@@ -1,0 +1,64 @@
+{
+  "verdict": "approve",
+  "needs_human": false,
+  "items": [
+    {
+      "declaration": "Symbol#hashCode",
+      "severity": "ok",
+      "confidence": "high",
+      "notes": "Accurate; matches `name.hashCode()`."
+    },
+    {
+      "declaration": "Symbol#equals",
+      "severity": "ok",
+      "confidence": "high",
+      "notes": "`this eq other.asInstanceOf[AnyRef]` correctly described as identity comparison; the interning rationale is accurate given the private constructor forces all instances through `Symbol.apply`, consistent with the pre-existing class doc."
+    },
+    {
+      "declaration": "Symbol.apply",
+      "severity": "ok",
+      "confidence": "high",
+      "notes": "First sentence starts with 'Returns' and fully states the return, so dropping @return is correct per house rule; behavior matches `super.apply` (construct-and-cache-if-absent)."
+    },
+    {
+      "declaration": "Symbol.valueFromKey",
+      "severity": "nit",
+      "confidence": "medium",
+      "notes": "'bypassing the cache' is a little misleading in isolation: this method is the one whose result the cache then interns (called from `UniquenessCache.updateCache` right before `map.put`), not a way to opt out of caching. It only skips the cache *lookup*, not caching itself. The @return tag ('for the cache to intern') mostly rescues this, but the first sentence alone could mislead a skimming reader. Consider e.g. 'Constructs a fresh symbol for the given name, without consulting the cache.'"
+    },
+    {
+      "declaration": "Symbol.keyFromValue",
+      "severity": "ok",
+      "confidence": "high",
+      "notes": "Accurate and appropriately more specific than the abstract contract (always `Some`, never `None`)."
+    },
+    {
+      "declaration": "UniquenessCache.valueFromKey (abstract)",
+      "severity": "ok",
+      "confidence": "high",
+      "notes": "Accurate abstract contract description."
+    },
+    {
+      "declaration": "UniquenessCache.keyFromValue (abstract)",
+      "severity": "ok",
+      "confidence": "high",
+      "notes": "Accurate abstract contract description, correctly leaves open the `None` case that Symbol's override forecloses."
+    },
+    {
+      "declaration": "UniquenessCache.apply",
+      "severity": "ok",
+      "confidence": "high",
+      "notes": "Weak-reference reconstruction and read/write-lock claims both verified against the implementation; @return correctly dropped since the first sentence fully states it."
+    },
+    {
+      "declaration": "UniquenessCache.unapply",
+      "severity": "ok",
+      "confidence": "high",
+      "notes": "Accurate; matches `keyFromValue(other)` delegation."
+    }
+  ],
+  "bonus_findings": []
+}
+
+
+No blockers or `NEEDS-HUMAN` markers. One nit on `Symbol.valueFromKey`'s "bypassing the cache" phrasing, which is ambiguous but not wrong enough to block given the clarifying `@return`.

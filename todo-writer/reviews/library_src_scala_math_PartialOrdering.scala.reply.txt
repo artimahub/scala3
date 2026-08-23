@@ -1,0 +1,14 @@
+<<<<<<< 1
+/** Returns a new `PartialOrdering` that reverses the order of this one.
+ *
+ *  The returned ordering satisfies `reverse.lteq(x, y) == lteq(y, x)`.
+ */
+>>>>>>>
+
+<<<<<<< 2
+/** Returns the given `PartialOrdering` instance.
+ *
+ *  @tparam T the type of elements being ordered
+ *  @param ev the implicit `PartialOrdering[T]` to return
+ */
+>>>>>>>

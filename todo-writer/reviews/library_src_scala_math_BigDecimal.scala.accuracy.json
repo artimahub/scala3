@@ -1,0 +1,34 @@
+{
+  "verdict": "revise",
+  "summary": "Checked every doc added in the diff (defaultMathContext, all 8 RoundingMode values, the 15 new @throws tags, the 5 isValidX docs, isWhole, underlying, the auxiliary constructor, and the setScale(scale, mode) doc) against the actual implementations. Most are accurate, but the auxiliary constructor omits the IllegalArgumentException the class body actually throws for a null bigDecimal (the sibling companion apply(bd) got this tag correctly, the constructor did not), and setScale(scale, mode) has a redundant @return plus a missing NullPointerException tag for a null mode.",
+  "items": [
+    {
+      "symbol": "BigDecimal.this(bigDecimal: BigDec)",
+      "line": 477,
+      "severity": "blocker",
+      "issue": "The doc has no @throws, but this constructor delegates to the primary constructor `this(bigDecimal, BigDecimal.defaultMathContext)`, whose body executes `if (bigDecimal eq null) throw new IllegalArgumentException(\"null value for BigDecimal\")`. Passing a null bigDecimal here throws IllegalArgumentException, exactly the case the sibling `BigDecimal.apply(bd: BigDec)` (line 386, same diff) documents correctly with `@throws java.lang.IllegalArgumentException if `bd` is `null``. The constructor doc omits this.",
+      "suggestion": "Add `@throws java.lang.IllegalArgumentException if `bigDecimal` is `null`` to this constructor's doc, matching `BigDecimal.apply(bd: BigDec)`.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "BigDecimal.setScale(scale: Int, mode: RoundingMode)",
+      "line": 776,
+      "severity": "nit",
+      "issue": "The @return (\"a BigDecimal with the specified scale, rounded according to the given mode\") just restates the first sentence of the description (\"Returns a BigDecimal with the specified scale, using the given rounding mode.\"), which already fully states the return value. Per the @return DROP rule this tag adds nothing.",
+      "suggestion": "Drop the @return tag, since the description already begins with \"Returns\" and states the full return value.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "BigDecimal.setScale(scale: Int, mode: RoundingMode)",
+      "line": 776,
+      "severity": "nit",
+      "issue": "Only @throws ArithmeticException is documented, but the body calls `JRM.valueOf(mode.id)`, so a null `mode` throws NullPointerException before the ArithmeticException case is ever reached. This diff documents the analogous null-reference-argument NPE for every other reference-typed parameter in the file (12 occurrences of the `that` pattern plus 3 of the `x` pattern), so omitting it here for `mode` is an inconsistency.",
+      "suggestion": "Add `@throws java.lang.NullPointerException if `mode` is `null`` alongside the existing ArithmeticException tag.",
+      "confidence": "medium",
+      "needs_human": false
+    }
+  ],
+  "bonus_findings": []
+}

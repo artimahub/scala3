@@ -1,0 +1,281 @@
+{"verdict":"revise","summary":"Multiple blockers found in accuracy and style, including incorrect claims about behavior, missing edge cases, and Scaladoc convention violations.","items":[
+{
+  "symbol": "timeUnitName",
+  "line": 104,
+  "severity": "blocker",
+  "issue": "The `@return` tag description is redundant with the first sentence. The first sentence already states the return value ('A mapping from TimeUnit to its standard string representation'), making the `@return` tag unnecessary. Additionally, the description does not specify which standard string representation is used (e.g., the last word of the label, as implemented).",
+  "suggestion": "Remove the `@return` tag and clarify the first sentence to specify the mapping is to the last word of the `timeUnitLabels` entry. Example: 'A mapping from `TimeUnit` to its standard string representation (the last word of its label in `timeUnitLabels`).'",
+  "confidence": "high",
+  "needs_human": false
+},
+{
+  "symbol": "timeUnit",
+  "line": 110,
+  "severity": "blocker",
+  "issue": "The `@return` tag description is redundant with the first sentence. The first sentence already states the return value ('A mapping from string representations to TimeUnit values'), making the `@return` tag unnecessary. Additionally, the description does not mention that the mapping includes all expanded labels (e.g., plural forms, abbreviations) from `timeUnitLabels`.",
+  "suggestion": "Remove the `@return` tag and clarify the first sentence to specify the mapping includes all expanded labels. Example: 'A mapping from string representations (including all expanded labels such as plural forms and abbreviations) to `TimeUnit` values.'",
+  "confidence": "high",
+  "needs_human": false
+},
+{
+  "symbol": "Infinite.+",
+  "line": 215,
+  "severity": "blocker",
+  "issue": "The `@return` tag is missing for the `+` method, which is required because the first sentence does not begin with 'Returns' and does not fully describe the return behavior. The description omits the case where `other` is `Undefined` or a different `Infinite`, which returns `Undefined`.",
+  "suggestion": "Add an `@return` tag describing all edge cases. Example: '@return the sum of the two durations according to Double semantics: `Undefined` if `other` is `Undefined` or a different `Infinite`, otherwise `this`.'",
+  "confidence": "high",
+  "needs_human": false
+},
+{
+  "symbol": "Infinite.-",
+  "line": 228,
+  "severity": "blocker",
+  "issue": "The `@return` tag is missing for the `-` method, which is required because the first sentence does not begin with 'Returns' and does not fully describe the return behavior. The description omits the case where `other` is `Undefined` or the same `Infinite`, which returns `Undefined`.",
+  "suggestion": "Add an `@return` tag describing all edge cases. Example: '@return the difference of the two durations according to Double semantics: `Undefined` if `other` is `Undefined` or the same `Infinite`, otherwise `this`.'",
+  "confidence": "high",
+  "needs_human": false
+},
+{
+  "symbol": "Infinite.*",
+  "line": 240,
+  "severity": "blocker",
+  "issue": "The description claims 'Multiplying by zero results in Undefined', but the implementation also returns `Undefined` for `NaN`. The description omits this edge case. Additionally, the `@return` tag is missing, which is required because the first sentence does not begin with 'Returns'.",
+  "suggestion": "Update the description to include `NaN` and add an `@return` tag. Example: 'Multiplying by zero or `NaN` results in `Undefined`; multiplying by a negative factor negates the infinite duration; multiplying by a positive factor returns the same infinite duration.' Then add '@return the scaled infinite duration according to Double semantics.'",
+  "confidence": "high",
+  "needs_human": false
+},
+{
+  "symbol": "Infinite./(Double)",
+  "line": 250,
+  "severity": "blocker",
+  "issue": "The description claims 'Dividing by NaN or infinity results in Undefined', but the implementation only checks for `NaN` or infinite `divisor`. The description is misleading because it implies all infinite divisors are handled, but the code only checks for `divisor.isInfinite`. Additionally, the `@return` tag is missing, which is required because the first sentence does not begin with 'Returns'.",
+  "suggestion": "Clarify the description to match the implementation and add an `@return` tag. Example: 'Dividing by `NaN` or a divisor with magnitude infinity results in `Undefined`; dividing by a negative divisor negates the infinite duration; dividing by a positive divisor returns the same infinite duration.' Then add '@return the divided infinite duration according to Double semantics.'",
+  "confidence": "high",
+  "needs_human": false
+},
+{
+  "symbol": "Infinite./(Duration)",
+  "line": 260,
+  "severity": "blocker",
+  "issue": "The description claims 'Dividing by another infinite duration results in NaN', but the implementation returns `NaN` only if `divisor` is an `Infinite`. The description does not specify the sign of the result when dividing by a finite duration (it depends on the signs of `this` and `divisor`). Additionally, the `@return` tag is missing, which is required because the first sentence does not begin with 'Returns'.",
+  "suggestion": "Clarify the description to specify the sign logic and add an `@return` tag. Example: 'Dividing by another infinite duration results in `NaN`; dividing by a finite duration results in positive or negative infinity, with the sign determined by the XOR of the signs of `this` and `divisor`.' Then add '@return the quotient as a `Double` according to Double semantics.'",
+  "confidence": "high",
+  "needs_human": false
+},
+{
+  "symbol": "Infinite.isFinite",
+  "line": 272,
+  "severity": "nit",
+  "issue": "The first sentence is redundant with the `@return` tag. The `@return` tag is sufficient here, and the first sentence can be dropped to avoid repetition.",
+  "suggestion": "Remove the first sentence and keep only the `@return` tag.",
+  "confidence": "high",
+  "needs_human": false
+},
+{
+  "symbol": "Infinite.length",
+  "line": 277,
+  "severity": "nit",
+  "issue": "The first sentence is redundant with the `@throws` tag. The `@throws` tag already describes the behavior, and the first sentence can be dropped to avoid repetition.",
+  "suggestion": "Remove the first sentence and keep only the `@throws` tag.",
+  "confidence": "high",
+  "needs_human": false
+},
+{
+  "symbol": "Infinite.toCoarsest",
+  "line": 312,
+  "severity": "nit",
+  "issue": "The first sentence is redundant with the `@return` tag. The `@return` tag is sufficient here, and the first sentence can be dropped to avoid repetition.",
+  "suggestion": "Remove the first sentence and keep only the `@return` tag.",
+  "confidence": "high",
+  "needs_human": false
+},
+{
+  "symbol": "DurationIsOrdered.compare",
+  "line": 427,
+  "severity": "blocker",
+  "issue": "The description does not specify that `Undefined` is considered greater than all other durations, which is a critical edge case for the ordering. The implementation (`a compare b`) relies on `Duration.compare`, which treats `Undefined` as the largest value.",
+  "suggestion": "Update the description to explicitly state the ordering of `Undefined`. Example: 'Compares two durations according to their natural ordering, where `Undefined` is considered greater than all other durations.'",
+  "confidence": "high",
+  "needs_human": false
+},
+{
+  "symbol": "FiniteDuration.apply(Long, TimeUnit)",
+  "line": 735,
+  "severity": "blocker",
+  "issue": "The description does not mention that the method throws an `IllegalArgumentException` if the resulting duration exceeds the bounds of a `FiniteDuration` (as enforced by `checkBounds`). This is a material exception that callers must know about.",
+  "suggestion": "Add an `@throws` tag to document the exception. Example: '@throws IllegalArgumentException if the resulting duration exceeds the bounds of a `FiniteDuration` (ca. ±292 years).'",
+  "confidence": "high",
+  "needs_human": false
+},
+{
+  "symbol": "FiniteDuration.apply(Long, String)",
+  "line": 742,
+  "severity": "blocker",
+  "issue": "The description does not mention that the method throws an `IllegalArgumentException` if the `unit` string is not recognized or if the resulting duration exceeds the bounds of a `FiniteDuration`. These are material exceptions that callers must know about.",
+  "suggestion": "Add `@throws` tags to document the exceptions. Example: '@throws IllegalArgumentException if the `unit` string is not recognized or if the resulting duration exceeds the bounds of a `FiniteDuration` (ca. ±292 years).'",
+  "confidence": "high",
+  "needs_human": false
+},
+{
+  "symbol": "FiniteDuration.toUnit",
+  "line": 835,
+  "severity": "blocker",
+  "issue": "The description does not specify that the method throws an `ArithmeticException` if the conversion to the target unit results in a value that cannot be represented as a `Double` (e.g., extremely large durations). This is a material exception that callers must know about.",
+  "suggestion": "Add an `@throws` tag to document the exception. Example: '@throws ArithmeticException if the conversion to the target unit results in a value that cannot be represented as a `Double`.'",
+  "confidence": "medium",
+  "needs_human": false
+},
+{
+  "symbol": "FiniteDuration.compare",
+  "line": 842,
+  "severity": "nit",
+  "issue": "The `@return` tag is redundant with the first sentence. The first sentence already describes the return value ('Compares this finite duration with another duration'), and the `@return` tag does not add new information.",
+  "suggestion": "Remove the `@return` tag and keep the first sentence.",
+  "confidence": "high",
+  "needs_human": false
+},
+{
+  "symbol": "FiniteDuration.+",
+  "line": 863,
+  "severity": "blocker",
+  "issue": "The description does not specify the behavior when `other` is `Undefined` or an `Infinite`. The implementation returns `other` in these cases, which is a material edge case that callers must know about.",
+  "suggestion": "Update the description to specify the edge cases. Example: 'Returns the sum of this finite duration and another duration. If `other` is `Undefined` or an `Infinite`, returns `other`.'",
+  "confidence": "high",
+  "needs_human": false
+},
+{
+  "symbol": "FiniteDuration.-",
+  "line": 870,
+  "severity": "blocker",
+  "issue": "The description does not specify the behavior when `other` is `Undefined` or an `Infinite`. The implementation returns `-other` in these cases, which is a material edge case that callers must know about.",
+  "suggestion": "Update the description to specify the edge cases. Example: 'Returns the difference between this finite duration and another duration. If `other` is `Undefined` or an `Infinite`, returns `-other`.'",
+  "confidence": "high",
+  "needs_human": false
+},
+{
+  "symbol": "FiniteDuration.*",
+  "line": 893,
+  "severity": "blocker",
+  "issue": "The description does not specify the behavior when `factor` is `NaN` or infinite. The implementation returns `Undefined` for infinite `factor` and throws an `ArithmeticException` for `NaN` (via `fromNanos`), but this is not documented. Additionally, the `@return` tag is missing, which is required because the first sentence does not begin with 'Returns'.",
+  "suggestion": "Update the description to specify the edge cases and add an `@return` tag. Example: 'Returns this finite duration multiplied by a scalar factor. If `factor` is `NaN`, throws `ArithmeticException`; if `factor` is infinite, returns `Inf` or `MinusInf` based on the sign of `factor` and the sign of this duration.' Then add '@return the scaled duration.'",
+  "confidence": "high",
+  "needs_human": false
+},
+{
+  "symbol": "FiniteDuration./(Double)",
+  "line": 903,
+  "severity": "blocker",
+  "issue": "The description does not specify the behavior when `divisor` is `NaN` or zero. The implementation throws an `ArithmeticException` for `NaN` (via `fromNanos`) and for division by zero (via `toNanos / divisor`), but this is not documented. Additionally, the `@return` tag is missing, which is required because the first sentence does not begin with 'Returns'.",
+  "suggestion": "Update the description to specify the edge cases and add an `@return` tag. Example: 'Returns this finite duration divided by a scalar divisor. If `divisor` is `NaN` or zero, throws `ArithmeticException`; if `divisor` is infinite, returns `Zero`.' Then add '@return the divided duration.'",
+  "confidence": "high",
+  "needs_human": false
+},
+{
+  "symbol": "FiniteDuration./(Duration)",
+  "line": 915,
+  "severity": "blocker",
+  "issue": "The description does not specify the behavior when `divisor` is `Zero` or `Undefined`. The implementation returns `±Infinity` for `Zero` (via `toNanos.toDouble / divisor.toNanos`) and `NaN` for `Undefined` (via `divisor.toNanos`), but this is not documented. Additionally, the `@return` tag is missing, which is required because the first sentence does not begin with 'Returns'.",
+  "suggestion": "Update the description to specify the edge cases and add an `@return` tag. Example: 'Returns the quotient of this finite duration divided by another duration. If `divisor` is `Zero`, returns `±Infinity`; if `divisor` is `Undefined`, returns `NaN`; otherwise, returns the quotient as a `Double`.' Then add '@return the quotient as a `Double`.'",
+  "confidence": "high",
+  "needs_human": false
+},
+{
+  "symbol": "FiniteDuration.+ (FiniteDuration)",
+  "line": 930,
+  "severity": "nit",
+  "issue": "The `@return` tag is redundant with the first sentence. The first sentence already describes the return value ('Returns the sum of this finite duration and another finite duration'), and the `@return` tag does not add new information.",
+  "suggestion": "Remove the `@return` tag and keep the first sentence.",
+  "confidence": "high",
+  "needs_human": false
+},
+{
+  "symbol": "FiniteDuration.- (FiniteDuration)",
+  "line": 937,
+  "severity": "nit",
+  "issue": "The `@return` tag is redundant with the first sentence. The first sentence already describes the return value ('Returns the difference between this finite duration and another finite duration'), and the `@return` tag does not add new information.",
+  "suggestion": "Remove the `@return` tag and keep the first sentence.",
+  "confidence": "high",
+  "needs_human": false
+},
+{
+  "symbol": "FiniteDuration.plus",
+  "line": 942,
+  "severity": "nit",
+  "issue": "The `@return` tag is redundant with the first sentence. The first sentence already describes the return value ('Returns the sum of this finite duration and another finite duration'), and the `@return` tag does not add new information.",
+  "suggestion": "Remove the `@return` tag and keep the first sentence.",
+  "confidence": "high",
+  "needs_human": false
+},
+{
+  "symbol": "FiniteDuration.minus",
+  "line": 947,
+  "severity": "nit",
+  "issue": "The `@return` tag is redundant with the first sentence. The first sentence already describes the return value ('Returns the difference between this finite duration and another finite duration'), and the `@return` tag does not add new information.",
+  "suggestion": "Remove the `@return` tag and keep the first sentence.",
+  "confidence": "high",
+  "needs_human": false
+},
+{
+  "symbol": "FiniteDuration.min",
+  "line": 952,
+  "severity": "nit",
+  "issue": "The `@return` tag is redundant with the first sentence. The first sentence already describes the return value ('Returns the smaller of this finite duration and another finite duration'), and the `@return` tag does not add new information.",
+  "suggestion": "Remove the `@return` tag and keep the first sentence.",
+  "confidence": "high",
+  "needs_human": false
+},
+{
+  "symbol": "FiniteDuration.max",
+  "line": 957,
+  "severity": "nit",
+  "issue": "The `@return` tag is redundant with the first sentence. The first sentence already describes the return value ('Returns the larger of this finite duration and another finite duration'), and the `@return` tag does not add new information.",
+  "suggestion": "Remove the `@return` tag and keep the first sentence.",
+  "confidence": "high",
+  "needs_human": false
+},
+{
+  "symbol": "FiniteDuration.unary_-",
+  "line": 1004,
+  "severity": "nit",
+  "issue": "The first sentence is redundant with the `@return` tag. The `@return` tag is sufficient here, and the first sentence can be dropped to avoid repetition.",
+  "suggestion": "Remove the first sentence and keep only the `@return` tag.",
+  "confidence": "high",
+  "needs_human": false
+},
+{
+  "symbol": "FiniteDuration.isFinite",
+  "line": 1010,
+  "severity": "nit",
+  "issue": "The first sentence is redundant with the `@return` tag. The `@return` tag is sufficient here, and the first sentence can be dropped to avoid repetition.",
+  "suggestion": "Remove the first sentence and keep only the `@return` tag.",
+  "confidence": "high",
+  "needs_human": false
+},
+{
+  "symbol": "FiniteDuration.toCoarsest",
+  "line": 1015,
+  "severity": "blocker",
+  "issue": "The description does not specify that the method returns the coarsest possible time unit that can *exactly* represent this duration. The implementation ensures no loss of precision, but this is not documented. Additionally, the `@return` tag is redundant with the first sentence.",
+  "suggestion": "Update the first sentence to specify exact representation and remove the `@return` tag. Example: 'Returns a finite duration with the coarsest possible time unit that can exactly represent this duration without loss of precision.'",
+  "confidence": "high",
+  "needs_human": false
+},
+{
+  "symbol": "FiniteDuration.equals",
+  "line": 1040,
+  "severity": "nit",
+  "issue": "The `@return` tag is redundant with the first sentence. The first sentence already describes the return value ('Compares this finite duration with another object for equality'), and the `@return` tag does not add new information.",
+  "suggestion": "Remove the `@return` tag and keep the first sentence.",
+  "confidence": "high",
+  "needs_human": false
+},
+{
+  "symbol": "FiniteDuration.hashCode",
+  "line": 1047,
+  "severity": "nit",
+  "issue": "The first sentence is redundant with the `@return` tag. The `@return` tag is sufficient here, and the first sentence can be dropped to avoid repetition.",
+  "suggestion": "Remove the first sentence and keep only the `@return` tag.",
+  "confidence": "high",
+  "needs_human": false
+}
+],"bonus_findings":[]}

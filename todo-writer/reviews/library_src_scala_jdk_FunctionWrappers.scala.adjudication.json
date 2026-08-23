@@ -1,0 +1,15 @@
+{
+  "verdict": "revise",
+  "summary": "Only recurring blocker is the 21 explicitly-named-alias @return tags overclaiming object identity with asJava; all other claims from both reviewers check out.",
+  "resolved_items": [
+    {
+      "symbol": "RichFunction2AsBiConsumer.asJavaBiConsumer",
+      "line": 83,
+      "severity": "blocker",
+      "instruction": "Applies to all 21 occurrences of this explicitly-named-alias @return tag (lines 83, 154, 221, 284, 390, 553, 857, 1020, 1422, 1726, 1791, 1856, 1917, 1972, 2039, 2100, 2167, 2228, 2295, 2356, 2417): reword '@return the same Java `Xxx` value that `asJava` returns' to promise a behaviorally-equivalent value rather than object identity, since the fallback branch of both methods allocates a fresh wrapper instance on every call.",
+      "raised_by": "accuracy",
+      "needs_human": false
+    }
+  ],
+  "disagreements": []
+}

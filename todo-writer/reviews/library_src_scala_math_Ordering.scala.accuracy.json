@@ -1,0 +1,41 @@
+{
+  "verdict": "approve",
+  "summary": "Checked all filled-in Scaladoc against implementations: OrderingOps operators (<,<=,>,>=,equiv,max,min), LowPriorityOrderingImplicits/ordered/comparatorToOrdering, Ordering.apply, CachedReverse and Reverse (reverse, isReverseOf, compare, lteq/gteq/lt/gt/equiv, max/min sign-inversion, equals/hashCode), IterableOrdering (compare, equals, hashCode), ExtraImplicits.sortedSetOrdering, all primitive Ordering traits (Unit/Boolean/Byte/Char/Short/Int/Long/BigInt/BigDecimal/String/Symbol) compare methods, Float/Double TotalOrdering and IeeeOrdering (compare and IEEE-semantics overrides, correctly matching x<=y/x>=y/etc. and math.min/max for NaN), OptionOrdering (compare, equals, hashCode, optionOrdering), the deprecated Iterable ordering factory, and Tuple2Ordering through Tuple9Ordering (factory methods, compare, equals, hashCode) including all 11 repeated hashCode blocks and all listed repeated tag-line groups. All are accurate; the Reverse class's inverted max/min docs (\"Returns the minimum... \" on the max override) are correctly written to match the body's inversion, which is exactly the kind of subtlety that's easy to get backwards. No blockers found. A few minor nits noted below plus one pre-existing structural concern logged as a bonus finding.",
+  "items": [
+    {
+      "symbol": "BigIntOrdering.compare / BigDecimalOrdering.compare / StringOrdering.compare / UnitOrdering.compare",
+      "line": 997,
+      "severity": "nit",
+      "issue": "These four compare-method docs omit an @return tag, while the structurally identical sibling docs added in the same diff (BooleanOrdering, ByteOrdering, CharOrdering, ShortOrdering, IntOrdering, LongOrdering, SymbolOrdering) all include \"@return a negative integer, zero, or a positive integer as `x` is less than, equal to, or greater than `y`\". The omission isn't wrong (BigInt/BigDecimal/String delegate to compare/compareTo which follow the same convention, and Unit always returns 0), but it's an inconsistency within the same set of newly-written docs.",
+      "suggestion": "Add the same @return tag to BigIntOrdering.compare, BigDecimalOrdering.compare, and StringOrdering.compare for consistency; for UnitOrdering.compare consider \"@return always `0`, since all `Unit` values are equivalent\".",
+      "confidence": "medium",
+      "needs_human": false
+    },
+    {
+      "symbol": "OptionOrdering / OptionOrdering.compare",
+      "line": 1046,
+      "severity": "nit",
+      "issue": "Neither the new trait-level doc (\"An ordering for `Option` values.\") nor the new compare-method doc (\"Compares two `Option` values.\") mentions that `None` is treated as less than every `Some`, which is the one non-obvious edge case of this ordering (visible in the match: None/None->0, None/_-> -1, _/None->1).",
+      "suggestion": "Add a short note, e.g. \"`None` compares as less than any `Some`\", either in the trait summary or as an @return on compare.",
+      "confidence": "medium",
+      "needs_human": false
+    },
+    {
+      "symbol": "Float.IeeeOrdering.compare / Double.IeeeOrdering.compare",
+      "line": 771,
+      "severity": "nit",
+      "issue": "The doc text \"Compares two `Float`/`Double` values using the total ordering.\" is copied verbatim from TotalOrdering.compare onto IeeeOrdering.compare (both Float and Double, 4 occurrences total). It's technically accurate since the surrounding class doc already states IeeeOrdering's compare behaves the same as java.lang.Float/Double.compare, but reusing \"using the total ordering\" wording inside a trait named IeeeOrdering reads as a copy/paste and could confuse a reader skimming just this method.",
+      "suggestion": "Reword to something like \"Compares two `Float` values the same as `TotalOrdering`, regardless of IEEE 754 semantics.\" to avoid implying this is IeeeOrdering-specific behavior.",
+      "confidence": "low",
+      "needs_human": false
+    }
+  ],
+  "bonus_findings": [
+    {
+      "symbol": "Ordering.Iterable",
+      "line": 1088,
+      "issue": "Pre-existing structure (not introduced by this diff) stacks two /** */ doc comments around the @deprecated annotation: one above it (with an old-style @deprecated tag) and one below it, immediately before `implicit def Iterable`. Depending on how the Scala parser attaches doc comments across an intervening annotation, one of the two comments may be silently dropped from generated Scaladoc.",
+      "suggestion": "Merge into a single doc comment placed above the @deprecated annotation (per the project's own house rule that a doc comment must sit above any annotation), keeping the @deprecated line's content and the @tparam/@param/@return tags together."
+    }
+  ]
+}

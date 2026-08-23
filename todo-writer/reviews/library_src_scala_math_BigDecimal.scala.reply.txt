@@ -1,0 +1,119 @@
+<<<<<<< SEARCH
+  /** The default `MathContext` for `BigDecimal` operations, using `MathContext.DECIMAL128` (34 decimal digits, `HALF_EVEN` rounding). */
+=======
+  /** The default `MathContext` (34 decimal digits, `HALF_EVEN` rounding). */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Constructs a `BigDecimal` using the given java.math.BigDecimal and the default MathContext.
+   *
+   *  @param bigDecimal the java.math.BigDecimal to wrap
+   */
+=======
+  /** Constructs a `BigDecimal` using the given `java.math.BigDecimal` and the default `MathContext`.
+   */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Constructs a `BigDecimal` from a `java.math.BigDecimal`.
+   *
+   *  @param bd the `java.math.BigDecimal` to convert
+   *  @return a `BigDecimal` wrapping `bd` with the default `MathContext`
+   *  @throws java.lang.NullPointerException if `bd` is `null`
+   */
+=======
+  /** Constructs a `BigDecimal` from a `java.math.BigDecimal`.
+   *
+   *  @param bd the `java.math.BigDecimal` to convert
+   *  @return a `BigDecimal` wrapping `bd` with the default `MathContext`
+   *  @throws java.lang.IllegalArgumentException if `bd` is `null`
+   */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Returns a new BigDecimal based on the supplied MathContext, rounded as needed.
+   *
+   *  @param mc the new `MathContext` for precision and rounding
+   *  @return a `BigDecimal` rounded per `mc` and carrying `mc` as its `MathContext`
+   *  @throws java.lang.IllegalArgumentException if `mc` is `null`
+   */
+=======
+  /** Returns a new BigDecimal based on the supplied MathContext, rounded as needed.
+   *
+   *  @param mc the new `MathContext` for precision and rounding
+   *  @return a `BigDecimal` rounded per `mc` and carrying `mc` as its `MathContext`
+   *  @throws java.lang.NullPointerException if `mc` is `null`
+   */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Returns a BigDecimal whose value is this ** n.
+   *
+   *  @param n the exponent to raise this `BigDecimal` to
+   *  @throws java.lang.ArithmeticException if `n` is out of the supported range
+   */
+=======
+  /** Returns a BigDecimal whose value is this ** n.
+   *
+   *  @param n the exponent to raise this `BigDecimal` to
+   *  @throws java.lang.ArithmeticException if `n` is out of the supported range, or if the result is inexact and this BigDecimal's MathContext rounding mode is UNNECESSARY
+   */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Returns a BigDecimal with the specified scale, using the given rounding mode.
+   *
+   *  @param scale the scale to set for this BigDecimal
+   *  @param mode the rounding mode to apply
+   *  @return a BigDecimal with the specified scale, rounded according to the given mode
+   *  @throws java.lang.ArithmeticException if `mode` is `UNNECESSARY` but rounding would actually be required for the requested `scale`
+   */
+=======
+  /** Returns a BigDecimal with the specified scale, using the given rounding mode.
+   *
+   *  @param scale the scale to set for this BigDecimal
+   *  @param mode the rounding mode to apply
+   *  @return a BigDecimal with the specified scale, rounded according to the given mode
+   *  @throws java.lang.ArithmeticException if `mode` is `UNNECESSARY` but rounding would be required for the requested `scale`
+   */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+    /** Rounding mode to assert that no rounding is necessary.
+     *  @note NEEDS-HUMAN: Should we clarify that this mode throws an exception if rounding would be required?
+     */
+=======
+    /** Rounding mode to assert that no rounding is necessary.
+     *  @note This mode throws an `ArithmeticException` if rounding would be required.
+     */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Returns true if this BigDecimal can be converted to a Byte without loss of information. */
+=======
+  /** Returns true if this `BigDecimal` can be converted to a `Byte` without truncation or overflow. */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Returns true if this BigDecimal can be converted to a Short without loss of information. */
+=======
+  /** Returns true if this `BigDecimal` can be converted to a `Short` without truncation or overflow. */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Returns true if this BigDecimal can be converted to a Char without loss of information. */
+=======
+  /** Returns true if this `BigDecimal` can be converted to a `Char` without truncation or overflow. */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Returns true if this BigDecimal can be converted to an Int without loss of information. */
+=======
+  /** Returns true if this `BigDecimal` can be converted to an `Int` without truncation or overflow. */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Returns true if this BigDecimal can be converted to a Long without loss of information. */
+=======
+  /** Returns true if this `BigDecimal` can be converted to a `Long` without truncation or overflow. */
+>>>>>>> REPLACE

@@ -1,0 +1,21 @@
+<<<<<<< SEARCH
+    /** Returns the quotient and remainder of this value divided by `rhs`.
+     *
+     *  @param rhs the divisor
+     */
+=======
+    /** Returns the quotient and remainder of this value divided by `rhs`.
+     *
+     *  @param rhs the divisor; the method returns a tuple of (quotient, remainder)
+     */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+     *  @param x the value to wrap with integral operator syntax (`/`, `%`, `/%`)
+     *  @param num the implicit `Integral` instance for type `T`
+     *  @return an `IntegralOps` instance providing integral operators on `x`
+=======
+     *  @param x the value to wrap with integral operator syntax (`/`, `%`, `/%`)
+     *  @param num the implicit `Integral` instance for type `T`
+     *  @return an `Integral[T]#IntegralOps` instance providing integral operators on `x`
+>>>>>>> REPLACE

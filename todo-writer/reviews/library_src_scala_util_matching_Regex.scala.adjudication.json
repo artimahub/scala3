@@ -1,0 +1,56 @@
+{
+  "verdict": "revise",
+  "summary": "Documentation for `groupNames` requires factual corrections and stylistic improvements.",
+  "resolved_items": [
+    {
+      "symbol": "MatchData.groupNames (in MatchData)",
+      "line": 792,
+      "severity": "blocker",
+      "instruction": "Revise to: \"Returns the names of the named capturing groups (excluding inline groups) used to look up groups by name.\"",
+      "raised_by": "both",
+      "needs_human": false
+    },
+    {
+      "symbol": "MatchData.groupNames (in MatchIterator)",
+      "line": 896,
+      "severity": "blocker",
+      "instruction": "Revise to: \"Returns the names of the named capturing groups (excluding inline groups) used to look up groups by name.\"",
+      "raised_by": "both",
+      "needs_human": false
+    },
+    {
+      "symbol": "MatchData.groupNames (in MatchData)",
+      "line": 792,
+      "severity": "nit",
+      "instruction": "Remove the redundant `@deprecated` tag from the Scaladoc body.",
+      "raised_by": "accuracy",
+      "needs_human": false
+    },
+    {
+      "symbol": "MatchData.groupNames (in MatchIterator)",
+      "line": 896,
+      "severity": "nit",
+      "instruction": "Remove the redundant `@deprecated` tag from the Scaladoc body.",
+      "raised_by": "accuracy",
+      "needs_human": false
+    }
+  ],
+  "disagreements": [
+    {
+      "symbol": "MatchData.groupNames (in MatchData)",
+      "line": 792,
+      "accuracy_position": "The description omits that the returned sequence does not include inline group names, which is the core reason for deprecation.",
+      "style_position": "The documentation restates the `@deprecated` annotation's message without adding meaningful context or explaining the purpose of `groupNames`.",
+      "ruling": "merged",
+      "rationale": "Both reviewers agree on the need to clarify the exclusion of inline group names and improve the description."
+    },
+    {
+      "symbol": "MatchData.groupNames (in MatchIterator)",
+      "line": 896,
+      "accuracy_position": "Same factual inaccuracy as the first `groupNames`: the description omits that inline group names are excluded, which is the reason for deprecation.",
+      "style_position": "The documentation for `groupNames` in `MatchIterator` suffers from the same issues as in `Match`: redundancy with the `@deprecated` annotation and lack of clarity about the purpose and limitations of the field.",
+      "ruling": "merged",
+      "rationale": "Both reviewers agree on the need to clarify the exclusion of inline group names and improve the description."
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+I'll apply the two worklist items to the `Break.apply` Scaladoc at lines 53-57. Both items target the same comment and are compatible: the blocker asks to clarify that the Break exception carries the value rather than returning it, and the nit asks for a self-contained first sentence conveying the purpose.
+
+```scala
+========== ORIGINAL SCALADOC (lines 53-58) ==========
+    /** Creates a new `Break` exception carrying the given `value` and targeting
+     *  the given `label`.
+     *
+     *  @tparam T the type of the value carried by the `Break` exception
+     *  @param label the label identifying the target `boundary` to exit
+     *  @param value the value to return from the enclosing `boundary` call
+     */
+========== PATCHED SCALADOC ==========
+    /** Creates a new `Break` exception carrying the given `value` to be
+     *  returned by the enclosing `boundary` block identified by the given
+     *  `label`.
+     *
+     *  @tparam T the type of the value carried by the `Break` exception
+     *  @param label the label identifying the target `boundary` to exit
+     *  @param value the value to return from the enclosing `boundary` call
+     */
+=========================================
+```
+
+Applying this patch to the file:

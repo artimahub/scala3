@@ -1,0 +1,15 @@
+{
+  "verdict": "approve",
+  "items": [
+    {
+      "declaration": "Product20.unapply",
+      "severity": "ok",
+      "confidence": "high",
+      "comment": "First sentence stands alone, accurately describes that unapply always returns Some(x). @tparam lines correctly ordinal (1st..20th) and match the style used in the sibling Product20 trait doc. @return is technically redundant with the first sentence per the general rule, but this mirrors the existing convention in this same file (e.g. _1..._20 projections each restate their summary in @return), so it's consistent rather than a deviation.",
+      "needs_human": false
+    }
+  ],
+  "bonus_findings": [],
+  "needs_human": false
+}
+

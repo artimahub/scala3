@@ -1,0 +1,95 @@
+{
+  "verdict": "revise",
+  "summary": "Checked every changed declaration in INode, FailedNode, KVNode, SNode, TNode, LNode, CNode, CNode.dual, RDCSS_Descriptor, TrieMap (ctors, hashing/equality, string, isReadOnly/nonReadOnly, clear, computeHash, lookup, apply, get, put, update, addOne, remove(k)/(k,v), subtractOne, putIfAbsent, getOrElseUpdate first line, replace(k,oldvalue,newvalue)/(k,v), iterator, values/keySet/view/filterKeys/mapValues, size/knownSize/isEmpty/className/lastOption), TrieMap object (empty/from/newBuilder/inodeupdater/MangledHashing/RemovalPolicy), and TrieMapIterator (hasNext/next/advance/newIterator/dupTo) against their bodies. Two blockers are outright false statements: INode.copyToGen is called a \"deep copy\" when it shares the same main-node reference (the whole point of the lock-free snapshot algorithm), and TNode.copyTombed is documented as \"returns this TNode\" when the body constructs a brand-new TNode. A third blocker: the shared '@param lev the current level in the trie' tag is wrong for FailedNode.string, whose lev parameter is never used (method always throws) and should say '(never used)' per the house rule already applied to FailedNode.cachedSize's ct param. Remaining items are nits (redundant/imprecise wording) plus one low-confidence needs-human item about whether gcasRead/GCAS_READ can really return null without NPEing first, and one bonus finding about a pre-existing stale comment on toCompressed.",
+  "items": [
+    {
+      "symbol": "INode.copyToGen",
+      "line": 135,
+      "severity": "blocker",
+      "issue": "Doc says \"Creates a deep copy of this INode\", but the body creates a new INode and WRITEs into it the SAME main-node reference read from `this` (`val main = GCAS_READ(ct); nin.WRITE(main)`). Nothing below the top INode is copied; the whole subtree is shared between old and new generations, which is precisely the structural-sharing mechanism the class-level TrieMap doc and CNode.renewed doc describe (\"work... is distributed across subsequent updates\"). Calling this a \"deep copy\" contradicts that design.",
+      "suggestion": "Say something like \"Creates a copy of this INode in the specified generation, sharing its current main node; used together with `renewed`/`copyToGen` recursion for snapshot operations.\"",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "TNode.copyTombed",
+      "line": 598,
+      "severity": "blocker",
+      "issue": "Doc says \"Returns this TNode, which is already tombed\", implying identity (`this`) is returned, but the body is `new TNode(k, v, hc)` — a brand-new instance, not the receiver.",
+      "suggestion": "Match the sibling `copy` doc, e.g. \"Creates a copy of this TNode, which is already tombed.\"",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "FailedNode.string",
+      "line": 540,
+      "severity": "blocker",
+      "issue": "Part of the repeated-tag group \"@param lev the current level in the trie\" (9 occurrences, lines 487, 537, 584, 616, 700, 830, 847, 874, 901) — the shared text fits all occurrences except this one. `def string(lev: Int): Nothing = throw new UnsupportedOperationException` never reads `lev`; the parameter is dead. The house rule (already followed on the sibling `cachedSize(ct: AnyRef)` on the same class, tagged \"@param ct unused\") requires marking unused params as such.",
+      "suggestion": "Change to `@param lev the current level in the trie (never used)`.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "CNode.knownSize",
+      "line": 727,
+      "severity": "nit",
+      "issue": "The @return tag was dropped, but the description (\"Returns the known size of this CNode.\") doesn't state the -1 \"unknown\" sentinel that the adjacent code comment calls out explicitly (`// this should only ever return -1 if unknown`). Per the house rule, an @return should be kept when it carries a sentinel.",
+      "suggestion": "Either mention the sentinel in the sentence (\"...or -1 if not yet computed.\") or add back `@return the known size, or -1 if not yet computed`.",
+      "confidence": "medium",
+      "needs_human": false
+    },
+    {
+      "symbol": "INode.gcasRead / INode.GCAS_READ",
+      "line": 60,
+      "severity": "nit",
+      "issue": "Both docs (lines 55-60 and 62-67, identical text) claim \"@return the current main node, or null if not available\". Looking at the body, if `mainnode` (`m`) were actually null, the very next line `m.prev` would throw NullPointerException rather than gracefully returning null — the null-returning path only exists inside the private `GCAS_Complete` helper's recursive re-reads, not on the direct top-level null case. I could not fully confirm from this file alone whether an external caller can ever observe `mainnode` as null at the moment `gcasRead`/`GCAS_READ` is invoked (every construction site in this file WRITEs a non-null main node immediately after construction), so I can't be sure whether the documented null case is reachable or is actually a latent NPE risk.",
+      "suggestion": "Verify with someone familiar with the GCAS protocol invariants whether `mainnode` can be null when `gcasRead`/`GCAS_READ` is called externally; if not, drop the null case from the doc, or if so, note the discrepancy with the direct `m.prev` dereference.",
+      "confidence": "low",
+      "needs_human": true
+    },
+    {
+      "symbol": "TrieMap.lookup",
+      "line": 1178,
+      "severity": "nit",
+      "issue": "Description opens with \"Deprecated. Looks up...\", restating the `@deprecated` annotation in prose, which the house rules explicitly say not to do (Scaladoc already renders the annotation).",
+      "suggestion": "Drop the leading \"Deprecated.\" and start directly with \"Looks up the value associated with the key, returning null if not found.\"",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "TrieMap.knownSize",
+      "line": 1397,
+      "severity": "nit",
+      "issue": "\"Returns the known size of this TrieMap, or -1 if the size is not precomputed due to concurrent modifications\" implies -1 is a conditional/sometimes outcome tied to detecting concurrent activity. In fact, for any non-read-only (mutable) TrieMap the method unconditionally returns -1 regardless of whether any concurrent modification is actually happening; only the read-only-snapshot branch can return a real cached value (which can also independently be -1 if not yet computed).",
+      "suggestion": "Something like \"Returns the known size of this TrieMap, or -1 if this TrieMap is mutable (since it may be concurrently modified) or its size has not yet been cached.\"",
+      "confidence": "medium",
+      "needs_human": false
+    },
+    {
+      "symbol": "TrieMap.getOrElseUpdate",
+      "line": 1285,
+      "severity": "nit",
+      "issue": "New first sentence adds \"The `defaultValue` is evaluated lazily and at most once,\" which duplicates the unchanged `Note:` paragraph immediately below (\"This method will invoke `defaultValue` at most once.\") — redundant/padded relative to the rest of the comment.",
+      "suggestion": "Drop the second clause from the first sentence and let the existing Note paragraph carry that detail, e.g. \"Returns the value associated with the key, or computes and inserts it using `defaultValue` if absent.\"",
+      "confidence": "medium",
+      "needs_human": false
+    },
+    {
+      "symbol": "TrieMapIterator.dupTo",
+      "line": 1576,
+      "severity": "nit",
+      "issue": "\"Duplicates this iterator to the specified iterator\" undersells a real side effect: when `subiter` is non-null, the method also reassigns `this.subiter` to a freshly materialized list-backed iterator (`this.subiter = lst.iterator`), mutating the receiver, not just populating `it`.",
+      "suggestion": "Mention the receiver-side mutation, e.g. \"...; when this iterator has an active sub-iterator, both this iterator's and the new one's sub-iterators are replaced with materialized copies.\"",
+      "confidence": "medium",
+      "needs_human": false
+    }
+  ],
+  "bonus_findings": [
+    {
+      "symbol": "CNode.toCompressed",
+      "line": 850,
+      "issue": "The pre-existing plain comment directly above (\"if there are only null-i-nodes below, returns null\") does not match the current body, which always returns `new CNode[K, V](bmp, tmparray, gen).toContracted(lev)` — never null. This predates the diff and wasn't touched by the new Scaladoc, but the new Scaladoc doesn't mention a null case either, so the stale comment should be reconciled with actual behavior.",
+      "suggestion": "Confirm whether toCompressed can still return null in the current implementation; if not, remove that bullet from the old comment so it doesn't mislead a future doc pass."
+    }
+  ]
+}

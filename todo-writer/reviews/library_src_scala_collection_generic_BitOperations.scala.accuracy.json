@@ -1,0 +1,17 @@
+{
+  "verdict": "approve",
+  "summary": "Checked both Int and Long groups (zero, mask, hasMatch, unsignedCompare, shorter, complement, bits, bitString, highestOneBit, plus the two trait-level summaries) against the implementation bodies and against real call sites in IntMap.scala/LongMap.scala (branchMask/join/bin), confirming AND-zero semantics for zero, derived-bitmask semantics for mask, masked-equality for hasMatch, the unsigned-compare formula, shorter's Data.IntMap-equivalent definition, complement's bitwise-NOT, bits' MSB-to-LSB ordering (31..0 / 63..0), bitString's join, and highestOneBit's Java delegation; all are accurate and no @return is missing under the drop rule. One nit: hasMatch's `m` parameter is called \"the bitmask to apply\" while the identical value is called \"the branch bit used to derive the mask\" in mask's own doc, an internal terminology inconsistency, not a factual error.",
+  "items": [
+    {
+      "symbol": "Int.hasMatch / Long.hasMatch",
+      "line": 41,
+      "severity": "nit",
+      "issue": "applies to both occurrences (lines 45 and 104): @param m is documented as \"the bitmask to apply\", but this same value is passed straight through as the second argument of `mask(i, mask)`, whose own doc calls that argument \"the branch bit used to derive the mask applied to `i`\". The two docs describe the identical conceptual value inconsistently (m is not itself directly ANDed with key in hasMatch; `mask()` derives the actual applied bitmask from it first).",
+      "suggestion": "Align the wording, e.g. \"@param m the branch bit used to derive the mask matched against `key`\" to match mask's param doc.",
+      "confidence": "medium",
+      "needs_human": false
+    }
+  ],
+  "bonus_findings": []
+}
+

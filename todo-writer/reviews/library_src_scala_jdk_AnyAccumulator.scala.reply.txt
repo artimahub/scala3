@@ -1,0 +1,6 @@
+Worklist done — the single blocker is fixed.
+
+- `update(idx: Long, elem: A)` (line 170 doc, decl at 185): the out-of-range paragraph no longer reads as a two-outcome dichotomy. It now names three outcomes: silent success in unused current-array capacity, silent overwrite of a reported element when the `Long` offset narrowed to `Int` wraps onto an occupied slot, and otherwise a throw. The `@throws` condition was narrowed to match, so the tag no longer contradicts the description.
+- Applied the same correction to `update(idx: Int, elem: A)` (doc at line 193): it was the same reused sentence and it delegates into the identical narrowing code, so the omission was equally false there. That's the only line beyond the one named in the worklist.
+
+Diff against HEAD is 93 insertions, 0 deletions, all Scaladoc lines — every declaration, body, and blank line is byte-identical.

@@ -1,0 +1,63 @@
+<<<<<<< SEARCH
+    /** Compares two integers as if they were unsigned values.
+      *
+      *  @param i the first integer to compare
+      *  @param j the second integer to compare
+      */
+    def unsignedCompare(i: Int, j: Int)         = (i < j) ^ (i < 0) ^ (j < 0)
+=======
+    /** Returns `true` if `i` is less than `j`, treating both as unsigned values.
+      *
+      *  @param i the first integer to compare
+      *  @param j the second integer to compare
+      */
+    def unsignedCompare(i: Int, j: Int)         = (i < j) ^ (i < 0) ^ (j < 0)
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+    /** Compares two longs as if they were unsigned values.
+      *
+      *  @param i the first long to compare
+      *  @param j the second long to compare
+      */
+    def unsignedCompare(i: Long, j: Long)          = (i < j) ^ (i < 0L) ^ (j < 0L)
+=======
+    /** Returns `true` if `i` is less than `j`, treating both as unsigned values.
+      *
+      *  @param i the first long to compare
+      *  @param j the second long to compare
+      */
+    def unsignedCompare(i: Long, j: Long)          = (i < j) ^ (i < 0L) ^ (j < 0L)
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+    /** Returns the result of applying a bitmask to `i`.
+      *
+      *  @param i the integer value to mask
+      *  @param mask the bitmask to apply
+      */
+    def mask(i: Int, mask: Int)                 = i & (complement(mask - 1) ^ mask)
+=======
+    /** Returns the result of applying a bitmask to `i`.
+      *
+      *  @param i the integer value to mask
+      *  @param mask the branch bit used to derive the mask applied to `i`
+      */
+    def mask(i: Int, mask: Int)                 = i & (complement(mask - 1) ^ mask)
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+    /** Returns the result of applying a bitmask to `i`.
+      *
+      *  @param i the long value to mask
+      *  @param mask the bitmask to apply
+      */
+    def mask(i: Long, mask: Long)                  = i & (complement(mask - 1) ^ mask)
+=======
+    /** Returns the result of applying a bitmask to `i`.
+      *
+      *  @param i the long value to mask
+      *  @param mask the branch bit used to derive the mask applied to `i`
+      */
+    def mask(i: Long, mask: Long)                  = i & (complement(mask - 1) ^ mask)
+>>>>>>> REPLACE

@@ -1,0 +1,38 @@
+{
+  "items": [
+    {
+      "declaration": "object Tuple.fromProductTyped",
+      "severity": "nit",
+      "confidence": "medium",
+      "needs_human": false,
+      "comment": "The @return is accurate but oddly phrased and inconsistent with the sibling `fromProduct` doc directly above it, which says 'in declaration order'. The clause 'in its product-element order, that is, at indices 0 through `p.productArity - 1`' is padding: every product's elements are trivially at indices 0 through productArity-1, so this doesn't convey real ordering information. Consider matching the sibling doc's simpler 'in declaration order' phrasing, e.g. 'a tuple whose elements are the elements of `p` in declaration order, typed as `m.MirroredElemTypes`'."
+    },
+    {
+      "declaration": "EmptyTuple.toString",
+      "severity": "ok",
+      "confidence": "high",
+      "needs_human": false,
+      "comment": "Accurate and matches implementation (`\"()\"`)."
+    },
+    {
+      "declaration": "class *:[+H, +T <: Tuple]",
+      "severity": "ok",
+      "confidence": "high",
+      "needs_human": false,
+      "comment": "Accurate description of the cons-tuple type; tparams are correct."
+    },
+    {
+      "declaration": "object *:.unapply",
+      "severity": "ok",
+      "confidence": "high",
+      "needs_human": false,
+      "comment": "Accurate description of the extractor, matches `(x.head, x.tail)`."
+    }
+  ],
+  "needs_human": false,
+  "verdict": "approve",
+  "bonus_findings": []
+}
+
+
+No blockers found — all four filled-in doc blocks (`fromProductTyped`, `EmptyTuple.toString`, `*:` class, `*:.unapply`) are factually accurate against the implementation. One nit: `fromProductTyped`'s `@return` uses a more convoluted phrasing ("at indices 0 through `p.productArity - 1`") than the nearly-identical sibling doc for `fromProduct` right above it ("in declaration order"), which reads as padding and an inconsistency worth a light polish but not a blocker.

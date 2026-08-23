@@ -1,0 +1,88 @@
+{
+  "verdict": "revise",
+  "summary": "Accuracy reviewer identified a missing @throws tag for the auxiliary constructor, and style reviewer suggested minor improvements.",
+  "resolved_items": [
+    {
+      "symbol": "BigDecimal.this(bigDecimal: BigDec)",
+      "line": 477,
+      "severity": "blocker",
+      "instruction": "Add `@throws java.lang.IllegalArgumentException if `bigDecimal` is `null` to match the behavior documented in `BigDecimal.apply(bd: BigDec)`.",
+      "raised_by": "accuracy",
+      "needs_human": false
+    },
+    {
+      "symbol": "BigDecimal.RoundingMode.UNNECESSARY",
+      "line": 59,
+      "severity": "nit",
+      "instruction": "Change the `@note` to: \"@note This mode throws an `ArithmeticException` if rounding is required.\"",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "BigDecimal.decimal(bd: BigDec, mc: MathContext)",
+      "line": 122,
+      "severity": "nit",
+      "instruction": "Change the `@throws` tag to: \"@throws java.lang.NullPointerException if `bd` is `null`.\"",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "BigDecimal.apply(x: Array[Char])",
+      "line": 309,
+      "severity": "nit",
+      "instruction": "Change the `@throws` tag to: \"@throws java.lang.NullPointerException if `x` is `null`.\"",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "BigDecimal.apply(x: String)",
+      "line": 328,
+      "severity": "nit",
+      "instruction": "Change the `@throws` tag to: \"@throws java.lang.NullPointerException if `x` is `null`.\"",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "BigDecimal.apply(x: BigInt)",
+      "line": 347,
+      "severity": "nit",
+      "instruction": "Change the `@throws` tag to: \"@throws java.lang.NullPointerException if `x` is `null`.\"",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "BigDecimal.apply(bd: BigDec)",
+      "line": 386,
+      "severity": "nit",
+      "instruction": "Change the `@throws` tag to: \"@throws java.lang.IllegalArgumentException if `bd` is `null`.\"",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "BigDecimal.this(bigDecimal: BigDec)",
+      "line": 477,
+      "severity": "nit",
+      "instruction": "Change the `@param` tag to: \"@param bigDecimal the underlying `java.math.BigDecimal`.\"",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "BigDecimal.setScale(scale: Int, mode: RoundingMode)",
+      "line": 776,
+      "severity": "nit",
+      "instruction": "Change the `@throws` tag to: \"@throws java.lang.ArithmeticException if `mode` is `UNNECESSARY` and rounding is required for the requested `scale`.\"",
+      "raised_by": "style",
+      "needs_human": false
+    }
+  ],
+  "disagreements": [
+    {
+      "symbol": "BigDecimal.setScale(scale: Int, mode: RoundingMode)",
+      "line": 776,
+      "accuracy_position": "Drop the @return tag and add @throws java.lang.NullPointerException if `mode` is `null`.",
+      "style_position": "Change the @throws tag to: \"@throws java.lang.ArithmeticException if `mode` is `UNNECESSARY` and rounding is required for the requested `scale`.\"",
+      "ruling": "style",
+      "rationale": "The @return tag is redundant, but the NullPointerException tag is not necessary as the parameter is not nullable in the context."
+    }
+  ]
+}

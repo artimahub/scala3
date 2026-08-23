@@ -1,0 +1,25 @@
+{
+  "verdict": "approve",
+  "needs_human": false,
+  "items": [
+    {
+      "declaration": "trait Proxy.equals(that: Any): Boolean",
+      "severity": "nit",
+      "confidence": "medium",
+      "needs_human": false,
+      "issue": "First sentence says \"...equal to the proxied object\" instead of referring to `self` with backticks, which is inconsistent with the rest of the file (the `self` field doc, `hashCode`, and `toString` docs all name `self` explicitly in backticks, and the `@param`/`@return` below both use `` `self` ``).",
+      "suggestion": "Reword to something like \"Tests whether `that` is equal to `self`.\" for consistency."
+    }
+  ],
+  "bonus_findings": []
+}
+
+
+Reviewed the diff against the actual implementation in `/workspace/scala3/library/src/scala/Proxy.scala`. All five changed doc comments (`self`, `hashCode`, `equals`, `toString`, and `Typed.self`) accurately describe their code:
+
+- `equals`'s `@return` correctly captures the three-way OR (`this` reference, `self` reference, or `that.equals(self)`) matching the actual `match`/`eq`/`equals` logic, including the asymmetric-equals note already present in the class doc.
+- `hashCode` and `toString` docs match their one-line delegations to `self`.
+- `Typed[T].self` doc accurately reflects the type-narrowing purpose stated in the enclosing `Typed` doc.
+- Tag style (lowercase continuations, no trailing periods, backticked code) follows convention.
+
+Only one minor nit: the `equals` summary sentence says "the proxied object" instead of `` `self` ``, which is a small inconsistency with the rest of the file. No blockers, no NEEDS-HUMAN markers, no pre-existing doc issues worth flagging.

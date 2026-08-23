@@ -1,0 +1,250 @@
+I'll apply the targeted patches to the Scaladoc comments as specified in the worklist. Here are the changes:
+
+```scala
+  /** Returns the current result of this latch as `Try[T] | Null`, where `null` indicates the latch is not yet completed. */
+  final def result: Try[T] | Null = _result
+  /** Acquires the shared lock if the latch is completed, otherwise fails.
+   *
+   *  @param ignored the acquisition argument, ignored in this implementation
+   *  @return 1 if the latch is completed (state != 0), -1 otherwise
+   */
+  override protected def tryAcquireShared(ignored: Int): Int = if (getState != 0) 1 else -1
+  /** Releases the shared lock by setting the state to 1, indicating completion.
+   *
+   *  @param ignore the release argument, ignored in this implementation
+   *  @return always true, indicating successful release
+   */
+  override protected def tryReleaseShared(ignore: Int): Boolean = {
+    setState(1)
+    true
+  }
+  /** Sets the result of this latch to the given value and then releases the shared lock, ensuring the result is visible to other threads before the lock is released.
+   *
+   *  @param value the result to set
+   */
+  override def apply(value: Try[T]): Unit = {
+    _result = value // This line MUST go before releaseShared
+    releaseShared(1)
+  }
+```
+
+```scala
+  /** A `Promise[T]` that can be asynchronously completed with a value of type `T` or an exception.
+   *
+   *  @tparam T the type of the value contained in this promise
+   */
+  class DefaultPromise[T] private (initial: AnyRef) extends AtomicReference[AnyRef](initial) with scala.concurrent.Promise[T] with scala.concurrent.Future[T] with (Try[T] => Unit) {
+```
+
+```scala
+  /** Returns a new `Future[S]` that is completed with the result of applying the given function `f` to this `Future`'s result. If `f` throws an exception, the returned `Future` will be completed with that exception.
+   *
+   *  @tparam S the type of the transformed result
+   *  @param f the function to apply to this Future's result
+   *  @param executor the ExecutionContext to use for executing the transformation
+   *  @return a Future that will be completed with the transformed result
+   */
+  override final def transform[S](f: Try[T] => Try[S])(implicit executor: ExecutionContext): Future[S] =
+    dispatchOrAddCallbacks(get(), new Transformation[T, S](Xform_transform, f, executor))
+
+  /** Returns a new `Future[S]` that is completed with the result of applying the given function `f` to this `Future`'s result. If `f` throws an exception or returns a failed `Future`, the returned `Future` will be completed with that exception.
+   *
+   *  @tparam S the type of the Future returned by the function
+   *  @param f the function to apply to this Future's result
+   *  @param executor the ExecutionContext to use for executing the transformation
+   *  @return a Future that will be completed with the result of the function
+   */
+  override final def transformWith[S](f: Try[T] => Future[S])(implicit executor: ExecutionContext): Future[S] =
+    dispatchOrAddCallbacks(get(), new Transformation[T, S](Xform_transformWith, f, executor))
+
+  /** Returns a new `Future[R]` that is completed with the result of applying the given function `f` to the results of this `Future` and the given `Future[U]`. If either `Future` fails or `f` throws an exception, the returned `Future` will be completed with the first failure encountered.
+   *
+   *  @tparam U the type of the value in the given Future
+   *  @tparam R the type of the result of the function
+   *  @param that the Future to zip with this Future
+   *  @param f the function to apply to the results of both Futures
+   *  @param executor the ExecutionContext to use for executing the function
+   *  @return a Future that will be completed with the result of the function
+   */
+  override final def zipWith[U, R](that: Future[U])(f: (T, U) => R)(implicit executor: ExecutionContext): Future[R] = {
+```
+
+```scala
+  /** Applies the given function `f` to the result of this `Future` if it is successful. If this `Future` fails, `f` is not applied.
+   *
+   *  @tparam U the result type of the function
+   *  @param f the function to apply to the result of this Future
+   *  @param executor the ExecutionContext to use for executing the function
+   */
+  override final def foreach[U](f: T => U)(implicit executor: ExecutionContext): Unit = {
+```
+
+```scala
+  /** Returns a new `Future[S]` that is completed with the result of applying the given function `f` to this `Future`'s result. If this `Future` is not successful, the returned `Future` will be this `Future` cast to `Future[S]`.
+   *
+   *  @tparam S the type of the value in the Future returned by the function
+   *  @param f the function to apply to the result of this Future
+   *  @param executor the ExecutionContext to use for executing the function
+   *  @return a Future that will be completed with the result of the function, or this Future if it is already failed
+   */
+  override final def flatMap[S](f: T => Future[S])(implicit executor: ExecutionContext): Future[S] = {
+```
+
+```scala
+  /** Returns a new `Future[S]` that is completed with the result of applying the given function `f` to this `Future`'s result. If this `Future` is not successful, the returned `Future` will be this `Future` cast to `Future[S]`.
+   *
+   *  @tparam S the type of the result of the function
+   *  @param f the function to apply to the result of this Future
+   *  @param executor the ExecutionContext to use for executing the function
+   *  @return a Future that will be completed with the result of the function, or this Future if it is already failed
+   */
+  override final def map[S](f: T => S)(implicit executor: ExecutionContext): Future[S] = {
+```
+
+```scala
+  /** Returns a new `Future[T]` that is completed with the result of this `Future` if it satisfies the given predicate `p`. If the predicate returns `false`, the returned `Future` will fail with a `NoSuchElementException`.
+   *
+   *  @param p the predicate to apply to the result of this Future
+   *  @param executor the ExecutionContext to use for executing the predicate
+   *  @return a Future that will be completed with the result of this Future if it satisfies the predicate, or a failed Future otherwise
+   */
+  override final def filter(p: T => Boolean)(implicit executor: ExecutionContext): Future[T] = {
+```
+
+```scala
+  /** Returns a new `Future[S]` that is completed with the result of applying the given partial function `pf` to this `Future`'s result. If `pf` is not defined at the result, the returned `Future` will fail with a `NoSuchElementException`.
+   *
+   *  @tparam S the type of the result of the partial function
+   *  @param pf the partial function to apply to the result of this Future
+   *  @param executor the ExecutionContext to use for executing the partial function
+   *  @return a Future that will be completed with the result of the partial function, or this Future if it is already failed
+   */
+  override final def collect[S](pf: PartialFunction[T, S])(implicit executor: ExecutionContext): Future[S] = {
+```
+
+```scala
+  /** Returns a new `Future[U]` that is completed with the result of applying the given partial function `pf` to the exception of this `Future` if it fails. If this `Future` is not failed, the returned `Future` will be this `Future` cast to `Future[U]`.
+   *
+   *  @tparam U the type of the value in the Future returned by the partial function
+   *  @param pf the partial function to apply to the exception of this Future
+   *  @param executor the ExecutionContext to use for executing the partial function
+   *  @return a Future that will be completed with the result of the partial function, or this Future if it is already successful
+   */
+  override final def recoverWith[U >: T](pf: PartialFunction[Throwable, Future[U]])(implicit executor: ExecutionContext): Future[U] = {
+```
+
+```scala
+  /** Returns a new `Future[U]` that is completed with the result of applying the given partial function `pf` to the exception of this `Future` if it fails. If this `Future` is not failed, the returned `Future` will be this `Future` cast to `Future[U]`.
+   *
+   *  @tparam U the type of the result of the partial function
+   *  @param pf the partial function to apply to the exception of this Future
+   *  @param executor the ExecutionContext to use for executing the partial function
+   *  @return a Future that will be completed with the result of the partial function, or this Future if it is already successful
+   */
+  override final def recover[U >: T](pf: PartialFunction[Throwable, U])(implicit executor: ExecutionContext): Future[U] = {
+```
+
+```scala
+  /** Returns a new `Future[S]` that is completed with the result of this `Future` cast to type `S`. If the result cannot be cast to `S`, the returned `Future` will fail with a `ClassCastException`.
+   *
+   *  @tparam S the type to cast the result to
+   *  @param tag the ClassTag for the type to cast to
+   *  @return a Future that will be completed with the result of this Future cast to the given type, or this Future if it is already failed
+   */
+  override final def mapTo[S](implicit tag: scala.reflect.ClassTag[S]): Future[S] =
+    if (!get().isInstanceOf[Failure[?]]) super[Future].mapTo[S](using tag) // Short-circuit if we get a Success
+    else this.asInstanceOf[Future[S]]
+```
+
+```scala
+  /** Registers a callback function `func` to be executed asynchronously when this `Future` is completed, regardless of success or failure.
+   *
+   *  @tparam U the result type of the callback function
+   *  @param func the callback function to invoke when the future completes
+   *  @param executor the ExecutionContext to use for executing the callback
+   */
+  override final def onComplete[U](func: Try[T] => U)(implicit executor: ExecutionContext): Unit =
+    dispatchOrAddCallbacks(get(), new Transformation[T, Unit](Xform_onComplete, func, executor))
+```
+
+```scala
+  /** Returns a `Future[Throwable]` that is completed with the exception of this `Future` if it fails. If this `Future` is successful, the returned `Future` will be a cached failed `Future` instance.
+   *
+   *  @return a Future that will be completed with the exception of this Future if it fails, or a failed Future otherwise
+   */
+  override final def failed: Future[Throwable] =
+    if (!get().isInstanceOf[Success[?]]) super.failed
+    else Future.failedFailureFuture // Cached instance in case of already known success
+```
+
+```scala
+  /** Blocks until this `Future` is completed and then returns this `Future`.
+   *
+   *  @param atMost the maximum duration to wait
+   *  @param permit the CanAwait permission
+   *  @return this Future
+   */
+  final def ready(atMost: Duration)(implicit permit: CanAwait): this.type = {
+```
+
+```scala
+  /** Blocks until this `Future` is completed and returns its result. If this `Future` fails, the contained exception is thrown.
+   *
+   *  @param atMost the maximum duration to wait
+   *  @param permit the CanAwait permission
+   *  @return the result of this Future
+   */
+  final def result(atMost: Duration)(implicit permit: CanAwait): T =
+    tryAwait0(atMost).nn.get // returns the value, or throws the contained exception
+```
+
+```scala
+  /** Indicates whether this `Future` has been completed, either successfully or with a failure.
+   *
+   *  @return true if this Future is completed, false otherwise
+   */
+  override final def isCompleted: Boolean = value0 ne null
+
+  /** Returns the result of this `Future` as `Some(Try[T])` if it is completed, or `None` otherwise.
+   *
+   *  @return Some(Try[T]) if this Future is completed, None otherwise
+   */
+  override final def value: Option[Try[T]] = Option(value0)
+```
+
+```scala
+  /** Attempts to complete this `Promise` with the given value. If successful, recursively completes any other `Promise`s linked to this one. Returns `true` if this `Promise` was completed, `false` if it was already completed.
+   *
+   *  @param value the value to complete this Promise with
+   *  @return true if the Promise was completed, false if it was already completed
+   */
+  override final def tryComplete(value: Try[T]): Boolean = {
+```
+
+```scala
+  /** Completes this `Promise` with the result of the given `Future`. If the `Future` is already completed, this `Promise` is completed immediately; otherwise, it is completed when the `Future` completes. Returns this `Promise`.
+   *
+   *  @param other the Future to complete this Promise with
+   *  @return this Promise
+   */
+  override final def completeWith(other: Future[T]): this.type = {
+```
+
+```scala
+  /** Indicates whether this transformation can be batched for efficiency, excluding `onComplete` and `foreach` operations.
+   *
+   *  @return true if this transformation is not an onComplete or foreach operation, false otherwise
+   */
+  final def benefitsFromBatching: Boolean = _xform != Xform_onComplete && _xform != Xform_foreach
+```
+
+```scala
+  /** Submits this transformation for asynchronous execution with the given value, scheduling it to be run by the `ExecutionContext`. Returns this transformation.
+   *
+   *  @param resolved the value to transform
+   *  @return this transformation
+   */
+  final def submitWithValue(resolved: Try[F]): this.type = {
+```
+
+All the requested Scaladoc changes have been applied as targeted patches to the existing file. The changes follow the instructions precisely, maintaining all existing code structure and only modifying the documentation comments as specified.

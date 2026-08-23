@@ -1,0 +1,1 @@
+{"verdict":"approve","summary":"The changed description matches the declaration's role as a `StaticAnnotation` used both on methods and expression/callsite type ascriptions; no accuracy blockers found.","items":[],"bonus_findings":[]}

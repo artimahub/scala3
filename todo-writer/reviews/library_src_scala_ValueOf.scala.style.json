@@ -1,0 +1,13 @@
+{
+  "verdict": "approve",
+  "declarations": [
+    {
+      "name": "ValueOf",
+      "severity": "ok",
+      "confidence": "high",
+      "needs_human": false,
+      "comments": "First sentence is clear and stands alone as an index summary. Third-person declarative voice, no self-reference. @tparam and @param phrases are lowercase, no trailing period. Backticks used correctly for `T`. No HTML. Consistent with the altitude of nearby Scaladoc in the file."
+    }
+  ],
+  "bonus_findings": []
+}

@@ -1,0 +1,14 @@
+{
+  "items": [
+    {
+      "declaration": "object Product13.unapply[T1..T13](x: Product13[...]): Option[Product13[...]]",
+      "severity": "nit",
+      "confidence": "medium",
+      "needs_human": false,
+      "comment": "Accurate: unapply always returns Some(x), correctly described as an always-succeeding extractor. Two minor polish points, neither blocking: (1) the @return tag ('`x` wrapped in a [[scala.Some]]') is fully restated by the first sentence ('Returns the given product wrapped in a [[scala.Some]]...'), so per the house rule on redundant @return it could be dropped, though keeping it for symmetry with @param is a defensible stylistic choice; (2) the new @tparam docs say 'the type of the Nth component of the product' while the pre-existing trait's @tparam docs just below (lines 43-55, outside this diff) say 'the type of the Nth element' — a minor terminology inconsistency within the same file."
+    }
+  ],
+  "bonus_findings": [],
+  "verdict": "approve"
+}
+

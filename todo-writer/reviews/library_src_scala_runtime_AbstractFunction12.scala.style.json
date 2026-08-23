@@ -1,0 +1,24 @@
+{
+  "verdict": "approve",
+  "needs_human": false,
+  "items": [
+    {
+      "declaration": "AbstractFunction12 class doc",
+      "severity": "nit",
+      "confidence": "medium",
+      "needs_human": false,
+      "comment": "Second paragraph repeats 'extending'/'class' twice in one sentence ('Extending this class allows a function value to be defined by extending a class rather than the trait'), reading as slightly circular. Could tighten to 'A function value can be defined by extending this class rather than the [[scala.Function12]] trait.' Not a blocker, and it matches the wording used in sibling files (AbstractFunction11, etc.), so it's a systemic pattern rather than an error specific to this file."
+    },
+    {
+      "declaration": "@tparam T1..T12, R",
+      "severity": "ok",
+      "confidence": "high",
+      "needs_human": false,
+      "comment": "Accurate and consistent with Function12's own tparam docs."
+    }
+  ],
+  "bonus_findings": []
+}
+
+
+No blockers: the added Scaladoc is accurate and stylistically consistent with the rest of the `AbstractFunctionN` family being edited in this batch. One minor wording nit noted above, not blocking approval.

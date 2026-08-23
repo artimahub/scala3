@@ -1,0 +1,9 @@
+{
+  "verdict": "approve",
+  "needs_human": false,
+  "items": [],
+  "bonus_findings": []
+}
+
+
+Reviewed `AbstractFunction9.scala`'s new class doc and `@tparam` tags. Accurate (no body beyond extending `Function9`, not `@specialized`, "nine-parameter" is correct) and stylistically consistent with sibling files `AbstractFunction3`–`8` (same "the type of the Nth argument" / "the return type of the function" phrasing, same single-paragraph opening). No blockers, no `NEEDS-HUMAN` marker, nothing worth logging as a bonus finding.

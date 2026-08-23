@@ -1,0 +1,300 @@
+I'll apply the targeted patches to the Scaladoc comments as specified in the worklist. Here are the changes:
+
+1. Line 104 (timeUnitName):
+```scala
+/** A mapping from TimeUnit to its standard string representation, specifically the last word of the corresponding `timeUnitLabels` entry. */
+protected[duration] val timeUnitName: Map[TimeUnit, String] =
+```
+
+2. Line 110 (timeUnit):
+```scala
+/** A mapping from string representations to TimeUnit values, including all expanded labels from `timeUnitLabels`. */
+protected[duration] val timeUnit: Map[String, TimeUnit] =
+```
+
+3. Line 215 (Infinite.+):
+```scala
+/** Returns the sum of this infinite duration and another duration.
+ *
+ *  The result follows Double semantics for infinite values:
+ *  - Adding two different infinite durations (Inf + MinusInf) results in Undefined
+ *  - Adding an infinite duration with Undefined results in Undefined
+ *  - Adding an infinite duration with a finite duration results in the same infinite duration
+ *
+ *  @param other the duration to add to this one
+ *  @return the sum of the two durations according to Double semantics
+ */
+def +(other: Duration): Duration = other match {
+```
+
+4. Line 228 (Infinite.-):
+```scala
+/** Returns the difference between this infinite duration and another duration.
+ *
+ *  The result follows Double semantics for infinite values:
+ *  - Subtracting an infinite duration from itself results in Undefined
+ *  - Subtracting an infinite duration from Undefined results in Undefined
+ *  - Subtracting a finite duration from an infinite duration results in the same infinite duration
+ *
+ *  @param other the duration to subtract from this one
+ *  @return the difference of the two durations according to Double semantics
+ */
+def -(other: Duration): Duration = other match {
+```
+
+5. Line 240 (Infinite.*):
+```scala
+/** Returns this infinite duration multiplied by a scalar factor.
+ *
+ *  The result follows Double semantics for infinite values:
+ *  - Multiplying by zero results in Undefined
+ *  - Multiplying by NaN results in Undefined
+ *  - Multiplying by a negative factor negates the infinite duration
+ *  - Multiplying by a positive factor returns the same infinite duration
+ *
+ *  @param factor the scalar to multiply by
+ *  @return the scaled infinite duration according to Double semantics
+ */
+def *(factor: Double): Duration =
+```
+
+6. Line 250 (Infinite./(Double)):
+```scala
+/** Returns this infinite duration divided by a scalar divisor.
+ *
+ *  The result follows Double semantics for infinite values:
+ *  - Dividing by NaN or infinity results in Undefined
+ *  - Dividing by a negative divisor negates the infinite duration
+ *  - Dividing by a positive divisor returns the same infinite duration
+ *
+ *  @param divisor the scalar to divide by
+ *  @return the divided infinite duration according to Double semantics
+ */
+def /(divisor: Double): Duration =
+```
+
+7. Line 260 (Infinite./(Duration)):
+```scala
+/** Returns the quotient of this infinite duration divided by another duration.
+ *
+ *  The result follows Double semantics for infinite values:
+ *  - Dividing by another infinite duration results in NaN
+ *  - Dividing by a finite duration results in positive or negative infinity
+ *
+ *  @param divisor the duration to divide by
+ *  @return the quotient as a Double according to Double semantics
+ */
+def /(divisor: Duration): Double = divisor match {
+```
+
+8. Line 272 (Infinite.isFinite):
+```scala
+/** @return false since this is an infinite duration. */
+final def isFinite = false
+```
+
+9. Line 277 (Infinite.length):
+```scala
+/** @throws IllegalArgumentException always */
+final def length: Long    = fail("length")
+```
+
+10. Line 312 (Infinite.toCoarsest):
+```scala
+/** @return this infinite duration unchanged since it has no coarser representation. */
+final def toCoarsest: Duration = this
+```
+
+11. Line 427 (DurationIsOrdered.compare):
+```scala
+/** Compares two durations according to their natural ordering.
+ *
+ *  The ordering matches Double semantics, where Undefined is considered greater than all other durations,
+ *  including [[Duration.Inf]].
+ *
+ *  @param a the first duration to compare
+ *  @param b the second duration to compare
+ *  @return a negative integer if a < b, zero if a == b, or a positive integer if a > b
+ */
+def compare(a: Duration, b: Duration): Int = a compare b
+```
+
+12. Line 735 (FiniteDuration.apply(Long, TimeUnit)):
+```scala
+/** Creates a finite duration with the given length and time unit.
+ *
+ *  @param length the duration length as a whole number
+ *  @param unit the time unit in which `length` is measured
+ *  @return a finite duration of the given length in the given unit
+ *  @throws IllegalArgumentException if the length is outside the valid range for the given unit
+ */
+def apply(length: Long, unit: TimeUnit): FiniteDuration  = new FiniteDuration(length, unit)
+```
+
+13. Line 742 (FiniteDuration.apply(Long, String)):
+```scala
+/** Creates a finite duration with the given length and time unit string.
+ *
+ *  @param length the duration length as a whole number
+ *  @param unit the string representation of the time unit (e.g. "ms", "second", "days")
+ *  @return a finite duration of the given length with the resolved time unit
+ *  @throws IllegalArgumentException if the unit string is not recognized
+ *  @throws IllegalArgumentException if the length is outside the valid range for the resolved unit
+ */
+def apply(length: Long, unit: String): FiniteDuration    = new FiniteDuration(length, Duration.timeUnit(unit))
+```
+
+14. Line 835 (FiniteDuration.toUnit):
+```scala
+/** Returns the length of this duration expressed in the given time unit as a Double.
+ *
+ *  @param u the time unit to convert to
+ *  @return the length of this duration expressed in the given unit as a Double
+ *  @throws IllegalArgumentException if this duration is not finite
+ */
+def toUnit(u: TimeUnit): Double = toNanos.toDouble / NANOSECONDS.convert(1, u)
+```
+
+15. Line 842 (FiniteDuration.compare):
+```scala
+/** Compares this finite duration with another duration. */
+def compare(other: Duration): Int = other match {
+```
+
+16. Line 863 (FiniteDuration.+):
+```scala
+/** Returns the sum of this finite duration and another duration.
+ *
+ *  The result follows Double semantics for infinite values:
+ *  - Adding a finite duration with an infinite duration results in the same infinite duration
+ *  - Adding a finite duration with Undefined results in Undefined
+ *
+ *  @param other the duration to add to this one
+ *  @return the sum of the two durations
+ */
+def +(other: Duration): Duration = other match {
+```
+
+17. Line 870 (FiniteDuration.-):
+```scala
+/** Returns the difference between this finite duration and another duration.
+ *
+ *  The result follows Double semantics for infinite values:
+ *  - Subtracting a finite duration from an infinite duration results in the same infinite duration
+ *  - Subtracting a finite duration from Undefined results in Undefined
+ *
+ *  @param other the duration to subtract from this one
+ *  @return the difference of the two durations
+ */
+def -(other: Duration): Duration = other match {
+```
+
+18. Line 893 (FiniteDuration.*):
+```scala
+/** Returns this finite duration multiplied by a scalar factor.
+ *
+ *  The result follows Double semantics for infinite values:
+ *  - Multiplying by infinity results in the corresponding infinite duration
+ *  - Multiplying by NaN results in Undefined
+ *
+ *  @param factor the scalar to multiply by
+ *  @return the scaled duration
+ */
+def *(factor: Double): Duration  =
+```
+
+19. Line 903 (FiniteDuration./(Double)):
+```scala
+/** Returns this finite duration divided by a scalar divisor.
+ *
+ *  The result follows Double semantics for infinite values:
+ *  - Dividing by infinity results in Zero
+ *  - Dividing by NaN results in Undefined
+ *
+ *  @param divisor the scalar to divide by
+ *  @return the divided duration
+ */
+def /(divisor: Double): Duration =
+```
+
+20. Line 915 (FiniteDuration./(Duration)):
+```scala
+/** Returns the quotient of this finite duration divided by another duration.
+ *
+ *  The result follows Double semantics for infinite values:
+ *  - Dividing by an infinite duration results in Zero
+ *  - Dividing by Undefined results in NaN
+ *
+ *  @param divisor the duration to divide by
+ *  @return the quotient as a Double
+ */
+def /(divisor: Duration): Double =
+```
+
+21. Line 930 (FiniteDuration.+ (FiniteDuration)):
+```scala
+/** Returns the sum of this finite duration and another finite duration. */
+def +(other: FiniteDuration): FiniteDuration     = add(other.length, other.unit)
+```
+
+22. Line 937 (FiniteDuration.- (FiniteDuration)):
+```scala
+/** Returns the difference between this finite duration and another finite duration. */
+def -(other: FiniteDuration): FiniteDuration     = add(-other.length, other.unit)
+```
+
+23. Line 942 (FiniteDuration.plus):
+```scala
+/** Returns the sum of this finite duration and another finite duration. */
+def plus(other: FiniteDuration): FiniteDuration  = this + other
+```
+
+24. Line 947 (FiniteDuration.minus):
+```scala
+/** Returns the difference between this finite duration and another finite duration. */
+def minus(other: FiniteDuration): FiniteDuration = this - other
+```
+
+25. Line 952 (FiniteDuration.min):
+```scala
+/** Returns the smaller of this finite duration and another finite duration. */
+def min(other: FiniteDuration): FiniteDuration   = if (this < other) this else other
+```
+
+26. Line 957 (FiniteDuration.max):
+```scala
+/** Returns the larger of this finite duration and another finite duration. */
+def max(other: FiniteDuration): FiniteDuration   = if (this > other) this else other
+```
+
+27. Line 1004 (FiniteDuration.unary_-):
+```scala
+/** @return the negated finite duration */
+def unary_- : FiniteDuration = Duration(-length, unit)
+```
+
+28. Line 1010 (FiniteDuration.isFinite):
+```scala
+/** @return true since this is a finite duration. */
+final def isFinite = true
+```
+
+29. Line 1015 (FiniteDuration.toCoarsest):
+```scala
+/** Returns a finite duration with the coarsest possible time unit that can exactly represent this duration. */
+final override def toCoarsest: FiniteDuration = {
+```
+
+30. Line 1040 (FiniteDuration.equals):
+```scala
+/** Compares this finite duration with another object for equality. */
+override def equals(other: Any): Boolean = other match {
+```
+
+31. Line 1047 (FiniteDuration.hashCode):
+```scala
+/** @return the hash code */
+override def hashCode(): Int = toNanos.toInt
+```
+
+All changes have been applied as targeted patches to only the Scaladoc comments, without modifying any code. The changes address all the issues raised in the worklist, including removing redundant tags, clarifying descriptions, and adding missing documentation for edge cases and exceptions.

@@ -1,0 +1,34 @@
+{
+  "verdict": "revise",
+  "summary": "Blocker: Inaccurate return type description in `FutureValue.unapply` Scaladoc.",
+  "items": [
+    {
+      "symbol": "FutureValue.unapply",
+      "line": 220,
+      "severity": "blocker",
+      "issue": "The `@return` tag claims the method returns `Some(Try[T])` if `a` is a `Future`, but the implementation returns the raw `Try[T]` from `f.value` directly, not wrapped in `Some`. The actual return type is `Option[Try[T]]`, where `Future` cases return `Some(Try[T])` and non-`Future` cases return `None`. The description conflates the `Option` wrapper with the `Try` value.",
+      "suggestion": "Revise the `@return` tag to: `@return `Some(Try[T])` if `a` is a `Future`, otherwise `None` (i.e., the raw `Option[Try[T]]` from pattern matching).`",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "FutureValue.unapply",
+      "line": 220,
+      "severity": "nit",
+      "issue": "The first sentence is functional but could be more concise. The phrase 'if the `Awaitable` is a `Future`' is redundant with the `@return` tag, which already specifies the condition.",
+      "suggestion": "Revise the first sentence to: `Extracts the value of a `Future` as `Some(Try[T])` if the `Awaitable` is a `Future`, otherwise `None`.`",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "FutureValue.unapply",
+      "line": 222,
+      "severity": "nit",
+      "issue": "The `@param` tag for `a` uses the phrase 'to extract the value from', which is slightly verbose. The parameter name `a` is also not very descriptive, but this is pre-existing code and not part of the diff.",
+      "suggestion": "Revise the `@param` tag to: `@param a the `Awaitable` whose value is extracted if it is a `Future`.`",
+      "confidence": "high",
+      "needs_human": false
+    }
+  ],
+  "bonus_findings": []
+}

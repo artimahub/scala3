@@ -1,0 +1,13 @@
+{
+  "verdict": "approve",
+  "findings": [
+    {
+      "declaration": "short2int / short2long / short2float / short2double",
+      "severity": "nit",
+      "confidence": "medium",
+      "needs_human": false,
+      "comment": "The implicit-conversion docs use plain backticks for type names (e.g. `Int`) while the newly added toXxx member docs in the same file use wiki-style [[scala.Int]] links. Not wrong, but inconsistent within this PR's additions. The companion-object neighborhood already uses backticks, so either style is defensible — just worth making a deliberate call."
+    }
+  ],
+  "bonus_findings": []
+}

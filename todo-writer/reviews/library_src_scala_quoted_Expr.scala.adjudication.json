@@ -1,0 +1,24 @@
+{
+  "verdict": "approve",
+  "summary": "Style found two minor wording nits in ofTupleFromSeq's doc; accuracy review returned no findings; no blockers remain.",
+  "resolved_items": [
+    {
+      "symbol": "Expr.ofTupleFromSeq",
+      "line": 137,
+      "severity": "nit",
+      "instruction": "Drop the trailing period from the summary sentence to match the punctuation-free openings of the adjacent ofSeq and ofList doc comments.",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "Expr.ofTupleFromSeq",
+      "line": 139,
+      "severity": "nit",
+      "instruction": "Reword \"Sequences of up to 22 elements are built with the corresponding `TupleN` constructor, longer ones with `Tuple.fromIArray`\" to \"Non-empty sequences of up to 22 elements are built with the corresponding `TupleN` constructor, longer ones with `Tuple.fromIArray`\" since the 0-element case does not go through any TupleN helper.",
+      "raised_by": "style",
+      "needs_human": false
+    }
+  ],
+  "disagreements": []
+}
+

@@ -1,0 +1,17 @@
+{
+  "verdict": "approve",
+  "summary": "Checked conversion (val), iterableOpsIsIterable, bitSetOpsIsIterable, isSeqLikeIsIterable, and isMapLikeIsIterable against their bodies and signatures in IsIterable.scala, plus the extended IsSeq/IsMap definitions in IsSeq.scala and IsMap.scala; all @tparam/@param/@return claims match the actual type parameters, bounds, and returned instances. One wording nit found; no blockers.",
+  "items": [
+    {
+      "symbol": "isSeqLikeIsIterable / isMapLikeIsIterable",
+      "line": 165,
+      "severity": "nit",
+      "issue": "Applies to both occurrences (lines 162 and 173). Each description correctly says the method 'makes visible' rather than converts (body is just `= isSeqLike` / `= isMapLike`, an identity return relying on IsSeq/IsMap already extending IsIterable), but the @param line for the same doc block says 'the IsSeq instance to convert' / 'the IsMap instance to convert', implying a transformation that doesn't happen.",
+      "suggestion": "Reword the @param lines to match the description, e.g. '@param isSeqLike the `IsSeq` instance to expose as an `IsIterable`' and '@param isMapLike the `IsMap` instance to expose as an `IsIterable`'.",
+      "confidence": "medium",
+      "needs_human": false
+    }
+  ],
+  "bonus_findings": []
+}
+

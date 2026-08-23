@@ -1,0 +1,93 @@
+Here are the SEARCH/REPLACE blocks for the TODOs in the file:
+
+/workspace/scala3/library/src/scala/util/Either.scala
+```scala
+<<<<<<< SEARCH
+  /** TODO FILL IN
+   *
+   *  @param ev TODO FILL IN
+   *  @return TODO FILL IN
+   */
+  def toTry(implicit ev: A <:< Throwable): Try[B] = this match {
+    case Right(b) => Success(b)
+    case Left(a)  => Failure(a)
+  }
+=======
+  /** Converts this `Either` to a `Try`.
+   *
+   *  If this is a `Right`, returns a `Success` containing the right value.
+   *  If this is a `Left`, returns a `Failure` containing the left value, which must be a `Throwable`.
+   *
+   *  @param ev evidence that `A` is a subtype of `Throwable`
+   *  @return a `Try` representing the same computation as this `Either`
+   */
+  def toTry(implicit ev: A <:< Throwable): Try[B] = this match {
+    case Right(b) => Success(b)
+    case Left(a)  => Failure(a)
+  }
+>>>>>>> REPLACE
+```
+
+/workspace/scala3/library/src/scala/util/Either.scala
+```scala
+<<<<<<< SEARCH
+  /** TODO FILL IN */
+  def isLeft  = true
+=======
+  /** Returns `true` since this is a `Left` instance. */
+  def isLeft  = true
+>>>>>>> REPLACE
+```
+
+/workspace/scala3/library/src/scala/util/Either.scala
+```scala
+<<<<<<< SEARCH
+  /** TODO FILL IN */
+  def isRight = false
+=======
+  /** Returns `false` since this is a `Left` instance. */
+  def isRight = false
+>>>>>>> REPLACE
+```
+
+/workspace/scala3/library/src/scala/util/Either.scala
+```scala
+<<<<<<< SEARCH
+  /** TODO FILL IN */
+  def isLeft  = false
+=======
+  /** Returns `false` since this is a `Right` instance. */
+  def isLeft  = false
+>>>>>>> REPLACE
+```
+
+/workspace/scala3/library/src/scala/util/Either.scala
+```scala
+<<<<<<< SEARCH
+  /** TODO FILL IN */
+  def isRight = true
+=======
+  /** Returns `true` since this is a `Right` instance. */
+  def isRight = true
+>>>>>>> REPLACE
+```
+
+/workspace/scala3/library/src/scala/util/Either.scala
+```scala
+<<<<<<< SEARCH
+    /** TODO FILL IN */
+    def merge: A = x match {
+      case Right(a) => a
+      case Left(a)  => a
+    }
+=======
+    /** Extracts the value from this `Either` regardless of whether it is `Left` or `Right`.
+     *
+     *  @return the contained value, whether it is from the `Left` or `Right` side
+     */
+    def merge: A = x match {
+      case Right(a) => a
+      case Left(a)  => a
+    }
+>>>>>>> REPLACE
+```

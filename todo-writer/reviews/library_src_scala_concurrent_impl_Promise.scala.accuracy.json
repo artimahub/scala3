@@ -1,0 +1,241 @@
+{
+  "verdict": "approve",
+  "summary": "The documentation is accurate and follows the conventions, with minor suggestions for improvement.",
+  "items": [
+    {
+      "symbol": "CompletionLatch.result",
+      "line": 40,
+      "severity": "nit",
+      "issue": "The description could be more precise about the return type.",
+      "suggestion": "Returns the current result of this latch as a `Try[T]`, or `null` if not yet completed.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "DefaultPromise",
+      "line": 136,
+      "severity": "nit",
+      "issue": "The description could be more concise.",
+      "suggestion": "A promise that can be completed with a value or an exception.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "DefaultPromise.transform",
+      "line": 147,
+      "severity": "nit",
+      "issue": "The description could be more concise.",
+      "suggestion": "Returns a new Future completed with the result of applying the given function to this Future's result.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "DefaultPromise.transformWith",
+      "line": 159,
+      "severity": "nit",
+      "issue": "The description could be more concise.",
+      "suggestion": "Returns a new Future completed with the result of the given function applied to this Future's result.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "DefaultPromise.zipWith",
+      "line": 171,
+      "severity": "nit",
+      "issue": "The description could be more concise.",
+      "suggestion": "Returns a new Future completed with the result of applying the given function to the results of this Future and the given Future.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "DefaultPromise.foreach",
+      "line": 188,
+      "severity": "nit",
+      "issue": "The description could be more concise.",
+      "suggestion": "Applies the given function to the result of this Future if it is successful.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "DefaultPromise.flatMap",
+      "line": 201,
+      "severity": "nit",
+      "issue": "The description could be more concise.",
+      "suggestion": "Returns a new Future completed with the result of the given function applied to the result of this Future.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "DefaultPromise.map",
+      "line": 218,
+      "severity": "nit",
+      "issue": "The description could be more concise.",
+      "suggestion": "Returns a new Future completed with the result of applying the given function to the result of this Future.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "DefaultPromise.filter",
+      "line": 232,
+      "severity": "nit",
+      "issue": "The description could be more concise.",
+      "suggestion": "Returns a new Future completed with the result of this Future if it satisfies the given predicate.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "DefaultPromise.collect",
+      "line": 247,
+      "severity": "nit",
+      "issue": "The description could be more concise.",
+      "suggestion": "Returns a new Future completed with the result of applying the given partial function to the result of this Future.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "DefaultPromise.recoverWith",
+      "line": 262,
+      "severity": "nit",
+      "issue": "The description could be more concise.",
+      "suggestion": "Returns a new Future completed with the result of the given partial function applied to the exception of this Future if it fails.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "DefaultPromise.recover",
+      "line": 279,
+      "severity": "nit",
+      "issue": "The description could be more concise.",
+      "suggestion": "Returns a new Future completed with the result of the given partial function applied to the exception of this Future if it fails.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "DefaultPromise.mapTo",
+      "line": 294,
+      "severity": "nit",
+      "issue": "The description could be more concise.",
+      "suggestion": "Returns a new Future completed with the result of this Future cast to the given type.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "DefaultPromise.onComplete",
+      "line": 316,
+      "severity": "nit",
+      "issue": "The description could be more concise.",
+      "suggestion": "Registers a callback to be executed when this Future is completed.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "DefaultPromise.failed",
+      "line": 347,
+      "severity": "nit",
+      "issue": "The description could be more concise.",
+      "suggestion": "Returns a Future completed with the exception of this Future if it fails.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "DefaultPromise.toString",
+      "line": 356,
+      "severity": "nit",
+      "issue": "The description could be more concise.",
+      "suggestion": "Returns a string representation of this Future.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "DefaultPromise.ready",
+      "line": 395,
+      "severity": "nit",
+      "issue": "The description could be more concise.",
+      "suggestion": "Awaits the completion of this Future and returns this Future.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "DefaultPromise.result",
+      "line": 408,
+      "severity": "nit",
+      "issue": "The description could be more concise.",
+      "suggestion": "Awaits the completion of this Future and returns its result.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "DefaultPromise.isCompleted",
+      "line": 420,
+      "severity": "nit",
+      "issue": "The description could be more concise.",
+      "suggestion": "Returns whether this Future is completed.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "DefaultPromise.value",
+      "line": 430,
+      "severity": "nit",
+      "issue": "The description could be more concise.",
+      "suggestion": "Returns the result of this Future if it is completed.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "DefaultPromise.tryComplete",
+      "line": 443,
+      "severity": "nit",
+      "issue": "The description could be more concise.",
+      "suggestion": "Attempts to complete this Promise with the given value.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "DefaultPromise.completeWith",
+      "line": 458,
+      "severity": "nit",
+      "issue": "The description could be more concise.",
+      "suggestion": "Completes this Promise with the result of the given Future.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "Transformation",
+      "line": 640,
+      "severity": "nit",
+      "issue": "The description could be more concise.",
+      "suggestion": "Constructs a new Transformation with the given transformation function and execution context.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "Transformation.benefitsFromBatching",
+      "line": 650,
+      "severity": "nit",
+      "issue": "The description could be more concise.",
+      "suggestion": "Indicates whether this transformation benefits from batching.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "Transformation.submitWithValue",
+      "line": 663,
+      "severity": "nit",
+      "issue": "The description could be more concise.",
+      "suggestion": "Submits this transformation for execution with the given value.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "Transformation.run",
+      "line": 682,
+      "severity": "nit",
+      "issue": "The description could be more concise.",
+      "suggestion": "Executes this transformation with the given value.",
+      "confidence": "high",
+      "needs_human": false
+    }
+  ],
+  "bonus_findings": []
+}

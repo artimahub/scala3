@@ -1,0 +1,14 @@
+{
+  "items": [
+    {
+      "declaration": "object Product4.unapply[T1, T2, T3, T4](x: Product4[T1, T2, T3, T4]): Option[Product4[T1, T2, T3, T4]]",
+      "severity": "nit",
+      "confidence": "high",
+      "needs_human": false,
+      "comment": "Accurate: `unapply` always returns `Some(x)`, and wrapping the whole product (rather than a tuple) is exactly what lets any `Product4` implementor be destructured via `case Product4(a, b, c, d) => ...`, matching the 'usable as an extractor' claim. First sentence is a good standalone summary, third person, present tense. Minor style point: the first sentence already begins with 'Returns the given product wrapped in a [[scala.Some]]...' which fully states the return value, so per the @return-drop convention the `@return` tag ('the product `x` wrapped in a [[scala.Some]]') is redundant and could be omitted. Not blocking."
+    }
+  ],
+  "bonus_findings": [],
+  "verdict": "approve"
+}
+

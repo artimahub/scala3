@@ -1,0 +1,20 @@
+{
+  "verdict": "approve",
+  "items": [
+    {
+      "declaration": "def toByte: Byte / def toShort: Short / def toChar: Char / def toInt: Int / def toLong: Long / def toFloat: Float / def toDouble: Double",
+      "severity": "ok",
+      "confidence": "high",
+      "needs_human": false,
+      "comment": "All seven start with 'Returns', so dropping @return is correct per the redundancy rule. Article choice ('a' vs 'an') is correct — 'an [[scala.Int]]' is right. [[scala.X]] link form is appropriate for stdlib cross-refs. Single-sentence docs match the altitude of the surrounding members."
+    },
+    {
+      "declaration": "implicit def byte2short / byte2int / byte2long / byte2float / byte2double",
+      "severity": "ok",
+      "confidence": "high",
+      "needs_human": false,
+      "comment": "Description begins with 'Returns', so omitting @return is correct. @param phrase 'the `Byte` value to convert' starts lowercase, no trailing period — matches the immediately preceding byte2short block that was already documented. No HTML, backtick and wiki-link usage is consistent."
+    }
+  ],
+  "bonus_findings": []
+}

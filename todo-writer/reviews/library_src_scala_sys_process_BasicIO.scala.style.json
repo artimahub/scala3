@@ -1,0 +1,45 @@
+{
+  "verdict": "approve",
+  "needs_human": false,
+  "items": [
+    {
+      "declaration": "LazilyListed.apply",
+      "severity": "ok",
+      "confidence": "high"
+    },
+    {
+      "declaration": "Streamed.apply",
+      "severity": "ok",
+      "confidence": "high"
+    },
+    {
+      "declaration": "Uncloseable.close",
+      "severity": "ok",
+      "confidence": "high"
+    },
+    {
+      "declaration": "Uncloseable.apply(in: InputStream)",
+      "severity": "ok",
+      "confidence": "high"
+    },
+    {
+      "declaration": "Uncloseable.apply(out: OutputStream)",
+      "severity": "ok",
+      "confidence": "high"
+    },
+    {
+      "declaration": "Uncloseable.protect(in: InputStream)",
+      "severity": "nit",
+      "confidence": "medium",
+      "note": "First sentence ('Shields the standard input stream from being closed...') reads as unconditional; the method only shields when `in eq stdin`, otherwise passes `in` through untouched. The @return tag does state the condition correctly, so this is low-risk, but a reader skimming only the summary could be misled."
+    },
+    {
+      "declaration": "Uncloseable.protect(out: OutputStream)",
+      "severity": "nit",
+      "confidence": "medium",
+      "note": "Same pattern as protect(in): summary sentence implies unconditional shielding of stdout/stderr, while the actual behavior (per @return) is conditional on `out eq stdout || out eq stderr`."
+    }
+  ],
+  "bonus_findings": []
+}
+

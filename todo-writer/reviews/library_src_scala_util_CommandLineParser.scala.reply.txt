@@ -1,0 +1,28 @@
+```scala
+<<<<<<< /workspace/scala3/library/src/scala/util/CommandLineParser.scala
+  /** A type class for converting a command line `String` into a value of type `T`.
+   *
+   *  @tparam T the target type that the `String` argument is converted into
+   */
+=======
+  /** A type class for converting a command line `String` into a value of type `T`; conversion may throw `IllegalArgumentException`.
+   *
+   *  @tparam T the target type that the `String` argument is converted into
+   */
+>>>>>>> /workspace/scala3/library/src/scala/util/CommandLineParser.scala
+```
+
+```scala
+<<<<<<< /workspace/scala3/library/src/scala/util/CommandLineParser.scala
+    /** Returns an `Option` containing the value parsed from `s`, or `None` if parsing fails.
+     *
+     *  @param s the string to convert to type `T`
+     */
+=======
+    /** Returns an `Option` containing the value converted from `s`, or `None` if parsing fails.
+     *
+     *  @param s the string to convert to type `T`
+     *  @return `Some(value)` if conversion succeeds, or `None` if `fromString` throws.
+     */
+>>>>>>> /workspace/scala3/library/src/scala/util/CommandLineParser.scala
+```

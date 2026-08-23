@@ -1,0 +1,65 @@
+I'll apply the targeted patches to the Scaladoc comments as specified in the worklist. Here are the changes:
+
+```scala
+/*
+ * Scala (https://www.scala-lang.org)
+ *
+ * Copyright EPFL and Lightbend, Inc. dba Akka
+ *
+ * Licensed under Apache License 2.0
+ * (http://www.apache.org/licenses/LICENSE-2.0).
+ *
+ * See the NOTICE file distributed with this work for
+ * additional information regarding copyright ownership.
+ */
+
+package scala
+package util.control
+
+import scala.language.`2.13`
+
+/** A trait for exceptions which, for efficiency reasons, do not
+ *  fill in the stack trace.  Stack trace suppression can be disabled
+ *  on a global basis via a system property wrapper in
+ *  [[scala.sys.SystemProperties]].
+ *
+ *  @note Since JDK 1.7, a similar effect can be achieved with `class Ex extends Throwable(..., writableStackTrace = false)`
+ */
+trait NoStackTrace extends Throwable {
+  /** Overrides `fillInStackTrace` to conditionally suppress stack trace generation based on the global `noSuppression` setting.
+   *  Overrides the default stack trace filling behavior to suppress stack traces if `NoStackTrace.noSuppression` is `false`,
+   *  otherwise delegates to the superclass implementation. Suppression is controlled globally by the `noSuppression` flag,
+   *  not per instance.
+   *
+   *  @return this `Throwable` instance without filling in the stack trace if `noSuppression` is `false`, otherwise the result of the superclass implementation
+   */
+  override def fillInStackTrace(): Throwable =
+    if (NoStackTrace.noSuppression) super.fillInStackTrace()
+    else this
+}
+
+object NoStackTrace {
+  /** Indicates the global setting for stack trace suppression in `NoStackTrace`.
+   *
+   *  @return `true` if stack trace suppression is disabled, `false` otherwise
+   *  @note This method reads a mutable static field. The returned value may change if the field is modified elsewhere in the application.
+   */
+  final def noSuppression = _noSuppression
+
+  // two-stage init to make checkinit happy, since sys.SystemProperties.noTraceSuppression.value calls back into NoStackTrace.noSuppression
+  final private var _noSuppression = false
+  _noSuppression = System.getProperty("scala.control.noTraceSuppression", "").equalsIgnoreCase("true")
+}
+```
+
+Changes made:
+1. For `NoStackTrace.fillInStackTrace` (line 26):
+   - Added a new first sentence as requested in the nit instruction
+   - Revised the description to accurately reflect the behavior as per the blocker instruction
+   - Corrected the `@return` tag as per the blocker instruction
+
+2. For `NoStackTrace.noSuppression` (line 33):
+   - Revised the description to provide unique value as per the nit instruction
+   - Added a `@note` tag to clarify about the mutable static field as per the blocker instruction
+
+All changes are targeted patches to only the Scaladoc comment lines, preserving all code, imports, and structure exactly as they were.

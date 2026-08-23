@@ -1,0 +1,28 @@
+I'll apply the targeted patches to the Scaladoc comments as specified in the worklist. Here are the changes:
+
+1. For `TryBlock` (line 94), I'll revise the first sentence to accurately describe the trait's purpose and consider the nit suggestion for rewording.
+
+2. For `catchBreak` (line 98), I'll clarify the description and simplify the `@param` tag as requested.
+
+Here are the specific changes:
+
+```scala
+  /** A container for a computation that may be exited with a `break`, allowing recovery of a value of type `T`.
+   *
+   *  @tparam T the result type of the computation
+   */
+  sealed trait TryBlock[T] {
+    /** Returns the result of the computation if it completes normally, or the given fallback value if the computation was aborted with `break`.
+     *
+     *  @param onBreak the fallback value if the computation was aborted with `break`
+     */
+    def catchBreak(onBreak: => T): T
+  }
+```
+
+The changes made:
+1. Line 94: Changed "A block that may be exited with a `break`, producing a value of type `T`." to "A container for a computation that may be exited with a `break`, allowing recovery of a value of type `T`." (addressing the blocker and incorporating the nit suggestion)
+2. Line 98: Changed "Returns the result of the computation, or the given fallback value if `break` was invoked." to "Returns the result of the computation if it completes normally, or the given fallback value if the computation was aborted with `break`." (addressing the blocker)
+3. Line 101: Simplified "@param onBreak the fallback value to return if the computation was aborted with `break`" to "@param onBreak the fallback value if the computation was aborted with `break`" (addressing the nit)
+
+All changes are targeted patches to only the Scaladoc comment lines as specified, with no changes to code, imports, or other structure.

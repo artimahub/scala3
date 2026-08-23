@@ -1,0 +1,26 @@
+<<<<<<< SEARCH
+  @deprecated("'conversion' is now a method named 'apply'", "2.13.0")
+  @untrackedCaptures
+  /** A deprecated alias for the `apply` method that converts a `Repr` to an `IterableOnce[A]`.
+   *
+   *  @deprecated("'conversion' is now a method named 'apply'", "2.13.0")
+   */
+  val conversion: Repr => IterableOnce[A] = apply(_)
+=======
+  /** A deprecated alias for the `apply` method that converts a `Repr` to an `IterableOnce[A]`. */
+  @deprecated("'conversion' is now a method named 'apply'", "2.13.0")
+  @untrackedCaptures
+  val conversion: Repr => IterableOnce[A] = apply(_)
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Provides an `IsIterableOnce` instance for any `IterableOnce` subclass.
+=======
+  /** Provides an *implicit* `IsIterableOnce` instance for any `IterableOnce` subclass.
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Provides an `IsIterableOnce` instance for any type that has an `IsIterable` instance.
+=======
+  /** Provides an *implicit* `IsIterableOnce` instance for any type that has an *implicit* `IsIterable` instance.
+>>>>>>> REPLACE

@@ -1,0 +1,13 @@
+{
+  "verdict": "approve",
+  "declarations": [
+    {
+      "name": "strictfp",
+      "severity": "ok",
+      "confidence": "high",
+      "needs_human": false,
+      "comments": "First sentence stands alone well as an index summary. Declarative, third person, present tense. No self-reference. Not redundant with the signature. Backticks used correctly for `strictfp`. No HTML tags. Concise and appropriately pitched."
+    }
+  ],
+  "bonus_findings": []
+}

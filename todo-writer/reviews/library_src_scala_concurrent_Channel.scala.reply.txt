@@ -1,0 +1,17 @@
+```scala
+<<<<<<< SEARCH
+  private class LinkedList {
+    /** TODO FILL IN */
+    var elem: A = compiletime.uninitialized
+    /** TODO FILL IN */
+    var next: LinkedList = compiletime.uninitialized
+  }
+=======
+  private class LinkedList {
+    /** The element stored in this node of the linked list. */
+    var elem: A = compiletime.uninitialized
+    /** The next node in the linked list. */
+    var next: LinkedList = compiletime.uninitialized
+  }
+>>>>>>> REPLACE
+```

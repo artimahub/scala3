@@ -1,0 +1,7 @@
+Looking at the diff carefully: the only `+` line is the repositioned `@deprecatedInheritance` annotation - no documentation text was added or changed. The diff removes a `/** TODO FILL IN */` placeholder (the previously-effective Scaladoc) and moves the annotation above the pre-existing `/** Marker for native methods. ... */` block, which now becomes the effective Scaladoc. The doc text itself appears only as unchanged context lines.
+{
+  "verdict": "approve",
+  "items": [],
+  "bonus_findings": [],
+  "summary": "No documentation text was added or changed in this diff. The change repositions @deprecatedInheritance before the existing Scaladoc block and removes the TODO placeholder, making the pre-existing doc the effective Scaladoc for class native. Per review scope ('judge ONLY documentation that appears as added/changed in that diff'), there is nothing to assess."
+}

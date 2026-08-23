@@ -1,0 +1,13 @@
+{
+  "verdict": "approve",
+  "items": [
+    {
+      "declaration": "trait TypeTest — @tparam T",
+      "severity": "nit",
+      "confidence": "medium",
+      "needs_human": false,
+      "comment": "'the type for which the value is tested' is slightly indirect — the relationship is an instance-of test, so 'the type that the value is tested against' or 'the target type of the instance check' reads more naturally."
+    }
+  ],
+  "bonus_findings": []
+}

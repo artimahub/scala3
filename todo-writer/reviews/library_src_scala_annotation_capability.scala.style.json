@@ -1,0 +1,13 @@
+{
+  "verdict": "approve",
+  "declarations": [
+    {
+      "name": "capability",
+      "severity": "nit",
+      "confidence": "high",
+      "needs_human": false,
+      "notes": "The new comment is stylistically clean: imperative verb opening ('Marks'), third-person present tense, no HTML, no self-reference ('This class...'), appropriate altitude for a one-sentence annotation. No @return applies. One nit: the file now contains two Scaladoc comments for the same declaration -- the pre-existing detailed block (lines 6-15, with example and -Ycc note) plus this replacement for the 'TODO FILL IN' placeholder. Scaladoc tools use only the comment immediately adjacent to the declaration, so the richer pre-existing block becomes an orphaned comment that readers may stumble over. Conventionally, each declaration carries exactly one Scaladoc comment; the two blocks should be merged into the position immediately before the class."
+    }
+  ],
+  "bonus_findings": []
+}

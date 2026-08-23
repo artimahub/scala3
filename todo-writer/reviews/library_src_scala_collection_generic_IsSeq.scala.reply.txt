@@ -1,0 +1,50 @@
+<<<<<<< 1
+/** Returns the same conversion as `apply`, for compatibility with older code.
+ *
+ *  @deprecated("'conversion' is now a method named 'apply'", "2.13.0")
+ */
+>>>>>>>
+
+<<<<<<< 2
+/** Provides an `IsSeq` instance for any `SeqOps` subtype.
+ *
+ *  @tparam CC0 the collection type constructor, a subtype of `SeqOps`
+ *  @tparam A0 the element type of the collection
+ *  @return an `IsSeq` instance for `CC0[A0]`
+ */
+>>>>>>>
+
+<<<<<<< 3
+/** Provides an `IsSeq` instance for any `SeqView` subtype.
+ *
+ *  @tparam CC0 the collection type constructor, a subtype of `SeqView`
+ *  @tparam A0 the element type of the collection
+ *  @return an `IsSeq` instance for `CC0[A0]`
+ */
+>>>>>>>
+
+<<<<<<< 4
+/** Provides an `IsSeq` instance for `String`, treating it as a sequence of characters.
+ */
+>>>>>>>
+
+<<<<<<< 5
+/** Provides an `IsSeq` instance for `StringView`, treating it as a sequence of characters.
+ */
+>>>>>>>
+
+<<<<<<< 6
+/** Provides an `IsSeq` instance for arrays of any type.
+ *
+ *  @tparam A0 the element type of the array
+ *  @return an `IsSeq` instance for `Array[A0]`
+ */
+>>>>>>>
+
+<<<<<<< 7
+/** Provides an `IsSeq` instance for `Range` values.
+ *
+ *  @tparam C0 the specific `Range` type
+ *  @return an `IsSeq` instance for `C0`
+ */
+>>>>>>>

@@ -1,0 +1,18 @@
+```json
+{
+  "overall_quality": "good",
+  "issues": [
+    {
+      "line": 42,
+      "tag_type": "@param",
+      "tag_name": "msg",
+      "severity": "suggestion",
+      "current_text": "the error message template, with `\\${Xi}` placeholders for type parameters",
+      "problem": "The description is accurate and clear, but could be slightly more specific about what happens with the placeholders (they are replaced with the string representations of the actual type arguments at the call site).",
+      "suggestion": "the error message template; occurrences of `\\${Xi}` are replaced with the string representation of the corresponding type argument"
+    }
+  ],
+  "general_feedback": "The @param documentation is accurate and concise. It correctly identifies `msg` as an error message template and mentions the placeholder syntax. The description aligns well with the class-level documentation above it. The only minor improvement would be to echo the replacement semantics already described in the class doc, but the current text is perfectly serviceable since the class doc already explains this in detail.",
+  "requires_changes": false
+}
+```

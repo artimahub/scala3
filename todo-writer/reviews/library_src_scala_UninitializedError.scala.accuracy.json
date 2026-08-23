@@ -1,0 +1,1 @@
+{"verdict":"approve","summary":"The added Scaladoc accurately describes UninitializedError as a RuntimeException for uninitialized variable/value use.","items":[],"bonus_findings":[]}

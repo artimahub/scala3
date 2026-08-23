@@ -1,0 +1,37 @@
+I'll apply the targeted patches to the Scaladoc comments as specified in the worklist. Here are the changes needed:
+
+1. For line 220 (the first sentence of `FutureValue.unapply`):
+   - Change from: "Extracts the value of a `Future` if the `Awaitable` is a `Future`, otherwise returns `None`."
+   - To: "Extracts the value of a `Future` as `Some(Try[T])` if the `Awaitable` is a `Future`, otherwise `None`."
+
+2. For line 220 (the `@return` tag):
+   - Change from: "@return `Some(Try[T])` if `a` is a `Future`, otherwise `None`"
+   - To: "@return `Some(Try[T])` if `a` is a `Future`, otherwise `None` (i.e., the raw `Option[Try[T]]` from pattern matching)."
+
+3. For line 222 (the `@param` tag):
+   - Change from: "@param a the `Awaitable` to extract the value from"
+   - To: "@param a the `Awaitable` whose value is extracted if it is a `Future`."
+
+Here's the patched version of the relevant section:
+
+```scala
+    private object FutureValue {
+      /** Extracts the value of a `Future` as `Some(Try[T])` if the `Awaitable` is a `Future`, otherwise `None`.
+       *
+       *  @tparam T the type of the value contained in the `Future`
+       *  @param a the `Awaitable` whose value is extracted if it is a `Future`
+       *  @return `Some(Try[T])` if `a` is a `Future`, otherwise `None` (i.e., the raw `Option[Try[T]]` from pattern matching)
+       */
+      def unapply[T](a: Awaitable[T]): Option[Try[T]] = a match {
+        case f: Future[T @unchecked] => f.value
+        case _ => None
+      }
+    }
+```
+
+The changes are minimal and targeted, only modifying the Scaladoc comments as instructed while leaving all code, structure, and other documentation unchanged. The patches address:
+1. The blocker issue about the inaccurate return type description
+2. The nit about improving the first sentence clarity
+3. The nit about improving the parameter description
+
+All changes maintain the exact same meaning but with more precise wording that matches the actual implementation behavior.

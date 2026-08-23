@@ -1,0 +1,120 @@
+{
+  "verdict": "revise",
+  "summary": "Two blockers remain after merging and reconciling reviewer disagreements.",
+  "resolved_items": [
+    {
+      "symbol": "IntIsIntegral.fromInt / IntIsIntegral.toInt / LongIsIntegral.toLong",
+      "line": 184,
+      "severity": "blocker",
+      "instruction": "Change the @param wording for these three identity methods to something like 'the `Int` value (returned unchanged)', matching the pattern already used for FloatIsFractional.toFloat and DoubleIsFractional.toDouble.",
+      "raised_by": "accuracy",
+      "needs_human": false
+    },
+    {
+      "symbol": "Numeric.NumericOps.signum",
+      "line": 1045,
+      "severity": "blocker",
+      "instruction": "Drop the line '@deprecated(\"use \\`sign\\` method instead\", since = \"2.13.0\")' entirely; the real `@deprecated` annotation on the `def` already renders the deprecation notice.",
+      "raised_by": "accuracy",
+      "needs_human": false
+    },
+    {
+      "symbol": "Repeated @throws java.lang.ArithmeticException if `y` is zero",
+      "line": 78,
+      "severity": "nit",
+      "instruction": "Remove the `@throws` tag for `div` in `FloatIsFractional` and `DoubleIsFractional` (lines 685, 774), as floating-point division by zero does not throw an exception.",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "CharIsIntegral.parseString",
+      "line": 473,
+      "severity": "nit",
+      "instruction": "Simplify the @return tag to: \"@return `Some(Char)` if the string is a valid integer (truncated to `Char` via narrowing), `None` otherwise\".",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "BigDecimalIsConflicted.plus",
+      "line": 796,
+      "severity": "nit",
+      "instruction": "Clarify the @note tag to: \"@note Returns `y` directly if `x` is the cached zero instance to avoid math context pollution, which may affect precision or rounding behavior.\"",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "BigDecimalIsConflicted.minus",
+      "line": 807,
+      "severity": "nit",
+      "instruction": "Clarify the @note tag to: \"@note Returns `-y` directly if `x` is the cached zero instance to avoid math context pollution.\"",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "BigDecimalIsConflicted.times",
+      "line": 819,
+      "severity": "nit",
+      "instruction": "Clarify the @note tag to: \"@note Returns `y` directly if `x` is the cached one instance to avoid math context pollution.\"",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "Numeric.signum",
+      "line": 997,
+      "severity": "nit",
+      "instruction": "Remove the prose restatement of the deprecation: \"Returns the signum of a value of type `T`.\"",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "Numeric.NumericOps.signum",
+      "line": 1042,
+      "severity": "nit",
+      "instruction": "Remove the prose restatement of the deprecation: \"Returns the signum of this value.\"",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "CharIsIntegral.sign",
+      "line": 514,
+      "severity": "nit",
+      "instruction": "Drop the trailing '(\\u0000)', e.g. '\\u0001 if `x` is nonzero, \\u0000 if `x` is zero — `Char` values are unsigned.'",
+      "raised_by": "accuracy",
+      "needs_human": false
+    },
+    {
+      "symbol": "FloatIsFractional.sign / DoubleIsFractional.sign",
+      "line": 699,
+      "severity": "nit",
+      "instruction": "Note that the sign of zero is preserved, e.g. '0.0 if `x` is positive zero, -0.0 if `x` is negative zero'.",
+      "raised_by": "accuracy",
+      "needs_human": false
+    }
+  ],
+  "disagreements": [
+    {
+      "symbol": "Numeric.signum",
+      "line": 997,
+      "accuracy_position": "Remove the `@deprecated Use \\`sign\\` instead.` line from the doc comment; the annotation already renders it.",
+      "style_position": "Remove the prose restatement of the deprecation: \"Returns the signum of a value of type `T`.\"",
+      "ruling": "style",
+      "rationale": "The accuracy reviewer's suggestion is more specific and aligns with the house rule against restating `@deprecated` in prose."
+    },
+    {
+      "symbol": "Numeric.NumericOps.signum",
+      "line": 1045,
+      "accuracy_position": "Drop the line '@deprecated(\"use \\`sign\\` method instead\", since = \"2.13.0\")' entirely; the real `@deprecated` annotation on the `def` already renders the deprecation notice.",
+      "style_position": "Remove the prose restatement of the deprecation: \"Returns the signum of this value.\"",
+      "ruling": "accuracy",
+      "rationale": "The accuracy reviewer correctly identifies that the line is malformed/broken scaladoc and violates the house rule against restating `@deprecated` in prose."
+    },
+    {
+      "symbol": "Repeated @throws java.lang.ArithmeticException if `y` is zero",
+      "line": 78,
+      "accuracy_position": "",
+      "style_position": "Remove the `@throws` tag for `div` in `FloatIsFractional` and `DoubleIsFractional` (lines 685, 774), as floating-point division by zero does not throw an exception.",
+      "ruling": "style",
+      "rationale": "The style reviewer correctly identifies that the `@throws` tag is not relevant for `div` in `FloatIsFractional` and `DoubleIsFractional`."
+    }
+  ]
+}

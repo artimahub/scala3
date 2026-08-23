@@ -1,0 +1,111 @@
+{
+  "verdict": "approve",
+  "summary": "All documentation is accurate and follows conventions; minor nits are non-blocking.",
+  "resolved_items": [
+    {
+      "symbol": "WithFilter.map",
+      "line": 167,
+      "severity": "nit",
+      "instruction": "Change the first sentence to: \"Returns a `Success` containing the result of applying `f` to the value if the predicate holds.\"",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "WithFilter.flatMap",
+      "line": 174,
+      "severity": "nit",
+      "instruction": "Change the first sentence to: \"Returns the result of applying `f` to the value if the predicate holds.\"",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "WithFilter.foreach",
+      "line": 180,
+      "severity": "nit",
+      "instruction": "Change the description to: \"Applies the given side-effecting function to the value if it satisfies the predicate.\"",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "WithFilter.withFilter",
+      "line": 185,
+      "severity": "nit",
+      "instruction": "Change the first sentence to: \"Returns a new `WithFilter` that combines this predicate with `q`.\"",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "Failure.getOrElse",
+      "line": 295,
+      "severity": "nit",
+      "instruction": "Change the description to: \"Returns the lazily evaluated `default` argument since this is a `Failure`.\"",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "Failure.orElse",
+      "line": 302,
+      "severity": "nit",
+      "instruction": "Change the description to: \"Returns the lazily evaluated `default` `Try`; any non-fatal exception thrown while evaluating `default` is caught and returned as a `Failure`.\"",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "Failure.transform",
+      "line": 323,
+      "severity": "nit",
+      "instruction": "Change the description to: \"Applies the given function `f` to the exception contained in this `Failure`; the function `s` is ignored.\"",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "Failure.recover",
+      "line": 350,
+      "severity": "nit",
+      "instruction": "Change the description to: \"Applies the given partial function to the exception if it is defined for it, returning a `Success` with the result or this `Failure` unchanged.\"",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "Success.flatMap",
+      "line": 410,
+      "severity": "nit",
+      "instruction": "Change the description to: \"Returns the `Try` produced by applying the given function to the value.\"",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "Success.transform",
+      "line": 424,
+      "severity": "nit",
+      "instruction": "Change the description to: \"Applies the given function `s` to the value contained in this `Success`; the function `f` is ignored.\"",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "Success.collect",
+      "line": 438,
+      "severity": "nit",
+      "instruction": "Change the description to: \"Applies the given partial function to the value if it is defined for it, returning a `Success` with the result or a `Failure` if the partial function is not defined.\"",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "Success.filter",
+      "line": 452,
+      "severity": "nit",
+      "instruction": "Change the description to: \"Returns this `Success` if the value satisfies the predicate, otherwise returns a `Failure` with a `NoSuchElementException`.\"",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "Success.fold",
+      "line": 482,
+      "severity": "nit",
+      "instruction": "Change the description to: \"Applies the given function `fb` to the value; if `fb` throws an exception, applies `fa` to that exception.\"",
+      "raised_by": "style",
+      "needs_human": false
+    }
+  ],
+  "disagreements": []
+}

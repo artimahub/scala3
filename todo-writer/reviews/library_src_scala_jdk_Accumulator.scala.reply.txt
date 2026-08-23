@@ -1,0 +1,11 @@
+All 22 `TODO FILL IN` placeholders in `library/src/scala/jdk/Accumulator.scala` are filled. Verified: every non-comment line is byte-identical to the pre-edit file (diff of code-only lines is empty), so only Scaladoc lines changed.
+
+Decisions worth knowing:
+
+- `@return` dropped on `efficientStepper`, `toFactory`, and `anyAccumulatorFactoryShape` (descriptions start with "Returns" and state the whole result); kept on `stepper`, where it adds the delegation-to-`efficientStepper` fact.
+- `length` documents its failure with `@throws IllegalArgumentException` (house rule) rather than prose, converting the one-line placeholder into a multi-line comment.
+- `toFactory`'s `sa` parameter is tagged "(never used)" - the body only uses `canAccumulate`.
+- `knownSize` documents the `-1` sentinel at `Int.MaxValue` elements.
+- The `jl.Double`/`jl.Integer`/`jl.Long` shapes are documented as storing elements unboxed, since they are casts of the primitive shapes.
+
+Left uncommitted, since this file is part of the week-6 partition run and I did not want to interleave a commit with `commit-removals.sh`. Say the word and I'll commit it.

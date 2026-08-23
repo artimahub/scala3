@@ -1,0 +1,24 @@
+{
+  "verdict": "approve",
+  "summary": "No blocker-level issues remain after merging and overruling.",
+  "resolved_items": [
+    {
+      "symbol": "Int.hasMatch / Long.hasMatch",
+      "line": 41,
+      "severity": "nit",
+      "instruction": "Align the wording for @param m to match mask's parameter documentation, e.g., \"@param m the branch bit used to derive the mask matched against `key`\".",
+      "raised_by": "accuracy",
+      "needs_human": false
+    }
+  ],
+  "disagreements": [
+    {
+      "symbol": "Int.hasMatch / Long.hasMatch",
+      "line": 41,
+      "accuracy_position": "Align the wording for @param m to match mask's parameter documentation.",
+      "style_position": "",
+      "ruling": "accuracy",
+      "rationale": "The inconsistency in terminology for the same conceptual value is a valid nit, and the suggested alignment improves clarity."
+    }
+  ]
+}

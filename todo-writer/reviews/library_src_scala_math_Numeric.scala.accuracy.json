@@ -1,0 +1,52 @@
+{
+  "verdict": "revise",
+  "summary": "Docs are accurate for the great majority of the ~150 changed declarations verified against implementations (arithmetic ops, conversions, parseString, signum/sign, abs, @throws ArithmeticException on quot/rem/div-by-zero, BigDecimalIsConflicted math-context notes). Two blockers: an @param tag on the Int/Long identity conversions contradicts its own description, and the deprecated-signum docs on NumericOps restate the @deprecated annotation verbatim as broken tag text. Two nits on CharIsIntegral.sign wording and Float/Double sign losing the -0.0 edge case.",
+  "items": [
+    {
+      "symbol": "IntIsIntegral.fromInt / IntIsIntegral.toInt / LongIsIntegral.toLong",
+      "line": 184,
+      "severity": "blocker",
+      "issue": "The description says 'as no conversion is needed' / 'the given ... value unchanged', but the @param tag right below it says 'the `Int`/`Long` value to convert', directly contradicting the description. Occurs for IntIsIntegral.fromInt (line 179-184, tag at 181), IntIsIntegral.toInt (191-196, tag at 193), and LongIsIntegral.toLong (581-586, tag at 583). Contrast with FloatIsFractional.toFloat and DoubleIsFractional.toDouble, which correctly phrase the same identity case as '(returned unchanged)'.",
+      "suggestion": "Change the @param wording for these three identity methods to something like 'the `Int` value (returned unchanged)', matching the pattern already used for FloatIsFractional.toFloat and DoubleIsFractional.toDouble.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "Numeric.NumericOps.signum",
+      "line": 1045,
+      "severity": "blocker",
+      "issue": "The doc comment's second line is `@deprecated(\"use \\`sign\\` method instead\", since = \"2.13.0\")`, i.e. the literal annotation source pasted as scaladoc tag content, duplicating the real `@deprecated(...)` annotation on the same line. This is malformed/broken scaladoc (the annotation call syntax will render as raw tag text) and violates the house rule against restating `@deprecated` in prose.",
+      "suggestion": "Drop this line entirely; the real `@deprecated(\"use \\`sign\\` method instead\", since = \"2.13.0\")` annotation on the `def` already renders the deprecation notice.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "Numeric.signum",
+      "line": 1001,
+      "severity": "nit",
+      "issue": "Doc comment adds `@deprecated Use \\`sign\\` instead.` as prose inside the comment, duplicating the real `@deprecated(\"use \\`sign\\` method instead\", since = \"2.13.0\")` annotation on the same declaration, per house rule against restating `@deprecated` in prose.",
+      "suggestion": "Remove the `@deprecated Use \\`sign\\` instead.` line from the doc comment; the annotation already renders it.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "CharIsIntegral.sign",
+      "line": 514,
+      "severity": "nit",
+      "issue": "@return text is '\\u0001 if `x` is nonzero, \\u0000 if `x` is zero (\\u0000) — `Char` values are unsigned.' The trailing parenthetical '(\\u0000)' is redundant/confusing since '\\u0000' was already just stated as the zero-case value; it reads like a leftover copy-paste from the signum doc above (where the parenthetical clarified what 'zero' means for a Char).",
+      "suggestion": "Drop the trailing '(\\u0000)', e.g. '\\u0001 if `x` is nonzero, \\u0000 if `x` is zero — `Char` values are unsigned.'",
+      "confidence": "medium",
+      "needs_human": false
+    },
+    {
+      "symbol": "FloatIsFractional.sign / DoubleIsFractional.sign",
+      "line": 699,
+      "severity": "nit",
+      "issue": "@return says '... 0.0 if `x` is zero ...', but the override exists specifically (per the code comment 'mishandles sign(-0.0f)') to make `math.signum` preserve the sign of zero, i.e. `sign(-0.0f) == -0.0f` not `+0.0f`. The doc collapses both signed zeros into plain '0.0' and loses that documented edge case. Same wording at DoubleIsFractional.sign, line 788.",
+      "suggestion": "Note that the sign of zero is preserved, e.g. '0.0 if `x` is positive zero, -0.0 if `x` is negative zero'.",
+      "confidence": "medium",
+      "needs_human": false
+    }
+  ],
+  "bonus_findings": []
+}

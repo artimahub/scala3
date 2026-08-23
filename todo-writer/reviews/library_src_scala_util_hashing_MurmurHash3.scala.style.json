@@ -1,0 +1,185 @@
+{
+  "verdict": "revise",
+  "summary": "Multiple blockers found in accuracy and style, including incorrect descriptions, missing edge cases, and Scaladoc convention violations.",
+  "items": [
+    {
+      "symbol": "productHash",
+      "line": 88,
+      "severity": "blocker",
+      "issue": "The documentation does not accurately describe the behavior of the method. The method's implementation mixes in the product prefix only if `ignorePrefix` is false, but the documentation states 'derived from the product prefix (if not ignored)' without clarifying that the prefix is mixed into the seed, not just conditionally included. Additionally, the method's behavior for case classes compiled before 2.13.17 (where `ignorePrefix` is false) is not mentioned, which is a material detail for callers.",
+      "suggestion": "Revise the documentation to clarify that the product prefix is mixed into the seed when `ignorePrefix` is false, and explicitly mention the behavior for case classes compiled before 2.13.17. Example: '@return the hash code of `x`, computed by mixing the product prefix into the seed (unless `ignorePrefix` is true) and hashing each product element. For case classes compiled before 2.13.17, `ignorePrefix` is false by default.'",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "productHash",
+      "line": 88,
+      "severity": "nit",
+      "issue": "The first sentence is a restatement of the method name and does not stand alone as a meaningful API-index summary. It should describe what the method does in a way that distinguishes it from other hashing methods.",
+      "suggestion": "Revise the first sentence to: 'Computes a MurmurHash3 hash code for a Product instance, optionally ignoring the product prefix.'",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "arrayHash",
+      "line": 430,
+      "severity": "blocker",
+      "issue": "The documentation does not mention that the method delegates to `arrayHash(a, arraySeed)`, which is a material detail for callers who might expect a different seed or behavior. The `@return` tag is also redundant with the description.",
+      "suggestion": "Revise the documentation to: 'Computes the hash of an array using the default array seed (`arraySeed`). Delegates to `arrayHash(a, arraySeed)`.' Remove the `@return` tag as the description already states the return value.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "bytesHash",
+      "line": 435,
+      "severity": "blocker",
+      "issue": "The documentation does not mention that the method delegates to `bytesHash(data, arraySeed)`, which is a material detail for callers. The `@return` tag is redundant with the description.",
+      "suggestion": "Revise the documentation to: 'Computes the hash of a byte array using the default array seed (`arraySeed`). Delegates to `bytesHash(data, arraySeed)`.' Remove the `@return` tag as the description already states the return value.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "orderedHash",
+      "line": 440,
+      "severity": "nit",
+      "issue": "The description uses 'order-dependent' but does not clarify what this means in the context of MurmurHash3. The term is jargon and should be explained or reworded for clarity.",
+      "suggestion": "Revise the description to: 'Computes the hash of an iterable collection in traversal order, ensuring the same elements in a different order produce different hashes.'",
+      "confidence": "medium",
+      "needs_human": false
+    },
+    {
+      "symbol": "unorderedHash",
+      "line": 450,
+      "issue": "The description uses 'order-independent' but does not clarify that this means the same elements in any order produce the same hash. This is a material detail for callers.",
+      "suggestion": "Revise the description to: 'Computes the hash of an iterable collection such that the same elements in any order produce the same hash.'",
+      "severity": "blocker",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "rangeHash",
+      "line": 455,
+      "severity": "blocker",
+      "issue": "The documentation does not mention that the method delegates to `rangeHash(start, step, last, seqSeed)`, which is a material detail for callers. The `@return` tag is also redundant with the description.",
+      "suggestion": "Revise the documentation to: 'Computes the hash of a range defined by `start`, `step`, and `last` using the default sequence seed (`seqSeed`). Delegates to `rangeHash(start, step, last, seqSeed)`.' Remove the `@return` tag as the description already states the return value.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "productHash (deprecated)",
+      "line": 465,
+      "severity": "blocker",
+      "issue": "The documentation does not mention that this method is deprecated in favor of `caseClassHash` or that it delegates to `caseClassHash(x, productSeed, null)`. This is a material detail for callers who might not notice the `@deprecated` annotation.",
+      "suggestion": "Revise the documentation to: 'Computes the hash code of a Product instance using the default product seed (`productSeed`). Delegates to `caseClassHash(x, productSeed, null)`. @deprecated Use `caseClassHash` instead.'",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "apply (in accum)",
+      "line": 545,
+      "severity": "blocker",
+      "issue": "The documentation does not describe the side effects of the method (updating `a`, `b`, `n`, and `c`), which are material to its behavior. The description is also vague ('Processes a map entry').",
+      "suggestion": "Revise the documentation to: 'Updates the accumulated hash values (`a`, `b`, `n`, and `c`) for a map entry by incorporating the hash of the key-value pair.'",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "setHash",
+      "line": 565,
+      "severity": "blocker",
+      "issue": "The documentation does not mention that the method delegates to `unorderedHash(xs, setSeed)`, which is a material detail for callers. The `@return` tag is redundant with the description.",
+      "suggestion": "Revise the documentation to: 'Computes the hash of a set using the default set seed (`setSeed`). Delegates to `unorderedHash(xs, setSeed)`.' Remove the `@return` tag as the description already states the return value.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "ArrayHashing.hash",
+      "line": 575,
+      "severity": "blocker",
+      "issue": "The documentation does not mention that the method delegates to `arrayHash(a)`, which is a material detail for callers. The description is also too terse ('Computes the hash of an array').",
+      "suggestion": "Revise the documentation to: 'Computes the hash of an array by delegating to `arrayHash(a)`.'",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "arrayHashing",
+      "line": 580,
+      "severity": "nit",
+      "issue": "The documentation is too terse and does not describe what the method returns or its purpose. The first sentence should stand alone as an API-index summary.",
+      "suggestion": "Revise the documentation to: 'Creates a Hashing instance for arrays that computes hashes using `arrayHash`.'",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "bytesHashing",
+      "line": 585,
+      "severity": "nit",
+      "issue": "The documentation is too terse and does not describe what the method returns or its purpose. The first sentence should stand alone as an API-index summary.",
+      "suggestion": "Revise the documentation to: 'Creates a Hashing instance for byte arrays that computes hashes using `bytesHash`.'",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "orderedHashing",
+      "line": 590,
+      "severity": "nit",
+      "issue": "The documentation does not clarify that the Hashing instance computes order-dependent hashes. The first sentence should stand alone as an API-index summary.",
+      "suggestion": "Revise the documentation to: 'Creates a Hashing instance for order-dependent collections that computes hashes using `orderedHash`.'",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "productHashing (deprecated)",
+      "line": 595,
+      "severity": "blocker",
+      "issue": "The documentation does not mention that this method is deprecated or that it delegates to `caseClassHash(x)`. This is a material detail for callers.",
+      "suggestion": "Revise the documentation to: 'Creates a Hashing instance for products (case classes) that computes hashes using `caseClassHash`. @deprecated Use `caseClassHashing` instead.'",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "caseClassHashing",
+      "line": 600,
+      "severity": "nit",
+      "issue": "The documentation does not clarify that the Hashing instance computes hashes for case classes using `caseClassHash`. The first sentence should stand alone as an API-index summary.",
+      "suggestion": "Revise the documentation to: 'Creates a Hashing instance for case classes that computes hashes using `caseClassHash`.'",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "stringHashing",
+      "line": 605,
+      "severity": "nit",
+      "issue": "The documentation is too terse and does not describe what the method returns or its purpose. The first sentence should stand alone as an API-index summary.",
+      "suggestion": "Revise the documentation to: 'Creates a Hashing instance for strings that computes hashes using `stringHash`.'",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "unorderedHashing",
+      "line": 610,
+      "severity": "nit",
+      "issue": "The documentation does not clarify that the Hashing instance computes order-independent hashes. The first sentence should stand alone as an API-index summary.",
+      "suggestion": "Revise the documentation to: 'Creates a Hashing instance for order-independent collections that computes hashes using `unorderedHash`.'",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "mapHash",
+      "line": 530,
+      "severity": "blocker",
+      "issue": "The documentation does not describe the edge case for empty maps (delegating to `emptyMapHash`) or the accumulation logic for non-empty maps. This is a material omission for callers.",
+      "suggestion": "Revise the documentation to: 'Computes the hash of a map using the default map seed (`mapSeed`). For empty maps, returns `emptyMapHash`. For non-empty maps, accumulates hash values for each key-value pair and combines them into a final hash.'",
+      "confidence": "high",
+      "needs_human": false
+    }
+  ],
+  "bonus_findings": [
+    {
+      "symbol": "MurmurHash3",
+      "line": 414,
+      "issue": "The class-level documentation does not explain what MurmurHash3 is or its purpose. It only links to an external resource, which is not sufficient for an API reader.",
+      "suggestion": "Add a high-level description of MurmurHash3, its properties (e.g., non-cryptographic, fast, good distribution), and its use cases (e.g., hash tables, bloom filters)."
+    }
+  ]
+}

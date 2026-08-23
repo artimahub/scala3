@@ -1,0 +1,18 @@
+```json
+{
+  "overall_quality": "good",
+  "issues": [
+    {
+      "line": 140,
+      "tag_type": "@return",
+      "tag_name": "findIndex",
+      "severity": "suggestion",
+      "current_text": "the index of the slot in the hash table where `key` is found, or, if it is not present, the index of the first deleted slot encountered, or the index of the first empty slot if no deleted slot was found",
+      "problem": "The description is accurate and complete but quite long for a single sentence. It could be slightly tightened for readability while preserving all three cases. Also, it duplicates the wording in the main method description (which already states 'occupied by the given key, deleted, or empty').",
+      "suggestion": "the index of the slot containing `key` if present; otherwise the index of the first deleted slot encountered during probing, or the first empty slot if no deleted slot was found"
+    }
+  ],
+  "general_feedback": "The added @return documentation for `findIndex` is accurate and faithfully describes the three-case return behavior (occupied match, first deleted slot, first empty slot), matching both the implementation and the preceding method description. It correctly starts with a lowercase letter and uses backticks for `key`. Only stylistic tightening would improve it.",
+  "requires_changes": false
+}
+```

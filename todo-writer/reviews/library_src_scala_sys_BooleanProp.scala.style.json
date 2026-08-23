@@ -1,0 +1,16 @@
+{
+  "verdict": "approve",
+  "items": [
+    {
+      "declaration": "BooleanProp.ConstantImpl.zero",
+      "severity": "nit",
+      "confidence": "medium",
+      "needs_human": false,
+      "comment": "Doc says 'The value used when the property is unset, always `false`' — but ConstantImpl.value is a fixed constructor parameter that never actually falls back to `zero` (no `if (isSet) ... else zero` branch exists in this class, unlike PropImpl.value which does use zero). `zero` here only exists to satisfy the abstract member from `Prop`; it's never invoked by any code in ConstantImpl. The stated outcome happens to coincide numerically (isSet is false exactly when value is false), but the doc's phrase 'the value used' implies an active fallback mechanism that doesn't exist in this override. Consider something like 'The value for this override, matching the `Prop` contract; unused since `value` is already fixed at construction.'"
+    }
+  ],
+  "bonus_findings": []
+}
+
+
+No blockers. All other changed docs (`BooleanPropImpl` class/`setValue`/`enable`/`disable`/`toggle`, `ConstantImpl` class/`set`/`setValue`/`get`/`option`/`clear`/`enable`/`disable`/`toggle`, and `booleanPropAsBoolean`) were verified line-by-line against the implementation and are accurate, with consistent tag style (lowercase, no trailing periods on phrases) and correctly dropped `@return` tags where the summary already states the return value.

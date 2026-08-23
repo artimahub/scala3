@@ -1,0 +1,80 @@
+{
+  "verdict": "revise",
+  "summary": "Blockers found in style review require clarification of conversion logic and return type details.",
+  "resolved_items": [
+    {
+      "symbol": "TupledFunction.tupled",
+      "line": 16,
+      "severity": "blocker",
+      "instruction": "Clarify that the conversion is defined by the instance's `tupledImpl` function, not the method itself.",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "TupledFunction.untupled",
+      "line": 22,
+      "severity": "blocker",
+      "instruction": "Clarify that the conversion is defined by the instance's `untupledImpl` function, not the method itself.",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "TupledFunction.apply",
+      "line": 32,
+      "severity": "blocker",
+      "instruction": "Update the `@return` description to clarify that a new `TupledFunction` instance is created.",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "TupledFunction.tupled",
+      "line": 16,
+      "severity": "nit",
+      "instruction": "Use a more concise summary, such as: \"Applies the tupled conversion to the given function.\"",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "TupledFunction.untupled",
+      "line": 22,
+      "severity": "nit",
+      "instruction": "Use a more concise summary, such as: \"Applies the untupled conversion to the given tupled function.\"",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "TupledFunction.apply",
+      "line": 32,
+      "severity": "nit",
+      "instruction": "Simplify the `@param` descriptions for `tupledImpl` and `untupledImpl` to avoid redundancy.",
+      "raised_by": "style",
+      "needs_human": false
+    }
+  ],
+  "disagreements": [
+    {
+      "symbol": "TupledFunction.tupled",
+      "line": 16,
+      "accuracy_position": "",
+      "style_position": "Clarify that the conversion is defined by the instance's `tupledImpl` function, not the method itself.",
+      "ruling": "style",
+      "rationale": "The style reviewer's concern about clarity in the description is valid and aligns with the project's conventions."
+    },
+    {
+      "symbol": "TupledFunction.untupled",
+      "line": 22,
+      "accuracy_position": "",
+      "style_position": "Clarify that the conversion is defined by the instance's `untupledImpl` function, not the method itself.",
+      "ruling": "style",
+      "rationale": "The style reviewer's concern about clarity in the description is valid and aligns with the project's conventions."
+    },
+    {
+      "symbol": "TupledFunction.apply",
+      "line": 32,
+      "accuracy_position": "",
+      "style_position": "Update the `@return` description to clarify that a new `TupledFunction` instance is created.",
+      "ruling": "style",
+      "rationale": "The style reviewer's concern about ambiguity in the return description is valid and aligns with the project's conventions."
+    }
+  ]
+}

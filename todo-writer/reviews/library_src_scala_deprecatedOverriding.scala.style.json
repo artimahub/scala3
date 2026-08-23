@@ -1,0 +1,13 @@
+{
+  "verdict": "approve",
+  "findings": [
+    {
+      "declaration": "class deprecatedOverriding — @param message",
+      "severity": "nit",
+      "confidence": "medium",
+      "needs_human": false,
+      "comment": "\"if the member was overridden\" uses conditional past tense; \"if the member is overridden\" (present) is slightly more idiomatic for describing when a compiler message fires. Matches the identical phrasing already in the pre-existing upper block, so fixing one should fix both."
+    }
+  ],
+  "bonus_findings": []
+}

@@ -1,0 +1,73 @@
+{
+  "verdict": "approve",
+  "needs_human": false,
+  "items": [
+    {
+      "declaration": "Predef.manifest[T]",
+      "severity": "ok",
+      "confidence": "high"
+    },
+    {
+      "declaration": "Predef.optManifest[T]",
+      "severity": "ok",
+      "confidence": "high",
+      "notes": "Verified against scala.reflect.OptManifest's own doc ('either a Manifest or the value NoManifest') - the @return claim is accurate."
+    },
+    {
+      "declaration": "Predef.ArrowAssoc[A](self: A)",
+      "severity": "nit",
+      "confidence": "low",
+      "notes": "@return uses `[[ArrowAssoc]]` to link the class, which shares its name with this very method (`def ArrowAssoc`). Scaladoc's default type-over-term resolution should point it at the class as intended, so likely fine, but the diff's own SeqCharSequence/ArrayCharSequence docs sidestep identical self-name situations by using backticks instead of `[[...]]`. Minor inconsistency, not blocking."
+    },
+    {
+      "declaration": "Predef.Ensuring.ensuring(cond: Boolean)",
+      "severity": "ok",
+      "confidence": "high"
+    },
+    {
+      "declaration": "Predef.Ensuring.ensuring(cond: Boolean, msg: => Any)",
+      "severity": "ok",
+      "confidence": "high"
+    },
+    {
+      "declaration": "Predef.Ensuring.ensuring(cond: A => Boolean)",
+      "severity": "ok",
+      "confidence": "high"
+    },
+    {
+      "declaration": "Predef.Ensuring.ensuring(cond: A => Boolean, msg: => Any)",
+      "severity": "ok",
+      "confidence": "high"
+    },
+    {
+      "declaration": "Predef.SeqCharSequence.length/charAt/subSequence/toString",
+      "severity": "ok",
+      "confidence": "high"
+    },
+    {
+      "declaration": "Predef.ArrayCharSequence.length/charAt/subSequence/toString",
+      "severity": "ok",
+      "confidence": "high",
+      "notes": "subSequence's 'without copying it' claim verified against scala.runtime.ArrayCharSequence, which stores the same backing array with start/end offsets rather than copying."
+    },
+    {
+      "declaration": "Predef.tuple2ToZippedOps",
+      "severity": "ok",
+      "confidence": "high",
+      "notes": "Verified Tuple2Zipped.Ops.zipped/invert both require implicit evidence that the tuple elements conform to Iterable, matching 'requires the pair's elements to be collections.'"
+    },
+    {
+      "declaration": "Predef.tuple3ToZippedOps",
+      "severity": "ok",
+      "confidence": "high"
+    },
+    {
+      "declaration": "LowPriorityImplicits2.copyArrayToImmutableIndexedSeq",
+      "severity": "ok",
+      "confidence": "high",
+      "notes": "'or null if xs is null' matches mapNull's behavior and is consistent with the identical phrasing used for every other mapNull-based conversion in this file (genericWrapArray, wrapIntArray, etc.)."
+    }
+  ],
+  "bonus_findings": []
+}
+

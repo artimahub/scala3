@@ -1,0 +1,33 @@
+{
+  "verdict": "approve",
+  "summary": "Checked apply (IsMap trait) and the six implicit defs (mapOpsIsMap, mapViewIsMap, anyRefMapIsMap, intMapIsMap, longMapIsMap, mutableLongMapIsMap) against their actual type bounds and bodies in the source; all @tparam descriptions match the real bounds (CC0's MapOps/MapView bound, K0's AnyRef bound, fixed Int/Long keys for IntMap/LongMap), the anyRefMapIsMap doc comment was correctly moved above @deprecated, and no behavior is misstated. Two minor nits on the @return-drop rule's letter, no blockers.",
+  "items": [
+    {
+      "symbol": "IsMap.apply",
+      "line": 49,
+      "severity": "nit",
+      "issue": "The @return tag was dropped, but the description ('A conversion from the type `Repr` to `MapOps[K, V, Iterable, C]`') does not literally begin with 'Returns' as the drop rule requires. No material information is actually lost versus the removed tag ('a `MapOps[K, V, Iterable, C]` view of the collection'), so this is a wording/rule-letter nit rather than a real omission.",
+      "suggestion": "Either reword the opening to 'Returns a conversion from `Repr` to `MapOps[K, V, Iterable, C]`' to satisfy the drop rule, or keep a short @return restating the 'view of the collection' phrasing.",
+      "confidence": "medium",
+      "needs_human": false
+    },
+    {
+      "symbol": "IsMap.mapViewIsMap",
+      "line": 85,
+      "severity": "nit",
+      "issue": "@tparam CC0 says CC0 'must be a subtype of `MapView`' but the actual bound is `MapView[X, Y]` (with the two type parameters), which is slightly more precise than what's written.",
+      "suggestion": "Write '... which must be a subtype of `MapView[X, Y]`' to match the bound exactly.",
+      "confidence": "medium",
+      "needs_human": false
+    }
+  ],
+  "bonus_findings": [
+    {
+      "symbol": "IsMap",
+      "line": 26,
+      "issue": "Pre-existing trait-level doc opens with 'This type enables simple enrichment of `Map`s with extension methods.', which uses the self-referential 'This type ...' phrasing the house style avoids.",
+      "suggestion": "Reword to something like 'Enables simple enrichment of `Map`s with extension methods.' (outside the reviewed diff, logged for a human to fix separately)."
+    }
+  ]
+}
+

@@ -1,0 +1,13 @@
+{
+  "verdict": "approve",
+  "declarations": [
+    {
+      "declaration": "def region",
+      "severity": "nit",
+      "confidence": "medium",
+      "needs_human": false,
+      "comment": "First sentence 'Introduces a region context.' is grammatically correct and properly declarative, but it is the only prose the reader ever sees — the outer comment with the examples and explanation of what a region context actually is does not attach to the declaration in Scaladoc. The @return compensates somewhat, but a brief expansion of the opening sentence (e.g., 'Introduces a region context in which mutable fields receive distinct abstract representations.') would make the rendered summary self-sufficient."
+    }
+  ],
+  "bonus_findings": []
+}

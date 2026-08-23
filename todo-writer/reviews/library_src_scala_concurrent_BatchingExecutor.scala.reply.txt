@@ -1,0 +1,132 @@
+I'll apply the targeted patches to the Scaladoc comments as specified in the worklist. Here are the changes:
+
+```scala
+  object MissingParentBlockContext extends BlockContext {
+    /** Executes the given `thunk` and then throws an `IllegalStateException` indicating a bug when `parentBlockContext` is null.
+     *
+     *  @tparam T the type of the result of the `thunk`
+     *  @param thunk the computation to execute
+     *  @param permission the permission to block
+     *  @return the result of the `thunk`
+     */
+    override def blockOn[T](thunk: => T)(implicit permission: CanAwait): T =
+      try thunk finally throw new IllegalStateException("BUG in BatchingExecutor.Batch: parentBlockContext is null")
+  }
+```
+
+```scala
+  private sealed abstract class AbstractBatch protected (
+    /** The first `Runnable` in the batch, stored unboxed for efficiency. May be `null` if the batch is empty. */
+    @annotation.stableNull protected final var first: Runnable | Null,
+    /** An array storing additional `Runnable` tasks beyond the first one. May contain `null` values and is reused for efficiency. */
+    protected final var other: Array[Runnable | Null],
+    /** The current number of `Runnable` tasks in the batch, including both the `first` field and any tasks in the `other` array. */
+    protected final var size: Int
+  ) {
+
+    /** Adds a `Runnable` to the batch. If the `other` array is full, it is resized to accommodate additional tasks.
+     *
+     *  @param r the `Runnable` to add
+     */
+    final def push(r: Runnable): Unit = {
+      val sz = this.size
+      if(sz == 0)
+        this.first = r
+      else
+        ensureCapacity(sz)(sz - 1) = r
+      this.size = sz + 1
+    }
+
+    /** Executes up to `n` `Runnable` tasks from the batch. If the thread is interrupted during execution, an `InterruptedException` may be thrown.
+     *
+     *  @param n the maximum number of tasks to execute
+     */
+    @tailrec protected final def runN(n: Int): Unit =
+      if (n > 0)
+        (this.size: @switch) match {
+          case 0 =>
+          case 1 =>
+            val next = this.first.nn
+            this.first = null
+            this.size = 0
+            next.run()
+            runN(n - 1)
+          case sz =>
+            val o = this.other
+            val next = o(sz - 2).nn
+            o(sz - 2) = null
+            this.size = sz - 1
+            next.run()
+            runN(n - 1)
+          }
+  }
+
+  private final class AsyncBatch private(_first: Runnable | Null, _other: Array[Runnable | Null], _size: Int) extends AbstractBatch(_first, _other, _size) with Runnable with BlockContext with (BlockContext => Throwable | Null) {
+    private final var parentBlockContext: BlockContext = BatchingExecutorStatics.MissingParentBlockContext
+
+    /** Creates a new `AsyncBatch` initialized with the given `Runnable` as its first task.
+     *
+     *  @param runnable the initial `Runnable` to include in the batch
+     */
+    final def this(runnable: Runnable) = this(runnable, BatchingExecutorStatics.emptyBatchArray, 1)
+
+    /** Executes the batch of `Runnable` tasks. Sets the thread-local `_tasksLocal` to this batch during execution. Exceptions thrown by the tasks are propagated to the caller. */
+    override final def run(): Unit = {
+      _tasksLocal.set(this) // This is later cleared in `apply` or `runWithoutResubmit`
+
+      val f = resubmit(BlockContext.usingBlockContext(this)(this))
+
+      if (f != null)
+        throw f
+    }
+
+    /* LOGIC FOR ASYNCHRONOUS BATCHES */
+    /** Executes the batch of `Runnable` tasks within the given `BlockContext`. Any `Throwable` thrown during execution is returned; otherwise, `null` is returned.
+     *
+     *  @param prevBlockContext the `BlockContext` to use for blocking operations
+     *  @return any `Throwable` that occurred during execution, or `null` if none
+     */
+    override final def apply(prevBlockContext: BlockContext): Throwable | Null = try {
+      parentBlockContext = prevBlockContext
+      runN(BatchingExecutorStatics.runLimit)
+      null
+    } catch {
+      case t: Throwable => t // We are handling exceptions on the outside of this method
+    } finally {
+      parentBlockContext = BatchingExecutorStatics.MissingParentBlockContext
+      _tasksLocal.remove()
+    }
+
+    /** Executes a blocking operation, delegating to the parent `BlockContext`. If tasks are queued in the batch, they are executed immediately to avoid deadlocks.
+     *
+     *  @tparam T the type of the result of the `thunk`
+     *  @param thunk the blocking computation to execute
+     *  @param permission the permission to block
+     *  @return the result of the `thunk`
+     */
+    override final def blockOn[T](thunk: => T)(implicit permission: CanAwait): T = {
+      // If we know there will be blocking, we don't want to keep tasks queued up because it could deadlock.
+      if(this.size > 0)
+        submitForExecution(cloneAndClear()) // If this throws then we have bigger problems
+
+      parentBlockContext.blockOn(thunk) // Now delegate the blocking to the previous BC
+    }
+  }
+
+  private final class SyncBatch(runnable: Runnable) extends AbstractBatch(runnable, BatchingExecutorStatics.emptyBatchArray, 1) with Runnable {
+    /** Executes the batch of `Runnable` tasks synchronously. If the thread is interrupted during execution, an `InterruptedException` may be thrown. */
+    @tailrec override final def run(): Unit = {
+      try runN(BatchingExecutorStatics.runLimit) catch {
+        case ie: InterruptedException =>
+          reportFailure(ie) // TODO: Handle InterruptedException differently?
+        case f if NonFatal(f) =>
+          reportFailure(f)
+      }
+
+      if (this.size > 0)
+        run()
+    }
+  }
+```
+
+All the changes have been applied as targeted patches to only the Scaladoc comments, without modifying any code or other parts of the file. The changes address all the items in the worklist, including both blockers and nits.

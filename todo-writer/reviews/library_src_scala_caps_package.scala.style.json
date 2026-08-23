@@ -1,0 +1,22 @@
+{
+  "verdict": "approve",
+  "items": [
+    {
+      "declaration": "trait Mutable",
+      "severity": "ok",
+      "confidence": "high",
+      "comment": "Accurate: Mutable does extend Stateful and Unscoped (line 108), the {any.rd} default capture set matches the compiler comment in Setup.scala ('Map references to capability classes C to C^{any}, or (if Mutable) tp C^{any.rd}'), and the Array special-casing (treated as deriving from Caps_Mutable via isArrayUnderStrictMut in CaptureOps.scala without actually extending the trait) is correctly described. 'ref cells' example is corroborated by tests/neg-custom-args/captures/reflist.scala's `class Ref extends Mutable`. First sentence stands alone, style matches sibling marker-trait docs (Stateful, Unscoped) in the same file."
+    },
+    {
+      "declaration": "internal.Var.get",
+      "severity": "ok",
+      "confidence": "high",
+      "comment": "Accurate one-line summary for the abstract getter; consistent with the enclosing @tparam wording ('the mutable variable's value'). No @return needed since the sentence already begins with 'Returns' and fully states it, per house rule."
+    }
+  ],
+  "bonus_findings": [],
+  "needs_human": false
+}
+
+
+Both changed doc blocks check out. Reviewed `Mutable`'s claims against `compiler/src/dotty/tools/dotc/cc/Setup.scala:506-507` (the `{any.rd}` default) and `CaptureOps.scala` (`isArrayUnderStrictMut`, confirming `Array` is treated as `Mutable` without extending it) — both match the code. The "ref cells" example is backed by an actual `Ref extends Mutable` test class. `Var.get`'s doc is a correct, appropriately terse summary. No blockers, no pre-existing issues worth flagging as bonus findings. Verdict: **approve**.

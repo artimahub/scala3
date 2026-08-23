@@ -1,0 +1,35 @@
+<<<<<<< 1
+/** Returns `true` if this value is less than `that`, based on the partial ordering.
+ *
+ *  @tparam B a supertype of `A` for which an implicit conversion to `PartiallyOrdered[B]` exists
+ *  @param that the value to compare against
+ *  @return `true` if this value is less than `that` according to the partial ordering, `false` otherwise
+ */
+>>>>>>>
+
+<<<<<<< 2
+/** Returns `true` if this value is greater than `that`, based on the partial ordering.
+ *
+ *  @tparam B a supertype of `A` for which an implicit conversion to `PartiallyOrdered[B]` exists
+ *  @param that the value to compare against
+ *  @return `true` if this value is greater than `that` according to the partial ordering, `false` otherwise
+ */
+>>>>>>>
+
+<<<<<<< 3
+/** Returns `true` if this value is less than or equal to `that`, based on the partial ordering.
+ *
+ *  @tparam B a supertype of `A` for which an implicit conversion to `PartiallyOrdered[B]` exists
+ *  @param that the value to compare against
+ *  @return `true` if this value is less than or equal to `that` according to the partial ordering, `false` otherwise
+ */
+>>>>>>>
+
+<<<<<<< 4
+/** Returns `true` if this value is greater than or equal to `that`, based on the partial ordering.
+ *
+ *  @tparam B a supertype of `A` for which an implicit conversion to `PartiallyOrdered[B]` exists
+ *  @param that the value to compare against
+ *  @return `true` if this value is greater than or equal to `that` according to the partial ordering, `false` otherwise
+ */
+>>>>>>>

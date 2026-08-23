@@ -1,0 +1,22 @@
+{
+  "verdict": "approve",
+  "needs_human": false,
+  "items": [
+    {
+      "declaration": "AbstractFunction18",
+      "severity": "nit",
+      "confidence": "medium",
+      "needs_human": false,
+      "comment": "Accurate and matches the established pattern from AbstractFunction17. Minor style nit: the second sentence is slightly redundant ('Extending this class allows a function value to be defined by extending a class rather than...') — repeats 'extending a class' within one sentence, unlike the smoother single-sentence phrasing used in AbstractFunction1 ('...allowing a function value to be defined by extending a class rather than the trait'). Not a blocker since it's consistent with the sibling AbstractFunction17 doc already written in this batch."
+    },
+    {
+      "declaration": "AbstractFunction18 @tparam T1..T18, R",
+      "severity": "ok",
+      "confidence": "high",
+      "needs_human": false,
+      "comment": "Type parameter descriptions are accurate and match the corresponding Function18 trait's tparam docs (T1..T18 as argument types, R as return type)."
+    }
+  ],
+  "bonus_findings": []
+}
+

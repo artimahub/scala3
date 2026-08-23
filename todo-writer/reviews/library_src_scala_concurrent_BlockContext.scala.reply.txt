@@ -1,0 +1,1 @@
+I'll apply the targeted patch to the `DefaultBlockContext.blockOn` Scaladoc, adding the exception-propagation behavior while preserving the existing documentation structure.

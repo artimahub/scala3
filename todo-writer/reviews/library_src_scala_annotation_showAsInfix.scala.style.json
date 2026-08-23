@@ -1,0 +1,27 @@
+{
+  "verdict": "approve",
+  "declarations": [
+    {
+      "declaration": "class showAsInfix — class Scaladoc (second doc block, lines 41-46)",
+      "severity": "ok",
+      "confidence": "high",
+      "needs_human": false,
+      "notes": "Opening sentence 'Configures whether a two-parameter generic type is printed using infix type syntax.' stands alone well as an index summary. Declarative verb, no self-reference, appropriate altitude."
+    },
+    {
+      "declaration": "class showAsInfix — @param enabled (second/class-attached doc block)",
+      "severity": "ok",
+      "confidence": "high",
+      "needs_human": false,
+      "notes": "Lowercase start, no trailing period, backtick-quoted `true`/`false`/`infix`. Good."
+    },
+    {
+      "declaration": "class showAsInfix — @param enabled (first/extended doc block, lines 35-37)",
+      "severity": "nit",
+      "confidence": "high",
+      "needs_human": false,
+      "notes": "Trailing period after 'still print infix.' — the identical description in the class-attached doc block correctly omits it. @param phrases should not end with a period per Scala style convention; drop the period here for consistency."
+    }
+  ],
+  "bonus_findings": []
+}

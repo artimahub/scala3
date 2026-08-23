@@ -1,0 +1,29 @@
+{
+  "items": [
+    {
+      "declaration": "object Function1.UnliftOps (class-level scaladoc, @tparam A, @tparam B)",
+      "severity": "ok",
+      "confidence": "high",
+      "needs_human": false,
+      "comment": "Accurate: correctly describes the implicit class as providing `unlift` for `A => Option[B]` functions, and both @tparam descriptions match the type signature. Style is consistent with the file (third person, lowercase tag continuations, no trailing periods, wiki-style links)."
+    },
+    {
+      "declaration": "Function1#toString",
+      "severity": "nit",
+      "confidence": "low",
+      "needs_human": false,
+      "comment": "\"Returns the string `\"<function1>\"`.\" is accurate and matches the implementation. Minor stylistic redundancy: \"the string\" is arguably redundant since the backtick-quoted literal already conveys that; something like \"Returns `\"<function1>\"`.\" would be marginally tighter. Not blocking."
+    }
+  ],
+  "bonus_findings": [
+    {
+      "declaration": "Function1#apply (@return, line 75, pre-existing)",
+      "note": "\"the result of function application.\" ends with a trailing period despite being a single-phrase tag continuation, inconsistent with the no-trailing-period convention used elsewhere in this same file (e.g. compose/andThen @return entries). Outside the reviewed diff, flagged for awareness only."
+    }
+  ],
+  "verdict": "approve",
+  "needs_human": false
+}
+
+
+No blockers found — both changed doc blocks (the `UnliftOps` class doc with its `@tparam`s, and the `toString` doc) are factually accurate against the implementation and follow the file's existing Scaladoc conventions. Only a trivial wording nit on `toString` and one pre-existing (out-of-diff) style inconsistency worth a human's attention later.

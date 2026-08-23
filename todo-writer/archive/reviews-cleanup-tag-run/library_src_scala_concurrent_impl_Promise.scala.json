@@ -1,0 +1,25 @@
+{
+  "overall_quality": "good",
+  "issues": [
+    {
+      "line": 103,
+      "tag_type": "@return",
+      "tag_name": "resolve",
+      "severity": "suggestion",
+      "current_text": "the original `Try` for a `Success` or non-fatal `Failure`, a `Success` extracted from a `NonLocalReturnControl`, or a `Failure` wrapping the throwable in an `ExecutionException` if it is a `ControlThrowable`, `InterruptedException`, or `Error`",
+      "problem": "Because `NonLocalReturnControl` is itself a subclass of `ControlThrowable`, listing the two cases as parallel can be misleading. A reader may not realize that the `NonLocalReturnControl` branch takes precedence over the general `ControlThrowable` branch.",
+      "suggestion": "the original `Try` for a `Success` or non-fatal `Failure`; a `Success` containing the extracted value when the failure is a `NonLocalReturnControl`; otherwise, for a fatal `ControlThrowable`, `InterruptedException`, or `Error`, a `Failure` wrapping the throwable in an `ExecutionException`"
+    },
+    {
+      "line": 71,
+      "tag_type": "@return",
+      "tag_name": "promise",
+      "severity": "suggestion",
+      "current_text": "the root `DefaultPromise` of the dependency chain, or `owner` if the chain has already been completed",
+      "problem": "Could note that when the chain is already completed, the side effect of completing `owner` with that resolved value is also performed; otherwise the reader may not understand why `owner` is returned in that case.",
+      "suggestion": "the root `DefaultPromise` of the dependency chain, or `owner` (after completing it with the resolved value) if the chain has already been completed"
+    }
+  ],
+  "general_feedback": "The newly filled-in @return descriptions are accurate and consistent in style with the surrounding Scaladoc. The `dispatchOrAddCallbacks` and `onCompleteWithUnregister` documentation is particularly clear. The only notable concern is in `resolve`, where the @return text lists `NonLocalReturnControl` alongside `ControlThrowable` without clarifying their subclass relationship, which may confuse readers. Minor enhancements to mention side effects of `promise`/`compressed` returning `owner` could also help, but the documentation is otherwise solid.",
+  "requires_changes": false
+}

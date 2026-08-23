@@ -1,0 +1,304 @@
+{
+  "verdict": "revise",
+  "summary": "Two blockers remain after reconciliation: INode.copyToGen incorrectly claims a deep copy, and TNode.copyTombed incorrectly claims identity return.",
+  "resolved_items": [
+    {
+      "symbol": "INode.copyToGen",
+      "line": 135,
+      "severity": "blocker",
+      "instruction": "Replace the description with: 'Creates a copy of this INode in the specified generation, sharing its current main node; used together with `renewed`/`copyToGen` recursion for snapshot operations.'",
+      "raised_by": "accuracy",
+      "needs_human": false
+    },
+    {
+      "symbol": "TNode.copyTombed",
+      "line": 598,
+      "severity": "blocker",
+      "instruction": "Replace the description with: 'Creates a copy of this TNode, which is already tombed.'",
+      "raised_by": "accuracy",
+      "needs_human": false
+    },
+    {
+      "symbol": "FailedNode.string",
+      "line": 540,
+      "severity": "blocker",
+      "instruction": "Change the @param tag to: '@param lev the current level in the trie (never used)'",
+      "raised_by": "accuracy",
+      "needs_human": false
+    },
+    {
+      "symbol": "CNode.knownSize",
+      "line": 727,
+      "severity": "nit",
+      "instruction": "Add '@return the known size, or -1 if not yet computed' to clarify the sentinel value.",
+      "raised_by": "accuracy",
+      "needs_human": false
+    },
+    {
+      "symbol": "INode.gcasRead / INode.GCAS_READ",
+      "line": 60,
+      "severity": "nit",
+      "instruction": "Verify with someone familiar with the GCAS protocol invariants whether `mainnode` can be null when `gcasRead`/`GCAS_READ` is called externally; if not, drop the null case from the doc, or if so, note the discrepancy with the direct `m.prev` dereference.",
+      "raised_by": "accuracy",
+      "needs_human": true
+    },
+    {
+      "symbol": "TrieMap.lookup",
+      "line": 1178,
+      "severity": "nit",
+      "instruction": "Drop the leading 'Deprecated.' and start directly with 'Looks up the value associated with the key, returning null if not found.'",
+      "raised_by": "accuracy",
+      "needs_human": false
+    },
+    {
+      "symbol": "TrieMap.knownSize",
+      "line": 1397,
+      "severity": "nit",
+      "instruction": "Replace the description with: 'Returns the known size of this TrieMap, or -1 if this TrieMap is mutable (since it may be concurrently modified) or its size has not yet been cached.'",
+      "raised_by": "accuracy",
+      "needs_human": false
+    },
+    {
+      "symbol": "TrieMap.getOrElseUpdate",
+      "line": 1285,
+      "severity": "nit",
+      "instruction": "Drop the second clause from the first sentence and let the existing Note paragraph carry that detail, e.g., 'Returns the value associated with the key, or computes and inserts it using `defaultValue` if absent.'",
+      "raised_by": "accuracy",
+      "needs_human": false
+    },
+    {
+      "symbol": "TrieMapIterator.dupTo",
+      "line": 1576,
+      "severity": "nit",
+      "instruction": "Mention the receiver-side mutation, e.g., '...; when this iterator has an active sub-iterator, both this iterator's and the new one's sub-iterators are replaced with materialized copies.'",
+      "raised_by": "accuracy",
+      "needs_human": false
+    },
+    {
+      "symbol": "INode#WRITE",
+      "line": 46,
+      "severity": "nit",
+      "instruction": "Change to: 'Atomically writes the specified main node value to this INode.'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "INode#GCAS",
+      "line": 114,
+      "severity": "nit",
+      "instruction": "Change to: 'Atomically updates the main node from the expected old value to the new value using the GCAS protocol.'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "INode#rec_insertif",
+      "line": 215,
+      "severity": "nit",
+      "instruction": "Change @return to: 'null if a retry is needed, `Option[V]` otherwise (indicating the previous value bound to the key)'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "INode#rec_lookup",
+      "line": 316,
+      "severity": "nit",
+      "instruction": "Change @return to: '`INodeBase.NO_SUCH_ELEMENT_SENTINEL` if no value was found, `INodeBase.RESTART` if a retry is needed, or the value otherwise'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "INode#rec_remove",
+      "line": 371,
+      "severity": "nit",
+      "instruction": "Change @return to: 'null if a retry is needed, an `Option[V]` indicating the previous value otherwise'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "SNode#copyTombed",
+      "line": 574,
+      "severity": "nit",
+      "instruction": "Change to: 'Creates a tombed copy of this SNode, marking it as removed in the trie.'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "SNode#copyUntombed",
+      "line": 577,
+      "severity": "nit",
+      "instruction": "Change to: 'Creates an untombed copy of this SNode.'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "LNode#inserted",
+      "line": 651,
+      "severity": "nit",
+      "instruction": "Change @return to: 'the new LNode with the pair inserted, replacing any existing pair with an equivalent key'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "LNode#removed",
+      "line": 671,
+      "severity": "nit",
+      "instruction": "Change @return to: 'the new main node after removal, which may be a TNode if only one pair remains'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "CNode#cachedSize",
+      "line": 715,
+      "severity": "nit",
+      "instruction": "Change to: 'Returns the cached size of this CNode, computing it if necessary.'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "CNode#toContracted",
+      "line": 833,
+      "severity": "nit",
+      "instruction": "Change to: 'Returns a contracted version of this CNode, reducing branching if possible.'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "CNode#toCompressed",
+      "line": 850,
+      "severity": "nit",
+      "instruction": "Change to: 'Returns a compressed version of this CNode, removing null i-nodes.'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "TrieMap#lookup",
+      "line": 1178,
+      "severity": "nit",
+      "instruction": "Change @return to: 'the value associated with the key, or null if not found (for compatibility with deprecated usage)'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "TrieMap#put",
+      "line": 1215,
+      "severity": "nit",
+      "instruction": "Change @return to: 'the previous value associated with the key, or None if not found (including if the previous value was null)'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "TrieMap#getOrElseUpdate",
+      "line": 1285,
+      "severity": "nit",
+      "instruction": "Change @return to: 'the value associated with the key, which may be the result of `defaultValue` or a concurrent update'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "TrieMap#remove(k: K, v: V)",
+      "line": 1304,
+      "severity": "nit",
+      "instruction": "Change @return to: 'true if the key-value pair was removed, false if the key was not present or the value did not match'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "TrieMap#replace(k: K, oldvalue: V, newvalue: V)",
+      "line": 1321,
+      "severity": "nit",
+      "instruction": "Change @return to: 'true if the replacement was successful, false if the key was not present or the old value did not match'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "TrieMap#lastOption",
+      "line": 1410,
+      "severity": "nit",
+      "instruction": "Change @return to: 'the last key-value pair in this TrieMap, or `None` if empty or if the last element cannot be retrieved due to concurrent modifications'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "group: kvPair",
+      "line": 562,
+      "severity": "nit",
+      "instruction": "applies to all 3 occurrences of this block (lines 562, 579, 602). Change to: 'Returns the key-value pair currently stored in this node.'",
+      "raised_by": "style",
+      "needs_human": false
+    }
+  ],
+  "disagreements": [
+    {
+      "symbol": "INode.copyToGen",
+      "line": 135,
+      "accuracy_position": "Replace the description with: 'Creates a copy of this INode in the specified generation, sharing its current main node; used together with `renewed`/`copyToGen` recursion for snapshot operations.'",
+      "style_position": "",
+      "ruling": "accuracy",
+      "rationale": "The accuracy reviewer correctly identified that the documentation falsely claims a deep copy, which contradicts the implementation."
+    },
+    {
+      "symbol": "TNode.copyTombed",
+      "line": 598,
+      "accuracy_position": "Replace the description with: 'Creates a copy of this TNode, which is already tombed.'",
+      "style_position": "",
+      "ruling": "accuracy",
+      "rationale": "The accuracy reviewer correctly identified that the documentation falsely claims identity return, which contradicts the implementation."
+    },
+    {
+      "symbol": "FailedNode.string",
+      "line": 540,
+      "accuracy_position": "Change the @param tag to: '@param lev the current level in the trie (never used)'",
+      "style_position": "",
+      "ruling": "accuracy",
+      "rationale": "The accuracy reviewer correctly identified that the parameter is unused, which is a factual inaccuracy."
+    },
+    {
+      "symbol": "CNode.knownSize",
+      "line": 727,
+      "accuracy_position": "Add '@return the known size, or -1 if not yet computed' to clarify the sentinel value.",
+      "style_position": "",
+      "ruling": "accuracy",
+      "rationale": "The accuracy reviewer correctly identified that the sentinel value should be documented."
+    },
+    {
+      "symbol": "INode.gcasRead / INode.GCAS_READ",
+      "line": 60,
+      "accuracy_position": "Verify with someone familiar with the GCAS protocol invariants whether `mainnode` can be null when `gcasRead`/`GCAS_READ` is called externally; if not, drop the null case from the doc, or if so, note the discrepancy with the direct `m.prev` dereference.",
+      "style_position": "",
+      "ruling": "accuracy",
+      "rationale": "The accuracy reviewer correctly identified a potential discrepancy that requires human verification."
+    },
+    {
+      "symbol": "TrieMap.lookup",
+      "line": 1178,
+      "accuracy_position": "Drop the leading 'Deprecated.' and start directly with 'Looks up the value associated with the key, returning null if not found.'",
+      "style_position": "Change @return to: 'the value associated with the key, or null if not found (for compatibility with deprecated usage)'",
+      "ruling": "accuracy",
+      "rationale": "The accuracy reviewer correctly identified that the description restates the @deprecated annotation, which is a house rule violation."
+    },
+    {
+      "symbol": "TrieMap.knownSize",
+      "line": 1397,
+      "accuracy_position": "Replace the description with: 'Returns the known size of this TrieMap, or -1 if this TrieMap is mutable (since it may be concurrently modified) or its size has not yet been cached.'",
+      "style_position": "",
+      "ruling": "accuracy",
+      "rationale": "The accuracy reviewer correctly identified that the description is misleading about the conditions under which -1 is returned."
+    },
+    {
+      "symbol": "TrieMap.getOrElseUpdate",
+      "line": 1285,
+      "accuracy_position": "Drop the second clause from the first sentence and let the existing Note paragraph carry that detail, e.g., 'Returns the value associated with the key, or computes and inserts it using `defaultValue` if absent.'",
+      "style_position": "Change @return to: 'the value associated with the key, which may be the result of `defaultValue` or a concurrent update'",
+      "ruling": "accuracy",
+      "rationale": "The accuracy reviewer correctly identified that the description is redundant with the existing Note paragraph."
+    },
+    {
+      "symbol": "TrieMapIterator.dupTo",
+      "line": 1576,
+      "accuracy_position": "Mention the receiver-side mutation, e.g., '...; when this iterator has an active sub-iterator, both this iterator's and the new one's sub-iterators are replaced with materialized copies.'",
+      "style_position": "",
+      "ruling": "accuracy",
+      "rationale": "The accuracy reviewer correctly identified that the description omits a significant side effect."
+    }
+  ]
+}

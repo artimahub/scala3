@@ -1,0 +1,25 @@
+{
+  "verdict": "approve",
+  "summary": "Reviewed documentation for `DefaultSerializationProxy.builder`, `DefaultSerializationProxy.readResolve`, and `DefaultSerializable.writeReplace`. All accurately describe the implementation: `builder` is initialized in `readObject` and used in `readResolve`; `readResolve` returns the builder's result; `writeReplace` creates a proxy with the appropriate factory for the collection type. Style adheres to Scaladoc conventions, with clear, declarative prose and no redundancy.",
+  "items": [
+    {
+      "symbol": "DefaultSerializationProxy.builder",
+      "line": 38,
+      "severity": "nit",
+      "issue": "The description could clarify that the builder is transient and used *only* during deserialization, not for general collection construction.",
+      "suggestion": "Add \"(transient, used only during deserialization)\" to the first sentence for precision.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "DefaultSerializable.writeReplace",
+      "line": 99,
+      "severity": "nit",
+      "issue": "The phrase \"dynamically choose\" in the trait's description (line 84) is not mirrored in the method's doc, which could be more explicit about the factory selection logic.",
+      "suggestion": "Add a @note tag: \"@note The factory is selected based on the runtime type of this collection (e.g., `iterableFactory` for `Iterable`, `mapFactory` for `Map`).\"",
+      "confidence": "high",
+      "needs_human": false
+    }
+  ],
+  "bonus_findings": []
+}

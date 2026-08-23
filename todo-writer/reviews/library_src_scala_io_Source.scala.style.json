@@ -1,0 +1,42 @@
+I have enough context. Here is the style review:
+{
+  "verdict": "revise",
+  "findings": [
+    {
+      "declaration": "def fromRawBytes(bytes: Array[Byte]): Source",
+      "severity": "blocker",
+      "confidence": "high",
+      "needs_human": false,
+      "comment": "The writer inserted a second Scaladoc comment AFTER the @deprecated annotation, leaving the pre-existing comment BEFORE @deprecated orphaned. In Scala, the doc comment immediately preceding the definition (or its annotations) is the one attached to the member; the pre-existing comment is now an orphaned block that Scaladoc ignores. The correct fix is to update the pre-existing comment (lines 161-163) to include the @param and @return tags, then delete the second comment."
+    },
+    {
+      "declaration": "def fromFile(file: JFile, enc: String, bufferSize: Int): BufferedSource",
+      "severity": "nit",
+      "confidence": "medium",
+      "needs_human": false,
+      "comment": "@return was kept, but all seven other `fromFile` overloads in this file omit @return. For consistency within the overload family, drop it here too (the description already starts with \"Creates\", so there is no \"Returns...\" to anchor it)."
+    },
+    {
+      "declaration": "def fromInputStream(is: InputStream)(implicit codec: Codec): BufferedSource",
+      "severity": "nit",
+      "confidence": "medium",
+      "needs_human": false,
+      "comment": "\"using the encoding in the implicit `codec` parameter\" contains padding. \"in the implicit ... parameter\" adds nothing the signature doesn't already say. Prefer \"using the encoding specified by `codec`\"."
+    },
+    {
+      "declaration": "def getc(): Boolean (in LineIterator)",
+      "severity": "nit",
+      "confidence": "medium",
+      "needs_human": false,
+      "comment": "One-liner exceeds ~100 characters. Wrapping at a natural break (e.g., after \"line buffer,\") would match the readability standard of the surrounding one-liners in this file."
+    },
+    {
+      "declaration": "def next(): Char (in Positioner)",
+      "severity": "nit",
+      "confidence": "medium",
+      "needs_human": false,
+      "comment": "Same issue: the one-liner is very long. Wrapping after \"underlying iterator,\" would improve readability."
+    }
+  ],
+  "bonus_findings": []
+}

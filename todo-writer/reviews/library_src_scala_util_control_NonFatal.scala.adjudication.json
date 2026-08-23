@@ -1,0 +1,31 @@
+{
+  "verdict": "revise",
+  "summary": "Both reviewers flag a missing `@return` tag and a redundant first sentence for `NonFatal.apply`.",
+  "resolved_items": [
+    {
+      "symbol": "NonFatal.apply",
+      "line": 46,
+      "severity": "blocker",
+      "instruction": "Add an `@return` tag documenting that `true` is returned for non-fatal throwables (e.g., `Exception`) and `false` for fatal ones (e.g., `VirtualMachineError`, `ThreadDeath`, `InterruptedException`).",
+      "raised_by": "both",
+      "needs_human": false
+    },
+    {
+      "symbol": "NonFatal.apply",
+      "line": 46,
+      "severity": "nit",
+      "instruction": "Revise the first sentence to be a concise standalone summary rather than restating the signature, e.g., 'Tests whether the provided `Throwable` is non-fatal.'",
+      "raised_by": "both",
+      "needs_human": false
+    },
+    {
+      "symbol": "NonFatal.apply",
+      "line": 48,
+      "severity": "nit",
+      "instruction": "Lowercase the `Throwable` in the `@param t` description to `the throwable to test for being non-fatal` with no trailing period.",
+      "raised_by": "accuracy",
+      "needs_human": false
+    }
+  ],
+  "disagreements": []
+}

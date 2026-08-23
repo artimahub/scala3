@@ -1,0 +1,27 @@
+{
+  "verdict": "approve",
+  "declarations": [
+    {
+      "name": "toByte",
+      "severity": "nit",
+      "confidence": "medium",
+      "needs_human": false,
+      "comment": "The single sentence is correct but unwieldy. The `toInt`/`toLong` docs use a two-sentence pattern (main conversion, then edge-case sentence). Splitting here -- e.g. '...rounded toward zero), then narrowed to a `Byte` by keeping only its low-order 8 bits. A NaN value converts to `0` and a finite value outside the `Int` range converts to `Int.MinValue` or `Int.MaxValue`.' -- would match that pattern and reduce the parenthetical load."
+    },
+    {
+      "name": "toShort",
+      "severity": "nit",
+      "confidence": "medium",
+      "needs_human": false,
+      "comment": "Same long-parenthetical concern as `toByte`. Same two-sentence split would improve consistency with `toInt`/`toLong`."
+    },
+    {
+      "name": "toChar",
+      "severity": "nit",
+      "confidence": "medium",
+      "needs_human": false,
+      "comment": "Same long-parenthetical concern as `toByte`/`toShort`."
+    }
+  ],
+  "bonus_findings": []
+}

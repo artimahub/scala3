@@ -1,0 +1,8 @@
+Worklist done, committed as `4c0180ef4a`.
+
+- **trySplit (blocker)** — added `@return` covering the stepper over the first half and the `null` case when fewer than two elements remain (noting this stepper is left unchanged then).
+- **update (nit, both occurrences)** — reworded the wraparound paragraph in both `update(idx: Long, ...)` and `update(idx: Int, ...)` so it refers to "the array it is written to" and explicitly covers the offset `seekSlot` computes into a history array, not only the current array. The two blocks remain identical.
+- **nextStep (needs_human)** — left as written; the `@note NEEDS-HUMAN` about `n <= 0` vs `N <= 0` is still in place.
+- **SerializationProxy** — no change, per the adjudicator's overrule.
+
+The diff for this commit contains only comment lines; the single deleted line is the old one-line `toArray` doc that the paragraph replaced. No declarations, bodies, imports, blank lines or indentation changed.

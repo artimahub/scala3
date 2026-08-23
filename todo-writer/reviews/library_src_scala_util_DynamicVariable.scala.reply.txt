@@ -1,0 +1,10 @@
+/workspace/scala3/library/src/scala/util/DynamicVariable.scala
+```scala
+<<<<<<< SEARCH
+  /** TODO FILL IN */
+  override def toString(): String = "DynamicVariable(" + value + ")"
+=======
+  /** Returns a string representation of the form `DynamicVariable(` *value* `)`. */
+  override def toString(): String = "DynamicVariable(" + value + ")"
+>>>>>>> REPLACE
+```

@@ -1,0 +1,48 @@
+{
+  "verdict": "revise",
+  "summary": "The @throws tag on updateWith is malformed and must be fixed.",
+  "resolved_items": [
+    {
+      "symbol": "Map.updateWith",
+      "line": 165,
+      "severity": "blocker",
+      "instruction": "Rewrite the @throws tag to start with the exception class name, e.g., `@throws Exception if `remappingFunction` throws`.",
+      "raised_by": "both",
+      "needs_human": false
+    },
+    {
+      "symbol": "Map.getOrElseUpdate",
+      "line": 109,
+      "severity": "nit",
+      "instruction": "Drop the @return tag as it restates the description.",
+      "raised_by": "accuracy",
+      "needs_human": false
+    },
+    {
+      "symbol": "Map.getOrElseUpdate",
+      "line": 106,
+      "severity": "nit",
+      "instruction": "Remove the extra blank line between the description and the @param tags.",
+      "raised_by": "accuracy",
+      "needs_human": false
+    },
+    {
+      "symbol": "getOrElseUpdate",
+      "line": 111,
+      "severity": "nit",
+      "instruction": "Clarify that defaultValue is evaluated lazily by changing the @param tag to: `@param defaultValue the value to be computed (lazily) and stored if the key is absent (unless another thread inserts a value first)`.",
+      "raised_by": "style",
+      "needs_human": false
+    }
+  ],
+  "disagreements": [
+    {
+      "symbol": "Map.updateWith",
+      "line": 165,
+      "accuracy_position": "The @throws tag is malformed and must be rewritten to include the exception class name.",
+      "style_position": "The @throws tag is correct but could be more specific about the exception being rethrown as-is.",
+      "ruling": "accuracy",
+      "rationale": "The @throws tag is malformed and will not render correctly in Scaladoc without the exception class name."
+    }
+  ]
+}

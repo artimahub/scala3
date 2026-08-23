@@ -1,0 +1,56 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["verdict", "summary", "resolved_items", "disagreements"],
+  "properties": {
+    "verdict": {
+      "type": "string",
+      "enum": ["approve", "revise"],
+      "description": "the FINAL call. approve only if nothing in resolved_items has severity blocker"
+    },
+    "summary": {
+      "type": "string",
+      "description": "one line, no more"
+    },
+    "resolved_items": {
+      "type": "array",
+      "description": "the merged, deduplicated worklist handed to the writer. One entry per real problem, however many reviewers raised it. Omit anything you are overruling.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["symbol", "line", "severity", "instruction", "raised_by", "needs_human"],
+        "properties": {
+          "symbol": { "type": "string", "description": "declaration name" },
+          "line": { "type": "integer", "description": "1-based line of the declaration" },
+          "severity": { "type": "string", "enum": ["blocker", "nit"] },
+          "instruction": {
+            "type": "string",
+            "description": "one concrete instruction to the writer. If two reviewers asked for different things here, this is the single reconciled instruction, not both."
+          },
+          "raised_by": { "type": "string", "enum": ["accuracy", "style", "both"] },
+          "needs_human": {
+            "type": "boolean",
+            "description": "true when the code genuinely does not determine the answer, so an @note NEEDS-HUMAN must remain"
+          }
+        }
+      }
+    },
+    "disagreements": {
+      "type": "array",
+      "description": "every place the two reviewers conflicted, or where you overruled a reviewer. This is the audit trail; an empty array means the reviewers agreed and you deferred to them throughout.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["symbol", "line", "accuracy_position", "style_position", "ruling", "rationale"],
+        "properties": {
+          "symbol": { "type": "string" },
+          "line": { "type": "integer" },
+          "accuracy_position": { "type": "string", "description": "what the accuracy reviewer wanted; empty string if it said nothing here" },
+          "style_position": { "type": "string", "description": "what the style reviewer wanted; empty string if it said nothing here" },
+          "ruling": { "type": "string", "enum": ["accuracy", "style", "neither", "merged"] },
+          "rationale": { "type": "string", "description": "why, grounded in the code or the house rules" }
+        }
+      }
+    }
+  }
+}

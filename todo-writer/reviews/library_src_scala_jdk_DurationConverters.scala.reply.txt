@@ -1,0 +1,6 @@
+Both placeholders in `library/src/scala/jdk/DurationConverters.scala` are filled:
+
+- `JavaDurationOps` (line 26): "Adds a `toScala` extension method to `java.time.Duration` ..." plus its `@param duration`.
+- `ScalaDurationOps` (line 36): "Adds a `toJava` extension method to `FiniteDuration` ..." plus its `@param duration`.
+
+No `@return` tags were present, so the drop rule did not apply. Only comment lines changed; declarations, bodies, imports and indentation are byte-identical.

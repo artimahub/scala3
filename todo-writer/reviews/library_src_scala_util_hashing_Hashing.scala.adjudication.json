@@ -1,0 +1,88 @@
+{
+  "verdict": "revise",
+  "summary": "Missing @return tags and style improvements needed.",
+  "resolved_items": [
+    {
+      "symbol": "Hashing.hash",
+      "line": 31,
+      "severity": "blocker",
+      "instruction": "Add `@return the hash code of `x` as an `Int`.",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "Default.hash",
+      "line": 40,
+      "severity": "blocker",
+      "instruction": "Add `@return the hash code of `x` as computed by `x.##`.",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "Hashing.fromFunction",
+      "line": 54,
+      "severity": "blocker",
+      "instruction": "Add `@return a `Hashing[T]` instance that uses the given function `f` to compute hash codes.`",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "Hashing.hash",
+      "line": 31,
+      "severity": "nit",
+      "instruction": "Rephrase the description to 'Returns the hash code of the given value.'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "Default.hash",
+      "line": 40,
+      "severity": "nit",
+      "instruction": "Rephrase to: 'Computes the hash code of the given value using Scala's default `##` method.'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "Hashing.default",
+      "line": 47,
+      "severity": "nit",
+      "instruction": "Rephrase the description to avoid redundancy, e.g., 'Returns the default hashing strategy for type `T`.'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "Hashing.fromFunction",
+      "line": 54,
+      "severity": "nit",
+      "instruction": "Rephrase to: 'Returns a `Hashing` instance that uses the given function to compute hash codes.'",
+      "raised_by": "style",
+      "needs_human": false
+    }
+  ],
+  "disagreements": [
+    {
+      "symbol": "Hashing.hash",
+      "line": 31,
+      "accuracy_position": "",
+      "style_position": "Add `@return the hash code of `x` as an `Int`.",
+      "ruling": "style",
+      "rationale": "The description does not begin with 'Returns', so the @return tag is necessary as per Scala Scaladoc conventions."
+    },
+    {
+      "symbol": "Default.hash",
+      "line": 40,
+      "accuracy_position": "",
+      "style_position": "Add `@return the hash code of `x` as computed by `x.##`.",
+      "ruling": "style",
+      "rationale": "The description does not begin with 'Returns', so the @return tag is necessary as per Scala Scaladoc conventions."
+    },
+    {
+      "symbol": "Hashing.fromFunction",
+      "line": 54,
+      "accuracy_position": "",
+      "style_position": "Add `@return a `Hashing[T]` instance that uses the given function `f` to compute hash codes.`",
+      "ruling": "style",
+      "rationale": "The return value is not documented in the description or with an @return tag."
+    }
+  ]
+}

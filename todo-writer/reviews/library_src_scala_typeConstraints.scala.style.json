@@ -1,0 +1,15 @@
+{
+  "items": [],
+  "bonus_findings": [
+    {
+      "file": "library/src/scala/typeConstraints.scala",
+      "line": 65,
+      "category": "style-consistency",
+      "summary": "Pre-existing `<:<.substituteBoth`/`apply` docs use imperative mood (\"Substitute\", \"Coerce\") while the newly written `=:=` docs in this diff correctly use declarative third-person (\"Substitutes\", \"Lifts\"), per the Scaladoc style guide.",
+      "failure_scenario": "Not a correctness bug; a reader skimming both classes sees inconsistent verb mood between sibling methods (`<:<.substituteBoth` vs `=:=.substituteBoth`), which is a minor readability/consistency wart worth fixing in a later pass over the pre-existing text.",
+      "short_summary": "Imperative vs declarative mood mismatch across sibling classes"
+    }
+  ],
+  "verdict": "approve"
+}
+

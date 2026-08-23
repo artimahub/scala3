@@ -1,0 +1,15 @@
+{
+  "items": [
+    {
+      "declaration": "extension [T](x: into[T]) def underlying: T",
+      "severity": "nit",
+      "confidence": "medium",
+      "needs_human": false,
+      "comment": "Accurate: `into[T] >: T = T` means only `T <: into[T]` is visible outside the opaque scope, so `underlying` is genuinely the only way for external callers to go from `into[T]` back to `T`. The phrasing is just slightly awkward — 'revealing the opaque `into[T]` alias' reads as if the alias itself is being exposed, when what's actually revealed is the underlying representation type that the opaque alias hides. Consider something like 'Converts `x` from the opaque `into[T]` type to its underlying type `T`.' for clarity."
+    }
+  ],
+  "bonus_findings": [],
+  "verdict": "approve",
+  "needs_human": false
+}
+

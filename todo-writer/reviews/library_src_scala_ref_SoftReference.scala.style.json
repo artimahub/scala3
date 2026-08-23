@@ -1,0 +1,21 @@
+The new Scaladoc in `SoftReference.scala` reads well and matches the established style of the sibling `WeakReference.scala` doc in the same package (same enumeration pattern, same tag phrasing). No blockers found.
+{
+  "verdict": "approve",
+  "items": [
+    {
+      "declaration": "class SoftReference[+T <: AnyRef]",
+      "severity": "ok",
+      "confidence": "high",
+      "needs_human": false,
+      "notes": "First sentence stands alone as a noun-phrase summary, consistent with the sibling WeakReference class doc in the same package. Backticks used correctly for `java.lang.ref.SoftReference`, `Option`. @tparam/@param phrases are lowercase, no trailing period, no @return present (none needed)."
+    },
+    {
+      "declaration": "def this(value : T)",
+      "severity": "ok",
+      "confidence": "high",
+      "needs_human": false,
+      "notes": "Declarative, present tense ('Creates'), no self-reference, stands alone. @param phrase matches convention."
+    }
+  ],
+  "bonus_findings": []
+}

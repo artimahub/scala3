@@ -1,0 +1,8 @@
+Worklist complete. All six items were the same correction applied across a family:
+
+- **43 `asScala` summaries** (25 Function1 + 13 Function2 + 5 Function0) now read, e.g., "Returns a Scala `Function2` that calls `underlying`, or, if `underlying` is an `AsJavaBiConsumer`, the Scala function that wrapper holds."
+- **43 `asJava` summaries** (same 25/13/5 split) now read, e.g., "Returns a Java `BiConsumer` that calls `underlying`, or, if `underlying` is a `FromJavaBiConsumer`, the Java `BiConsumer` that wrapper holds."
+
+Each wrapper class name was read from the actual `case` arm two lines below the comment, so every summary names its own correct `AsJava*`/`FromJava*` type rather than a generic phrase.
+
+Verification: `git diff --numstat` shows 86 changed / 86 unchanged-count lines, the diff contains no non-comment lines, and the file with all Scaladoc lines stripped is md5-identical to HEAD, so every declaration, body, import and blank line survived byte-for-byte. No occurrences of the old "was itself produced by converting one" phrasing remain. Committed as `1f8b759312`.

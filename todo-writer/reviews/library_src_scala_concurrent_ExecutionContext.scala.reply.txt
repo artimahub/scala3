@@ -1,0 +1,38 @@
+I'll apply the targeted patches to the Scaladoc comments as specified in the worklist. Here are the changes:
+
+1. Line 71 (ExecutionContext trait) - Rewrite first sentence for clarity
+2. Line 224 (parasitic.submitForExecution) - Clarify behavior with edge case
+3. Line 229 (parasitic.execute) - Update description to match implementation
+4. Line 234 (parasitic.reportFailure) - Expand description to mention defaultReporter
+5. Line 224 (parasitic.submitForExecution) - Revise @param tag
+6. Line 229 (parasitic.execute) - Revise @param tag
+7. Line 234 (parasitic.reportFailure) - Revise @param tag
+
+Here are the specific changes:
+
+```scala
+/** An execution context that can execute program logic asynchronously, typically on a thread pool. */
+trait ExecutionContext {
+```
+
+```scala
+    /** Executes the given `Runnable` immediately on the current thread.
+     *  If the current thread is already in a batched context, the task may be queued.
+     *
+     *  @param runnable the task to execute immediately
+     */
+    override final def submitForExecution(runnable: Runnable): Unit = runnable.run()
+    /** Executes the given `Runnable` on the current thread, batching nested tasks.
+     *  If the current thread is already processing a batched task, the new task may be queued.
+     *
+     *  @param runnable the task to execute with batching
+     */
+    override final def execute(runnable: Runnable): Unit = submitSyncBatched(runnable)
+    /** Reports the given `Throwable` to the default reporter.
+     *
+     *  @param t the failure to report
+     */
+    override final def reportFailure(t: Throwable): Unit = defaultReporter(t)
+```
+
+The changes are minimal and targeted, only modifying the Scaladoc comments as instructed. The code itself remains unchanged, and all other aspects of the file (including whitespace, imports, and structure) are preserved exactly as they were.

@@ -1,0 +1,15 @@
+{
+  "verdict": "approve",
+  "summary": "Style blocker overruled: the code confirms the documented sign convention is correct.",
+  "resolved_items": [],
+  "disagreements": [
+    {
+      "symbol": "DeadlineIsOrdered.compare",
+      "line": 89,
+      "accuracy_position": "No issues raised; documentation approved as accurate.",
+      "style_position": "Claimed the @return sign description is backwards: that `a compare b` returns negative when `a` is later than `b`, not earlier.",
+      "ruling": "neither",
+      "rationale": "The implementation `a compare b` delegates to `Deadline.compare`, which computes `a.time - b.time`; since `Deadline` wraps a `FiniteDuration` measured from now, an earlier deadline has a smaller duration value, so `a` earlier than `b` yields `a.time < b.time` and thus a negative result — exactly what the @return states."
+    }
+  ]
+}

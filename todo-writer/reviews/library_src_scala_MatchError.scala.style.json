@@ -1,0 +1,16 @@
+{
+  "items": [
+    {
+      "declaration": "final class MatchError.getMessage(): String  (library/src/scala/MatchError.scala:43-47)",
+      "severity": "blocker",
+      "confidence": "high",
+      "needs_human": false,
+      "comment": "The doc undersells the message content and misses a real branch of behavior. It says the message 'names the object's class unless the object is `null`', implying the class name is the defining content for non-null objects. But `objString` (line 27-35) actually builds `s\"$obj ($ofClass)\"` — the object's own `toString()` followed by the class name in parentheses, e.g. `5 (of class java.lang.Integer)` — so the toString representation, not just the class name, is the prominent part of the message. The doc also omits the fallback branch: if `obj.toString` throws, the message becomes `\"an instance of class \" + ofClass` (no object representation at all). A reader relying on this Scaladoc would reasonably expect the message to be essentially just a class name, which is materially wrong for the common case."
+    }
+  ],
+  "bonus_findings": [],
+  "verdict": "revise"
+}
+
+
+The added Scaladoc for `getMessage()` correctly follows the "starts with Returns, so drop `@return`" convention and reads well stylistically, but it materially misdescribes the message content: it says the message "names the object's class" (implying that's the key content for non-null objects) when the actual message is the object's `toString()` value followed by `(of class ...)`, and it doesn't mention the `"an instance of class ..."` fallback used when `toString()` throws.

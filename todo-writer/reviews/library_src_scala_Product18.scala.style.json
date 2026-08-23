@@ -1,0 +1,15 @@
+{
+  "verdict": "approve",
+  "summary": "The Scaladoc added for `Product18.unapply` accurately describes its behavior (always returns `Some(x)`) and follows the same structure and wording already used for the sibling `Product1`-`Product17` extractor docs (verified `Product17.scala` diff is byte-for-byte parallel). No factual errors or convention violations rise to blocker level.",
+  "items": [
+    {
+      "declaration": "Product18.unapply",
+      "severity": "nit",
+      "confidence": "medium",
+      "needs_human": false,
+      "comment": "The first sentence ('Returns the given product wrapped in a [[scala.Some]] ...') already fully states the return value, so the `@return` tag ('`x` wrapped in a [[scala.Some]]') is technically redundant per the house guideline that @return may be dropped when the summary already states it. Not flagging as a blocker since this exact pattern is used identically and consistently across all sibling Product1-Product17 unapply docs in the same PR, so it appears to be an intentional, established convention rather than an oversight in this file."
+    }
+  ],
+  "bonus_findings": []
+}
+

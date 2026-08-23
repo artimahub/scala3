@@ -1,0 +1,6 @@
+{
+  "overall_quality": "excellent",
+  "issues": [],
+  "general_feedback": "The three filled-in @return descriptions are accurate, concise, and consistent with the surrounding documentation style. They correctly describe the returned arrays and reference the relevant ordering mechanism (the `Ordering` for `K`, the less-than relation `f`, and the keys produced by `f`). Style follows existing conventions: lowercase start, backticks around code references, and one clear sentence per tag.",
+  "requires_changes": false
+}

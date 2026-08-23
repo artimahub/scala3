@@ -1,0 +1,17 @@
+{
+  "verdict": "approve",
+  "summary": "Checked FutureOps (class doc, @tparam T, @param f) and CompletionStageOps (class doc, @tparam T, @param cs) against the implementations in this file and against javaapi.FutureConverters.asJava/asScala; all claims are accurate (T is the future/stage's completion value type, f/cs are the converted receivers) and the tags follow convention (lowercase continuation, no trailing period, code in backticks, types in [[...]] links). No blockers found.",
+  "items": [
+    {
+      "symbol": "FutureOps / CompletionStageOps @tparam T",
+      "line": 38,
+      "severity": "nit",
+      "issue": "Both @tparam T descriptions end on the preposition \"with\" (\"the type of the value the future is completed with\" / \"... the completion stage is completed with\"), which reads slightly awkwardly. Applies to both occurrences (lines 38 and 49).",
+      "suggestion": "Reword to avoid the trailing preposition, e.g. \"the type of value with which the future completes\".",
+      "confidence": "high",
+      "needs_human": false
+    }
+  ],
+  "bonus_findings": []
+}
+

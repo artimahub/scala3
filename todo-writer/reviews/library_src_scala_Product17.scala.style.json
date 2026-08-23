@@ -1,0 +1,17 @@
+{
+  "verdict": "approve",
+  "needs_human": false,
+  "items": [
+    {
+      "declaration": "Product17.unapply",
+      "severity": "nit",
+      "confidence": "medium",
+      "needs_human": false,
+      "note": "The @return tag ('`x` wrapped in a [[scala.Some]]') is fully restated from the first sentence of the summary ('Returns the given product wrapped in a [[scala.Some]]...'), which per the house convention is grounds to drop the tag. Kept for consistency with the identical pattern already used in Product1-Product16, so not flagged as a blocker."
+    }
+  ],
+  "bonus_findings": []
+}
+
+
+Reviewed the `unapply` Scaladoc diff against the implementation (`Some(x)`, always succeeds) — every claim (extraction always succeeds, return value, tparam/param descriptions) is accurate, and the wording is verbatim-consistent with the already-merged Product1–Product16 pattern. Only a minor nit: the `@return` tag restates the first sentence, which the house rule says can be dropped — not a blocker since sibling files already keep it for consistency. Verdict: **approve**.

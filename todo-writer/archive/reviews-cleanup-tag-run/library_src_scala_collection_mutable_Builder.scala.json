@@ -1,0 +1,6 @@
+{
+  "overall_quality": "excellent",
+  "issues": [],
+  "general_feedback": "The single added @return description for `mapResult` accurately describes the returned builder's behavior: it delegates element additions to the underlying builder and applies `f` to transform the final result. The wording is clear, concise, uses backticks appropriately for the code reference, starts with a lowercase letter, and is consistent with the existing @tparam and @param descriptions above it. It matches the actual implementation, which forwards `addOne`, `addAll`, `clear`, and `sizeHint` to `self` and returns `f(self.result())`.",
+  "requires_changes": false
+}

@@ -1,0 +1,27 @@
+{
+  "verdict": "approve",
+  "findings": [
+    {
+      "declaration": "def get",
+      "severity": "nit",
+      "confidence": "high",
+      "needs_human": false,
+      "comment": "\"Returns `Some(value)` wrapping `underlying.get`\" is slightly awkward — `value` is an undeclared placeholder, and \"wrapping\" is redundant once you have `Some(...)`. Cleaner: \"Returns `Some(underlying.get)` if it is non-null, or `None` otherwise.\""
+    },
+    {
+      "declaration": "def apply()",
+      "severity": "nit",
+      "confidence": "high",
+      "needs_human": false,
+      "comment": "`NoSuchElementException` is a code reference and should be in backticks: `NoSuchElementException`."
+    },
+    {
+      "declaration": "def enqueue()",
+      "severity": "nit",
+      "confidence": "high",
+      "needs_human": false,
+      "comment": "The comment is a single very long line (~160 chars). Wrap after the first clause so the source is readable without horizontal scrolling, e.g. break before \"or `false`\"."
+    }
+  ],
+  "bonus_findings": []
+}

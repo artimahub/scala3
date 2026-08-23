@@ -1,0 +1,45 @@
+```json
+{
+  "overall_quality": "good",
+  "issues": [
+    {
+      "line": 138,
+      "tag_type": "@param",
+      "tag_name": "result",
+      "severity": "error",
+      "current_text": "@param  `result` the result value",
+      "problem": "There is a duplicate @param tag for `result`. Line 138 has a pre-existing malformed @param with backticks around the name (`result`), and line 139 has the newly added tag. The old tag on line 138 should be removed to avoid duplicate/confusing Scaladoc output.",
+      "suggestion": "Remove line 138 entirely (the `@param  \\`result\\` the result value` line)"
+    },
+    {
+      "line": 59,
+      "tag_type": "@tparam",
+      "tag_name": "B",
+      "severity": "suggestion",
+      "current_text": "the result type of the function `f`",
+      "problem": "For `map`, `B` is technically the result type of the overall mapped computation, not just of `f`. The description is acceptable but could be slightly more precise.",
+      "suggestion": "the result type of the mapped computation"
+    },
+    {
+      "line": 67,
+      "tag_type": "@tparam",
+      "tag_name": "B",
+      "severity": "suggestion",
+      "current_text": "the result type of the function `f`",
+      "problem": "Same as `map` — `B` is the result type of the continuation. Acceptable but could better distinguish from the `map` version.",
+      "suggestion": "the result type of the continuation"
+    },
+    {
+      "line": 60,
+      "tag_type": "@param",
+      "tag_name": "f",
+      "severity": "suggestion",
+      "current_text": "the function to apply to the result of this computation",
+      "problem": "Could mention the type signature for additional clarity, e.g. that `f` transforms an `A` to a `B`.",
+      "suggestion": "the function to apply to the result, transforming `A` to `B`"
+    }
+  ],
+  "general_feedback": "The documentation is well-written overall: accurate, concise, and consistent with Scaladoc conventions. The main issue is a duplicate @param tag for `result` in the `done` method (line 138 is a pre-existing malformed tag that should be removed). The type parameter and parameter descriptions for `map`, `flatMap`, `Call`, `Done`, `Cont`, and `tailcall` are all accurate and clear. The `Cont` documentation is particularly well done, correctly distinguishing `A` as the intermediate type and `B` as the final type.",
+  "requires_changes": true
+}
+```

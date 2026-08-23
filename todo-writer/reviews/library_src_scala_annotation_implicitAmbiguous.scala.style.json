@@ -1,0 +1,13 @@
+{
+  "verdict": "approve",
+  "items": [
+    {
+      "declaration": "final class implicitAmbiguous",
+      "severity": "ok",
+      "confidence": "high",
+      "needs_human": false,
+      "comment": "First sentence stands alone, is declarative third-person present tense, no self-reference ('This class...'), appropriate altitude. `@implicitAmbiguous` in backticks is correct; `\\${Xi}` backtick usage matches the pre-existing long comment above. @param starts lowercase, no trailing period. No HTML. No @return to assess."
+    }
+  ],
+  "bonus_findings": []
+}

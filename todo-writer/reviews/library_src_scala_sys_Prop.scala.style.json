@@ -1,0 +1,14 @@
+{
+  "verdict": "approve",
+  "needs_human": false,
+  "items": [
+    {
+      "declaration": "object Prop / def apply[T: Creator](key: String): Prop[T]",
+      "severity": "ok",
+      "confidence": "high",
+      "note": "Accurate and consistent with the sibling Creator.apply doc and Prop's own @tparam T wording. First sentence stands alone, third person, present tense. Backticks used correctly for `Prop[T]`, `Creator[T]`, `key`. Tag continuations are lowercase with no trailing period."
+    }
+  ],
+  "bonus_findings": []
+}
+

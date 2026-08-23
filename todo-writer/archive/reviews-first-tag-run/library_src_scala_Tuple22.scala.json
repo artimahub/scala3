@@ -1,0 +1,206 @@
+```json
+{
+  "overall_quality": "good",
+  "issues": [
+    {
+      "line": 44,
+      "tag_type": "@param",
+      "tag_name": "_1",
+      "severity": "suggestion",
+      "current_text": "Element 1 of this Tuple22",
+      "problem": "Style is inconsistent with the @tparam tags which use lowercase 'the type of the Nth element'. The @param tags use uppercase 'Element N' and a different sentence structure.",
+      "suggestion": "the 1st element of this Tuple22"
+    },
+    {
+      "line": 45,
+      "tag_type": "@param",
+      "tag_name": "_2",
+      "severity": "suggestion",
+      "current_text": "Element 2 of this Tuple22",
+      "problem": "Inconsistent style with @tparam tags; also doesn't use ordinal form like the @tparam descriptions do.",
+      "suggestion": "the 2nd element of this Tuple22"
+    },
+    {
+      "line": 46,
+      "tag_type": "@param",
+      "tag_name": "_3",
+      "severity": "suggestion",
+      "current_text": "Element 3 of this Tuple22",
+      "problem": "Inconsistent style with @tparam tags.",
+      "suggestion": "the 3rd element of this Tuple22"
+    },
+    {
+      "line": 47,
+      "tag_type": "@param",
+      "tag_name": "_4",
+      "severity": "suggestion",
+      "current_text": "Element 4 of this Tuple22",
+      "problem": "Inconsistent style with @tparam tags.",
+      "suggestion": "the 4th element of this Tuple22"
+    },
+    {
+      "line": 48,
+      "tag_type": "@param",
+      "tag_name": "_5",
+      "severity": "suggestion",
+      "current_text": "Element 5 of this Tuple22",
+      "problem": "Inconsistent style with @tparam tags.",
+      "suggestion": "the 5th element of this Tuple22"
+    },
+    {
+      "line": 49,
+      "tag_type": "@param",
+      "tag_name": "_6",
+      "severity": "suggestion",
+      "current_text": "Element 6 of this Tuple22",
+      "problem": "Inconsistent style with @tparam tags.",
+      "suggestion": "the 6th element of this Tuple22"
+    },
+    {
+      "line": 50,
+      "tag_type": "@param",
+      "tag_name": "_7",
+      "severity": "suggestion",
+      "current_text": "Element 7 of this Tuple22",
+      "problem": "Inconsistent style with @tparam tags.",
+      "suggestion": "the 7th element of this Tuple22"
+    },
+    {
+      "line": 51,
+      "tag_type": "@param",
+      "tag_name": "_8",
+      "severity": "suggestion",
+      "current_text": "Element 8 of this Tuple22",
+      "problem": "Inconsistent style with @tparam tags.",
+      "suggestion": "the 8th element of this Tuple22"
+    },
+    {
+      "line": 52,
+      "tag_type": "@param",
+      "tag_name": "_9",
+      "severity": "suggestion",
+      "current_text": "Element 9 of this Tuple22",
+      "problem": "Inconsistent style with @tparam tags.",
+      "suggestion": "the 9th element of this Tuple22"
+    },
+    {
+      "line": 53,
+      "tag_type": "@param",
+      "tag_name": "_10",
+      "severity": "suggestion",
+      "current_text": "Element 10 of this Tuple22",
+      "problem": "Inconsistent style with @tparam tags.",
+      "suggestion": "the 10th element of this Tuple22"
+    },
+    {
+      "line": 54,
+      "tag_type": "@param",
+      "tag_name": "_11",
+      "severity": "suggestion",
+      "current_text": "Element 11 of this Tuple22",
+      "problem": "Inconsistent style with @tparam tags.",
+      "suggestion": "the 11th element of this Tuple22"
+    },
+    {
+      "line": 55,
+      "tag_type": "@param",
+      "tag_name": "_12",
+      "severity": "suggestion",
+      "current_text": "Element 12 of this Tuple22",
+      "problem": "Inconsistent style with @tparam tags.",
+      "suggestion": "the 12th element of this Tuple22"
+    },
+    {
+      "line": 56,
+      "tag_type": "@param",
+      "tag_name": "_13",
+      "severity": "suggestion",
+      "current_text": "Element 13 of this Tuple22",
+      "problem": "Inconsistent style with @tparam tags.",
+      "suggestion": "the 13th element of this Tuple22"
+    },
+    {
+      "line": 57,
+      "tag_type": "@param",
+      "tag_name": "_14",
+      "severity": "suggestion",
+      "current_text": "Element 14 of this Tuple22",
+      "problem": "Inconsistent style with @tparam tags.",
+      "suggestion": "the 14th element of this Tuple22"
+    },
+    {
+      "line": 58,
+      "tag_type": "@param",
+      "tag_name": "_15",
+      "severity": "suggestion",
+      "current_text": "Element 15 of this Tuple22",
+      "problem": "Inconsistent style with @tparam tags.",
+      "suggestion": "the 15th element of this Tuple22"
+    },
+    {
+      "line": 59,
+      "tag_type": "@param",
+      "tag_name": "_16",
+      "severity": "suggestion",
+      "current_text": "Element 16 of this Tuple22",
+      "problem": "Inconsistent style with @tparam tags.",
+      "suggestion": "the 16th element of this Tuple22"
+    },
+    {
+      "line": 60,
+      "tag_type": "@param",
+      "tag_name": "_17",
+      "severity": "suggestion",
+      "current_text": "Element 17 of this Tuple22",
+      "problem": "Inconsistent style with @tparam tags.",
+      "suggestion": "the 17th element of this Tuple22"
+    },
+    {
+      "line": 61,
+      "tag_type": "@param",
+      "tag_name": "_18",
+      "severity": "suggestion",
+      "current_text": "Element 18 of this Tuple22",
+      "problem": "Inconsistent style with @tparam tags.",
+      "suggestion": "the 18th element of this Tuple22"
+    },
+    {
+      "line": 62,
+      "tag_type": "@param",
+      "tag_name": "_19",
+      "severity": "suggestion",
+      "current_text": "Element 19 of this Tuple22",
+      "problem": "Inconsistent style with @tparam tags.",
+      "suggestion": "the 19th element of this Tuple22"
+    },
+    {
+      "line": 63,
+      "tag_type": "@param",
+      "tag_name": "_20",
+      "severity": "suggestion",
+      "current_text": "Element 20 of this Tuple22",
+      "problem": "Inconsistent style with @tparam tags.",
+      "suggestion": "the 20th element of this Tuple22"
+    },
+    {
+      "line": 64,
+      "tag_type": "@param",
+      "tag_name": "_21",
+      "severity": "suggestion",
+      "current_text": "Element 21 of this Tuple22",
+      "problem": "Inconsistent style with @tparam tags.",
+      "suggestion": "the 21st element of this Tuple22"
+    },
+    {
+      "line": 65,
+      "tag_type": "@param",
+      "tag_name": "_22",
+      "severity": "suggestion",
+      "current_text": "Element 22 of this Tuple22",
+      "problem": "Inconsistent style with @tparam tags.",
+      "suggestion": "the 22nd element of this Tuple22"
+    }
+  ],
+  "general_feedback": "The @tparam documentation is excellent — accurate, clear, and follows Scaladoc conventions with lowercase starts and ordinal numbers (1st, 2nd, 3rd, etc.). The @param documentation is accurate and functional but uses a slightly different style (uppercase 'Element N' with cardinal numbers instead of lowercase 'the Nth element' with ordinals). These @param descriptions appear to be pre-existing and were not part of the recent changes, so the newly written @tparam tags are actually the better-styled ones. Overall the documentation is correct and complete.",
+  "requires_changes": false
+}

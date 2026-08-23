@@ -1,0 +1,20 @@
+{
+  "verdict": "approve",
+  "items": [
+    {
+      "declaration": "AbstractFunction20 class doc (lines 17-20)",
+      "severity": "nit",
+      "confidence": "high",
+      "needs_human": false,
+      "comment": "Accurate and matches the code (no @specialized annotations are claimed, correctly unlike AbstractFunction1). Minor wording redundancy: 'Extending this class allows a function value to be defined by extending a class rather than the trait' repeats 'extending' twice in one sentence. Sibling file AbstractFunction1.scala phrases the same idea in one combined sentence without the repetition ('A base class for one-parameter function implementations, allowing a function value to be defined by extending a class rather than the [[scala.Function1]] trait.'); splitting AbstractFunction20's version into two sentences with the doubled 'extending' is not wrong but reads slightly clunkier and is stylistically inconsistent with the established family phrasing."
+    },
+    {
+      "declaration": "@tparam T1..T20 and @tparam R (lines 22-42)",
+      "severity": "ok",
+      "confidence": "high",
+      "comment": "Wording matches the established convention used in scala.Function20 ('the type of the Nth argument'); R's description ('the return type of this function') is a harmless minor variant of Function20's 'the result type of the function', not an inaccuracy."
+    }
+  ],
+  "bonus_findings": []
+}
+

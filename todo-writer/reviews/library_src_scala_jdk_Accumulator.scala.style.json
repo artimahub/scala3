@@ -1,0 +1,17 @@
+{
+  "verdict": "approve",
+  "summary": "Checked efficientStepper/stepper (against IntAccumulator/LongAccumulator/DoubleAccumulator/AnyAccumulator implementations, all returning S & EfficientSplit), length and knownSize (against the sizeLong/Int.MaxValue boundary logic and Seq.size=length), toFactory (sa is indeed unused in the body), the AccumulatorFactoryShape trait's factory/empty abstractions, the six concrete/boxed shape vals, and LowPriorityAccumulatorFactoryShape/anyAccumulatorFactoryShape (verified against the standard low-priority-implicit idiom); all descriptions match the code, @throws/@return usage follows the drop rule and exception-first-token convention, and no self-referential or HTML-style prose was introduced.",
+  "items": [
+    {
+      "symbol": "Accumulator.toFactory",
+      "line": 197,
+      "severity": "nit",
+      "issue": "The new @tparam A uses a curly apostrophe (’) in \"${coll}’s elements\", matching the pre-existing `from` method just below it but inconsistent with `empty`/`apply` a few lines further down, which use a straight apostrophe (').",
+      "suggestion": "Use a straight apostrophe for consistency with `empty`/`apply`, or leave as-is since it matches the nearest neighbor `from`.",
+      "confidence": "high",
+      "needs_human": false
+    }
+  ],
+  "bonus_findings": []
+}
+

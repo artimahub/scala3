@@ -1,0 +1,6 @@
+{
+  "overall_quality": "excellent",
+  "issues": [],
+  "general_feedback": "The added @return description for `constant` accurately captures both key aspects of the returned BooleanProp: its fixed value and the no-op nature of its mutating operations (verified against `ConstantImpl` where `set`, `setValue`, `clear`, `enable`, `disable`, and `toggle` all return constants or do nothing). The wording is concise, follows Scaladoc conventions (lowercase start, consistent with surrounding @return tags), and reads naturally alongside the existing @param descriptions.",
+  "requires_changes": false
+}

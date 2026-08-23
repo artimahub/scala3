@@ -1,0 +1,30 @@
+<<<<<<< SEARCH
+  @deprecated("isWhole on an integer type is always true", "2.12.15")
+  /** Always returns `true` since a `BigInt` is always a whole number.
+   *
+   *  @deprecated("isWhole on an integer type is always true", "2.12.15")
+   */
+=======
+  /** Always returns `true` since a `BigInt` is always a whole number.
+   *
+   *  @deprecated("isWhole on an integer type is always true", "2.12.15")
+   */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Returns the `java.math.BigInteger` representation of this `BigInt`.
+   *
+   *  @return the `java.math.BigInteger` value equivalent to this `BigInt`
+   */
+=======
+  /** Returns the `java.math.BigInteger` representation of this `BigInt`. */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Returns the underlying `java.math.BigInteger` representation of this `BigInt`.
+   *
+   *  @return the `java.math.BigInteger` value equivalent to this `BigInt`
+   */
+=======
+  /** Returns the underlying `java.math.BigInteger` representation of this `BigInt`. */
+>>>>>>> REPLACE

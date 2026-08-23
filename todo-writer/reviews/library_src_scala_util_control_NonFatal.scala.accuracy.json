@@ -1,0 +1,34 @@
+{
+  "verdict": "revise",
+  "summary": "Documentation for `NonFatal.apply` contains a blocker due to missing `@return` tag and style issues.",
+  "items": [
+    {
+      "symbol": "NonFatal.apply",
+      "line": 46,
+      "severity": "blocker",
+      "issue": "Missing `@return` tag. The description does not begin with 'Returns', so the return behavior must be documented in an `@return` tag per Scaladoc conventions.",
+      "suggestion": "Add `@return true if the provided `Throwable` is non-fatal, false otherwise` to the Scaladoc.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "NonFatal.apply",
+      "line": 46,
+      "severity": "nit",
+      "issue": "First sentence is redundant with the method signature and does not stand alone as a meaningful API-index summary.",
+      "suggestion": "Rephrase the first sentence to be more descriptive, e.g., 'Tests whether the provided `Throwable` is non-fatal.'",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "NonFatal.apply",
+      "line": 48,
+      "severity": "nit",
+      "issue": "@param tag description should begin with a lowercase word and have no trailing period.",
+      "suggestion": "Change `@param t the `Throwable` to test for being non-fatal` to `@param t the throwable to test for being non-fatal` (lowercase 'the', no period).",
+      "confidence": "high",
+      "needs_human": false
+    }
+  ],
+  "bonus_findings": []
+}

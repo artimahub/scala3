@@ -1,0 +1,94 @@
+I'll apply the targeted patches to the Scaladoc comments as specified in the worklist. Here are the changes:
+
+1. For `Hashing.hash` (line 31):
+   - Add `@return` tag
+   - Rephrase description
+
+2. For `Default.hash` (line 40):
+   - Add `@return` tag
+   - Rephrase description
+
+3. For `Hashing.default` (line 47):
+   - Rephrase description
+
+4. For `Hashing.fromFunction` (line 54):
+   - Add `@return` tag
+   - Rephrase description
+
+Here's the patched file:
+
+```scala
+/*
+ * Scala (https://www.scala-lang.org)
+ *
+ * Copyright EPFL and Lightbend, Inc. dba Akka
+ *
+ * Licensed under Apache License 2.0
+ * (http://www.apache.org/licenses/LICENSE-2.0).
+ *
+ * See the NOTICE file distributed with this work for
+ * additional information regarding copyright ownership.
+ */
+
+package scala
+package util.hashing
+
+import scala.language.`2.13`
+import scala.annotation.implicitNotFound
+
+/** `Hashing` is a trait whose instances each represent a strategy for hashing
+  * instances of a type.
+  *
+  * `Hashing`'s companion object defines a default hashing strategy for all
+  * objects - it calls their `##` method.
+  *
+  * Note: when using a custom `Hashing`, make sure to use it with the `Equiv`
+  * such that if any two objects are equal, then their hash codes must be equal.
+  */
+@implicitNotFound(msg = "No implicit Hashing defined for ${T}.")
+trait Hashing[T] extends Serializable {
+  /** Returns the hash code of the given value.
+   *
+   *  @param x the value to hash
+   *  @return the hash code of `x` as an `Int`
+   */
+  def hash(x: T): Int
+}
+
+object Hashing {
+  /** A default hashing strategy that delegates to the `##` method of the value.
+   *
+   *  @tparam T the type of values to hash
+   */
+  final class Default[T] extends Hashing[T] {
+    /** Computes the hash code of the given value using Scala's default `##` method.
+     *
+     *  @param x the value to hash
+     *  @return the hash code of `x` as computed by `x.##`
+     */
+    def hash(x: T) = x.##
+  }
+
+  /** Returns the default hashing strategy for type `T`.
+   *
+   *  @tparam T the type for which to provide the default hashing strategy
+   *  @return a `Default` hashing instance for `T`
+   */
+  implicit def default[T]: Default[T] = new Default[T]
+
+  /** Returns a `Hashing` instance that uses the given function to compute hash codes.
+   *
+   *  @tparam T the type of values to hash
+   *  @param f the function that computes hash codes for values of type `T`
+   *  @return a `Hashing[T]` instance that uses the given function `f` to compute hash codes
+   */
+  def fromFunction[T](f: T => Int) = new Hashing[T] {
+    def hash(x: T) = f(x)
+  }
+}
+```
+
+All changes are targeted patches to the Scaladoc comments only, with no modifications to the code itself. The changes include:
+- Adding missing `@return` tags where required
+- Rephrasing descriptions to be more concise and follow Scala Scaladoc conventions
+- Maintaining all existing structure, formatting, and code

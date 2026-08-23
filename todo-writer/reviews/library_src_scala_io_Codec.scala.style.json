@@ -1,0 +1,13 @@
+{
+  "verdict": "approve",
+  "findings": [
+    {
+      "declaration": "apply(decoder: CharsetDecoder)",
+      "severity": "nit",
+      "confidence": "medium",
+      "needs_human": false,
+      "comment": "@return reads \"a `Codec` whose `decoder` is `decoder`\" — the method name and the parameter share the same identifier, making the phrase confusing. Consider \"a `Codec` wrapping `decoder`\" or \"a `Codec` whose `decoder` method returns the given `decoder`\"."
+    }
+  ],
+  "bonus_findings": []
+}

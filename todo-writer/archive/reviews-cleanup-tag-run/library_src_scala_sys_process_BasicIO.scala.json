@@ -1,0 +1,34 @@
+{
+  "overall_quality": "good",
+  "issues": [
+    {
+      "line": 234,
+      "tag_type": "@return",
+      "tag_name": "",
+      "severity": "suggestion",
+      "current_text": "a function `OutputStream => Unit` suitable for use with `ProcessIO`, which either redirects stdin to the process input or leaves the stream untouched",
+      "problem": "The description is slightly misleading: both branches return sentinel no-op functions (`_ => ()`); the actual redirect behavior is performed by `ProcessBuilderImpl` based on which sentinel is detected, not by the returned function itself.",
+      "suggestion": "a sentinel function `OutputStream => Unit` for use with `ProcessIO`: when `connect` is true, the returned `connectToStdIn` value signals `ProcessBuilderImpl` to redirect stdin to the process input; otherwise `connectNoOp` signals it to leave the process input alone"
+    },
+    {
+      "line": 247,
+      "tag_type": "@return",
+      "tag_name": "",
+      "severity": "suggestion",
+      "current_text": "a `ProcessIO` that writes the process's stdout to stdout and its stderr to stderr, optionally feeding stdin into the process input",
+      "problem": "Minor wording: 'optionally feeding stdin into the process input' is slightly imprecise since whether stdin is forwarded is determined by the `connectInput` argument, not optional at call time.",
+      "suggestion": "a `ProcessIO` that writes the process's stdout to stdout and its stderr to stderr, and, when `connectInput` is true, also forwards stdin to the process input"
+    },
+    {
+      "line": 254,
+      "tag_type": "@return",
+      "tag_name": "",
+      "severity": "suggestion",
+      "current_text": "a `ProcessIO` that uses `in` to handle the process input while writing the process's stdout to stdout and its stderr to stderr",
+      "problem": "Reads well, but could parallel the sibling overload more closely for consistency.",
+      "suggestion": "a `ProcessIO` that delegates the process input to `in` and writes the process's stdout to stdout and its stderr to stderr"
+    }
+  ],
+  "general_feedback": "All three filled-in @return descriptions are accurate, lowercase-starting, and use backticks appropriately. They are a bit long compared to the surrounding documentation style in this file, and the `input` overload's return could better acknowledge the sentinel-based mechanism, but there are no factual errors and no required changes.",
+  "requires_changes": false
+}

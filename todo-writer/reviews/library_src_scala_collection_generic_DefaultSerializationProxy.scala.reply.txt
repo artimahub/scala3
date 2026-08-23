@@ -1,0 +1,26 @@
+<<<<<<< 1
+/** A transient builder used during deserialization to reconstruct the collection.
+  *
+  *  This builder is initialized in `readObject` and populated with deserialized
+  *  elements before being converted to the final collection in `readResolve`.
+  */
+>>>>>>>
+
+<<<<<<< 2
+/** Returns the reconstructed collection after deserialization.
+  *
+  *  This method is called automatically during deserialization to convert the
+  *  populated builder into the final collection instance.
+  */
+>>>>>>>
+
+<<<<<<< 3
+/** Creates a serialization proxy for this collection.
+  *
+  *  This method is called during serialization to replace the collection with
+  *  a `DefaultSerializationProxy` that handles the serialization and
+  *  deserialization process. The proxy uses the appropriate factory based on
+  *  the collection type (e.g., `iterableFactory`, `mapFactory`, etc.) to ensure
+  *  correct reconstruction during deserialization.
+  */
+>>>>>>>

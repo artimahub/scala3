@@ -1,0 +1,5 @@
+bash: warning: setlocale: LC_ALL: cannot change locale (en_US.UTF-8)
+>>> todo-writer --only-undocumented on library/src/scala/compiletime
+bash: warning: setlocale: LC_ALL: cannot change locale (en_US.UTF-8)
+[info] welcome to sbt 1.9.8 (Debian Java 17.0.20)
+[info] loading project definition from /workspace/scala3/todo-writer/project

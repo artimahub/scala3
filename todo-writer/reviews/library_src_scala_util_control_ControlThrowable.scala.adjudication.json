@@ -1,0 +1,15 @@
+{
+  "verdict": "approve",
+  "summary": "Both reviewers approved; one style nit does not block.",
+  "resolved_items": [
+    {
+      "symbol": "ControlThrowable.this",
+      "line": 54,
+      "severity": "nit",
+      "instruction": "Consider rephrasing to \"Constructs a `ControlThrowable` with a `null` detail message.\" to explicitly reflect the `message = null` implementation.",
+      "raised_by": "style",
+      "needs_human": false
+    }
+  ],
+  "disagreements": []
+}

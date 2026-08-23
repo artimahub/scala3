@@ -1,0 +1,152 @@
+{
+  "verdict": "revise",
+  "summary": "Multiple blockers found in style review, including missing exception guarantees and clarifications.",
+  "resolved_items": [
+    {
+      "symbol": "ExecutionContextImpl.execute",
+      "line": 23,
+      "severity": "blocker",
+      "instruction": "Add a `@throws` tag for `RejectedExecutionException` and clarify that the task execution is delegated to the underlying executor, which may reject it.",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "ExecutionContextImpl.reportFailure",
+      "line": 28,
+      "severity": "nit",
+      "instruction": "Reword to: 'Reports a throwable to the configured reporter.'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "DefaultThreadFactory",
+      "line": 35,
+      "severity": "blocker",
+      "instruction": "Add a `@note` explaining that thread creation may block or fail if `maxBlockers` is exceeded, and that this is enforced via a `Semaphore`.",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "DefaultThreadFactory.daemonic",
+      "line": 40,
+      "severity": "nit",
+      "instruction": "Reword to: 'If true, created threads will be daemon threads, allowing the JVM to exit even if they are running.'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "DefaultThreadFactory.maxBlockers",
+      "line": 42,
+      "severity": "blocker",
+      "instruction": "Reword to: 'The maximum number of threads that can acquire permits for blocking operations, enforced via a semaphore.'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "DefaultThreadFactory.wire",
+      "line": 58,
+      "severity": "nit",
+      "instruction": "Reword to: 'The thread configured with daemon status, exception handler, and name prefix.'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "DefaultThreadFactory.newThread(runnable: Runnable)",
+      "line": 70,
+      "severity": "nit",
+      "instruction": "Reword to: 'A new thread configured via `wire` to execute the given runnable.'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "DefaultThreadFactory.newThread(fjp: ForkJoinPool)",
+      "line": 77,
+      "severity": "blocker",
+      "instruction": "Add a `@note` explaining that the thread supports blocking operations via `BlockContext` and that blocking is subject to the `maxBlockers` limit.",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "createDefaultExecutorService",
+      "line": 87,
+      "severity": "blocker",
+      "instruction": "Add a `@throws` tag for `IllegalArgumentException` or `NumberFormatException` to clarify that invalid system properties may cause failures.",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "fromExecutor",
+      "line": 102,
+      "severity": "blocker",
+      "instruction": "Add a `@note` explaining that if `e` is `null`, a default executor is used.",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "fromExecutorService",
+      "line": 112,
+      "severity": "blocker",
+      "instruction": "Add a `@note` explaining that if `es` is `null`, a default executor service is used.",
+      "raised_by": "style",
+      "needs_human": false
+    }
+  ],
+  "disagreements": [
+    {
+      "symbol": "ExecutionContextImpl.execute",
+      "line": 23,
+      "accuracy_position": "",
+      "style_position": "Add a `@throws` tag for `RejectedExecutionException` and clarify that the task execution is delegated to the underlying executor, which may reject it.",
+      "ruling": "style",
+      "rationale": "The style reviewer identified a material omission regarding exception behavior, which is critical for users."
+    },
+    {
+      "symbol": "DefaultThreadFactory",
+      "line": 35,
+      "accuracy_position": "",
+      "style_position": "Add a `@note` explaining that thread creation may block or fail if `maxBlockers` is exceeded, and that this is enforced via a `Semaphore`.",
+      "ruling": "style",
+      "rationale": "The style reviewer identified a material omission regarding blocking behavior, which is critical for users."
+    },
+    {
+      "symbol": "DefaultThreadFactory.maxBlockers",
+      "line": 42,
+      "accuracy_position": "",
+      "style_position": "Reword to: 'The maximum number of threads that can acquire permits for blocking operations, enforced via a semaphore.'",
+      "ruling": "style",
+      "rationale": "The style reviewer identified a misleading description, which could confuse users about the actual behavior."
+    },
+    {
+      "symbol": "DefaultThreadFactory.newThread(fjp: ForkJoinPool)",
+      "line": 77,
+      "accuracy_position": "",
+      "style_position": "Add a `@note` explaining that the thread supports blocking operations via `BlockContext` and that blocking is subject to the `maxBlockers` limit.",
+      "ruling": "style",
+      "rationale": "The style reviewer identified a material omission regarding blocking behavior, which is critical for users."
+    },
+    {
+      "symbol": "createDefaultExecutorService",
+      "line": 87,
+      "accuracy_position": "",
+      "style_position": "Add a `@throws` tag for `IllegalArgumentException` or `NumberFormatException` to clarify that invalid system properties may cause failures.",
+      "ruling": "style",
+      "rationale": "The style reviewer identified a material omission regarding exception behavior, which is critical for users."
+    },
+    {
+      "symbol": "fromExecutor",
+      "line": 102,
+      "accuracy_position": "",
+      "style_position": "Add a `@note` explaining that if `e` is `null`, a default executor is used.",
+      "ruling": "style",
+      "rationale": "The style reviewer identified a material omission regarding fallback behavior, which is critical for users."
+    },
+    {
+      "symbol": "fromExecutorService",
+      "line": 112,
+      "accuracy_position": "",
+      "style_position": "Add a `@note` explaining that if `es` is `null`, a default executor service is used.",
+      "ruling": "style",
+      "rationale": "The style reviewer identified a material omission regarding fallback behavior, which is critical for users."
+    }
+  ]
+}

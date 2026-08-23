@@ -1,0 +1,13 @@
+{
+  "verdict": "approve",
+  "items": [
+    {
+      "declaration": "trait CanEqual[-L, -R]",
+      "severity": "ok",
+      "confidence": "high",
+      "needs_human": false,
+      "notes": "First sentence stands alone as a useful summary. Voice is declarative third-person without self-reference. Backticks on `L`, `R`, `==`, `!=` are correct. @tparam phrases are lowercase with no trailing period. Altitude is appropriate -- not redundant with the signature yet not padded. The consolidation of the two formerly split doc comments into one and repositioning @implicitNotFound after the Scaladoc block is also the correct fix."
+    }
+  ],
+  "bonus_findings": []
+}

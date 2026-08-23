@@ -1,0 +1,49 @@
+I'll apply the targeted patches to fix the Scaladoc comments as specified in the worklist. Here are the changes:
+
+```scala
+  /** Provides multiplication methods for Int values with Duration.
+   *
+   *  @param i the Int value to multiply
+   */
+  implicit final class IntMult(private val i: Int) extends AnyVal {
+    /** Multiplies this Int by a Duration.
+     *
+     *  @param d the Duration to multiply
+     *  @return the result of multiplying the given Duration by this Int (converted to Double)
+     */
+    def *(d: Duration): Duration             = d * i.toDouble
+    /** Multiplies this Int by a FiniteDuration.
+     *
+     *  @param d the FiniteDuration to multiply
+     *  @return the result of multiplying the given FiniteDuration by this Int (converted to Long)
+     */
+    def *(d: FiniteDuration): FiniteDuration = d * i.toLong
+  }
+
+  /** Provides multiplication methods for Long values with Duration.
+   *
+   *  @param i the Long value to multiply
+   */
+  implicit final class LongMult(private val i: Long) extends AnyVal {
+    /** Multiplies this Long by a Duration.
+     *
+     *  @param d the Duration to multiply
+     *  @return the result of multiplying the given Duration by this Long (converted to Double)
+     */
+    def *(d: Duration): Duration             = d * i.toDouble
+    /** Multiplies this Long by a FiniteDuration.
+     *
+     *  @param d the FiniteDuration to multiply
+     *  @return the result of multiplying the given FiniteDuration by this Long
+     */
+    def *(d: FiniteDuration): FiniteDuration = d * i.toLong
+  }
+```
+
+The changes made:
+1. Line 132: Updated the return description for `IntMult.*(Duration)` to "the result of multiplying the given Duration by this Int (converted to Double)"
+2. Line 137: Updated the return description for `IntMult.*(FiniteDuration)` to "the result of multiplying the given FiniteDuration by this Int (converted to Long)"
+3. Line 151: Updated the return description for `LongMult.*(Duration)` to "the result of multiplying the given Duration by this Long (converted to Double)"
+4. Line 156: Updated the return description for `LongMult.*(FiniteDuration)` to "the result of multiplying the given FiniteDuration by this Long"
+
+All changes are targeted patches to only the Scaladoc comment lines as specified, without modifying any code or other parts of the file.

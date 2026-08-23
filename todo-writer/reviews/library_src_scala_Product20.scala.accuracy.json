@@ -1,0 +1,1 @@
+{"verdict":"approve","summary":"The changed `Product20.unapply` Scaladoc accurately matches its unconditional `Some(x)` implementation and is stylistically sound.","items":[],"bonus_findings":[]}

@@ -1,0 +1,102 @@
+I'll apply the targeted patches to the Scaladoc comments as specified in the worklist. Here are the changes:
+
+1. Line 23 - ExecutionContextImpl.execute:
+```scala
+  /** Executes the given runnable task using the underlying executor.
+   *
+   *  @param runnable the task to execute
+   *  @throws RejectedExecutionException if the underlying executor rejects the task
+   */
+```
+
+2. Line 28 - ExecutionContextImpl.reportFailure:
+```scala
+  /** Reports a throwable to the configured reporter.
+   *
+   *  @param t the throwable to report
+   */
+```
+
+3. Line 35 - DefaultThreadFactory:
+```scala
+  /** A thread factory that creates daemon or non-daemon threads with configurable
+   *  blocking behavior and exception handling.
+   *
+   *  @param daemonic whether created threads should be daemon threads
+   *  @param maxBlockers the maximum number of threads that can acquire permits for blocking operations, enforced via a semaphore
+   *  @param prefix the prefix to use for thread names
+   *  @param uncaught the handler for uncaught exceptions in created threads
+   *  @note Thread creation may block or fail if `maxBlockers` is exceeded, and that this is enforced via a `Semaphore`.
+   */
+```
+
+4. Line 40 - DefaultThreadFactory.daemonic:
+```scala
+    /** If true, created threads will be daemon threads, allowing the JVM to exit even if they are running. */
+```
+
+5. Line 42 - DefaultThreadFactory.maxBlockers:
+```scala
+    /** The maximum number of threads that can acquire permits for blocking operations, enforced via a semaphore. */
+```
+
+6. Line 58 - DefaultThreadFactory.wire:
+```scala
+    /** Configures the given thread with daemon status, exception handler, and name prefix.
+     *
+     *  @tparam T the type of thread to configure
+     *  @param thread the thread to configure
+     *  @return the configured thread
+     */
+```
+
+7. Line 70 - DefaultThreadFactory.newThread(runnable: Runnable):
+```scala
+    /** Creates a new thread configured via `wire` to execute the given runnable.
+     *
+     *  @param runnable the task the thread will execute
+     *  @return the newly created thread
+     */
+```
+
+8. Line 77 - DefaultThreadFactory.newThread(fjp: ForkJoinPool):
+```scala
+    /** Creates a new ForkJoinWorkerThread that supports blocking operations.
+     *
+     *  @param fjp the ForkJoinPool this thread will belong to
+     *  @return the newly created ForkJoinWorkerThread
+     *  @note The thread supports blocking operations via `BlockContext` and that blocking is subject to the `maxBlockers` limit.
+     */
+```
+
+9. Line 87 - createDefaultExecutorService:
+```scala
+  /** Creates a default ForkJoinPool-based ExecutionContextExecutorService.
+   *
+   *  @param reporter the function to report uncaught exceptions
+   *  @return a new ExecutionContextExecutorService
+   *  @throws IllegalArgumentException or NumberFormatException if invalid system properties are provided
+   */
+```
+
+10. Line 102 - fromExecutor:
+```scala
+  /** Creates an ExecutionContextExecutor from the given executor.
+   *
+   *  @param e the executor to wrap, or null to use the default
+   *  @param reporter the function to report uncaught exceptions
+   *  @return a new ExecutionContextExecutor
+   *  @note If `e` is `null`, a default executor is used.
+   */
+```
+
+11. Line 112 - fromExecutorService:
+```scala
+  /** Creates an ExecutionContextExecutorService from the given executor service.
+   *
+   *  @param es the executor service to wrap, or null to use the default
+   *  @param reporter the function to report uncaught exceptions
+   *  @return a new ExecutionContextExecutorService
+   *  @note If `es` is `null`, a default executor service is used.
+   */
+```

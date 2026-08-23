@@ -1,0 +1,13 @@
+{
+  "verdict": "approve",
+  "declarations": [
+    {
+      "name": "reachCapability",
+      "severity": "ok",
+      "confidence": "high",
+      "needs_human": false,
+      "notes": "Single declarative sentence, third person present tense, no self-reference, code refs backtick-quoted, consolidates the prior two-line doc cleanly. Reads well as an API-index summary."
+    }
+  ],
+  "bonus_findings": []
+}

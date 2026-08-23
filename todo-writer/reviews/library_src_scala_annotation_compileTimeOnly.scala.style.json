@@ -1,0 +1,20 @@
+{
+  "verdict": "approve",
+  "findings": [
+    {
+      "declaration": "final class compileTimeOnly — class-level Scaladoc",
+      "severity": "nit",
+      "confidence": "medium",
+      "needs_human": false,
+      "comment": "\"designates that the annotated definition\" is slightly awkward (double-'that' chain). A small tightening like \"An annotation marking that the annotated definition must not be referenced...\" or \"Marks the annotated definition as forbidden from reference...\" reads more naturally, but this is minor polish."
+    },
+    {
+      "declaration": "final class compileTimeOnly — class-level Scaladoc",
+      "severity": "nit",
+      "confidence": "low",
+      "needs_human": false,
+      "comment": "Mild wording inconsistency with the existing upper Scaladoc block: the pre-existing comment says \"should not be referred to\" (advisory) while the new one says \"must not be referenced\" (imperative). They describe the same semantic. Worth aligning, but low confidence since the new wording may be intentionally stronger."
+    }
+  ],
+  "bonus_findings": []
+}

@@ -1,0 +1,5 @@
+Worklist done - the single blocker was the only item.
+
+- Deleted the pre-existing doc block (old lines 137-146) that was stacked above the newly written comment on `Expr.ofTupleFromSeq`; only the new comment remains, immediately above the declaration.
+- No code lines touched; the committed diff for the file is comment-only.
+- Committed as `703e1b766f`.

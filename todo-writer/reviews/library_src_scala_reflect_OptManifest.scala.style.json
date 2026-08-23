@@ -1,0 +1,13 @@
+{
+  "verdict": "approve",
+  "findings": [
+    {
+      "declaration": "trait OptManifest[+T]",
+      "severity": "nit",
+      "confidence": "medium",
+      "needs_human": false,
+      "comment": "The description opens with a noun phrase (\"A common supertype of …\") rather than a full declarative sentence. The Scala style guide asks for a proper sentence with a subject and predicate. A minimal fix: \"Represents a common supertype of [[scala.reflect.Manifest]] and the [[scala.reflect.NoManifest]] value, providing an optionally-available `Manifest` for a type.\" — or keep the noun phrase but add \"is\" as in the pre-existing floating block above it."
+    }
+  ],
+  "bonus_findings": []
+}

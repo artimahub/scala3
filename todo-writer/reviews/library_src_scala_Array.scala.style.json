@@ -1,0 +1,26 @@
+{
+  "verdict": "approve",
+  "needs_human": false,
+  "items": [
+    {
+      "declaration": "UnapplySeqWrapper.apply(i: Int): T",
+      "location": "library/src/scala/Array.scala (UnapplySeqWrapper.apply)",
+      "severity": "nit",
+      "confidence": "medium",
+      "needs_human": false,
+      "comment": "The `@param i` states a range precondition ('must be in the range from `0` until the length of the array') but never says what happens when it's violated. `a(i)` throws `ArrayIndexOutOfBoundsException` for an out-of-range index, and this exact file already establishes the convention of documenting that with `@throws ArrayIndexOutOfBoundsException if \\`i < 0\\` or \\`length <= i\\`` on `Array.apply`/`Array.update` (lines 836, 847). Adding the same `@throws` tag here would make the new doc consistent with the sibling convention in the same file."
+    },
+    {
+      "declaration": "UnapplySeqWrapper.isEmpty: false",
+      "location": "library/src/scala/Array.scala (UnapplySeqWrapper.isEmpty)",
+      "severity": "ok",
+      "confidence": "high",
+      "needs_human": false,
+      "comment": "Accurate explanation of the literal-type `false` trick used by the name-based extractor protocol. Slightly long as a single run-on sentence, but not misleading and not disruptive enough to require a change."
+    }
+  ],
+  "bonus_findings": []
+}
+
+
+Reviewed the diff against the actual `fromSpecific`/`newBuilder`/`UnapplySeqWrapper` implementations in `library/src/scala/Array.scala`. Everything checked out accurate (verified `Array.from`'s iteration-order claim, the `drop`/`toSeq` cloning claims against their inline `// clones the array` comments, and the extractor-protocol explanation against how fixed-arity `Array(...)` patterns actually dispatch). Only one nit: the new `apply(i: Int)` doc states an index-range precondition but doesn't add the `@throws ArrayIndexOutOfBoundsException` tag that this same file already uses for the identical constraint on `Array.apply`/`Array.update`. Not a blocker — verdict is **approve**.

@@ -1,0 +1,13 @@
+{
+  "verdict": "approve",
+  "findings": [
+    {
+      "declaration": "def this(value: T) — @param value",
+      "severity": "nit",
+      "confidence": "low",
+      "needs_human": false,
+      "comment": "The @param value tag on the auxiliary constructor is word-for-word identical to the one on the primary constructor's class-level Scaladoc ('the object to be weakly referenced'). Omitting it entirely from the auxiliary constructor would be fine since the primary already covers it; keeping it is also acceptable for local completeness. No change required."
+    }
+  ],
+  "bonus_findings": []
+}

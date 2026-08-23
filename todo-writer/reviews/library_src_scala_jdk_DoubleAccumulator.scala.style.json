@@ -1,0 +1,26 @@
+{
+  "verdict": "approve",
+  "summary": "Checked all 31 changed declarations (className, efficientStepper, clear, both update overloads, foreach, map, flatMap, collect, filter, filterNot, forall, exists, count, countLong, toArray, class-level fromSpecific/newSpecificBuilder/iterableFactory/empty, toJavaDoubleAccumulator, companion fromSpecific/empty/newBuilder, SerializationProxy, and DoubleAccumulatorStepper's characteristics/estimateSize/hasStep/nextStep/trySplit/spliterator) against their bodies and, where relevant, against Accumulator.scala, Iterable.scala, AnyAccumulator.scala, IntAccumulator.scala and Stepper.scala. All claims verified true: className is confirmed as the toString prefix (Iterable.scala:83), iterableFactory is confirmed used by generic map[B] (Iterable.scala:705), toArray's IllegalArgumentException and toJavaDoubleAccumulator's cast/unused-param claims match the code, the toArray doc-comment/@nowarn ordering bug was correctly fixed by merging into one comment above the annotation, and the repeated '@param p the predicate each element is tested against' tag (forall/exists/count/countLong) fits all four. No blockers found. Two items remain: a nit about the update(idx, elem) prose omitting a very deep edge case, and a needs_human flag on nextStep's own @note (which I independently confirmed by reading the sibling steppers).",
+  "items": [
+    {
+      "symbol": "DoubleAccumulator.update",
+      "line": 178,
+      "severity": "nit",
+      "issue": "Applies to both occurrences of this identical block (lines 178 and 201). The prose says an out-of-range `idx` has exactly two outcomes: a harmless write into unused array capacity, or (via Long-to-Int wraparound) a silent overwrite of 'an element this accumulator does report'. It misses a third outcome specific to history blocks: the wrapped offset can also land on a block's trailing slot, which stores internal cumulative-length bookkeeping (`x(x.length-1)`, read by `cumulative`/`seekSlot`) rather than a reported element. Overwriting that slot doesn't change a reported value directly but corrupts the accumulator's internal indexing, which can silently break `apply`/`toArray`/iteration afterward — a different and arguably worse failure mode than either outcome described.",
+      "suggestion": "Either generalize the wording (e.g. 'may silently corrupt this accumulator's data or internal bookkeeping') or add a sentence noting that a wrapped write into a history block's last slot corrupts the block's length bookkeeping rather than an element.",
+      "confidence": "medium",
+      "needs_human": false
+    },
+    {
+      "symbol": "DoubleAccumulatorStepper.nextStep",
+      "line": 565,
+      "severity": "nit",
+      "issue": "The writer's own `@note NEEDS-HUMAN` flags that `nextStep`'s guard is `n <= 0` (current block size) rather than `N <= 0` (elements remaining), unlike the sibling steppers. I independently confirmed this: `AnyAccumulatorStepper.nextStep` guards on `N <= 0` (AnyAccumulator.scala:440) and `IntAccumulatorStepper.nextStep` guards on `N <= 0` (IntAccumulator.scala:522), while this one guards on `n <= 0`. Given the code, calling `nextStep()` again after `hasStep` goes false (N reaches 0) while the last-loaded block was nonempty does not throw — it calls `loadMore()`, which reloads that same final block from position 0, returning a stale/duplicate element while `N` goes negative. The doc's factual description of this behavior is accurate; only the design intent (bug vs. deliberate asymmetry) is unresolved.",
+      "suggestion": "A human familiar with the accumulator's design should confirm whether `n <= 0` is intentional here versus `N <= 0` in the siblings, and either fix the guard or drop the NEEDS-HUMAN note once confirmed intentional.",
+      "confidence": "high",
+      "needs_human": true
+    }
+  ],
+  "bonus_findings": []
+}
+

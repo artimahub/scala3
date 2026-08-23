@@ -1,0 +1,6 @@
+Both placeholders filled and committed (`b3818c3b20`).
+
+- `FutureOps` and `CompletionStageOps` are implicit value classes whose only member is the conversion extension method, so each description says what the class provides rather than "This class ..." (house rule) and names the direction of conversion.
+- `@tparam T` documents the completed-value type; `@param f` / `@param cs` document the wrapped value being converted (names checked against the signatures).
+- No `@return` placeholders existed, so the drop/keep rule didn't apply.
+- Only comment lines changed; the diff is a pure 12-line insertion with no deletions.

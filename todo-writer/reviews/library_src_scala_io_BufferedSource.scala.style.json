@@ -1,0 +1,57 @@
+{
+  "verdict": "approve",
+  "declarations": [
+    {
+      "name": "def this(inputStream: InputStream)(implicit codec: Codec)",
+      "severity": "ok",
+      "confidence": "high",
+      "needs_human": false,
+      "findings": []
+    },
+    {
+      "name": "def reader()",
+      "severity": "ok",
+      "confidence": "high",
+      "needs_human": false,
+      "findings": []
+    },
+    {
+      "name": "def bufferedReader()",
+      "severity": "ok",
+      "confidence": "high",
+      "needs_human": false,
+      "findings": []
+    },
+    {
+      "name": "class BufferedLineIterator",
+      "severity": "nit",
+      "confidence": "high",
+      "needs_human": false,
+      "findings": [
+        "Description is a noun-phrase fragment ('An `Iterator` over ...'), not a full sentence. The style guide requires description sentences to be full sentences. Suggested rewrite: 'Iterates over the lines remaining in this source, not including line separator characters.' Note: the existing class-level doc in this file uses a full sentence, so this is inconsistent with immediate context."
+      ]
+    },
+    {
+      "name": "def hasNext",
+      "severity": "ok",
+      "confidence": "high",
+      "needs_human": false,
+      "findings": []
+    },
+    {
+      "name": "def next()",
+      "severity": "ok",
+      "confidence": "high",
+      "needs_human": false,
+      "findings": []
+    },
+    {
+      "name": "def getLines()",
+      "severity": "ok",
+      "confidence": "high",
+      "needs_human": false,
+      "findings": []
+    }
+  ],
+  "bonus_findings": []
+}

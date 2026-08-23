@@ -1,0 +1,33 @@
+/workspace/scala3/library/src/scala/util/Using.scala
+```scala
+<<<<<<< SEARCH
+    private final class Resource[R](resource: R)(implicit releasable: Releasable[R]) {
+      /** TODO FILL IN */
+      def release(): Unit = releasable.release(resource)
+    }
+=======
+    private final class Resource[R](resource: R)(implicit releasable: Releasable[R]) {
+      /** Releases the wrapped resource using its `Releasable` instance. */
+      def release(): Unit = releasable.release(resource)
+    }
+>>>>>>> REPLACE
+```
+
+/workspace/scala3/library/src/scala/util/Using.scala
+```scala
+<<<<<<< SEARCH
+      implicit object AutoCloseableIsReleasable extends Releasable[AutoCloseable] {
+       /** TODO FILL IN
+        *
+        *  @param resource TODO FILL IN
+        */
+       def release(resource: AutoCloseable): Unit = resource.close()
+=======
+     implicit object AutoCloseableIsReleasable extends Releasable[AutoCloseable] {
+       /** Releases the specified `AutoCloseable` resource by calling its `close` method.
+        *
+        *  @param resource the `AutoCloseable` resource to release
+        */
+       def release(resource: AutoCloseable): Unit = resource.close()
+>>>>>>> REPLACE
+```

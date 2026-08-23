@@ -1,0 +1,16 @@
+{
+  "verdict": "approve",
+  "needs_human": false,
+  "items": [
+    {
+      "declaration": "final class transient",
+      "severity": "nit",
+      "confidence": "medium",
+      "comment": "Accurate and consistent with sibling annotation docs (unused.scala, specialized.scala) in style and tone. Minor: 'enclosing object' uses 'object' to mean 'instance', which could momentarily read as Scala's `object` keyword to some readers; 'enclosing class' or 'containing instance' would be unambiguous, but this is a stylistic nicety, not a blocker."
+    }
+  ],
+  "bonus_findings": []
+}
+
+
+Summary: The single-sentence Scaladoc for `transient` accurately describes the JVM/Java-serialization behavior of the `@transient` annotation and matches the tone/style of neighboring annotation docs in this PR. No blockers found — only a low-stakes wording nit about "enclosing object" potentially being misread as Scala's `object` keyword.

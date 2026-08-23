@@ -1,0 +1,23 @@
+<<<<<<< SEARCH
+   *  $atomicop
+   *
+   *  @param key the key whose associated value is to be retrieved or updated
+   *  @param defaultValue the value to be computed and stored if the key is absent (unless another thread inserts a value first)
+   *  @return the value associated with the key, either existing or newly computed
+=======
+   *
+   *  @param key the key whose associated value is to be retrieved or updated
+   *  @param defaultValue the value to be computed and stored if the key is absent (unless another thread inserts a value first)
+   *  @return the value associated with the key: the existing value, the newly computed and stored value, or a value inserted concurrently by another thread
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+   *  @param key the key value
+   *  @param remappingFunction a function that receives current optionally mapped value and returns a new mapping
+   *  @return the new value associated with the specified key
+   *  @throws the exception thrown by `remappingFunction` if it fails.
+=======
+   *  @param key the key value
+   *  @param remappingFunction a function that receives current optionally mapped value and returns a new mapping
+   *  @return the new value associated with the specified key
+>>>>>>> REPLACE

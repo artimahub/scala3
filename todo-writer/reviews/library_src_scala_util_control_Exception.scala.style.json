@@ -1,0 +1,119 @@
+{
+  "verdict": "revise",
+  "summary": "Multiple blockers found in accuracy and style, including incorrect claims about return values, missing edge cases, and style violations.",
+  "items": [
+    {
+      "symbol": "mkCatcher",
+      "line": 177,
+      "severity": "blocker",
+      "issue": "The documentation claims the partial function 'applies `f` to exceptions of type `Ex` that satisfy `isDef`', but the implementation throws exceptions that do not satisfy `isDef` (via `downcast(x).get`). This is misleading because the function will throw a `NoSuchElementException` if `isDef` returns false, rather than being a no-op.",
+      "suggestion": "Clarify that the partial function throws a `NoSuchElementException` for exceptions that do not satisfy `isDef`. Alternatively, update the implementation to handle such cases gracefully if the current behavior is unintended.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "mkThrowableCatcher",
+      "line": 193,
+      "severity": "blocker",
+      "issue": "The documentation does not mention that the partial function throws exceptions that do not satisfy `isDef`, similar to `mkCatcher`. This is a material omission because callers must know the function can throw.",
+      "suggestion": "Add a note clarifying that the partial function throws exceptions that do not satisfy `isDef`.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "throwableSubtypeToCatcher",
+      "line": 201,
+      "severity": "blocker",
+      "issue": "The documentation claims the catcher 'applies `pf` to exceptions of type `Ex`', but the implementation will throw a `NoSuchElementException` if `pf.isDefinedAt` returns false. This is not stated in the docs.",
+      "suggestion": "Clarify that the catcher throws a `NoSuchElementException` for exceptions not handled by `pf`.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "Described.withDesc",
+      "line": 228,
+      "severity": "nit",
+      "issue": "The `@return` tag is redundant because the description already states 'Returns this object with the updated description'. The `@return` tag should be dropped per Scala Scaladoc conventions.",
+      "suggestion": "Remove the `@return` tag and keep the description as-is.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "Finally.and",
+      "line": 250,
+      "severity": "nit",
+      "issue": "The `@return` tag is redundant because the description already states 'Returns a new Finally that executes both bodies in sequence'. The `@return` tag should be dropped per Scala Scaladoc conventions.",
+      "suggestion": "Remove the `@return` tag and keep the description as-is.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "Catch.or",
+      "line": 289,
+      "severity": "nit",
+      "issue": "The first sentence of the description is a fragment ('Creates a new Catch that combines this catch's logic with another Catch's logic'). It should stand alone as a complete API-index summary, e.g., 'Combines this catch's logic with another Catch's logic.'",
+      "suggestion": "Rewrite the first sentence to be declarative and self-contained: 'Combines this catch's logic with another Catch's logic.'",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "Catch.toEither",
+      "line": 373,
+      "severity": "blocker",
+      "issue": "The documentation claims the method 'maps caught exceptions to Left(Throwable)', but the implementation uses `withApply(Left(_))`, which means it will wrap *any* caught exception (including those not handled by the catcher) in a `Left`. This is misleading because the method does not selectively map only caught exceptions.",
+      "suggestion": "Clarify that the method wraps all caught exceptions in a `Left`, or update the implementation if this is unintended.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "Catch.toTry",
+      "line": 375,
+      "severity": "blocker",
+      "issue": "The documentation claims the method 'maps caught exceptions to Failure(Throwable)', but like `toEither`, it wraps *all* caught exceptions in a `Failure`. This is misleading for the same reason as `toEither`.",
+      "suggestion": "Clarify that the method wraps all caught exceptions in a `Failure`.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "nonFatalCatcher",
+      "line": 383,
+      "severity": "nit",
+      "issue": "The description 'a catcher that matches non-fatal throwables' is technically correct but could be more precise. The catcher *matches* non-fatal throwables (via the predicate) but *throws* them (via `throw _`). This might confuse readers about the catcher's behavior.",
+      "suggestion": "Clarify that the catcher matches non-fatal throwables and rethrows them: 'A catcher that matches non-fatal throwables and rethrows them.'",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "allCatcher",
+      "line": 388,
+      "severity": "nit",
+      "issue": "The description 'a catcher that matches all throwables' is misleading because the catcher *throws* all throwables (via `throw _`). It does not 'match' them in the sense of handling them gracefully.",
+      "suggestion": "Clarify that the catcher matches all throwables and rethrows them: 'A catcher that matches all throwables and rethrows them.'",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "By.by",
+      "line": 492,
+      "severity": "nit",
+      "issue": "The description 'Applies the handler function to create a Catch' is vague. It should clarify what the handler function does and what the resulting Catch does.",
+      "suggestion": "Rewrite the description to be more specific: 'Applies the handler function to the given argument and returns the resulting Catch object.'",
+      "confidence": "medium",
+      "needs_human": false
+    }
+  ],
+  "bonus_findings": [
+    {
+      "symbol": "Catch.apply",
+      "line": 300,
+      "issue": "The `@throws` tag for `Throwable` is missing, despite the implementation potentially throwing exceptions from `pf.apply` or `fin.invoke()`. This is a material omission for callers.",
+      "suggestion": "Add an `@throws Throwable` tag to document that the method can throw exceptions."
+    },
+    {
+      "symbol": "pfFromExceptions",
+      "line": 212,
+      "issue": "The method lacks any Scaladoc, making it unclear what it does or how it should be used. This is a usability issue for maintainers.",
+      "suggestion": "Add Scaladoc explaining that the method creates a partial function to match exceptions of the given classes."
+    }
+  ]
+}

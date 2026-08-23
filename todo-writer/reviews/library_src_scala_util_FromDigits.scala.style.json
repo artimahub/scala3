@@ -1,0 +1,43 @@
+{
+  "verdict": "revise",
+  "summary": "Blockers found in the Scaladoc for `WithRadix.fromDigits` regarding accuracy and style conventions.",
+  "items": [
+    {
+      "symbol": "WithRadix.fromDigits",
+      "line": 38,
+      "severity": "blocker",
+      "issue": "The documentation claims the method converts a 'decimal' digits string, but the implementation delegates to `fromDigits(digits, 10)`, which does not enforce that the input string is strictly decimal (base-10). The method can technically accept any digit string valid for radix 10, including those with leading/trailing whitespace or signs, depending on the implementation of the two-argument `fromDigits`. The term 'decimal' is misleading here.",
+      "suggestion": "Clarify the behavior by stating that the method converts a digit string using radix 10, rather than implying the input must be a 'decimal' string. For example: 'Converts a `digits` string to a value of type `T` using radix 10.'",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "WithRadix.fromDigits",
+      "line": 38,
+      "severity": "nit",
+      "issue": "The first sentence is not standalone as an API-index summary. It mentions 'delegating' to another method, which is an implementation detail rather than a summary of what the method does for the caller.",
+      "suggestion": "Revise the first sentence to focus on the method's purpose: 'Converts a digit string to a value of type `T` using radix 10.'",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "WithRadix.fromDigits",
+      "line": 38,
+      "severity": "nit",
+      "issue": "The `@param` description for `digits` is overly specific by stating 'the string representation of the numeric literal to convert'. This phrasing could be misinterpreted as requiring a specific format (e.g., no whitespace or signs), which may not align with the actual behavior of the two-argument `fromDigits`.",
+      "suggestion": "Use a more general description: 'the string to convert to a value of type `T`'.",
+      "confidence": "medium",
+      "needs_human": false
+    },
+    {
+      "symbol": "WithRadix.fromDigits",
+      "line": 38,
+      "severity": "nit",
+      "issue": "The `@return` tag is redundant because the description already begins with 'Converts...' and fully states the return value. However, the project's house rule (as inferred from the schema) allows dropping `@return` only if the description begins with 'Returns'. Since this does not, the `@return` tag should either be kept or the description should be rephrased to start with 'Returns'.",
+      "suggestion": "Rephrase the description to start with 'Returns' to align with the house rule: 'Returns the value of type `T` represented by the digit string using radix 10.' Then drop the `@return` tag.",
+      "confidence": "high",
+      "needs_human": false
+    }
+  ],
+  "bonus_findings": []
+}

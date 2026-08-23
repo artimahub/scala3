@@ -1,0 +1,16 @@
+{
+  "overall_quality": "good",
+  "issues": [
+    {
+      "line": 22,
+      "tag_type": "@return",
+      "tag_name": "show",
+      "severity": "suggestion",
+      "current_text": "a `String` containing the source-code-like representation of the type `T`",
+      "problem": "Could explicitly note that the representation does not include syntax highlighting, matching the main description.",
+      "suggestion": "a source-code-like `String` representation of the type `T`, without syntax highlighting"
+    }
+  ],
+  "general_feedback": "The newly filled-in @return for `show` is accurate and clear, matching the method's actual behavior. The surrounding @tparam and @return tags for `valueOfConstant` and `valueOfTuple` are consistent in style and convey constraints well. Only a minor stylistic suggestion to align the @return with the 'without syntax highlight' detail from the main description.",
+  "requires_changes": false
+}

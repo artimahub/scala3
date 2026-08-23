@@ -1,0 +1,24 @@
+{
+  "verdict": "approve",
+  "needs_human": false,
+  "items": [
+    {
+      "declaration": "IArray.newBuilder[T]",
+      "severity": "ok",
+      "confidence": "high",
+      "needs_human": false,
+      "comment": "Accurate: matches `ArrayBuilder.make[T].mapResult(IArray.unsafeFromArray)`. Tag order matches signature order; @return adds real detail beyond the first sentence (that adding elements to the builder produces the IArray) rather than being purely redundant."
+    },
+    {
+      "declaration": "WithFilter.flatMap[BS, U](f)(using asIterable, m)",
+      "severity": "nit",
+      "confidence": "high",
+      "needs_human": false,
+      "comment": "Accurate against the implementation (filters by `p` then flat-maps via the `asIterable` view, matching the delegation to the `IterableOnce` overload). Style nit: tag continuations here end without periods (\"the element type of the returned array\"), but the two sibling docs immediately above in the same `WithFilter` class (`map`, `flatMap[U]`) end their tag continuations with periods (\"the element type of the returned array.\"). Pick one convention for consistency with the immediately adjacent docs in this class."
+    }
+  ],
+  "bonus_findings": []
+}
+
+
+Both changed doc blocks are factually accurate against their implementations (`newBuilder` and the `BS`/`Iterable`-view overload of `WithFilter.flatMap`). Only issue found is a minor style inconsistency: the new `flatMap` doc's tag continuations lack trailing periods while the two sibling docs right above it in the same `WithFilter` class use periods — a nit, not a blocker.

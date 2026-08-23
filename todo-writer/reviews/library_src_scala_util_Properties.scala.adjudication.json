@@ -1,0 +1,392 @@
+{
+  "verdict": "revise",
+  "summary": "Multiple documentation issues found, including missing return descriptions and incomplete edge-case coverage.",
+  "resolved_items": [
+    {
+      "symbol": "propCategory",
+      "line": 24,
+      "severity": "nit",
+      "instruction": "Rewrite the first sentence to describe what the property category is used for, e.g., 'Determines the base name of the properties file to load from the JAR.'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "pickJarBasedOn",
+      "line": 26,
+      "severity": "nit",
+      "instruction": "Clarify the purpose, e.g., 'The class used to locate the JAR file containing the properties file, typically a class from the Scala library.'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "propCategory",
+      "line": 33,
+      "severity": "nit",
+      "instruction": "Rewrite the first sentence to describe its purpose, e.g., 'Determines the base name of the properties file to load for this trait.'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "pickJarBasedOn",
+      "line": 35,
+      "severity": "nit",
+      "instruction": "Clarify the purpose, e.g., 'The class used to locate the JAR file containing the properties file for this trait.'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "propIsSet",
+      "line": 59,
+      "severity": "blocker",
+      "instruction": "Add an `@return` tag: '@return `true` if the system property is set (non-null), `false` otherwise.'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "propIsSetTo",
+      "line": 65,
+      "severity": "blocker",
+      "instruction": "Add an `@return` tag: '@return `true` if the system property is set to the given value, `false` otherwise.'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "propOrNone",
+      "line": 70,
+      "severity": "blocker",
+      "instruction": "Add an `@return` tag: '@return `Some(value)` if the system property is set, `None` otherwise.'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "propOrElse",
+      "line": 75,
+      "severity": "blocker",
+      "instruction": "Add an `@return` tag: '@return the value of the system property if set, otherwise the result of evaluating `alt`.'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "propOrEmpty",
+      "line": 80,
+      "severity": "blocker",
+      "instruction": "Add an `@return` tag: '@return the value of the system property if set, otherwise an empty string.'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "propOrNull",
+      "line": 85,
+      "severity": "blocker",
+      "instruction": "Add an `@return` tag: '@return the value of the system property if set, otherwise `null`.'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "propOrFalse",
+      "line": 90,
+      "severity": "blocker",
+      "instruction": "Add an `@return` tag: '@return `true` if the system property is set to 'yes', 'on', or 'true' (case-insensitive), `false` otherwise.'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "setProp",
+      "line": 95,
+      "severity": "blocker",
+      "instruction": "Add an `@return` tag: '@return the previous value of the system property, or `null` if it was not set.'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "clearProp",
+      "line": 100,
+      "severity": "blocker",
+      "instruction": "Add an `@return` tag: '@return the previous value of the system property, or `null` if it was not set.'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "envOrElse",
+      "line": 105,
+      "severity": "blocker",
+      "instruction": "Add an `@return` tag: '@return the value of the environment variable if set, otherwise the result of evaluating `alt`.'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "envOrNone",
+      "line": 110,
+      "severity": "blocker",
+      "instruction": "Add an `@return` tag: '@return `Some(value)` if the environment variable is set, `None` otherwise.'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "envOrSome",
+      "line": 115,
+      "severity": "blocker",
+      "instruction": "Add an `@return` tag: '@return `Some(value)` if the environment variable is set, otherwise the result of evaluating `alt`.'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "scalaPropOrElse",
+      "line": 122,
+      "severity": "blocker",
+      "instruction": "Add an `@return` tag: '@return the value of the Scala property if set, otherwise the result of evaluating `alt`.'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "scalaPropOrEmpty",
+      "line": 127,
+      "severity": "blocker",
+      "instruction": "Add an `@return` tag: '@return the value of the Scala property if set, otherwise an empty string.'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "scalaPropOrNone",
+      "line": 132,
+      "severity": "blocker",
+      "instruction": "Add an `@return` tag: '@return `Some(value)` if the Scala property is set in `scalaProps` or as a system property with the 'scala.' prefix, `None` otherwise.'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "copyrightString",
+      "line": 167,
+      "severity": "nit",
+      "instruction": "Clarify the purpose, e.g., 'The copyright notice included in version messages and other runtime outputs.'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "sourceReader",
+      "line": 173,
+      "severity": "nit",
+      "instruction": "Clarify the purpose, e.g., 'The class name of the default source reader used by the Scala compiler to read source files.'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "jdkHome",
+      "line": 253,
+      "severity": "nit",
+      "instruction": "Clarify the priority, e.g., 'The JDK home directory, determined by the `JDK_HOME` environment variable if set, otherwise the `JAVA_HOME` environment variable, and finally the `java.home` system property.'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "versionMsg",
+      "line": 258,
+      "severity": "nit",
+      "instruction": "Clarify the purpose, e.g., 'The version message displayed by the Scala runtime, including the version number and copyright notice.'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "scalaCmd",
+      "line": 260,
+      "severity": "nit",
+      "instruction": "Clarify the purpose, e.g., 'The name of the script or batch file used to launch the Scala REPL, adjusted for the operating system.'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "scalacCmd",
+      "line": 262,
+      "severity": "nit",
+      "instruction": "Clarify the purpose, e.g., 'The name of the script or batch file used to launch the Scala compiler, adjusted for the operating system.'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "main",
+      "line": 327,
+      "severity": "blocker",
+      "instruction": "Clarify the side effect: 'Prints the version message to the standard error stream.'",
+      "raised_by": "style",
+      "needs_human": false
+    }
+  ],
+  "disagreements": [
+    {
+      "symbol": "propIsSet",
+      "line": 59,
+      "accuracy_position": "",
+      "style_position": "Add an `@return` tag: '@return `true` if the system property is set (non-null), `false` otherwise.'",
+      "ruling": "style",
+      "rationale": "The `@return` tag is necessary to fully describe the return value, which is not covered in the description."
+    },
+    {
+      "symbol": "propIsSetTo",
+      "line": 65,
+      "accuracy_position": "",
+      "style_position": "Add an `@return` tag: '@return `true` if the system property is set to the given value, `false` otherwise.'",
+      "ruling": "style",
+      "rationale": "The `@return` tag is necessary to fully describe the return value, which is not covered in the description."
+    },
+    {
+      "symbol": "propOrNone",
+      "line": 70,
+      "accuracy_position": "",
+      "style_position": "Add an `@return` tag: '@return `Some(value)` if the system property is set, `None` otherwise.'",
+      "ruling": "style",
+      "rationale": "The `@return` tag is necessary to fully describe the return value, which is not covered in the description."
+    },
+    {
+      "symbol": "propOrElse",
+      "line": 75,
+      "accuracy_position": "",
+      "style_position": "Add an `@return` tag: '@return the value of the system property if set, otherwise the result of evaluating `alt`.'",
+      "ruling": "style",
+      "rationale": "The `@return` tag is necessary to fully describe the return value, which is not covered in the description."
+    },
+    {
+      "symbol": "propOrEmpty",
+      "line": 80,
+      "accuracy_position": "",
+      "style_position": "Add an `@return` tag: '@return the value of the system property if set, otherwise an empty string.'",
+      "ruling": "style",
+      "rationale": "The `@return` tag is necessary to fully describe the return value, which is not covered in the description."
+    },
+    {
+      "symbol": "propOrNull",
+      "line": 85,
+      "accuracy_position": "",
+      "style_position": "Add an `@return` tag: '@return the value of the system property if set, otherwise `null`.'",
+      "ruling": "style",
+      "rationale": "The `@return` tag is necessary to fully describe the return value, which is not covered in the description."
+    },
+    {
+      "symbol": "propOrFalse",
+      "line": 90,
+      "accuracy_position": "",
+      "style_position": "Add an `@return` tag: '@return `true` if the system property is set to 'yes', 'on', or 'true' (case-insensitive), `false` otherwise.'",
+      "ruling": "style",
+      "rationale": "The `@return` tag is necessary to fully describe the return value, which is not covered in the description."
+    },
+    {
+      "symbol": "setProp",
+      "line": 95,
+      "accuracy_position": "",
+      "style_position": "Add an `@return` tag: '@return the previous value of the system property, or `null` if it was not set.'",
+      "ruling": "style",
+      "rationale": "The `@return` tag is necessary to fully describe the return value, which is not covered in the description."
+    },
+    {
+      "symbol": "clearProp",
+      "line": 100,
+      "accuracy_position": "",
+      "style_position": "Add an `@return` tag: '@return the previous value of the system property, or `null` if it was not set.'",
+      "ruling": "style",
+      "rationale": "The `@return` tag is necessary to fully describe the return value, which is not covered in the description."
+    },
+    {
+      "symbol": "envOrElse",
+      "line": 105,
+      "accuracy_position": "",
+      "style_position": "Add an `@return` tag: '@return the value of the environment variable if set, otherwise the result of evaluating `alt`.'",
+      "ruling": "style",
+      "rationale": "The `@return` tag is necessary to fully describe the return value, which is not covered in the description."
+    },
+    {
+      "symbol": "envOrNone",
+      "line": 110,
+      "accuracy_position": "",
+      "style_position": "Add an `@return` tag: '@return `Some(value)` if the environment variable is set, `None` otherwise.'",
+      "ruling": "style",
+      "rationale": "The `@return` tag is necessary to fully describe the return value, which is not covered in the description."
+    },
+    {
+      "symbol": "envOrSome",
+      "line": 115,
+      "accuracy_position": "",
+      "style_position": "Add an `@return` tag: '@return `Some(value)` if the environment variable is set, otherwise the result of evaluating `alt`.'",
+      "ruling": "style",
+      "rationale": "The `@return` tag is necessary to fully describe the return value, which is not covered in the description."
+    },
+    {
+      "symbol": "scalaPropOrElse",
+      "line": 122,
+      "accuracy_position": "",
+      "style_position": "Add an `@return` tag: '@return the value of the Scala property if set, otherwise the result of evaluating `alt`.'",
+      "ruling": "style",
+      "rationale": "The `@return` tag is necessary to fully describe the return value, which is not covered in the description."
+    },
+    {
+      "symbol": "scalaPropOrEmpty",
+      "line": 127,
+      "accuracy_position": "",
+      "style_position": "Add an `@return` tag: '@return the value of the Scala property if set, otherwise an empty string.'",
+      "ruling": "style",
+      "rationale": "The `@return` tag is necessary to fully describe the return value, which is not covered in the description."
+    },
+    {
+      "symbol": "scalaPropOrNone",
+      "line": 132,
+      "accuracy_position": "",
+      "style_position": "Add an `@return` tag: '@return `Some(value)` if the Scala property is set in `scalaProps` or as a system property with the 'scala.' prefix, `None` otherwise.'",
+      "ruling": "style",
+      "rationale": "The `@return` tag is necessary to fully describe the return value, which is not covered in the description."
+    },
+    {
+      "symbol": "copyrightString",
+      "line": 167,
+      "accuracy_position": "",
+      "style_position": "Clarify the purpose, e.g., 'The copyright notice included in version messages and other runtime outputs.'",
+      "ruling": "style",
+      "rationale": "The clarification improves the documentation without conflicting with accuracy."
+    },
+    {
+      "symbol": "sourceReader",
+      "line": 173,
+      "accuracy_position": "",
+      "style_position": "Clarify the purpose, e.g., 'The class name of the default source reader used by the Scala compiler to read source files.'",
+      "ruling": "style",
+      "rationale": "The clarification improves the documentation without conflicting with accuracy."
+    },
+    {
+      "symbol": "jdkHome",
+      "line": 253,
+      "accuracy_position": "",
+      "style_position": "Clarify the priority, e.g., 'The JDK home directory, determined by the `JDK_HOME` environment variable if set, otherwise the `JAVA_HOME` environment variable, and finally the `java.home` system property.'",
+      "ruling": "style",
+      "rationale": "The clarification improves the documentation without conflicting with accuracy."
+    },
+    {
+      "symbol": "versionMsg",
+      "line": 258,
+      "accuracy_position": "",
+      "style_position": "Clarify the purpose, e.g., 'The version message displayed by the Scala runtime, including the version number and copyright notice.'",
+      "ruling": "style",
+      "rationale": "The clarification improves the documentation without conflicting with accuracy."
+    },
+    {
+      "symbol": "scalaCmd",
+      "line": 260,
+      "accuracy_position": "",
+      "style_position": "Clarify the purpose, e.g., 'The name of the script or batch file used to launch the Scala REPL, adjusted for the operating system.'",
+      "ruling": "style",
+      "rationale": "The clarification improves the documentation without conflicting with accuracy."
+    },
+    {
+      "symbol": "scalacCmd",
+      "line": 262,
+      "accuracy_position": "",
+      "style_position": "Clarify the purpose, e.g., 'The name of the script or batch file used to launch the Scala compiler, adjusted for the operating system.'",
+      "ruling": "style",
+      "rationale": "The clarification improves the documentation without conflicting with accuracy."
+    },
+    {
+      "symbol": "main",
+      "line": 327,
+      "accuracy_position": "",
+      "style_position": "Clarify the side effect: 'Prints the version message to the standard error stream.'",
+      "ruling": "style",
+      "rationale": "The clarification improves the documentation without conflicting with accuracy."
+    }
+  ]
+}

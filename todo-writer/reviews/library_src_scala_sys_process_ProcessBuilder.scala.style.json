@@ -1,0 +1,22 @@
+{
+  "verdict": "revise",
+  "needs_human": false,
+  "items": [
+    {
+      "declaration": "trait Source { protected def toSource: ProcessBuilder }",
+      "severity": "ok",
+      "confidence": "high",
+      "needs_human": false,
+      "comment": "\"Returns a [[scala.sys.process.ProcessBuilder]] that produces the data of this `Source` as its output.\" is accurate: verified against FileImpl.toSource (FileInput, writes file contents to output), URLImpl.toSource (URLInput, writes URL stream to output), and AbstractBuilder.toSource (returns itself). Style matches the existing one-liner at line 538 (`def cat = toSource`)."
+    },
+    {
+      "declaration": "trait Sink { protected def toSink: ProcessBuilder }",
+      "severity": "blocker",
+      "confidence": "high",
+      "needs_human": false,
+      "comment": "\"Returns a [[scala.sys.process.ProcessBuilder]] that consumes the data written to this `Sink` as its input.\" gets the data-flow direction backwards. Checked FileImpl.toSink = new FileOutput(base, append = false); FileOutput.runImpl does `io.writeInput(protect(new FileOutputStream(file, append)))`, i.e. it takes whatever is piped into it as input and writes that into the file - it does not read pre-existing data 'written to' the sink and treat that as input. The phrasing implies the sink already holds data that becomes the input, which is the opposite of what happens. Suggest something like: \"Returns a [[scala.sys.process.ProcessBuilder]] that writes its input to this `Sink`.\" to mirror the (correct) Source doc's forward-direction phrasing."
+    }
+  ],
+  "bonus_findings": []
+}
+

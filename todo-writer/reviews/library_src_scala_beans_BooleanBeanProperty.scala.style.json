@@ -1,0 +1,20 @@
+{
+  "verdict": "approve",
+  "findings": [
+    {
+      "anchor": "class BooleanBeanProperty",
+      "severity": "nit",
+      "confidence": "medium",
+      "needs_human": false,
+      "comment": "The new doc is a single line well over 100 characters. Conventional Scaladoc wraps at ~80 columns (matching the surrounding codebase style). Consider splitting after the comma: `…for the annotated \\`val\\` or \\`var\\`,` → newline → ` * and a setter when the field is a \\`var\\`.`"
+    },
+    {
+      "anchor": "class BooleanBeanProperty — 'it is a `var`'",
+      "severity": "nit",
+      "confidence": "low",
+      "needs_human": false,
+      "comment": "The pronoun 'it' in 'when it is a `var`' is unambiguous in context but slightly loose. 'when the field is a `var`' or 'when annotating a `var`' would be marginally cleaner."
+    }
+  ],
+  "bonus_findings": []
+}

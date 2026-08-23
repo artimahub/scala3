@@ -1,0 +1,26 @@
+```diff
+--- a/library/src/scala/concurrent/SyncChannel.scala
++++ b/library/src/scala/concurrent/SyncChannel.scala
+@@ -25,8 +25,9 @@
+   /** Writes `data` to the channel, blocking the caller until the value is
+    *  read by a corresponding reader thread.
+    *
+-   *  @param data the value to write to the channel
++   *  @param data the value to be written and subsequently consumed by a reader
++   *  @throws InterruptedException if the current thread is interrupted while waiting for a reader
+    */
+   def write(data: A): Unit = {
+     // create write request
+     val writeReq = new SyncVar[Signal]
+@@ -55,7 +56,10 @@
+ 
+   /** Reads and removes the next value from the channel, blocking the caller
+    *  until a corresponding writer thread provides one.
++   *
++   *  @return the value read from the channel
++   *  @throws InterruptedException if the current thread is interrupted while waiting for a writer
+    */
+   def read: A = {
+     // create read request
+     val readReq = new SyncVar[A]
+```

@@ -1,0 +1,52 @@
+{
+  "overall_quality": "good",
+  "issues": [
+    {
+      "line": 4244,
+      "tag_type": "@return",
+      "tag_name": "unapply",
+      "severity": "warning",
+      "current_text": "`true` if `constant` is a `NullConstant`, `false` otherwise",
+      "problem": "The parameter type is already `NullConstant`, so the condition stated here is tautological. The doc does not explain under what condition the `Boolean` is `false`.",
+      "suggestion": "`true` if the constant represents a `null` literal, `false` otherwise"
+    },
+    {
+      "line": 4269,
+      "tag_type": "@return",
+      "tag_name": "unapply",
+      "severity": "warning",
+      "current_text": "`Some` with the wrapped type, or `None` if it does not match",
+      "problem": "The parameter type is `ClassOfConstant`, so 'does not match' is misleading — the input is already known to be the right kind of constant. The condition that yields `None` should be stated more precisely.",
+      "suggestion": "`Some` containing the type represented by the `classOf` constant, or `None` if no type can be extracted"
+    },
+    {
+      "line": 1118,
+      "tag_type": "@return",
+      "tag_name": "unapply",
+      "severity": "suggestion",
+      "current_text": "`Some` containing the identifier's name",
+      "problem": "The unapply on `Ident` returns the identifier's textual name; clarifying that this is a `String` would mirror the style used elsewhere (e.g., `Some` containing the wrapped `Boolean` value).",
+      "suggestion": "`Some` containing the identifier's name as a `String`"
+    },
+    {
+      "line": 1690,
+      "tag_type": "@return",
+      "tag_name": "apply",
+      "severity": "suggestion",
+      "current_text": "a `Block` tree containing `stats` followed by `expr`",
+      "problem": "The phrasing 'containing stats followed by expr' blurs the structural distinction between the statement list and the result expression of a block.",
+      "suggestion": "a `Block` tree with statements `stats` and result expression `expr`"
+    },
+    {
+      "line": 1296,
+      "tag_type": "@return",
+      "tag_name": "unapply",
+      "severity": "suggestion",
+      "current_text": "`Some` containing the optional qualifier name (`None` for an unqualified `this`)",
+      "problem": "Reads slightly oddly because the outer wrapper is always `Some` and the inner `None` carries the meaning; making the nesting explicit would help readers parse the return type `Some[Option[String]]`.",
+      "suggestion": "`Some(Some(name))` for a qualified `qual.this`, or `Some(None)` for an unqualified `this`"
+    }
+  ],
+  "general_feedback": "The filled-in @return descriptions are consistent, accurate, and follow Scaladoc conventions (lowercase start, backticks around code references, concise phrasing). Style is uniform across the many extractor/factory/copy methods. The two notable issues are the `NullConstant.unapply` and `ClassOfConstant.unapply` return docs, which leave the `false`/`None` conditions ambiguous given that the parameter types already constrain the input. A few other entries could be slightly more precise but are acceptable as-is.",
+  "requires_changes": true
+}

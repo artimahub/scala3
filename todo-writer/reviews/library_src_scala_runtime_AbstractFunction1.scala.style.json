@@ -1,0 +1,17 @@
+{
+  "items": [
+    {
+      "declaration": "abstract class AbstractFunction1[T1, R] (class-level Scaladoc)",
+      "line": 17,
+      "severity": "nit",
+      "confidence": "medium",
+      "needs_human": false,
+      "comment": "Accurate and reads fine as a standalone summary, but it undersells the class's purpose compared to the sibling AbstractFunction0 doc, which explains *why* the class exists (\"allowing a function value to be defined by extending a class rather than the trait\"). Here we only get the specialization detail, not the class-vs-trait rationale. Not wrong, just thinner than the established pattern for this family of docs. Optional: prefix with an article (\"A base class...\") to match AbstractFunction0's phrasing."
+    }
+  ],
+  "bonus_findings": [],
+  "verdict": "approve"
+}
+
+
+Summary: The single changed line for `AbstractFunction1` is factually accurate — the class is indeed specialized on the argument type (`T1`, via `Specializable.Arg`) and result type (`R`, via `Specializable.Return`), and the `[[scala.Function1]]` link is correct. Style is clean (no self-reference, proper backtick/wiki-link use, valid standalone first sentence). Only a minor nit: it's terser than the sibling `AbstractFunction0` doc and omits the "extend a class instead of the trait" rationale — not a blocker.

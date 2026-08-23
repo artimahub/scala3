@@ -1,0 +1,122 @@
+# Doc review digest: library/src/scala/concurrent/impl/FutureConvertersImpl.scala
+
+- models: writer devstral-2512 | accuracy mistral-medium-2508 | style mistral-large-2512 | adjudicator devstral-2512
+- converged: false (up to 2 rounds)
+- final refinement after review limit: true (not re-reviewed)
+- accuracy verdict: approve
+- style verdict: revise
+- ADJUDICATOR verdict (final): revise
+
+## Reviewer disagreements the adjudicator settled
+
+- L24 `CF` -> ruled for **style**
+  - accuracy: 
+  - style: The first sentence ('A `CompletableFuture` wrapper around a Scala `Future`') is accurate but insufficient as an API-index summary. It does not state the key behavior: that this wrapper *bridges* Scala `Future` to Java `CompletableFuture` and ensures completion callbacks do not hold the Scala Future's completer hostage.
+  - why: The style reviewer's suggestion improves clarity and completeness without contradicting the code.
+- L29 `apply` -> ruled for **style**
+  - accuracy: 
+  - style: The first sentence ('Completes this `CompletableFuture` with the result of the given `Try`') is accurate but could be more precise. It should clarify that this method is called when the wrapped Scala `Future` completes, and that it delegates to `complete` or `completeExceptionally`.
+  - why: The style reviewer's suggestion provides additional clarity without altering the accuracy.
+- L40 `thenApply` -> ruled for **style**
+  - accuracy: 
+  - style: The `@return` description ('a new `CompletableFuture` that completes with the result of applying the function') is incorrect. The method delegates to `thenApplyAsync`, so the returned `CompletableFuture` completes *asynchronously* with the result of the function, not synchronously.
+  - why: The style reviewer's suggestion corrects the description to accurately reflect the asynchronous behavior.
+- L46 `thenAccept` -> ruled for **style**
+  - accuracy: 
+  - style: The `@return` description ('a new `CompletableFuture` that completes when the action is performed') is misleading. The method delegates to `thenAcceptAsync`, so the returned `CompletableFuture` completes *asynchronously* when the action is performed, and it always completes with `Void`. This is not stated.
+  - why: The style reviewer's suggestion corrects the description to accurately reflect the asynchronous behavior and the `Void` type.
+- L52 `thenRun` -> ruled for **style**
+  - accuracy: 
+  - style: Same issue as `thenAccept`: the `@return` description omits the `Void` type and does not state that completion is asynchronous.
+  - why: The style reviewer's suggestion corrects the description to accurately reflect the asynchronous behavior and the `Void` type.
+- L58 `thenCombine` -> ruled for **style**
+  - accuracy: 
+  - style: The `@return` description ('a new `CompletableFuture` that completes with the result of the combining function') is incorrect. The method delegates to `thenCombineAsync`, so the returned `CompletableFuture` completes *asynchronously* with the result of the combining function.
+  - why: The style reviewer's suggestion corrects the description to accurately reflect the asynchronous behavior.
+- L66 `thenAcceptBoth` -> ruled for **style**
+  - accuracy: 
+  - style: The `@return` description ('a new `CompletableFuture` that completes when the action is performed') omits the `Void` type and does not state that completion is asynchronous.
+  - why: The style reviewer's suggestion corrects the description to accurately reflect the asynchronous behavior and the `Void` type.
+- L72 `runAfterBoth` -> ruled for **style**
+  - accuracy: 
+  - style: The `@return` description ('a new `CompletableFuture` that completes when the action is run') omits the `Void` type and does not state that completion is asynchronous.
+  - why: The style reviewer's suggestion corrects the description to accurately reflect the asynchronous behavior and the `Void` type.
+- L78 `applyToEither` -> ruled for **style**
+  - accuracy: 
+  - style: The `@return` description ('a new `CompletableFuture` that completes with the result of applying the function') is incorrect. The method delegates to `applyToEitherAsync`, so the returned `CompletableFuture` completes *asynchronously* with the result of the function.
+  - why: The style reviewer's suggestion corrects the description to accurately reflect the asynchronous behavior.
+- L84 `acceptEither` -> ruled for **style**
+  - accuracy: 
+  - style: The `@return` description ('a new `CompletableFuture` that completes when the action is performed') omits the `Void` type and does not state that completion is asynchronous.
+  - why: The style reviewer's suggestion corrects the description to accurately reflect the asynchronous behavior and the `Void` type.
+- L90 `runAfterEither` -> ruled for **style**
+  - accuracy: 
+  - style: The `@return` description ('a new `CompletableFuture` that completes when the action is run') omits the `Void` type and does not state that completion is asynchronous.
+  - why: The style reviewer's suggestion corrects the description to accurately reflect the asynchronous behavior and the `Void` type.
+- L96 `thenCompose` -> ruled for **style**
+  - accuracy: 
+  - style: The `@return` description ('a new `CompletableFuture` that completes with the result of the `CompletionStage` returned by the function') is incorrect. The method delegates to `thenComposeAsync`, so the returned `CompletableFuture` completes *asynchronously* with the result of the `CompletionStage` returned by the function.
+  - why: The style reviewer's suggestion corrects the description to accurately reflect the asynchronous behavior.
+- L102 `whenComplete` -> ruled for **style**
+  - accuracy: 
+  - style: The `@return` description ('a new `CompletableFuture` that completes with the same result as this future') is misleading. The method delegates to `whenCompleteAsync`, so the returned `CompletableFuture` completes *asynchronously* with the same result as this future. This is not stated.
+  - why: The style reviewer's suggestion corrects the description to accurately reflect the asynchronous behavior.
+- L108 `handle` -> ruled for **style**
+  - accuracy: 
+  - style: The `@return` description ('a new `CompletableFuture` that completes with the result of applying the function') is incorrect. The method delegates to `handleAsync`, so the returned `CompletableFuture` completes *asynchronously* with the result of the function.
+  - why: The style reviewer's suggestion corrects the description to accurately reflect the asynchronous behavior.
+- L114 `exceptionally` -> ruled for **style**
+  - accuracy: 
+  - style: The `@return` description is missing. The method's behavior is non-trivial: it returns a new `CompletableFuture` that completes with the result of applying the function to the exception if this future completes exceptionally, or with the same result as this future if it completes normally. This must be documented.
+  - why: The style reviewer's suggestion adds necessary documentation for clarity.
+- L130 `obtrudeValue` -> ruled for **style**
+  - accuracy: 
+  - style: The `@param` description ('the value to obtrude (ignored)') is accurate but could be clearer. It should state that the value is *not* obtruded and that an `UnsupportedOperationException` is thrown.
+  - why: The style reviewer's suggestion improves clarity without altering the accuracy.
+- L136 `obtrudeException` -> ruled for **style**
+  - accuracy: 
+  - style: Same issue as `obtrudeValue`: the `@param` description should state that the exception is *not* obtruded and that an `UnsupportedOperationException` is thrown.
+  - why: The style reviewer's suggestion improves clarity without altering the accuracy.
+- L142 `get()` -> ruled for **style**
+  - accuracy: 
+  - style: The description ('Returns the result of this future, blocking if necessary until it is ready') is incomplete. It does not state that the method wraps the call in `scala.concurrent.blocking`, which is material to the caller.
+  - why: The style reviewer's suggestion adds necessary documentation for clarity.
+- L148 `get(timeout: Long, unit: TimeUnit)` -> ruled for **style**
+  - accuracy: 
+  - style: The description ('Returns the result of this future, blocking if necessary until it is ready or the timeout expires') is incomplete. It does not state that the call is wrapped in `scala.concurrent.blocking`, nor does it document the behavior when the timeout expires (throws `TimeoutException`).
+  - why: The style reviewer's suggestion adds necessary documentation for clarity.
+- L160 `P` -> ruled for **style**
+  - accuracy: 
+  - style: The first sentence ('A `Promise` wrapper around a Java `CompletionStage`') is accurate but insufficient as an API-index summary. It does not state the key behavior: that this wrapper *bridges* Java `CompletionStage` to Scala `Promise`.
+  - why: The style reviewer's suggestion improves clarity and completeness without contradicting the code.
+- L165 `apply` -> ruled for **style**
+  - accuracy: 
+  - style: The `@param` descriptions are misleading. The parameters are not independent: exactly one of `v` or `e` is non-null. This is not stated, and the descriptions ('the value to complete with' and 'the exception to complete with') imply they can both be non-null.
+  - why: The style reviewer's suggestion clarifies the relationship between the parameters.
+
+## Outstanding worklist at the end
+
+- L24 `CF` [blocker/style]: Rewrite the first sentence to: 'A bridge from a Scala `Future` to a Java `CompletableFuture` that ensures completion callbacks do not hold the Scala Future's completer hostage.'
+- L40 `thenApply` [blocker/style]: Rewrite the `@return` to: 'a new `CompletableFuture` that completes asynchronously with the result of applying the function'.
+- L46 `thenAccept` [blocker/style]: Rewrite the `@return` to: 'a new `CompletableFuture[Void]` that completes asynchronously when the action is performed'.
+- L52 `thenRun` [blocker/style]: Rewrite the `@return` to: 'a new `CompletableFuture[Void]` that completes asynchronously when the action is run'.
+- L58 `thenCombine` [blocker/style]: Rewrite the `@return` to: 'a new `CompletableFuture` that completes asynchronously with the result of the combining function'.
+- L66 `thenAcceptBoth` [blocker/style]: Rewrite the `@return` to: 'a new `CompletableFuture[Void]` that completes asynchronously when the action is performed'.
+- L72 `runAfterBoth` [blocker/style]: Rewrite the `@return` to: 'a new `CompletableFuture[Void]` that completes asynchronously when the action is run'.
+- L78 `applyToEither` [blocker/style]: Rewrite the `@return` to: 'a new `CompletableFuture` that completes asynchronously with the result of applying the function'.
+- L84 `acceptEither` [blocker/style]: Rewrite the `@return` to: 'a new `CompletableFuture[Void]` that completes asynchronously when the action is performed'.
+- L90 `runAfterEither` [blocker/style]: Rewrite the `@return` to: 'a new `CompletableFuture[Void]` that completes asynchronously when the action is run'.
+- L96 `thenCompose` [blocker/style]: Rewrite the `@return` to: 'a new `CompletableFuture` that completes asynchronously with the result of the `CompletionStage` returned by the function'.
+- L102 `whenComplete` [blocker/style]: Rewrite the `@return` to: 'a new `CompletableFuture[T]` that completes asynchronously with the same result as this future'.
+- L108 `handle` [blocker/style]: Rewrite the `@return` to: 'a new `CompletableFuture` that completes asynchronously with the result of applying the function'.
+- L114 `exceptionally` [blocker/style]: Add: '@return a new `CompletableFuture[T]` that completes with the result of applying the function to the exception if this future completes exceptionally, or with the same result as this future if it completes normally'.
+- L142 `get()` [blocker/style]: Rewrite to: 'Returns the result of this future, blocking if necessary until it is ready. The call is wrapped in `scala.concurrent.blocking`.'
+- L148 `get(timeout: Long, unit: TimeUnit)` [blocker/style]: Rewrite to: 'Returns the result of this future, blocking if necessary until it is ready or the timeout expires. The call is wrapped in `scala.concurrent.blocking`. If the timeout expires, a `TimeoutException` is thrown.'
+- L160 `P` [blocker/style]: Rewrite the first sentence to: 'A bridge from a Java `CompletionStage` to a Scala `Promise`.'
+- L165 `apply` [blocker/style]: Rewrite the `@param` tags to: '@param v the value to complete with, or `null` if completing with an exception' and '@param e the exception to complete with, or `null` if completing with a value'.
+- L29 `apply` [nit/style]: Rewrite to: 'Called when the wrapped Scala `Future` completes, delegating to `complete` on `Success` or `completeExceptionally` on `Failure`.'
+- L130 `obtrudeValue` [nit/style]: Rewrite to: 'the value that would be obtruded, but an `UnsupportedOperationException` is thrown instead'.
+- L136 `obtrudeException` [nit/style]: Rewrite to: 'the exception that would be obtruded, but an `UnsupportedOperationException` is thrown instead'.
+
+## Inline NEEDS-HUMAN markers left in source
+(none)

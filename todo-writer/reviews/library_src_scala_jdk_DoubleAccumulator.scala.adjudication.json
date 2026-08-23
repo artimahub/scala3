@@ -1,0 +1,24 @@
+{
+  "verdict": "approve",
+  "summary": "Both reviewers approve; only two nits survive, one shared and one style-only, neither a blocker.",
+  "resolved_items": [
+    {
+      "symbol": "DoubleAccumulator.update",
+      "line": 178,
+      "severity": "nit",
+      "instruction": "In both occurrences of the update(idx, elem) out-of-range prose (lines 178 and 201), add that a wrapped offset can also land on a history block's trailing bookkeeping slot (the cumulative-length value read by `cumulative`/`seekSlot`), corrupting the accumulator's internal indexing rather than overwriting a reported element.",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "DoubleAccumulatorStepper.nextStep",
+      "line": 565,
+      "severity": "nit",
+      "instruction": "Keep the existing @note NEEDS-HUMAN on nextStep as-is pending maintainer confirmation of whether the `n <= 0` guard (versus the siblings' `N <= 0`) is intentional; no other wording change needed.",
+      "raised_by": "both",
+      "needs_human": true
+    }
+  ],
+  "disagreements": []
+}
+

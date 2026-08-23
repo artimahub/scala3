@@ -1,0 +1,23 @@
+```scala
+--- a/library/src/scala/util/ChainingOps.scala
++++ b/library/src/scala/util/ChainingOps.scala
+@@ -17,9 +17,9 @@
+  */
+ 
+ package scala
+ package util
+ 
+ import scala.language.`2.13`
+ import scala.language.implicitConversions
+ import language.experimental.captureChecking
+ 
+-/** Provides implicit conversions that add chaining methods to every type. */
++/** Provides an implicit conversion to [[scala.util.ChainingOps]] for any type. */
+ trait ChainingSyntax {
+-  /** Returns a [[scala.util.ChainingOps]] wrapper for the given value.
++  /** Wraps the given value in a [[scala.util.ChainingOps]] instance.
+    *
+    *  @tparam A the type of the value to be wrapped
+    *  @param a  the value to be wrapped
+    */
+```

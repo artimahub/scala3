@@ -1,0 +1,32 @@
+{
+  "verdict": "approve",
+  "summary": "All documentation is accurate and follows conventions; only minor nits remain.",
+  "resolved_items": [
+    {
+      "symbol": "isWhole",
+      "line": 344,
+      "severity": "nit",
+      "instruction": "Remove the `@deprecated` tag from the Scaladoc body, keeping only the annotation.",
+      "raised_by": "both",
+      "needs_human": false
+    },
+    {
+      "symbol": "isValidByte/isValidShort/isValidChar/isValidInt",
+      "line": 291,
+      "severity": "nit",
+      "instruction": "Collapse each to a single line: `/** Returns `true` if this `BigInt` can be represented as a `Byte`, `false` otherwise. */`",
+      "raised_by": "accuracy",
+      "needs_human": false
+    }
+  ],
+  "disagreements": [
+    {
+      "symbol": "isWhole",
+      "line": 344,
+      "accuracy_position": "Drop the @deprecated tag from inside the comment; keep just the one-sentence description.",
+      "style_position": "Remove the `@deprecated` line from the Scaladoc body, keeping only the annotation.",
+      "ruling": "merged",
+      "rationale": "Both reviewers agree on the action, so the instruction is merged."
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "verdict": "approve",
+  "declarations": [
+    {
+      "symbol": "trait MacroAnnotation",
+      "new_doc_summary": "An annotation whose `transform` method rewrites the annotated definition and can add new definitions during compilation.",
+      "severity": "nit",
+      "confidence": "medium",
+      "needs_human": false,
+      "notes": "The mixed mood 'rewrites ... and can add' is slightly asymmetric: 'rewrites' is indicative (it always does this) while 'can add' is modal (it optionally does this). A tighter phrasing such as 'rewrites the annotated definition and may introduce new definitions during compilation' would read more evenly. Not a blocker — the current wording is grammatically correct and clear."
+    }
+  ],
+  "bonus_findings": []
+}

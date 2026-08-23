@@ -1,0 +1,6 @@
+{
+  "overall_quality": "excellent",
+  "issues": [],
+  "general_feedback": "The @return documentation accurately describes the returned `IntegralOps` instance and clearly conveys its purpose (providing integral operators). It is consistent in style with the surrounding @param/@tparam tags, uses backticks appropriately, starts with a lowercase letter, and is concise.",
+  "requires_changes": false
+}

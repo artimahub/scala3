@@ -1,0 +1,24 @@
+{
+  "verdict": "approve",
+  "needs_human": false,
+  "items": [
+    {
+      "declaration": "Selectable.reflectiveSelectableFromLangReflectiveCalls",
+      "severity": "nit",
+      "confidence": "medium",
+      "needs_human": false,
+      "message": "The second paragraph runs two distinct ideas together with a semicolon: 'Only applies where `scala.language.reflectiveCalls` is imported, so that code written against Scala 2 keeps compiling; import `scala.reflect.Selectable.reflectiveSelectable` instead.' The clause after the semicolon reads as an afterthought rather than a grammatically parallel continuation. Splitting into two sentences would read more cleanly, e.g. '... keeps compiling. Prefer importing `scala.reflect.Selectable.reflectiveSelectable` instead.'"
+    },
+    {
+      "declaration": "Selectable.reflectiveSelectableFromLangReflectiveCalls",
+      "severity": "nit",
+      "confidence": "low",
+      "needs_human": false,
+      "message": "`scala.reflect.Selectable` is referenced as a wiki-style link `[[scala.reflect.Selectable]]` in the first sentence but as a plain backtick code reference `` `scala.reflect.Selectable` `` in the `@return` tag. Minor inconsistency within the same comment; picking one style throughout would be cleaner (though both are individually acceptable Scaladoc conventions)."
+    }
+  ],
+  "bonus_findings": []
+}
+
+
+Accuracy checks that passed: the conversion is gated on `using scala.languageFeature.reflectiveCalls` (matches "only applies where imported"); the returned `Selectable` really does dispatch via reflection on `selectedValue.getClass` in `scala.reflect.Selectable`, so "dispatch on the runtime type of `x`" is correct; the Scala-2-compat rationale matches the private comment above the deprecated method. `@param`/`@return` follow lowercase-start, no-trailing-period convention correctly.

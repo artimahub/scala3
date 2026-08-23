@@ -1,0 +1,35 @@
+{
+  "verdict": "approve",
+  "summary": "Checked Fractional trait (docs for div, FractionalOps, `/`, mkNumericOps), object Fractional (apply, ExtraImplicits, infixFractionalOps) against their implementations; all descriptions match what the code does (div/`/` perform the stated division, mkNumericOps/infixFractionalOps construct the stated FractionalOps wrapper, apply returns the implicit instance). No factual errors found. Three @return tags redundantly restate their own 'Returns ...' description word-for-word, which the house rule says should be dropped; flagged as nits since they are true and complete, just wordy.",
+  "items": [
+    {
+      "symbol": "Fractional.mkNumericOps",
+      "line": 43,
+      "severity": "nit",
+      "issue": "@return \"an object providing fractional operations for `lhs`\" merely restates the description \"Returns an object that provides fractional operations for `lhs`\" verbatim. House rule: drop @return when the description already begins with \"Returns\" and fully states the return value.",
+      "suggestion": "Drop the @return tag; the description already fully states the return value.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "Fractional.apply",
+      "line": 59,
+      "severity": "nit",
+      "issue": "@return \"the `Fractional` instance for `T`\" is a near-verbatim restatement of the description \"Returns the `Fractional` instance for type `T`.\"",
+      "suggestion": "Drop the @return tag per the description-already-states-it rule.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "Fractional.ExtraImplicits.infixFractionalOps",
+      "line": 70,
+      "severity": "nit",
+      "issue": "@return \"an object providing fractional operations for `x`\" restates the description \"Returns an object that provides fractional operations for `x`\" almost word-for-word, unlike the `/` method just above it in the diff, which correctly dropped its own redundant @return.",
+      "suggestion": "Drop the @return tag for consistency with `/`'s treatment in the same diff.",
+      "confidence": "high",
+      "needs_human": false
+    }
+  ],
+  "bonus_findings": []
+}
+

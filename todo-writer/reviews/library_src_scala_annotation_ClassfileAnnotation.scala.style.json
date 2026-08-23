@@ -1,0 +1,13 @@
+{
+  "verdict": "approve",
+  "items": [
+    {
+      "declaration": "trait ClassfileAnnotation",
+      "severity": "nit",
+      "confidence": "medium",
+      "needs_human": false,
+      "comment": "The second paragraph restates the @deprecated annotation's message almost verbatim. Scaladoc renders the @deprecated string in its own 'Deprecated' section, so the body prose ends up saying the same thing twice. Consider dropping the second paragraph and letting the @deprecated message carry that explanation on its own — the first sentence already gives enough context for the API index."
+    }
+  ],
+  "bonus_findings": []
+}

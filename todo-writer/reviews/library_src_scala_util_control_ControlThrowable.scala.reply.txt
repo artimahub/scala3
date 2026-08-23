@@ -1,0 +1,10 @@
+/workspace/scala3/library/src/scala/util/control/ControlThrowable.scala
+```scala
+<<<<<<< SEARCH
+  /** TODO FILL IN */
+  def this() = this(message = null)
+=======
+  /** Constructs a `ControlThrowable` with no detail message. */
+  def this() = this(message = null)
+>>>>>>> REPLACE
+```

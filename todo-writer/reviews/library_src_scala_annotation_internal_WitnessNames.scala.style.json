@@ -1,0 +1,13 @@
+{
+  "verdict": "approve",
+  "items": [
+    {
+      "declaration": "class WitnessNames",
+      "severity": "nit",
+      "confidence": "medium",
+      "needs_human": false,
+      "comment": "\"marks a type definition as one that should get a context bound companion\" is wordy. Consider tightening to something like \"marks a type definition as needing a context bound companion, recording the names of the witnesses generated for its context bounds.\""
+    }
+  ],
+  "bonus_findings": []
+}

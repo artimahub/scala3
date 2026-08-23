@@ -1,0 +1,297 @@
+<<<<<<< SEARCH
+    /** Parses a `String` into a `Char` by interpreting it as a decimal integer and converting that integer to a `Char`.
+     *
+     *  @param str the `String` to parse
+     *  @return `Some(Char)` if the string is a valid integer and the integer is within the valid `Char` range, `None` otherwise
+     */
+    def parseString(str: String): Option[Char] = Try(str.toInt.toChar).toOption
+=======
+    /** Parses a `String` into a `Char` by interpreting it as a decimal integer and converting that integer to a `Char`.
+     *
+     *  @param str the `String` to parse
+     *  @return `Some(Char)` if the string is a valid integer (any valid `Int` is truncated to a `Char` via narrowing conversion, so out-of-range integers wrap rather than failing), `None` otherwise
+     */
+    def parseString(str: String): Option[Char] = Try(str.toInt.toChar).toOption
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+    /** Returns the quotient of two `BigDecimal` values.
+     *
+     *  @param x the first `BigDecimal` value
+     *  @param y the second `BigDecimal` value
+     *  @return the quotient of `x` divided by `y`
+     */
+    def div(x: BigDecimal, y: BigDecimal): BigDecimal = x / y
+=======
+    /** Returns the quotient of two `BigDecimal` values.
+     *
+     *  @param x the first `BigDecimal` value
+     *  @param y the second `BigDecimal` value
+     *  @return the quotient of `x` divided by `y`
+     *  @throws java.lang.ArithmeticException if `y` is zero
+     */
+    def div(x: BigDecimal, y: BigDecimal): BigDecimal = x / y
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+    /** Returns the sum of two `BigDecimal` values.
+     *
+     *  @param x the first `BigDecimal` value
+     *  @param y the second `BigDecimal` value
+     *  @return the sum of `x` and `y`
+     *  @note Returns the second value directly if the first value is zero to avoid math context pollution.
+     */
+=======
+    /** Returns the sum of two `BigDecimal` values.
+     *
+     *  @param x the first `BigDecimal` value
+     *  @param y the second `BigDecimal` value
+     *  @return the sum of `x` and `y`
+     *  @note Returns the second value directly if the first value is the cached zero instance (BigDecimal(0) under the default MathContext) to avoid math context pollution.
+     */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+    /** Returns the difference between two `BigDecimal` values.
+     *
+     *  @param x the first `BigDecimal` value
+     *  @param y the second `BigDecimal` value
+     *  @return the difference between `x` and `y`
+     *  @note Returns the negation of the second value directly if the first value is zero to avoid math context pollution.
+     */
+=======
+    /** Returns the difference between two `BigDecimal` values.
+     *
+     *  @param x the first `BigDecimal` value
+     *  @param y the second `BigDecimal` value
+     *  @return the difference between `x` and `y`
+     *  @note Returns the negation of the second value directly if the first value is the cached zero instance (BigDecimal(0) under the default MathContext) to avoid math context pollution.
+     */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+    /** Returns the product of two `BigDecimal` values.
+     *
+     *  @param x the first `BigDecimal` value
+     *  @param y the second `BigDecimal` value
+     *  @return the product of `x` and `y`
+     *  @note Returns the second value directly if the first value is one to avoid math context pollution.
+     */
+=======
+    /** Returns the product of two `BigDecimal` values.
+     *
+     *  @param x the first `BigDecimal` value
+     *  @param y the second `BigDecimal` value
+     *  @return the product of `x` and `y`
+     *  @note Returns the second value directly if the first value is the cached one instance (BigDecimal(1) under the default MathContext) to avoid math context pollution.
+     */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Returns the signum of a numeric value.
+   *  @deprecated Use `sign` instead.
+   *
+   *  @param x the value
+   *  @return -1 if `x` is negative, 1 if `x` is positive, 0 if `x` is zero
+   */
+=======
+  /** Returns the signum of a numeric value.
+   *  @deprecated("use `sign` method instead", since = "2.13.0")
+   *
+   *  @param x the value
+   *  @return -1 if `x` is negative, 1 if `x` is positive, 0 if `x` is zero
+   */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+    /** Returns the signum of this value.
+     *  @deprecated Use `sign` instead.
+     */
+=======
+    /** Returns the signum of this value.
+     *  @deprecated("use `sign` method instead", since = "2.13.0")
+     */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+    /** Returns the quotient of two `Float` values.
+     *
+     *  @param x the first `Float` value
+     *  @param y the second `Float` value
+     *  @return the quotient of `x` divided by `y`
+     *  @throws java.lang.ArithmeticException if `y` is zero
+     */
+=======
+    /** Returns the quotient of two `Float` values.
+     *
+     *  @param x the first `Float` value
+     *  @param y the second `Float` value
+     *  @return the quotient of `x` divided by `y`
+     */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+    /** Returns the quotient of two `Double` values.
+     *
+     *  @param x the first `Double` value
+     *  @param y the second `Double` value
+     *  @return the quotient of `x` divided by `y`
+     *  @throws java.lang.ArithmeticException if `y` is zero
+     */
+=======
+    /** Returns the quotient of two `Double` values.
+     *
+     *  @param x the first `Double` value
+     *  @param y the second `Double` value
+     *  @return the quotient of `x` divided by `y`
+     */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+    /** Returns the sign of a `Float` value.
+     *
+     *  @param x the `Float` value
+     *  @return -1.0 if `x` is negative, 1.0 if `x` is positive, 0.0 if `x` is zero, or `NaN` if `x` is `NaN`
+     */
+=======
+    /** Returns the sign of a `Float` value.
+     *
+     *  @param x the `Float` value
+     *  @return -1.0 if `x` is negative, 1.0 if `x` is positive, 0.0 if `x` is zero, or `NaN` if `x` is `NaN`
+     */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+    /** Returns the sign of a `Double` value.
+     *
+     *  @param x the `Double` value
+     *  @return -1.0 if `x` is negative, 1.0 if `x` is positive, 0.0 if `x` is zero, or `NaN` if `x` is `NaN`
+     */
+=======
+    /** Returns the sign of a `Double` value.
+     *
+     *  @param x the `Double` value
+     *  @return -1.0 if `x` is negative, 1.0 if `x` is positive, 0.0 if `x` is zero, or `NaN` if `x` is `NaN`
+     */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+    /** Converts an `Int` to an `Int`.
+     *
+     *  @param x the `Int` value to convert
+     *  @return the given `Int` value unchanged
+     */
+    def fromInt(x: Int): Int = x
+    /** Parses a `String` into an `Int`.
+     *
+     *  @param str the `String` to parse
+     *  @return `Some(Int)` if the string is a valid `Int`, `None` otherwise
+     */
+    def parseString(str: String): Option[Int] = StringParsers.parseInt(str)
+    /** Returns the given `Int` value, as no conversion is needed.
+     *
+     *  @param x the `Int` value to convert
+     *  @return the given `Int` value unchanged
+     */
+    def toInt(x: Int): Int = x
+=======
+    /** Converts an `Int` to an `Int`.
+     *
+     *  @param x the `Int` value (returned unchanged)
+     *  @return the given `Int` value unchanged
+     */
+    def fromInt(x: Int): Int = x
+    /** Parses a `String` into an `Int`.
+     *
+     *  @param str the `String` to parse
+     *  @return `Some(Int)` if the string is a valid `Int`, `None` otherwise
+     */
+    def parseString(str: String): Option[Int] = StringParsers.parseInt(str)
+    /** Returns the given `Int` value, as no conversion is needed.
+     *
+     *  @param x the `Int` value (returned unchanged)
+     *  @return the given `Int` value unchanged
+     */
+    def toInt(x: Int): Int = x
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+    /** Converts a `Long` to a `Long`.
+     *
+     *  @param x the `Long` value to convert
+     *  @return the given `Long` value unchanged
+     */
+=======
+    /** Converts a `Long` to a `Long`.
+     *
+     *  @param x the `Long` value (returned unchanged)
+     *  @return the given `Long` value unchanged
+     */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+    /** Returns the given `Float` value, as no conversion is needed.
+     *
+     *  @param x the `Float` value to convert
+     *  @return the given `Float` value unchanged
+     */
+=======
+    /** Returns the given `Float` value, as no conversion is needed.
+     *
+     *  @param x the `Float` value (returned unchanged)
+     *  @return the given `Float` value unchanged
+     */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+    /** Returns the given `Double` value, as no conversion is needed.
+     *
+     *  @param x the `Double` value to convert
+     *  @return the given `Double` value unchanged
+     */
+=======
+    /** Returns the given `Double` value, as no conversion is needed.
+     *
+     *  @param x the `Double` value (returned unchanged)
+     *  @return the given `Double` value unchanged
+     */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+    /** Returns the signum of a `Char` value.
+     *
+     *  @param x the `Char` value
+     *  @return 1 if `x` is nonzero, 0 if `x` is zero — `x` is never negative
+     */
+=======
+    /** Returns the signum of a `Char` value.
+     *
+     *  @param x the `Char` value
+     *  @return 1 if `x` is nonzero, 0 if `x` is zero (\\u0000) — `Char` values are unsigned.
+     */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+    /** Returns the sign of a `Char` value.
+     *
+     *  @param x the `Char` value
+     *  @return 1 if `x` is nonzero, 0 if `x` is zero — `x` is never negative
+     */
+=======
+    /** Returns the sign of a `Char` value.
+     *
+     *  @param x the `Char` value
+     *  @return \\u0001 if `x` is nonzero, \\u0000 if `x` is zero (\\u0000) — `Char` values are unsigned.
+     */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Provides infix arithmetic operations for a value of type `T`. */
+  class NumericOps(lhs: T) {
+=======
+  /** Provides infix arithmetic operations for a value of type `T`.
+   *
+   *  @param lhs the value to wrap with infix arithmetic operations
+   */
+  class NumericOps(lhs: T) {
+>>>>>>> REPLACE

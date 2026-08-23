@@ -1,0 +1,16 @@
+{
+  "verdict": "approve",
+  "summary": "Checked all changed declarations (Integral, quot, rem, IntegralOps, /, %, /%, mkNumericOps, Integral.apply, ExtraImplicits, infixIntegralOps) against their bodies/signatures; all descriptions and @param/@return content match the actual implementation, including the corrected `Integral[T]#IntegralOps` return type on infixIntegralOps. Only one minor tag-placement nit found on /%.",
+  "items": [
+    {
+      "symbol": "IntegralOps./%",
+      "line": 56,
+      "severity": "nit",
+      "issue": "The `@param rhs` tag conflates the parameter description with return-value information (\"the divisor; the method returns a tuple of (quotient, remainder)\"), and uses the self-referential phrase \"the method\". The first-sentence description already satisfies the @return-drop rule (starts with \"Returns\" and states the return), so the tuple-order detail should either be folded into that sentence or placed in a separate `@return` tag, not appended to the `@param` tag.",
+      "suggestion": "Change to `@param rhs the divisor` and, if the tuple order needs stating explicitly, add `@return a tuple of (quotient, remainder)` or fold \"as a tuple of (quotient, remainder)\" into the first sentence.",
+      "confidence": "high",
+      "needs_human": false
+    }
+  ],
+  "bonus_findings": []
+}

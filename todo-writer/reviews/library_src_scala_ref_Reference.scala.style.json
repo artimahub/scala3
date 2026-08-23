@@ -1,0 +1,34 @@
+{
+  "verdict": "approve",
+  "findings": [
+    {
+      "declaration": "def toString(): String",
+      "severity": "ok",
+      "confidence": "high",
+      "needs_human": false,
+      "comment": "Starts with 'Returns', edge case covered inline, @return correctly omitted. Backticks on the literal string. Consistent with nearby apply/get docs."
+    },
+    {
+      "declaration": "def clear(): Unit",
+      "severity": "ok",
+      "confidence": "high",
+      "needs_human": false,
+      "comment": "Two-sentence doc; first sentence stands alone as an index entry, second adds the non-obvious 'does not enqueue' invariant. Unit return needs no @return."
+    },
+    {
+      "declaration": "def enqueue(): Boolean",
+      "severity": "nit",
+      "confidence": "high",
+      "needs_human": false,
+      "comment": "Description begins with 'Adds', not 'Returns', so @return must not be dropped per the @return redundancy rule. The return semantics are present but they are inlined as a second sentence ('Returns `true` if ...') instead of a `@return` tag. Preferred form: keep the first sentence as-is and move the return semantics to `@return true if successfully enqueued; false if already enqueued or not registered with a queue`."
+    },
+    {
+      "declaration": "def isEnqueued: Boolean",
+      "severity": "nit",
+      "confidence": "medium",
+      "needs_human": false,
+      "comment": "Description begins with 'Tests whether', not 'Returns', so @return should be present per the rule. For a simple predicate the implication is clear, but a minimal `@return true if this reference is currently enqueued, false otherwise` would be strictly correct. Low urgency because the semantics are unambiguous."
+    }
+  ],
+  "bonus_findings": []
+}

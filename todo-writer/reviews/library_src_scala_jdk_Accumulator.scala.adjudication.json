@@ -1,0 +1,16 @@
+{
+  "verdict": "approve",
+  "summary": "Both reviewers approve with no blockers; only a cosmetic apostrophe nit remains, and the accuracy bonus finding is pre-existing text outside the diff.",
+  "resolved_items": [
+    {
+      "symbol": "Accumulator.toFactory",
+      "line": 197,
+      "severity": "nit",
+      "instruction": "Change the curly apostrophe in \"${coll}’s elements\" in the @tparam A doc to a straight apostrophe, matching `empty`/`apply`.",
+      "raised_by": "style",
+      "needs_human": false
+    }
+  ],
+  "disagreements": []
+}
+

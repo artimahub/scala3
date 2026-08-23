@@ -1,0 +1,5 @@
+All six `TODO FILL IN` placeholders are filled; the diff is comment-only (6 insertions, 0 deletions, no code lines touched).
+
+- All six are `implicit val` type-class instances, so each got a noun-phrase summary; none needed `@param`/`@tparam`/`@return` (single-line comments with no tags).
+- The three `jl.*` instances are casts of their primitive counterparts, so their docs note the boxed element type and the unboxing that happens when the value reaches `OptionalDouble.of` / `OptionalInt.of` / `OptionalLong.of`.
+- The pre-existing docs on the `OptionShape` class and its two abstract methods were left untouched.

@@ -1,0 +1,30 @@
+{
+  "verdict": "approve",
+  "findings": [
+    {
+      "file": "library/src/scala/annotation/alpha.scala",
+      "line": 5,
+      "summary": "First doc comment (before @deprecated) uses past tense 'was intended to define' where Scala style mandates present tense; prefer 'Defines an external name for a definition (deprecated; use [[targetName]] instead).'",
+      "severity": "nit",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/annotation/alpha.scala",
+      "line": 12,
+      "summary": "Class doc comment repeats the same past-tense framing ('was intended to define', 'would be implemented under'); present tense is preferred even for deprecated APIs - the @deprecated annotation already signals the status.",
+      "severity": "nit",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/annotation/alpha.scala",
+      "line": 17,
+      "summary": "@param description uses past tense ('was intended to be implemented'); a shorter present-tense phrase is cleaner, e.g. 'the external name for the annotated definition'.",
+      "severity": "nit",
+      "confidence": "high",
+      "needs_human": false
+    }
+  ],
+  "bonus_findings": []
+}

@@ -1,0 +1,20 @@
+{
+  "verdict": "approve",
+  "items": [
+    {
+      "declaration": "class retains[Elems]",
+      "severity": "ok",
+      "confidence": "high",
+      "needs_human": false,
+      "comment": "First sentence stands alone and is not a signature restatement. Voice is declarative third-person. @tparam starts lowercase, no trailing period, uses backticks correctly. No HTML."
+    },
+    {
+      "declaration": "class retainsCap",
+      "severity": "ok",
+      "confidence": "high",
+      "needs_human": false,
+      "comment": "Noun-phrase summary is conventional for annotation classes. `@retains[any.type]` correctly backtick-quoted. No @return needed. Matches the altitude of nearby docs."
+    }
+  ],
+  "bonus_findings": []
+}

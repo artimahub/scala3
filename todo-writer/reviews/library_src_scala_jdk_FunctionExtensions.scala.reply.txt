@@ -1,0 +1,11 @@
+All 376 `TODO FILL IN` placeholders in `library/src/scala/jdk/FunctionExtensions.scala` are filled and committed.
+
+What I did:
+
+- **4 trait descriptions** (`Priority3` → `Priority0`), each stating what it provides and where it sits in the implicit-priority chain, with `Priority0` noting it also holds every `asScala` conversion and that `FunctionConverters` extends it.
+- **90 conversion methods.** Descriptions are grounded in `FunctionWrappers.scala`: I extracted the actual method set on each `Rich*` class, so a comment says "`asJava` and `asJavaBiFunction` methods" only where both exist, and "an `asJava` method" for the primitive-specialised wrappers that define just one.
+- **`@tparam`** text comes from the parameter's real position in the function type (first argument / second argument / result), and evidence-constrained ones say so explicitly, e.g. `@tparam A1 the type of the second argument of `sf`, constrained by `evA1` to be `Double``.
+- **`@param evXX`** documents the `=:=` witness against the signature, not a guess.
+- **`@return` kept on all 90** — every description begins with "Enriches", not "Returns", so the drop rule does not apply; each tag names the `Rich*` value class returned.
+
+Safety check on the edit: stripping comments and blank lines from the committed file and from my result gives two byte-identical 106-line files, so no declaration, import, or body was touched. The diff is 565 insertions, 0 deletions (the method comment lines were rewritten in place; the +13 net line growth is the four trait comments expanding from one line to multi-line).

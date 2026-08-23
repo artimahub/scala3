@@ -1,0 +1,52 @@
+{
+  "verdict": "revise",
+  "summary": "Documentation contains factual inaccuracies and style issues for LowPriorityNotGiven and its method.",
+  "items": [
+    {
+      "symbol": "LowPriorityNotGiven",
+      "line": 31,
+      "severity": "blocker",
+      "issue": "The description incorrectly states that NotGiven[T] is provided for any type T. In reality, NotGiven[T] is only provided for types T that do not have a higher-priority implicit NotGiven[T] in scope. The trait's purpose is to provide a fallback, not a universal instance.",
+      "suggestion": "Clarify that this trait provides a fallback NotGiven[T] instance only when no higher-priority implicit NotGiven[T] exists for T.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "LowPriorityNotGiven",
+      "line": 31,
+      "severity": "blocker",
+      "issue": "The description mentions 'used to emulate negation in Scala 2', but NotGiven is a Scala 3 feature. This is factually incorrect.",
+      "suggestion": "Remove the 'in Scala 2' qualifier, as NotGiven is a Scala 3 feature.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "LowPriorityNotGiven",
+      "line": 31,
+      "severity": "nit",
+      "issue": "The first sentence is not a standalone summary. It references 'a lower-priority fallback' without explaining what that means in context.",
+      "suggestion": "Rewrite to: 'Provides a low-priority implicit `NotGiven[T]` instance for types `T` that do not have a higher-priority instance.'",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "LowPriorityNotGiven.notGiven",
+      "line": 33,
+      "severity": "blocker",
+      "issue": "The description is vague and does not explain what the method returns or its purpose. The method provides a NotGiven[T] instance, but this is not stated.",
+      "suggestion": "Clarify that this method provides an implicit `NotGiven[T]` instance as a fallback when no higher-priority instance exists.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "LowPriorityNotGiven.notGiven",
+      "line": 33,
+      "severity": "nit",
+      "issue": "The description is not a standalone summary and is too terse. It does not explain the method's role in the type system.",
+      "suggestion": "Rewrite to: 'Provides an implicit `NotGiven[T]` instance as a fallback for types without a higher-priority instance.'",
+      "confidence": "high",
+      "needs_human": false
+    }
+  ],
+  "bonus_findings": []
+}

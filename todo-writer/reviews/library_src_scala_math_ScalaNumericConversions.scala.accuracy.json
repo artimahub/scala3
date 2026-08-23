@@ -1,0 +1,17 @@
+{
+  "verdict": "revise",
+  "summary": "One shared block (byteValue/shortValue/intValue/longValue) is accurate for the BigInt/BigDecimal/RichInt/RichLong-style implementations but factually wrong for intValue/longValue as implemented by RichDouble/RichFloat, which saturate rather than bit-truncate; underlying and unifiedPrimitiveHashcode were checked against their implementers and are accurate.",
+  "items": [
+    {
+      "symbol": "intValue / longValue (shared block with byteValue, shortValue at lines 35, 37, 39, 41)",
+      "line": 39,
+      "severity": "blocker",
+      "issue": "The added doc claims out-of-range values are 'narrowed to the low-order bits of the target type and can lose magnitude or flip sign' for all four methods. That is true of the BigInt/BigDecimal implementations (java.math.BigInteger/BigDecimal.intValue()/longValue() docs literally say 'low-order bits ... can ... return a result with the opposite sign') and of RichInt/RichLong/RichChar/RichByte/RichShort (integral-to-integral two's-complement narrowing). But RichDouble.intValue/longValue and RichFloat.intValue/longValue are implemented as `self.toInt`/`self.toLong` (library/src/scala/runtime/RichDouble.scala:25-26, RichFloat.scala:25-26), which is a floating-point-to-integral narrowing conversion per JLS 5.1.3: it SATURATES to Int/Long MinValue/MaxValue for out-of-range magnitudes and maps NaN to 0. It never takes 'low-order bits' of anything and sign never flips (a huge positive double clamps to Int.MaxValue, not to some sign-flipped garbage value). Since Double and Float are real conformers of this trait, a reader of intValue/longValue's Scaladoc is told the wrong mechanism and a guarantee ('sign never flips under saturation') that is actually the opposite of what's documented. byteValue/shortValue are comparatively fine, since their underlying `.toByte`/`.toShort` conversions do end in a genuine low-order-bit truncation step even for Double/Float sources (JVM narrows via an intermediate int first, then truncates to the 8/16-bit target).",
+      "suggestion": "Split the wording: keep the low-order-bits/sign-flip language for byteValue and shortValue (and optionally intValue/longValue's BigInt/BigDecimal-style narrowing), but describe intValue/longValue's general contract without asserting bit-truncation, e.g. 'Values that don't fit are narrowed to the target type; the exact result (bit-truncated or saturated) depends on the implementation.' or simply drop the mechanism claim and say only that magnitude/precision can be lost.",
+      "confidence": "high",
+      "needs_human": false
+    }
+  ],
+  "bonus_findings": []
+}
+

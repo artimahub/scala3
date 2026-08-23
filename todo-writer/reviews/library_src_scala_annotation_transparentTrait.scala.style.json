@@ -1,0 +1,20 @@
+{
+  "verdict": "revise",
+  "items": [
+    {
+      "declaration": "transparentTrait (second docstring — immediately before 'final class')",
+      "severity": "blocker",
+      "confidence": "high",
+      "needs_human": false,
+      "comment": "The file now has two Scaladoc comments attached to the same declaration: one before @deprecated and one immediately before 'final class'. One doc comment per declaration is the Scaladoc convention; having two means one will be silently ignored by the tool (which one depends on the implementation). The second comment duplicates everything already in the first. Remove the second docstring entirely — the first (before @deprecated) is comprehensive and is the canonical location for the class's doc comment."
+    },
+    {
+      "declaration": "transparentTrait (first docstring — before @deprecated)",
+      "severity": "nit",
+      "confidence": "medium",
+      "needs_human": false,
+      "comment": "\"See reference/other-new-features/transparent-traits.html for details.\" is a bare relative path, not a rendered link. Prefer a markdown hyperlink (e.g. [transparent-traits reference](https://docs.scala-lang.org/scala3/reference/other-new-features/transparent-traits.html)) so it is clickable in generated docs. Since the entire block was rewritten, this line is part of the changed doc."
+    }
+  ],
+  "bonus_findings": []
+}

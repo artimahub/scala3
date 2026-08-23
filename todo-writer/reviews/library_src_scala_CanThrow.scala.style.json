@@ -1,0 +1,13 @@
+{
+  "verdict": "approve",
+  "findings": [
+    {
+      "declaration": "@tparam E",
+      "severity": "nit",
+      "confidence": "medium",
+      "needs_human": false,
+      "comment": "\"the parameter is contravariant\" is partly redundant with the `-E` already visible in the signature. The sentence is redeemed by what follows — explaining the semantic consequence for callers — so this is not a blocker, but trimming to just that consequence would be cleaner: e.g. \"the type of exception that may be thrown; a `CanThrow` for a more general exception type also satisfies a requirement for any of its subtypes\"."
+    }
+  ],
+  "bonus_findings": []
+}

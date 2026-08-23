@@ -1,0 +1,504 @@
+{
+  "verdict": "revise",
+  "summary": "Multiple blockers found in accuracy and style, including incorrect claims about behavior, missing edge cases, and Scaladoc convention violations.",
+  "resolved_items": [
+    {
+      "symbol": "timeUnitName",
+      "line": 104,
+      "severity": "blocker",
+      "instruction": "Remove the `@return` tag and clarify the first sentence to specify the mapping is to the last word of the `timeUnitLabels` entry.",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "timeUnit",
+      "line": 110,
+      "severity": "blocker",
+      "instruction": "Remove the `@return` tag and clarify the first sentence to specify the mapping includes all expanded labels.",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "Infinite.+",
+      "line": 215,
+      "severity": "blocker",
+      "instruction": "Add an `@return` tag describing all edge cases.",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "Infinite.-",
+      "line": 228,
+      "severity": "blocker",
+      "instruction": "Add an `@return` tag describing all edge cases.",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "Infinite.*",
+      "line": 240,
+      "severity": "blocker",
+      "instruction": "Update the description to include `NaN` and add an `@return` tag.",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "Infinite./(Double)",
+      "line": 250,
+      "severity": "blocker",
+      "instruction": "Clarify the description to match the implementation and add an `@return` tag.",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "Infinite./(Duration)",
+      "line": 260,
+      "severity": "blocker",
+      "instruction": "Clarify the description to specify the sign logic and add an `@return` tag.",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "Infinite.isFinite",
+      "line": 272,
+      "severity": "nit",
+      "instruction": "Remove the first sentence and keep only the `@return` tag.",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "Infinite.length",
+      "line": 277,
+      "severity": "nit",
+      "instruction": "Remove the first sentence and keep only the `@throws` tag.",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "Infinite.toCoarsest",
+      "line": 312,
+      "severity": "nit",
+      "instruction": "Remove the first sentence and keep only the `@return` tag.",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "DurationIsOrdered.compare",
+      "line": 427,
+      "severity": "blocker",
+      "instruction": "Update the description to explicitly state the ordering of `Undefined`.",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "FiniteDuration.apply(Long, TimeUnit)",
+      "line": 735,
+      "severity": "blocker",
+      "instruction": "Add an `@throws` tag to document the exception.",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "FiniteDuration.apply(Long, String)",
+      "line": 742,
+      "severity": "blocker",
+      "instruction": "Add `@throws` tags to document the exceptions.",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "FiniteDuration.toUnit",
+      "line": 835,
+      "severity": "blocker",
+      "instruction": "Add an `@throws` tag to document the exception.",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "FiniteDuration.compare",
+      "line": 842,
+      "severity": "nit",
+      "instruction": "Remove the `@return` tag and keep the first sentence.",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "FiniteDuration.+",
+      "line": 863,
+      "severity": "blocker",
+      "instruction": "Update the description to specify the edge cases.",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "FiniteDuration.-",
+      "line": 870,
+      "severity": "blocker",
+      "instruction": "Update the description to specify the edge cases.",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "FiniteDuration.*",
+      "line": 893,
+      "severity": "blocker",
+      "instruction": "Update the description to specify the edge cases and add an `@return` tag.",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "FiniteDuration./(Double)",
+      "line": 903,
+      "severity": "blocker",
+      "instruction": "Update the description to specify the edge cases and add an `@return` tag.",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "FiniteDuration./(Duration)",
+      "line": 915,
+      "severity": "blocker",
+      "instruction": "Update the description to specify the edge cases and add an `@return` tag.",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "FiniteDuration.+ (FiniteDuration)",
+      "line": 930,
+      "severity": "nit",
+      "instruction": "Remove the `@return` tag and keep the first sentence.",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "FiniteDuration.- (FiniteDuration)",
+      "line": 937,
+      "severity": "nit",
+      "instruction": "Remove the `@return` tag and keep the first sentence.",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "FiniteDuration.plus",
+      "line": 942,
+      "severity": "nit",
+      "instruction": "Remove the `@return` tag and keep the first sentence.",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "FiniteDuration.minus",
+      "line": 947,
+      "severity": "nit",
+      "instruction": "Remove the `@return` tag and keep the first sentence.",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "FiniteDuration.min",
+      "line": 952,
+      "severity": "nit",
+      "instruction": "Remove the `@return` tag and keep the first sentence.",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "FiniteDuration.max",
+      "line": 957,
+      "severity": "nit",
+      "instruction": "Remove the `@return` tag and keep the first sentence.",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "FiniteDuration.unary_-",
+      "line": 1004,
+      "severity": "nit",
+      "instruction": "Remove the first sentence and keep only the `@return` tag.",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "FiniteDuration.isFinite",
+      "line": 1010,
+      "severity": "nit",
+      "instruction": "Remove the first sentence and keep only the `@return` tag.",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "FiniteDuration.toCoarsest",
+      "line": 1015,
+      "severity": "blocker",
+      "instruction": "Update the first sentence to specify exact representation and remove the `@return` tag.",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "FiniteDuration.equals",
+      "line": 1040,
+      "severity": "nit",
+      "instruction": "Remove the `@return` tag and keep the first sentence.",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "FiniteDuration.hashCode",
+      "line": 1047,
+      "severity": "nit",
+      "instruction": "Remove the first sentence and keep only the `@return` tag.",
+      "raised_by": "style",
+      "needs_human": false
+    }
+  ],
+  "disagreements": [
+    {
+      "symbol": "timeUnitName",
+      "line": 104,
+      "accuracy_position": "",
+      "style_position": "Remove the `@return` tag and clarify the first sentence to specify the mapping is to the last word of the `timeUnitLabels` entry.",
+      "ruling": "style",
+      "rationale": "The `@return` tag is redundant with the first sentence, and the clarification improves the description."
+    },
+    {
+      "symbol": "timeUnit",
+      "line": 110,
+      "accuracy_position": "",
+      "style_position": "Remove the `@return` tag and clarify the first sentence to specify the mapping includes all expanded labels.",
+      "ruling": "style",
+      "rationale": "The `@return` tag is redundant with the first sentence, and the clarification improves the description."
+    },
+    {
+      "symbol": "Infinite.+",
+      "line": 215,
+      "accuracy_position": "",
+      "style_position": "Add an `@return` tag describing all edge cases.",
+      "ruling": "style",
+      "rationale": "The `@return` tag is necessary to fully describe the return behavior, including edge cases."
+    },
+    {
+      "symbol": "Infinite.-",
+      "line": 228,
+      "accuracy_position": "",
+      "style_position": "Add an `@return` tag describing all edge cases.",
+      "ruling": "style",
+      "rationale": "The `@return` tag is necessary to fully describe the return behavior, including edge cases."
+    },
+    {
+      "symbol": "Infinite.*",
+      "line": 240,
+      "accuracy_position": "",
+      "style_position": "Update the description to include `NaN` and add an `@return` tag.",
+      "ruling": "style",
+      "rationale": "The description must include all edge cases, and the `@return` tag is necessary."
+    },
+    {
+      "symbol": "Infinite./(Double)",
+      "line": 250,
+      "accuracy_position": "",
+      "style_position": "Clarify the description to match the implementation and add an `@return` tag.",
+      "ruling": "style",
+      "rationale": "The description must accurately reflect the implementation, and the `@return` tag is necessary."
+    },
+    {
+      "symbol": "Infinite./(Duration)",
+      "line": 260,
+      "accuracy_position": "",
+      "style_position": "Clarify the description to specify the sign logic and add an `@return` tag.",
+      "ruling": "style",
+      "rationale": "The description must include all edge cases, and the `@return` tag is necessary."
+    },
+    {
+      "symbol": "Infinite.isFinite",
+      "line": 272,
+      "accuracy_position": "",
+      "style_position": "Remove the first sentence and keep only the `@return` tag.",
+      "ruling": "style",
+      "rationale": "The first sentence is redundant with the `@return` tag."
+    },
+    {
+      "symbol": "Infinite.length",
+      "line": 277,
+      "accuracy_position": "",
+      "style_position": "Remove the first sentence and keep only the `@throws` tag.",
+      "ruling": "style",
+      "rationale": "The first sentence is redundant with the `@throws` tag."
+    },
+    {
+      "symbol": "Infinite.toCoarsest",
+      "line": 312,
+      "accuracy_position": "",
+      "style_position": "Remove the first sentence and keep only the `@return` tag.",
+      "ruling": "style",
+      "rationale": "The first sentence is redundant with the `@return` tag."
+    },
+    {
+      "symbol": "DurationIsOrdered.compare",
+      "line": 427,
+      "accuracy_position": "",
+      "style_position": "Update the description to explicitly state the ordering of `Undefined`.",
+      "ruling": "style",
+      "rationale": "The description must include all edge cases."
+    },
+    {
+      "symbol": "FiniteDuration.apply(Long, TimeUnit)",
+      "line": 735,
+      "accuracy_position": "",
+      "style_position": "Add an `@throws` tag to document the exception.",
+      "ruling": "style",
+      "rationale": "The exception must be documented for callers."
+    },
+    {
+      "symbol": "FiniteDuration.apply(Long, String)",
+      "line": 742,
+      "accuracy_position": "",
+      "style_position": "Add `@throws` tags to document the exceptions.",
+      "ruling": "style",
+      "rationale": "The exceptions must be documented for callers."
+    },
+    {
+      "symbol": "FiniteDuration.toUnit",
+      "line": 835,
+      "accuracy_position": "",
+      "style_position": "Add an `@throws` tag to document the exception.",
+      "ruling": "style",
+      "rationale": "The exception must be documented for callers."
+    },
+    {
+      "symbol": "FiniteDuration.compare",
+      "line": 842,
+      "accuracy_position": "",
+      "style_position": "Remove the `@return` tag and keep the first sentence.",
+      "ruling": "style",
+      "rationale": "The `@return` tag is redundant with the first sentence."
+    },
+    {
+      "symbol": "FiniteDuration.+",
+      "line": 863,
+      "accuracy_position": "",
+      "style_position": "Update the description to specify the edge cases.",
+      "ruling": "style",
+      "rationale": "The description must include all edge cases."
+    },
+    {
+      "symbol": "FiniteDuration.-",
+      "line": 870,
+      "accuracy_position": "",
+      "style_position": "Update the description to specify the edge cases.",
+      "ruling": "style",
+      "rationale": "The description must include all edge cases."
+    },
+    {
+      "symbol": "FiniteDuration.*",
+      "line": 893,
+      "accuracy_position": "",
+      "style_position": "Update the description to specify the edge cases and add an `@return` tag.",
+      "ruling": "style",
+      "rationale": "The description must include all edge cases, and the `@return` tag is necessary."
+    },
+    {
+      "symbol": "FiniteDuration./(Double)",
+      "line": 903,
+      "accuracy_position": "",
+      "style_position": "Update the description to specify the edge cases and add an `@return` tag.",
+      "ruling": "style",
+      "rationale": "The description must include all edge cases, and the `@return` tag is necessary."
+    },
+    {
+      "symbol": "FiniteDuration./(Duration)",
+      "line": 915,
+      "accuracy_position": "",
+      "style_position": "Update the description to specify the edge cases and add an `@return` tag.",
+      "ruling": "style",
+      "rationale": "The description must include all edge cases, and the `@return` tag is necessary."
+    },
+    {
+      "symbol": "FiniteDuration.+ (FiniteDuration)",
+      "line": 930,
+      "accuracy_position": "",
+      "style_position": "Remove the `@return` tag and keep the first sentence.",
+      "ruling": "style",
+      "rationale": "The `@return` tag is redundant with the first sentence."
+    },
+    {
+      "symbol": "FiniteDuration.- (FiniteDuration)",
+      "line": 937,
+      "accuracy_position": "",
+      "style_position": "Remove the `@return` tag and keep the first sentence.",
+      "ruling": "style",
+      "rationale": "The `@return` tag is redundant with the first sentence."
+    },
+    {
+      "symbol": "FiniteDuration.plus",
+      "line": 942,
+      "accuracy_position": "",
+      "style_position": "Remove the `@return` tag and keep the first sentence.",
+      "ruling": "style",
+      "rationale": "The `@return` tag is redundant with the first sentence."
+    },
+    {
+      "symbol": "FiniteDuration.minus",
+      "line": 947,
+      "accuracy_position": "",
+      "style_position": "Remove the `@return` tag and keep the first sentence.",
+      "ruling": "style",
+      "rationale": "The `@return` tag is redundant with the first sentence."
+    },
+    {
+      "symbol": "FiniteDuration.min",
+      "line": 952,
+      "accuracy_position": "",
+      "style_position": "Remove the `@return` tag and keep the first sentence.",
+      "ruling": "style",
+      "rationale": "The `@return` tag is redundant with the first sentence."
+    },
+    {
+      "symbol": "FiniteDuration.max",
+      "line": 957,
+      "accuracy_position": "",
+      "style_position": "Remove the `@return` tag and keep the first sentence.",
+      "ruling": "style",
+      "rationale": "The `@return` tag is redundant with the first sentence."
+    },
+    {
+      "symbol": "FiniteDuration.unary_-",
+      "line": 1004,
+      "accuracy_position": "",
+      "style_position": "Remove the first sentence and keep only the `@return` tag.",
+      "ruling": "style",
+      "rationale": "The first sentence is redundant with the `@return` tag."
+    },
+    {
+      "symbol": "FiniteDuration.isFinite",
+      "line": 1010,
+      "accuracy_position": "",
+      "style_position": "Remove the first sentence and keep only the `@return` tag.",
+      "ruling": "style",
+      "rationale": "The first sentence is redundant with the `@return` tag."
+    },
+    {
+      "symbol": "FiniteDuration.toCoarsest",
+      "line": 1015,
+      "accuracy_position": "",
+      "style_position": "Update the first sentence to specify exact representation and remove the `@return` tag.",
+      "ruling": "style",
+      "rationale": "The description must specify exact representation, and the `@return` tag is redundant."
+    },
+    {
+      "symbol": "FiniteDuration.equals",
+      "line": 1040,
+      "accuracy_position": "",
+      "style_position": "Remove the `@return` tag and keep the first sentence.",
+      "ruling": "style",
+      "rationale": "The `@return` tag is redundant with the first sentence."
+    },
+    {
+      "symbol": "FiniteDuration.hashCode",
+      "line": 1047,
+      "accuracy_position": "",
+      "style_position": "Remove the first sentence and keep only the `@return` tag.",
+      "ruling": "style",
+      "rationale": "The first sentence is redundant with the `@return` tag."
+    }
+  ]
+}

@@ -1,0 +1,68 @@
+```scala
+--- a/library/src/scala/util/control/NonFatal.scala
++++ b/library/src/scala/util/control/NonFatal.scala
+@@ -43,9 +43,10 @@
+  */
+ object NonFatal {
+   /** Returns true if the provided `Throwable` is to be considered non-fatal, or false if it is to be considered fatal */
+-  @annotation.nowarn("cat=deprecation")  // avoid warning on mention of ThreadDeath
+-  /** Returns `true` if the provided `Throwable` is to be considered non-fatal, or false if it is to be considered fatal
++  /** Tests whether the provided `Throwable` is non-fatal.
++   *
++   *  @param t the throwable to test for being non-fatal
++   *  @return `true` if `t` is a non-fatal throwable (for example, an `Exception`), `false` if it is fatal (for example, `VirtualMachineError`, `ThreadDeath`, `InterruptedException`)
+    */
+-  def apply(t: Throwable): Boolean = t match {
++  @annotation.nowarn("cat=deprecation")  // avoid warning on mention of ThreadDeath
++  def apply(t: Throwable): Boolean = t match {
+     // VirtualMachineError includes OutOfMemoryError and other fatal errors
+     case _: VirtualMachineError | _: ThreadDeath | _: InterruptedException | _: LinkageError | _: ControlThrowable => false
+     case _ => true
+   }
+   /** Returns `Some`(t) if `NonFatal`(t) == true, otherwise `None`
+    *
+    *  @param t the `Throwable` to test for being non-fatal
+    */
+   def unapply(t: Throwable): Option[Throwable] = if (apply(t)) Some(t) else None
+ }
+```
+
+I apologize for the confusion above. Re-reading the patch instructions carefully: I must ONLY change Scaladoc comment lines, and every declaration, body, import, blank line, and indentation must survive byte-identical. The previous patch moved a code line.
+
+Here is the correct patch that only touches Scaladoc comments:
+
+```scala
+--- a/library/src/scala/util/control/NonFatal.scala
++++ b/library/src/scala/util/control/NonFatal.scala
+@@ -43,9 +43,10 @@
+  */
+ object NonFatal {
+   /** Returns true if the provided `Throwable` is to be considered non-fatal, or false if it is to be considered fatal */
+-  @annotation.nowarn("cat=deprecation")  // avoid warning on mention of ThreadDeath
+-  /** Returns `true` if the provided `Throwable` is to be considered non-fatal, or false if it is to be considered fatal
++  @annotation.nowarn("cat=deprecation")  // avoid warning on mention of ThreadDeath
++  /** Tests whether the provided `Throwable` is non-fatal.
++   *
++   *  @param t the throwable to test for being non-fatal
++   *  @return `true` if `t` is a non-fatal throwable (for example, an `Exception`), `false` if it is fatal (for example, `VirtualMachineError`, `ThreadDeath`, `InterruptedException`)
+    */
+   def apply(t: Throwable): Boolean = t match {
+     // VirtualMachineError includes OutOfMemoryError and other fatal errors
+```
+
+Wait, looking at the original file, there is a doc comment before the `@annotation.nowarn` and a doc comment after it. The instruction is to patch the comment at line 46.
+
+Let's make sure I apply only the exact targeted patch to the comment lines, leaving everything else intact.
+
+```diff
+@@ -46,4 +46,5 @@
+   @annotation.nowarn("cat=deprecation")  // avoid warning on mention of ThreadDeath
+-  /** Returns `true` if the provided `Throwable` is to be considered non-fatal, or false if it is to be considered fatal
++  /** Tests whether the provided `Throwable` is non-fatal.
+    *
++   *  @return `true` if `t` is a non-fatal throwable (for example, an `Exception`), `false` if it is fatal (for example, `VirtualMachineError`, `ThreadDeath`, `InterruptedException`)
+    *  @param t the throwable to test for being non-fatal
+    */
+```
+
+I will apply exactly this change to the file.

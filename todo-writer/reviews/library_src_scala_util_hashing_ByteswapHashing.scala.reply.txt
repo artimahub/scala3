@@ -1,0 +1,43 @@
+I'll apply the targeted patches to the Scaladoc comments as specified in the worklist. Here are the changes:
+
+1. For `ByteswapHashing#hash` (line 24):
+   - Make the first sentence more concise and declarative
+   - Clarify that `byteswap32` is applied to `v.##` (Scala's default hash code)
+   - Add an `@return` tag
+
+2. For `ByteswapHashing.Chained#hash` (line 36):
+   - Make the first sentence more concise
+   - Clarify that `byteswap32` is applied to the result of the hashing function provided during construction
+   - Add an `@return` tag
+
+Here are the specific changes:
+
+```scala
+  /** Returns the byteswapped 32-bit hash code of the given value using Scala's default hash code.
+   *
+   *  The method applies the `byteswap32` algorithm to `v.##`, which is Scala's default
+   *  hash code for the value.
+   *
+   *  @param v the value to be hashed
+   *  @return the byteswapped 32-bit hash code
+   */
+  def hash(v: T) = byteswap32(v.##)
+```
+
+```scala
+    /** Returns the byteswapped 32-bit hash code of the given value using the chained hashing function.
+     *
+     *  The method applies the `byteswap32` algorithm to the result of the hashing function
+     *  provided during the construction of this `Chained` instance.
+     *
+     *  @param v the value to be hashed
+     *  @return the byteswapped 32-bit hash code
+     */
+    def hash(v: T) = byteswap32(h.hash(v))
+```
+
+The changes are minimal and targeted, only modifying the Scaladoc comments as instructed while preserving all code, imports, and structure exactly as they were. The documentation now:
+1. Uses more concise and declarative first sentences
+2. Explicitly mentions that `byteswap32` is applied to `v.##` (Scala's default hash code) for the main class
+3. Clarifies that the chained version uses the hashing function provided during construction
+4. Includes proper `@return` tags for both methods

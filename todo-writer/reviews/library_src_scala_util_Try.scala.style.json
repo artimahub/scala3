@@ -1,0 +1,124 @@
+{
+  "verdict": "approve",
+  "summary": "All documentation is accurate, follows Scaladoc conventions, and is genuinely useful to API readers. Minor nits are non-blocking.",
+  "items": [
+    {
+      "symbol": "WithFilter.map",
+      "line": 167,
+      "severity": "nit",
+      "issue": "The first sentence is slightly redundant with the method name. The summary should stand alone as an API-index entry, not restate the signature.",
+      "suggestion": "Change the first sentence to: \"Returns a `Success` containing the result of applying `f` to the value if the predicate holds.\"",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "WithFilter.flatMap",
+      "line": 174,
+      "severity": "nit",
+      "issue": "The first sentence is slightly redundant with the method name. The summary should be more concise and declarative.",
+      "suggestion": "Change the first sentence to: \"Returns the result of applying `f` to the value if the predicate holds.\"",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "WithFilter.foreach",
+      "line": 180,
+      "severity": "nit",
+      "issue": "The description is too terse and does not clarify the side-effecting nature of `foreach`.",
+      "suggestion": "Change the description to: \"Applies the given side-effecting function to the value if it satisfies the predicate.\"",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "WithFilter.withFilter",
+      "line": 185,
+      "severity": "nit",
+      "issue": "The first sentence is slightly redundant with the method name. The summary should be more concise.",
+      "suggestion": "Change the first sentence to: \"Returns a new `WithFilter` that combines this predicate with `q`.\"",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "Failure.getOrElse",
+      "line": 295,
+      "severity": "nit",
+      "issue": "The description could be more precise about the laziness of `default`.",
+      "suggestion": "Change the description to: \"Returns the lazily evaluated `default` argument since this is a `Failure`.\"",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "Failure.orElse",
+      "line": 302,
+      "severity": "nit",
+      "issue": "The description could be more precise about the laziness of `default` and the exception handling.",
+      "suggestion": "Change the description to: \"Returns the lazily evaluated `default` `Try`; any non-fatal exception thrown while evaluating `default` is caught and returned as a `Failure`.\"",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "Failure.transform",
+      "line": 323,
+      "severity": "nit",
+      "issue": "The description could clarify that `s` is ignored and only `f` is applied.",
+      "suggestion": "Change the description to: \"Applies the given function `f` to the exception contained in this `Failure`; the function `s` is ignored.\"",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "Failure.recover",
+      "line": 350,
+      "severity": "nit",
+      "issue": "The description could clarify that the partial function is applied to the exception, not the value.",
+      "suggestion": "Change the description to: \"Applies the given partial function to the exception if it is defined for it, returning a `Success` with the result or this `Failure` unchanged.\"",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "Success.flatMap",
+      "line": 410,
+      "severity": "nit",
+      "issue": "The description could clarify that the function `f` is applied to the value and its result is returned.",
+      "suggestion": "Change the description to: \"Returns the `Try` produced by applying the given function to the value.\"",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "Success.transform",
+      "line": 424,
+      "severity": "nit",
+      "issue": "The description could clarify that `f` is ignored and only `s` is applied.",
+      "suggestion": "Change the description to: \"Applies the given function `s` to the value contained in this `Success`; the function `f` is ignored.\"",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "Success.collect",
+      "line": 438,
+      "severity": "nit",
+      "issue": "The description could clarify that the partial function is applied to the value, not the exception.",
+      "suggestion": "Change the description to: \"Applies the given partial function to the value if it is defined for it, returning a `Success` with the result or a `Failure` if the partial function is not defined.\"",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "Success.filter",
+      "line": 452,
+      "severity": "nit",
+      "issue": "The description could clarify that the predicate is applied to the value and the result depends on whether it holds.",
+      "suggestion": "Change the description to: \"Returns this `Success` if the value satisfies the predicate, otherwise returns a `Failure` with a `NoSuchElementException`.\"",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "Success.fold",
+      "line": 482,
+      "severity": "nit",
+      "issue": "The description could clarify that `fa` is only applied if `fb` throws an exception.",
+      "suggestion": "Change the description to: \"Applies the given function `fb` to the value; if `fb` throws an exception, applies `fa` to that exception.\"",
+      "confidence": "high",
+      "needs_human": false
+    }
+  ],
+  "bonus_findings": []
+}

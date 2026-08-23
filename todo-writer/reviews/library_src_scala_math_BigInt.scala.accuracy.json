@@ -1,0 +1,26 @@
+{
+  "verdict": "approve",
+  "summary": "Checked bigInteger, isValidByte/Short/Char/Int, isWhole, and underlying against their bodies; all are factually accurate (isValidX checks are correct given _long==Long.MinValue tags non-long-encoded values out of every checked range, verified via the class's encoding invariant comment). Two nits: a redundant duplicate @deprecated tag on isWhole, and an unnecessary two-line split for the four one-sentence isValidX comments.",
+  "items": [
+    {
+      "symbol": "isWhole",
+      "line": 340,
+      "severity": "nit",
+      "issue": "The doc comment repeats the @deprecated annotation's message as an @deprecated tag inside the comment body, which is pure duplication of information Scaladoc already renders from the annotation above (and no other @deprecated member in this file/comparable stdlib files duplicates the tag this way, e.g. TrieMap.lookup and LinkedHashMap.LinkedKeySet do not).",
+      "suggestion": "Drop the @deprecated tag from inside the comment; keep just the one-sentence description.",
+      "confidence": "medium",
+      "needs_human": false
+    },
+    {
+      "symbol": "isValidByte/isValidShort/isValidChar/isValidInt",
+      "line": 291,
+      "severity": "nit",
+      "issue": "Applies to all 4 occurrences (lines 291, 294, 297, 300): each single-sentence doc is split across two lines with the closing */ alone on its own line, inconsistent with other one-sentence comments in the same file that stay on one line (e.g. line 276 'Returns the hash code for this BigInt.', line 345 'underlying').",
+      "suggestion": "Collapse each to a single line: `/** Returns \\`true\\` if this \\`BigInt\\` can be represented as a \\`Byte\\`, \\`false\\` otherwise. */`",
+      "confidence": "medium",
+      "needs_human": false
+    }
+  ],
+  "bonus_findings": []
+}
+

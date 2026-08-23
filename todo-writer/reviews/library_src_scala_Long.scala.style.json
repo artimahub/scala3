@@ -1,0 +1,69 @@
+{
+  "verdict": "approve",
+  "findings": [
+    {
+      "declaration": "def toByte: Byte",
+      "severity": "ok",
+      "confidence": "high",
+      "needs_human": false,
+      "comment": "Clear, standalone first sentence. Begins with 'Returns', no @return needed. Correct wiki-link, appropriate altitude."
+    },
+    {
+      "declaration": "def toShort: Short",
+      "severity": "ok",
+      "confidence": "high",
+      "needs_human": false,
+      "comment": "Same pattern as toByte; consistent and correct."
+    },
+    {
+      "declaration": "def toChar: Char",
+      "severity": "ok",
+      "confidence": "high",
+      "needs_human": false,
+      "comment": "Same pattern as toByte; consistent and correct."
+    },
+    {
+      "declaration": "def toInt: Int",
+      "severity": "ok",
+      "confidence": "high",
+      "needs_human": false,
+      "comment": "Correctly uses 'an [[scala.Int]]'. Consistent with siblings."
+    },
+    {
+      "declaration": "def toLong: Long",
+      "severity": "ok",
+      "confidence": "high",
+      "needs_human": false,
+      "comment": "'Returns this value unchanged.' is concise, accurate, and matches the pattern in Int.scala and friends."
+    },
+    {
+      "declaration": "def toFloat: Float",
+      "severity": "ok",
+      "confidence": "high",
+      "needs_human": false,
+      "comment": "Precision caveat folded into the description as a trailing clause - clean, no @return needed."
+    },
+    {
+      "declaration": "def toDouble: Double",
+      "severity": "ok",
+      "confidence": "high",
+      "needs_human": false,
+      "comment": "Same pattern as toFloat; consistent and correct."
+    },
+    {
+      "declaration": "implicit def long2float(x: Long): Float",
+      "severity": "nit",
+      "confidence": "high",
+      "needs_human": false,
+      "comment": "The description 'Returns `x` converted to a [[scala.Float]].' begins with 'Returns' but omits the precision caveat, which is instead pushed into the @return. The @return is therefore justified (it adds the missing edge case), but the split is mildly inconsistent with the sibling `toFloat` doc, which folds the caveat into the description and drops @return entirely. Consider: 'Returns `x` converted to a [[scala.Float]], which may lose precision.' and drop the @return. Minor: @return uses backtick `Float` while description uses wiki-link `[[scala.Float]]`; prefer the wiki-link form consistently."
+    },
+    {
+      "declaration": "implicit def long2double(x: Long): Double",
+      "severity": "nit",
+      "confidence": "high",
+      "needs_human": false,
+      "comment": "Same nit as long2float: precision caveat lives only in the @return, inconsistent with the toDouble sibling. Consider folding into the description and dropping @return. Also, @return uses backtick `Double` while description uses `[[scala.Double]]`."
+    }
+  ],
+  "bonus_findings": []
+}

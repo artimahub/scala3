@@ -1,0 +1,21 @@
+{
+  "verdict": "approve",
+  "items": [
+    {
+      "declaration": "class AbstractFunction19",
+      "severity": "ok",
+      "confidence": "high",
+      "needs_human": false,
+      "comment": "Summary sentence and all 19 @tparam entries plus @tparam R are accurate given the empty class body (extends Function19 only) and correctly ordered ordinals. Style matches the established AbstractFunction1 pattern: declarative first sentence, wiki-style [[scala.Function19]] link, lowercase/no-period tag continuations."
+    }
+  ],
+  "bonus_findings": [
+    {
+      "declaration": "class AbstractFunction19 (cross-file consistency)",
+      "note": "Sibling files AbstractFunction15-18 use a different phrasing convention: a two-paragraph form ('`AbstractFunctionN` is a base class for ... implementations.' / 'Extending this class allows ...') and describe @tparam R as 'the return type of this function', whereas this file (and AbstractFunction1) use a single-paragraph form and 'the result type of the function'. Not inaccurate, but the AbstractFunctionN family is inconsistent across files. Pre-existing pattern split, not introduced by this diff."
+    }
+  ]
+}
+
+
+No blockers found — the diff is approved. Only a minor cross-file phrasing inconsistency noted as a bonus finding (AbstractFunction15-18 use different wording conventions than AbstractFunction1/19), which doesn't affect the verdict.

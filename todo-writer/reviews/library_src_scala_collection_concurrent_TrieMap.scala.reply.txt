@@ -1,0 +1,841 @@
+<<<<<<< SEARCH
+  /** Creates a new INode with the specified generation and equivalence relation.
+   *
+   *  @param g the generation to use for this INode
+   *  @param equiv the equivalence relation for comparing keys
+   */
+=======
+  /** Initializes a new INode with the specified generation and equivalence relation, setting its main node to null.
+   *
+   *  @param g the generation to use for this INode
+   *  @param equiv the equivalence relation for comparing keys
+   */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Atomically sets the main node of this INode to the specified value.
+   *
+   *  @param nval the new main node value to set
+   */
+=======
+  /** Atomically writes the specified main node value to this INode using a low-level atomic reference update.
+   *
+   *  @param nval the new main node value to set
+   */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Reads the main node of this INode using the GCAS (Generalized Compare-And-Set) protocol.
+   *
+   *  @param ct the TrieMap instance
+   *  @return the current main node, or null if not available
+   */
+=======
+  /** Internal implementation of `gcasRead` that follows the GCAS protocol to read the main node, handling pending operations.
+   *
+   *  @param ct the TrieMap instance
+   *  @return the current main node, or null if not available
+   */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Atomically updates the main node of this INode from the expected old value to the new value using the GCAS protocol.
+   *
+   *  @param old the expected current main node value
+   *  @param n the new main node value to set
+   *  @param ct the TrieMap instance
+   *  @return true if the update was successful, false otherwise
+   */
+=======
+  /** Atomically updates the main node from the expected old value to the new value using the GCAS protocol, ensuring atomicity across concurrent operations.
+   *
+   *  @param old the expected current main node value
+   *  @param n the new main node value to set
+   *  @param ct the TrieMap instance
+   *  @return true if the update was successful, false otherwise
+   */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Creates a copy of this INode with the specified new generation.
+   *
+   *  @param ngen the new generation to use for the copied INode
+   *  @param ct the TrieMap instance
+   */
+=======
+  /** Creates a deep copy of this INode with the specified generation, used for snapshot operations.
+   *
+   *  @param ngen the new generation to use for the copied INode
+   *  @param ct the TrieMap instance
+   */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Checks whether this INode's current main node (as read via GCAS) is null.
+   *
+   *  @param ct the TrieMap instance
+   */
+=======
+  /** Checks if this INode’s main node, as read via GCAS, is null.
+   *
+   *  @param ct the TrieMap instance
+   */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Always throws `UnsupportedOperationException`; FailedNode does not support string representation.
+   *
+   *  @param lev the current level in the trie
+   *  @throws UnsupportedOperationException always
+   */
+=======
+  /** Throws `UnsupportedOperationException` because FailedNode is an internal transient state and does not support string representation.
+   *
+   *  @param lev the current level in the trie
+   *  @throws UnsupportedOperationException always
+   */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Always throws `UnsupportedOperationException`; FailedNode does not support size queries.
+   *
+   *  @param ct unused
+   *  @throws UnsupportedOperationException always
+   */
+=======
+  /** Throws `UnsupportedOperationException` because FailedNode is an internal transient state and does not support size queries.
+   *
+   *  @param ct unused
+   *  @throws UnsupportedOperationException always
+   */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Creates a tombed copy of this SNode.
+   */
+=======
+  /** Creates a tombed copy of this SNode, marking it for removal in the trie structure.
+   */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Creates an untombed copy of this SNode.
+   */
+=======
+  /** Creates an untombed copy of this SNode, restoring it to a live state in the trie.
+   */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Creates a tombed copy of this TNode.
+   */
+=======
+  /** Returns this TNode, which is already tombed.
+   */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Creates an untombed copy of this TNode.
+   */
+=======
+  /** Creates an untombed SNode copy of this TNode, restoring it to a live state.
+   */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Creates a new LNode with a single key-value pair.
+   *
+   *  @param k the key
+   *  @param v the value
+   *  @param equiv the equivalence relation for comparing keys
+   */
+=======
+  /** Initializes a new LNode with a single key-value pair to handle hash collisions.
+   *
+   *  @param k the key
+   *  @param v the value
+   *  @param equiv the equivalence relation for comparing keys
+   */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Creates a new LNode with two key-value pairs, or just the second pair if the keys are equivalent per `equiv`.
+   *
+   *  @param k1 the first key
+   *  @param v1 the first value
+   *  @param k2 the second key
+   *  @param v2 the second value
+   *  @param equiv the equivalence relation for comparing keys
+   */
+=======
+  /** Initializes a new LNode with two key-value pairs, deduplicating keys if they are equivalent per `equiv`.
+   *
+   *  @param k1 the first key
+   *  @param v1 the first value
+   *  @param k2 the second key
+   *  @param v2 the second value
+   *  @param equiv the equivalence relation for comparing keys
+   */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Inserts a new key-value pair into this LNode.
+   *
+   *  @param k the key to insert
+   *  @param v the value to associate with the key
+   *  @return the new LNode with the pair inserted
+   */
+=======
+  /** Inserts or replaces a key-value pair in this LNode, handling hash collisions.
+   *
+   *  @param k the key to insert
+   *  @param v the value to associate with the key
+   *  @return the new LNode with the pair inserted
+   */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Removes the key-value pair with the specified key from this LNode.
+   *
+   *  @param k the key to remove
+   *  @param ct the TrieMap instance
+   *  @return the new main node after removal
+   */
+=======
+  /** Removes the key-value pair with the specified key, returning a TNode if the LNode would contain only one pair.
+   *
+   *  @param k the key to remove
+   *  @param ct the TrieMap instance
+   *  @return the new main node after removal
+   */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Always returns `-1`: an LNode's size is never precomputed.
+   */
+=======
+  /** Returns -1 to indicate that the size of this LNode is not precomputed due to the underlying list structure.
+   */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Returns the cached size of this CNode.
+   *
+   *  @param ct the TrieMap instance
+   *  @return the cached size
+   */
+=======
+  /** Returns the cached size of this CNode, computing it if necessary in a thread-safe manner.
+   *
+   *  @param ct the TrieMap instance
+   *  @return the cached size
+   */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Creates a new CNode with the specified node at the given position.
+   *
+   *  @param pos the position to update
+   *  @param nn the new node to insert
+   *  @param gen the generation to use for the new CNode
+   */
+=======
+  /** Creates a new CNode with the specified node at the given position, preserving the bitmap and generation.
+   *
+   *  @param pos the position to update
+   *  @param nn the new node to insert
+   *  @param gen the generation to use for the new CNode
+   */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Creates a new CNode with the node at the specified position removed.
+   *
+   *  @param pos the position to remove
+   *  @param flag the flag corresponding to the position
+   *  @param gen the generation to use for the new CNode
+   */
+=======
+  /** Creates a new CNode with the node at the specified position removed, updating the bitmap accordingly.
+   *
+   *  @param pos the position to remove
+   *  @param flag the flag corresponding to the position
+   *  @param gen the generation to use for the new CNode
+   */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Creates a new CNode with the specified key-value pair inserted at the given position.
+   *
+   *  @param pos the position to insert at
+   *  @param flag the flag corresponding to the position
+   *  @param k the key to insert
+   *  @param v the value to associate with the key
+   *  @param hc the hash code of the key
+   *  @param gen the generation to use for the new CNode
+   */
+=======
+  /** Creates a new CNode with the specified key-value pair inserted at the given position, updating the bitmap to include the new flag.
+   *
+   *  @param pos the position to insert at
+   *  @param flag the flag corresponding to the position
+   *  @param k the key to insert
+   *  @param v the value to associate with the key
+   *  @param hc the hash code of the key
+   *  @param gen the generation to use for the new CNode
+   */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Returns a contracted version of this node.
+   *
+   *  @param lev the current level in the trie
+   *  @return the contracted node, which may be a tombed leaf instead of a CNode
+   */
+=======
+  /** Returns a contracted version of this CNode, optimizing the trie structure by reducing branching if possible.
+   *
+   *  @param lev the current level in the trie
+   *  @return the contracted node, which may be a tombed leaf instead of a CNode
+   */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Returns a compressed, and possibly contracted, version of this node.
+   *
+   *  @param ct the TrieMap instance
+   *  @param lev the current level in the trie
+   *  @param gen the generation to use for the new node
+   */
+=======
+  /** Returns a compressed version of this CNode, removing null i-nodes and potentially contracting the result.
+   *
+   *  @param ct the TrieMap instance
+   *  @param lev the current level in the trie
+   *  @param gen the generation to use for the new node
+   */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Creates a new node combining `x` and `y`: an LNode if the hash bits are exhausted (`lev >= 35`), otherwise a CNode.
+   *
+   *  @tparam K the type of keys
+   *  @tparam V the type of values
+   *  @param x the first node
+   *  @param xhc the hash code of the first node
+   *  @param y the second node
+   *  @param yhc the hash code of the second node
+   *  @param lev the current level in the trie
+   *  @param gen the generation to use for the new node
+   *  @param equiv the equivalence relation for comparing keys
+   *  @return the new node
+   */
+=======
+  /** Creates a new node combining `x` and `y`, choosing an LNode if hash bits are exhausted (lev >= 35) to avoid further branching.
+   *
+   *  @tparam K the type of keys
+   *  @tparam V the type of values
+   *  @param x the first node
+   *  @param xhc the hash code of the first node
+   *  @param y the second node
+   *  @param yhc the hash code of the second node
+   *  @param lev the current level in the trie
+   *  @param gen the generation to use for the new node
+   *  @param equiv the equivalence relation for comparing keys
+   *  @return the new node
+   */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Returns the hashing function used by this TrieMap.
+   */
+=======
+  /** Returns the hashing function used to compute hash codes for keys in this TrieMap.
+   */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Creates a new TrieMap with the specified hashing function and equivalence relation.
+   *
+   *  @param hashf the hashing function
+   *  @param ef the equivalence relation
+   */
+=======
+  /** Initializes a new TrieMap with the specified hashing function and equivalence relation for key comparison.
+   *
+   *  @param hashf the hashing function
+   *  @param ef the equivalence relation
+   */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Creates a new TrieMap with the default hashing function and equivalence relation.
+   */
+=======
+  /** Initializes a new TrieMap with default universal equivalence and hashing for key comparison.
+   */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Returns the map factory for TrieMap.
+   */
+=======
+  /** Returns the TrieMap companion object as the factory for creating new TrieMap instances.
+   */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Returns a string representation of this TrieMap.
+   */
+=======
+  /** Returns a string representation of the trie structure rooted at this TrieMap’s root node.
+   */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Checks if this TrieMap is read-only.
+   */
+=======
+  /** Checks if this TrieMap is a read-only snapshot, indicated by a null root updater.
+   */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Checks if this TrieMap is not read-only.
+   */
+=======
+  /** Checks if this TrieMap is mutable, indicated by a non-null root updater.
+   */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Clears this TrieMap.
+   */
+=======
+  /** Atomically clears this TrieMap, removing all key-value pairs in a lock-free manner.
+   */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Computes the hash code for the specified key.
+   *
+   *  @param k the key to compute the hash code for
+   */
+=======
+  /** Computes the hash code for the specified key using this TrieMap’s hashing function.
+   *
+   *  @param k the key to compute the hash code for
+   */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Looks up the value associated with the specified key.
+   *
+   *  @param k the key to look up
+   *  @return the value associated with the key, or null if not found
+   */
+=======
+  /** Deprecated. Looks up the value associated with the key, returning null if not found.
+   *
+   *  @param k the key to look up
+   *  @return the value associated with the key, or null if not found
+   */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Returns the value associated with the specified key.
+   *
+   *  @param k the key to look up
+   *  @return the value associated with the key
+   *  @throws NoSuchElementException if the key is not found
+   */
+=======
+  /** Returns the value associated with the key, throwing NoSuchElementException if not found.
+   *
+   *  @param k the key to look up
+   *  @return the value associated with the key
+   *  @throws NoSuchElementException if the key is not found
+   */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Inserts a key-value pair into this TrieMap.
+   *
+   *  @param key the key to insert
+   *  @param value the value to associate with the key
+   *  @return the previous value associated with the key, or None if not found
+   */
+=======
+  /** Inserts or overwrites the key-value pair, returning the previous value if any.
+   *
+   *  @param key the key to insert
+   *  @param value the value to associate with the key
+   *  @return the previous value associated with the key, or None if not found
+   */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Updates the value associated with the specified key.
+   *
+   *  @param k the key to update
+   *  @param v the new value to associate with the key
+   */
+=======
+  /** Inserts or updates the value associated with the specified key.
+   *
+   *  @param k the key to update
+   *  @param v the new value to associate with the key
+   */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Adds a key-value pair to this TrieMap.
+   *
+   *  @param kv the key-value pair to add
+   */
+=======
+  /** Adds a key-value pair to this TrieMap by delegating to `update`, returning the TrieMap for method chaining.
+   *
+   *  @param kv the key-value pair to add
+   */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Removes the key-value pair with the specified key from this TrieMap.
+   *
+   *  @param k the key to remove
+   *  @return the previous value associated with the key, or None if not found
+   */
+=======
+  /** Removes the key-value pair with the specified key unconditionally, returning the previous value if any.
+   *
+   *  @param k the key to remove
+   *  @return the previous value associated with the key, or None if not found
+   */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Removes the key-value pair with the specified key from this TrieMap.
+   *
+   *  @param k the key to remove
+   */
+=======
+  /** Removes the key-value pair with the specified key by delegating to `remove`, returning the TrieMap for method chaining.
+   *
+   *  @param k the key to remove
+   */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Inserts a key-value pair into this TrieMap if the key is not already present.
+   *
+   *  @param k the key to insert
+   *  @param v the value to associate with the key
+   *  @return the previous value associated with the key, or None if not found
+   */
+=======
+  /** Inserts the key-value pair only if the key is not already present, returning the previous value if any.
+   *
+   *  @param k the key to insert
+   *  @param v the value to associate with the key
+   *  @return the previous value associated with the key, or None if not found
+   */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  // TODO once computeIfAbsent is added to concurrent.Map,
+  // move the comment there and tweak the 'at most once' part
+  /** If the specified key is not already in the map, computes its value using
+   *  the given thunk `defaultValue` and enters it into the map.
+   *
+   *  If the specified mapping function throws an exception,
+   *  that exception is rethrown.
+   *
+   *  Note: This method will invoke `defaultValue` at most once.
+   *  However, `defaultValue` may be invoked without the result being added to the map if
+   *  a concurrent process is also trying to add a value corresponding to the
+   *  same key `k`.
+   *
+   *  @param k      the key to modify
+   *  @param defaultValue     the expression that computes the value
+   *  @return       the newly added value
+   */
+=======
+  // TODO once computeIfAbsent is added to concurrent.Map,
+  // move the comment there and tweak the 'at most once' part
+  /** Returns the value associated with the key, or computes and inserts it using `defaultValue` if absent. The `defaultValue` is evaluated lazily and at most once.
+   *
+   *  If the specified mapping function throws an exception,
+   *  that exception is rethrown.
+   *
+   *  Note: This method will invoke `defaultValue` at most once.
+   *  However, `defaultValue` may be invoked without the result being added to the map if
+   *  a concurrent process is also trying to add a value corresponding to the
+   *  same key `k`.
+   *
+   *  @param k      the key to modify
+   *  @param defaultValue     the expression that computes the value
+   *  @return       the newly added value
+   */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Removes the key-value pair with the specified key and value from this TrieMap.
+   *
+   *  @param k the key to remove
+   *  @param v the value to compare against the current value associated with the key
+   *  @return true if the key-value pair was removed, false otherwise
+   */
+=======
+  /** Removes the key-value pair only if the current value matches `v`, returning true if removed.
+   *
+   *  @param k the key to remove
+   *  @param v the value to compare against the current value associated with the key
+   *  @return true if the key-value pair was removed, false otherwise
+   */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Replaces the value associated with the specified key if it matches the expected old value.
+   *
+   *  @param k the key to replace
+   *  @param oldvalue the expected old value
+   *  @param newvalue the new value to associate with the key
+   *  @return true if the replacement was successful, false otherwise
+   */
+=======
+  /** Replaces the value associated with the key only if the current value matches `oldvalue`, returning true if replaced.
+   *
+   *  @param k the key to replace
+   *  @param oldvalue the expected old value
+   *  @param newvalue the new value to associate with the key
+   *  @return true if the replacement was successful, false otherwise
+   */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Replaces the value associated with the specified key.
+   *
+   *  @param k the key to replace
+   *  @param v the new value to associate with the key
+   *  @return the previous value associated with the key, or None if not found
+   */
+=======
+  /** Replaces the value associated with the key only if the key is present, returning the previous value if any.
+   *
+   *  @param k the key to replace
+   *  @param v the new value to associate with the key
+   *  @return the previous value associated with the key, or None if not found
+   */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Returns an iterator over the key-value pairs in this TrieMap.
+   */
+=======
+  /** Returns an iterator over the key-value pairs, using a read-only snapshot if the TrieMap is mutable.
+   */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Returns an iterable over the values in this TrieMap.
+   */
+=======
+  /** Returns an iterable over the values, using a read-only snapshot if the TrieMap is mutable.
+   */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Returns a set of the keys in this TrieMap.
+   */
+=======
+  /** Returns a set of the keys, using a read-only snapshot if the TrieMap is mutable.
+   */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Returns a view of this TrieMap.
+   */
+=======
+  /** Returns a view of this TrieMap, using a read-only snapshot if the TrieMap is mutable.
+   */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Returns the size of this TrieMap.
+   */
+=======
+  /** Returns the size of this TrieMap, using a read-only snapshot if the TrieMap is mutable.
+   */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Returns the known size of this TrieMap.
+   */
+=======
+  /** Returns the known size of this TrieMap, or -1 if the size is not precomputed due to concurrent modifications.
+   */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Checks if this TrieMap is empty.
+   */
+=======
+  /** Checks if this TrieMap is empty, using a read-only snapshot if the TrieMap is mutable.
+   */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Returns the class name of this TrieMap.
+   */
+=======
+  /** Returns the class name of this TrieMap for use in string representation.
+   */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Returns the last key-value pair, or `None` if this TrieMap is empty or if the last element cannot be retrieved.
+   */
+=======
+  /** Returns the last key-value pair, or None if the TrieMap is empty or the last element cannot be retrieved due to concurrent modifications.
+   */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Returns an empty TrieMap.
+   *
+   *  @tparam K the type of keys
+   *  @tparam V the type of values
+   *  @return an empty TrieMap
+   */
+=======
+  /** Returns a new empty TrieMap with default hashing and equivalence.
+   *
+   *  @tparam K the type of keys
+   *  @tparam V the type of values
+   *  @return an empty TrieMap
+   */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Creates a new TrieMap from the specified iterable.
+   *
+   *  @tparam K the type of keys
+   *  @tparam V the type of values
+   *  @param it the iterable to create the TrieMap from
+   *  @return a new TrieMap containing the key-value pairs from the iterable
+   */
+=======
+  /** Creates a new TrieMap populated with the key-value pairs from the specified iterable.
+   *
+   *  @tparam K the type of keys
+   *  @tparam V the type of values
+   *  @param it the iterable to create the TrieMap from
+   *  @return a new TrieMap containing the key-value pairs from the iterable
+   */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Returns a new builder for TrieMap.
+   *
+   *  @tparam K the type of keys
+   *  @tparam V the type of values
+   *  @return a new builder for TrieMap
+   */
+=======
+  /** Returns a new builder for constructing TrieMaps from key-value pairs.
+   *
+   *  @tparam K the type of keys
+   *  @tparam V the type of values
+   *  @return a new builder for TrieMap
+   */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Computes the hash code for the specified key.
+   *
+   *  @param k the key to compute the hash code for
+   *  @return the hash code
+   */
+=======
+  /** Computes and mangles the hash code of the key for better distribution in the TrieMap.
+   *
+   *  @param k the key to compute the hash code for
+   *  @return the hash code
+   */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Returns the key-value pair stored in this node.
+   */
+=======
+  /** Returns the key-value pair stored in this node, used for iteration and string representation.
+   */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Returns the cached size of this INode.
+   *
+   *  @param ct the TrieMap instance
+   *  @return the cached size
+   */
+=======
+  /** Returns the cached size of this INode.
+   *
+   *  @param ct the TrieMap instance
+   */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Returns the known size of this INode.
+   *
+   *  @param ct the TrieMap instance
+   *  @return the known size
+   */
+=======
+  /** Returns the known size of this INode.
+   *
+   *  @param ct the TrieMap instance
+   */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Returns a string representation of this INode.
+   *
+   *  @param lev the current level in the trie
+   *  @return a string representation
+   */
+=======
+  /** Returns a string representation of this INode.
+   *
+   *  @param lev the current level in the trie
+   */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Returns a view of this TrieMap with keys filtered by the specified predicate.
+   *
+   *  @param p the predicate to filter keys by
+   *  @return a view of this TrieMap with keys filtered by the predicate
+   */
+=======
+  /** Returns a view of this TrieMap with keys filtered by the specified predicate.
+   *
+   *  @param p the predicate to filter keys by
+   */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Returns a view of this TrieMap with values transformed by the specified function.
+   *
+   *  @tparam W the type of the transformed values
+   *  @param f the function to transform values with
+   *  @return a view of this TrieMap with values transformed by the function
+   */
+=======
+  /** Returns a view of this TrieMap with values transformed by the specified function.
+   *
+   *  @tparam W the type of the transformed values
+   *  @param f the function to transform values with
+   */
+>>>>>>> REPLACE

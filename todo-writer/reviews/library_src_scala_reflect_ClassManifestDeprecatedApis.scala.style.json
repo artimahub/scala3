@@ -1,0 +1,97 @@
+{
+  "verdict": "approve",
+  "needs_human": false,
+  "items": [
+    {
+      "declaration": "trait ClassManifestDeprecatedApis[T]",
+      "severity": "ok",
+      "confidence": "high"
+    },
+    {
+      "declaration": "erasure",
+      "severity": "ok",
+      "confidence": "high"
+    },
+    {
+      "declaration": "canEqual",
+      "severity": "ok",
+      "confidence": "high"
+    },
+    {
+      "declaration": "arrayClass",
+      "severity": "nit",
+      "confidence": "medium",
+      "note": "The @return packs the return description and the unchecked-cast caveat into one semicolon-joined clause, denser than the file's other one-phrase @return tags. Not inaccurate."
+    },
+    {
+      "declaration": "arrayManifest",
+      "severity": "ok",
+      "confidence": "high"
+    },
+    {
+      "declaration": "newArray2 / newArray3 / newArray4 / newArray5",
+      "severity": "ok",
+      "confidence": "high",
+      "note": "Verified each delegates to java.lang.reflect.Array.newInstance with the correct nested component-class depth; \"whose elements are all null\" is accurate since reference-type array elements default-initialize to null."
+    },
+    {
+      "declaration": "newWrappedArray",
+      "severity": "ok",
+      "confidence": "high"
+    },
+    {
+      "declaration": "newArrayBuilder",
+      "severity": "ok",
+      "confidence": "high"
+    },
+    {
+      "declaration": "typeArguments",
+      "severity": "nit",
+      "confidence": "low",
+      "note": "This exact implementation always returns List() (never non-Nil); the doc's \"or Nil if there are none\" phrasing describes the general overridable contract rather than this specific body. Common/acceptable Scaladoc practice for an overridable trait member, not flagging as a blocker."
+    },
+    {
+      "declaration": "argString",
+      "severity": "nit",
+      "confidence": "medium",
+      "note": "Accurate but a dense run-on sentence covering all three branches; could be split for readability."
+    },
+    {
+      "declaration": "ClassManifestFactory.fromClass",
+      "severity": "ok",
+      "confidence": "high"
+    },
+    {
+      "declaration": "ClassManifestFactory.singleType",
+      "severity": "ok",
+      "confidence": "high",
+      "note": "Verified against Manifest.scala's SingletonTypeManifest: runtimeClass and toString are lazy vals computed from value.getClass/value.toString, so the null-related @param and @return claims are accurate."
+    },
+    {
+      "declaration": "ClassManifestFactory.arrayType",
+      "severity": "ok",
+      "confidence": "high"
+    },
+    {
+      "declaration": "AbstractTypeClassManifest.runtimeClass",
+      "severity": "nit",
+      "confidence": "low",
+      "note": "\"Returns the runtime class supplied as the erasure of the abstract type\" is accurate but slightly awkward phrasing; \"the runtime class that was supplied...\" reads more clearly."
+    },
+    {
+      "declaration": "AbstractTypeClassManifest.toString",
+      "severity": "ok",
+      "confidence": "high"
+    },
+    {
+      "declaration": "ClassTypeManifest.toString",
+      "severity": "nit",
+      "confidence": "medium",
+      "note": "Accurate but a long run-on sentence covering all three concatenation parts; could be split into clauses mapping more directly to the implementation's three lines."
+    }
+  ],
+  "bonus_findings": []
+}
+
+
+No blockers. Every changed doc comment was checked against the actual implementation (including cross-file verification of `ClassManifest`/`ClassTag` aliasing and `Manifest.singleType`'s laziness), and all are accurate. The only notes are minor style nits on a few dense/run-on sentences — none rise to "revise."

@@ -1,0 +1,38 @@
+{
+  "verdict": "approve",
+  "summary": "Reviewed documentation for `getOrElseUpdate`, `removeRefEq`, `replaceRefEq`, and `updateWith`. All changes accurately reflect the implementation, follow Scaladoc conventions, and improve readability. Verified behavior against the code for edge cases (concurrent updates, exception handling, reference vs. object equality).",
+  "items": [
+    {
+      "symbol": "getOrElseUpdate",
+      "line": 111,
+      "severity": "nit",
+      "issue": "The description of `defaultValue` could be slightly more precise: it is evaluated lazily (as indicated by the by-name parameter), but the doc does not explicitly state this.",
+      "suggestion": "Change `@param defaultValue the value to be computed and stored if the key is absent (unless another thread inserts a value first)` to `@param defaultValue the value to be computed (lazily) and stored if the key is absent (unless another thread inserts a value first)`",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "updateWith",
+      "line": 167,
+      "severity": "nit",
+      "issue": "The `@throws` tag is correct but could be more specific about the exception being rethrown as-is, without wrapping or suppression.",
+      "suggestion": "Change `@throws the exception thrown by `remappingFunction` if it fails.` to `@throws the exception thrown by `remappingFunction`, propagated without modification.`",
+      "confidence": "high",
+      "needs_human": false
+    }
+  ],
+  "bonus_findings": [
+    {
+      "symbol": "replace",
+      "line": 82,
+      "issue": "The `@return` tag for `replace(k: K, oldvalue: V, newvalue: V)` states `true` if the entry was replaced, but the description does not mention that replacement is atomic. This is not part of the diff, but worth noting for consistency.",
+      "suggestion": "Add a note in the description: `The replacement is atomic, ensuring thread safety.`"
+    },
+    {
+      "symbol": "replace",
+      "line": 94,
+      "issue": "The `@return` tag for `replace(k: K, v: V)` uses `Some(v)` but does not clarify that `v` is the *previous* value, not the newly inserted one. This is not part of the diff, but could confuse readers.",
+      "suggestion": "Change `@return    `Some(v)` if the given key was previously mapped to some value `v`, or `None` otherwise` to `@return    `Some(oldValue)` if the key was previously mapped to `oldValue`, or `None` otherwise`"
+    }
+  ]
+}

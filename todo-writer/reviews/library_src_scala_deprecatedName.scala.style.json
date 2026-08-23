@@ -1,0 +1,28 @@
+{
+  "verdict": "approve",
+  "items": [
+    {
+      "declaration": "class deprecatedName — doc comment immediately preceding the class declaration",
+      "first_sentence": "An annotation that designates that the name of a parameter is deprecated.",
+      "severity": "ok",
+      "confidence": "high",
+      "needs_human": false,
+      "notes": "First sentence stands alone as an API-index summary. Declarative, third-person, present tense, no self-reference. Identical to the leading sentence of the pre-existing outer doc comment, which is appropriate given the two-comment structure."
+    },
+    {
+      "declaration": "@param name",
+      "severity": "ok",
+      "confidence": "high",
+      "needs_human": false,
+      "notes": "Starts lowercase, no trailing period. The semicolon clause 'if omitted, using the canonical name is deprecated' adds useful semantics beyond what the default value alone signals."
+    },
+    {
+      "declaration": "@param since",
+      "severity": "ok",
+      "confidence": "high",
+      "needs_human": false,
+      "notes": "Starts lowercase, no trailing period, concise and unambiguous."
+    }
+  ],
+  "bonus_findings": []
+}

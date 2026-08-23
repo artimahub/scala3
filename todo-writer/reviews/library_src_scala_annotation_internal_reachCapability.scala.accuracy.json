@@ -1,0 +1,1 @@
+{"verdict":"approve","summary":"Documentation matches the implementation: `reachCapability` is only a deprecated marker annotation whose doc describes the intended capture-checking encoding.","items":[],"bonus_findings":[]}

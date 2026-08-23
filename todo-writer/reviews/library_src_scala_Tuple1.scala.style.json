@@ -1,0 +1,15 @@
+{
+  "items": [
+    {
+      "declaration": "Tuple1.toString",
+      "severity": "nit",
+      "confidence": "high",
+      "needs_human": false,
+      "comment": "Accurate: `\"(\" + _1 + \")\"` does produce the element enclosed in parentheses with no trailing comma, matching the doc. Style nit: the comma splice 'Returns a string representation of this tuple, the element enclosed in parentheses.' reads as a dangling fragment after the comma rather than a grammatical continuation. Consider 'Returns a string representation of this tuple, with the element enclosed in parentheses.' for grammatical correctness and closer consistency with the neighboring `Tuple.scala` empty-tuple toString doc ('Returns the string representation of the empty tuple, `\"()\"`.')."
+    }
+  ],
+  "needs_human": false,
+  "verdict": "approve",
+  "bonus_findings": []
+}
+

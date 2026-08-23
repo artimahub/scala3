@@ -1,0 +1,172 @@
+# Doc review digest: library/src/scala/concurrent/duration/Duration.scala
+
+- models: writer devstral-2512 | accuracy mistral-medium-2508 | style mistral-large-2512 | adjudicator devstral-2512
+- converged: false (up to 2 rounds)
+- final refinement after review limit: true (not re-reviewed)
+- accuracy verdict: approve
+- style verdict: revise
+- ADJUDICATOR verdict (final): revise
+
+## Reviewer disagreements the adjudicator settled
+
+- L104 `timeUnitName` -> ruled for **style**
+  - accuracy: 
+  - style: Remove the `@return` tag and clarify the first sentence to specify the mapping is to the last word of the `timeUnitLabels` entry.
+  - why: The `@return` tag is redundant with the first sentence, and the clarification improves the description.
+- L110 `timeUnit` -> ruled for **style**
+  - accuracy: 
+  - style: Remove the `@return` tag and clarify the first sentence to specify the mapping includes all expanded labels.
+  - why: The `@return` tag is redundant with the first sentence, and the clarification improves the description.
+- L215 `Infinite.+` -> ruled for **style**
+  - accuracy: 
+  - style: Add an `@return` tag describing all edge cases.
+  - why: The `@return` tag is necessary to fully describe the return behavior, including edge cases.
+- L228 `Infinite.-` -> ruled for **style**
+  - accuracy: 
+  - style: Add an `@return` tag describing all edge cases.
+  - why: The `@return` tag is necessary to fully describe the return behavior, including edge cases.
+- L240 `Infinite.*` -> ruled for **style**
+  - accuracy: 
+  - style: Update the description to include `NaN` and add an `@return` tag.
+  - why: The description must include all edge cases, and the `@return` tag is necessary.
+- L250 `Infinite./(Double)` -> ruled for **style**
+  - accuracy: 
+  - style: Clarify the description to match the implementation and add an `@return` tag.
+  - why: The description must accurately reflect the implementation, and the `@return` tag is necessary.
+- L260 `Infinite./(Duration)` -> ruled for **style**
+  - accuracy: 
+  - style: Clarify the description to specify the sign logic and add an `@return` tag.
+  - why: The description must include all edge cases, and the `@return` tag is necessary.
+- L272 `Infinite.isFinite` -> ruled for **style**
+  - accuracy: 
+  - style: Remove the first sentence and keep only the `@return` tag.
+  - why: The first sentence is redundant with the `@return` tag.
+- L277 `Infinite.length` -> ruled for **style**
+  - accuracy: 
+  - style: Remove the first sentence and keep only the `@throws` tag.
+  - why: The first sentence is redundant with the `@throws` tag.
+- L312 `Infinite.toCoarsest` -> ruled for **style**
+  - accuracy: 
+  - style: Remove the first sentence and keep only the `@return` tag.
+  - why: The first sentence is redundant with the `@return` tag.
+- L427 `DurationIsOrdered.compare` -> ruled for **style**
+  - accuracy: 
+  - style: Update the description to explicitly state the ordering of `Undefined`.
+  - why: The description must include all edge cases.
+- L735 `FiniteDuration.apply(Long, TimeUnit)` -> ruled for **style**
+  - accuracy: 
+  - style: Add an `@throws` tag to document the exception.
+  - why: The exception must be documented for callers.
+- L742 `FiniteDuration.apply(Long, String)` -> ruled for **style**
+  - accuracy: 
+  - style: Add `@throws` tags to document the exceptions.
+  - why: The exceptions must be documented for callers.
+- L835 `FiniteDuration.toUnit` -> ruled for **style**
+  - accuracy: 
+  - style: Add an `@throws` tag to document the exception.
+  - why: The exception must be documented for callers.
+- L842 `FiniteDuration.compare` -> ruled for **style**
+  - accuracy: 
+  - style: Remove the `@return` tag and keep the first sentence.
+  - why: The `@return` tag is redundant with the first sentence.
+- L863 `FiniteDuration.+` -> ruled for **style**
+  - accuracy: 
+  - style: Update the description to specify the edge cases.
+  - why: The description must include all edge cases.
+- L870 `FiniteDuration.-` -> ruled for **style**
+  - accuracy: 
+  - style: Update the description to specify the edge cases.
+  - why: The description must include all edge cases.
+- L893 `FiniteDuration.*` -> ruled for **style**
+  - accuracy: 
+  - style: Update the description to specify the edge cases and add an `@return` tag.
+  - why: The description must include all edge cases, and the `@return` tag is necessary.
+- L903 `FiniteDuration./(Double)` -> ruled for **style**
+  - accuracy: 
+  - style: Update the description to specify the edge cases and add an `@return` tag.
+  - why: The description must include all edge cases, and the `@return` tag is necessary.
+- L915 `FiniteDuration./(Duration)` -> ruled for **style**
+  - accuracy: 
+  - style: Update the description to specify the edge cases and add an `@return` tag.
+  - why: The description must include all edge cases, and the `@return` tag is necessary.
+- L930 `FiniteDuration.+ (FiniteDuration)` -> ruled for **style**
+  - accuracy: 
+  - style: Remove the `@return` tag and keep the first sentence.
+  - why: The `@return` tag is redundant with the first sentence.
+- L937 `FiniteDuration.- (FiniteDuration)` -> ruled for **style**
+  - accuracy: 
+  - style: Remove the `@return` tag and keep the first sentence.
+  - why: The `@return` tag is redundant with the first sentence.
+- L942 `FiniteDuration.plus` -> ruled for **style**
+  - accuracy: 
+  - style: Remove the `@return` tag and keep the first sentence.
+  - why: The `@return` tag is redundant with the first sentence.
+- L947 `FiniteDuration.minus` -> ruled for **style**
+  - accuracy: 
+  - style: Remove the `@return` tag and keep the first sentence.
+  - why: The `@return` tag is redundant with the first sentence.
+- L952 `FiniteDuration.min` -> ruled for **style**
+  - accuracy: 
+  - style: Remove the `@return` tag and keep the first sentence.
+  - why: The `@return` tag is redundant with the first sentence.
+- L957 `FiniteDuration.max` -> ruled for **style**
+  - accuracy: 
+  - style: Remove the `@return` tag and keep the first sentence.
+  - why: The `@return` tag is redundant with the first sentence.
+- L1004 `FiniteDuration.unary_-` -> ruled for **style**
+  - accuracy: 
+  - style: Remove the first sentence and keep only the `@return` tag.
+  - why: The first sentence is redundant with the `@return` tag.
+- L1010 `FiniteDuration.isFinite` -> ruled for **style**
+  - accuracy: 
+  - style: Remove the first sentence and keep only the `@return` tag.
+  - why: The first sentence is redundant with the `@return` tag.
+- L1015 `FiniteDuration.toCoarsest` -> ruled for **style**
+  - accuracy: 
+  - style: Update the first sentence to specify exact representation and remove the `@return` tag.
+  - why: The description must specify exact representation, and the `@return` tag is redundant.
+- L1040 `FiniteDuration.equals` -> ruled for **style**
+  - accuracy: 
+  - style: Remove the `@return` tag and keep the first sentence.
+  - why: The `@return` tag is redundant with the first sentence.
+- L1047 `FiniteDuration.hashCode` -> ruled for **style**
+  - accuracy: 
+  - style: Remove the first sentence and keep only the `@return` tag.
+  - why: The first sentence is redundant with the `@return` tag.
+
+## Outstanding worklist at the end
+
+- L104 `timeUnitName` [blocker/style]: Remove the `@return` tag and clarify the first sentence to specify the mapping is to the last word of the `timeUnitLabels` entry.
+- L110 `timeUnit` [blocker/style]: Remove the `@return` tag and clarify the first sentence to specify the mapping includes all expanded labels.
+- L215 `Infinite.+` [blocker/style]: Add an `@return` tag describing all edge cases.
+- L228 `Infinite.-` [blocker/style]: Add an `@return` tag describing all edge cases.
+- L240 `Infinite.*` [blocker/style]: Update the description to include `NaN` and add an `@return` tag.
+- L250 `Infinite./(Double)` [blocker/style]: Clarify the description to match the implementation and add an `@return` tag.
+- L260 `Infinite./(Duration)` [blocker/style]: Clarify the description to specify the sign logic and add an `@return` tag.
+- L427 `DurationIsOrdered.compare` [blocker/style]: Update the description to explicitly state the ordering of `Undefined`.
+- L735 `FiniteDuration.apply(Long, TimeUnit)` [blocker/style]: Add an `@throws` tag to document the exception.
+- L742 `FiniteDuration.apply(Long, String)` [blocker/style]: Add `@throws` tags to document the exceptions.
+- L835 `FiniteDuration.toUnit` [blocker/style]: Add an `@throws` tag to document the exception.
+- L863 `FiniteDuration.+` [blocker/style]: Update the description to specify the edge cases.
+- L870 `FiniteDuration.-` [blocker/style]: Update the description to specify the edge cases.
+- L893 `FiniteDuration.*` [blocker/style]: Update the description to specify the edge cases and add an `@return` tag.
+- L903 `FiniteDuration./(Double)` [blocker/style]: Update the description to specify the edge cases and add an `@return` tag.
+- L915 `FiniteDuration./(Duration)` [blocker/style]: Update the description to specify the edge cases and add an `@return` tag.
+- L1015 `FiniteDuration.toCoarsest` [blocker/style]: Update the first sentence to specify exact representation and remove the `@return` tag.
+- L272 `Infinite.isFinite` [nit/style]: Remove the first sentence and keep only the `@return` tag.
+- L277 `Infinite.length` [nit/style]: Remove the first sentence and keep only the `@throws` tag.
+- L312 `Infinite.toCoarsest` [nit/style]: Remove the first sentence and keep only the `@return` tag.
+- L842 `FiniteDuration.compare` [nit/style]: Remove the `@return` tag and keep the first sentence.
+- L930 `FiniteDuration.+ (FiniteDuration)` [nit/style]: Remove the `@return` tag and keep the first sentence.
+- L937 `FiniteDuration.- (FiniteDuration)` [nit/style]: Remove the `@return` tag and keep the first sentence.
+- L942 `FiniteDuration.plus` [nit/style]: Remove the `@return` tag and keep the first sentence.
+- L947 `FiniteDuration.minus` [nit/style]: Remove the `@return` tag and keep the first sentence.
+- L952 `FiniteDuration.min` [nit/style]: Remove the `@return` tag and keep the first sentence.
+- L957 `FiniteDuration.max` [nit/style]: Remove the `@return` tag and keep the first sentence.
+- L1004 `FiniteDuration.unary_-` [nit/style]: Remove the first sentence and keep only the `@return` tag.
+- L1010 `FiniteDuration.isFinite` [nit/style]: Remove the first sentence and keep only the `@return` tag.
+- L1040 `FiniteDuration.equals` [nit/style]: Remove the `@return` tag and keep the first sentence.
+- L1047 `FiniteDuration.hashCode` [nit/style]: Remove the first sentence and keep only the `@return` tag.
+
+## Inline NEEDS-HUMAN markers left in source
+(none)

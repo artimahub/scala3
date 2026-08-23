@@ -1,0 +1,13 @@
+{
+  "verdict": "approve",
+  "findings": [
+    {
+      "declaration": "final class deprecatedInheritance — @param message",
+      "severity": "nit",
+      "confidence": "low",
+      "needs_human": false,
+      "comment": "\"if the class was sub-classed\" uses past tense for a compile-time event that fires in the present; \"if the class is subclassed\" reads more naturally. Note: this wording is identical to the pre-existing first docstring (line 44), so if you change it here, change it there too — or leave both as-is for consistency."
+    }
+  ],
+  "bonus_findings": []
+}

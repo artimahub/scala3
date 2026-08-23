@@ -1,0 +1,61 @@
+<<<<<<< SEARCH
+  /** Returns the value of this number as a [[scala.Byte]]. This truncates any fractional part. */
+  def byteValue: Byte
+=======
+  /** Returns the value of this number as a [[scala.Byte]]. Values that don't fit are narrowed to the low-order bits of the target type and can lose magnitude or flip sign. */
+  def byteValue: Byte
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Returns the value of this number as a [[scala.Short]]. This truncates any fractional part. */
+  def shortValue: Short
+=======
+  /** Returns the value of this number as a [[scala.Short]]. Values that don't fit are narrowed to the low-order bits of the target type and can lose magnitude or flip sign. */
+  def shortValue: Short
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Returns the value of this number as an [[scala.Int]]. This truncates any fractional part. */
+  def intValue: Int
+=======
+  /** Returns the value of this number as an [[scala.Int]]. Values that don't fit are narrowed to the low-order bits of the target type and can lose magnitude or flip sign. */
+  def intValue: Int
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Returns the value of this number as a [[scala.Long]]. This truncates any fractional part. */
+  def longValue: Long
+=======
+  /** Returns the value of this number as a [[scala.Long]]. Values that don't fit are narrowed to the low-order bits of the target type and can lose magnitude or flip sign. */
+  def longValue: Long
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Returns the value of this number as a [[scala.Float]]. This may involve rounding. */
+  def floatValue: Float
+=======
+  /** Returns the value of this number as a [[scala.Float]]. This may involve rounding, or overflow to positive/negative infinity if the magnitude is too large to represent. */
+  def floatValue: Float
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Returns the value of this number as a [[scala.Double]]. This may involve rounding. */
+  def doubleValue: Double
+=======
+  /** Returns the value of this number as a [[scala.Double]]. This may involve rounding, or overflow to positive/negative infinity if the magnitude is too large to represent. */
+  def doubleValue: Double
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Returns the underlying Java numeric value. */
+  def underlying: Object
+=======
+  /** Returns the underlying value as a Java `Object`. */
+  def underlying: Object
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Returns the `Int` hash code if the value fits in an `Int`; otherwise, returns the `Long` hash code. */
+=======
+  /** Returns the [[scala.Int]] hash code if the value fits in an [[scala.Int]]; otherwise, returns the [[scala.Long]] hash code. */
+>>>>>>> REPLACE

@@ -1,0 +1,26 @@
+{
+  "verdict": "approve",
+  "summary": "Checked all changed doc blocks (trait ExprMap summary; transformChildren incl. its Closure @note; transformStatement, transformDefinition, transformTermChildren, transformTerm, transformTypeTree, transformCaseDef, transformTypeCaseDef, transformStats, transformDefinitions, both transformTerms overloads incl. the @throws MatchError, transformTypeTrees, transformCaseDefs, transformTypeCaseDefs) against the implementation, including the underlying dotc TreeCopier/cpy eq-check behavior (Trees.scala) that justifies the 'returned unchanged when nothing changed' and 'tree itself is returned' claims, and the Closure/Lambda encoding in Quotes.scala that justifies the bare-Closure @note. All descriptions, @param, @return and the one @throws tag accurately match the code; only two minor wording nits found, no blockers.",
+  "items": [
+    {
+      "symbol": "transformChildren",
+      "line": 18,
+      "severity": "nit",
+      "issue": "The @return uses present-perfect phrasing ('have been replaced') rather than the simple present tense used elsewhere in the file's tags.",
+      "suggestion": "Reword to 'are replaced by the result of applying transform to them' for tense consistency.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "transformStatement",
+      "line": 42,
+      "severity": "nit",
+      "issue": "The repeated tag '@param owner the symbol that owns tree' applies to all 4 occurrences (lines 42, 90, 167, 200). It is not false, but it's an informal shorthand: none of Statement/Term/CaseDef actually have their own 'owner' in the symbol-table sense — 'owner' is really the ambient enclosing-scope symbol threaded through the traversal for use when new symbols/trees are constructed, not literally 'the symbol that owns tree'.",
+      "suggestion": "Optionally reword to something like 'the current owner symbol in whose scope tree is transformed' for precision; not required since the existing phrasing is a defensible, consistently-used convention.",
+      "confidence": "medium",
+      "needs_human": false
+    }
+  ],
+  "bonus_findings": []
+}
+

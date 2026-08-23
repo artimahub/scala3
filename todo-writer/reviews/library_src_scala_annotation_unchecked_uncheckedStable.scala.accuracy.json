@@ -1,0 +1,1 @@
+{"verdict":"approve","summary":"The changed Scaladoc accurately describes uncheckedStable as an annotation used to treat otherwise volatile-typed values as stable for path-dependent type prefixes.","items":[{"symbol":"uncheckedStable","line":23,"severity":"ok","issue":"","suggestion":"","confidence":"high","needs_human":false}],"bonus_findings":[]}

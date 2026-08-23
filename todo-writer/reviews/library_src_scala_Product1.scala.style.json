@@ -1,0 +1,22 @@
+{
+  "verdict": "approve",
+  "needs_human": false,
+  "items": [
+    {
+      "declaration": "Product1.unapply[T1]",
+      "severity": "ok",
+      "confidence": "high",
+      "needs_human": false,
+      "comment": "Accurate: unapply always returns Some(x), correctly described as always-succeeding extraction enabling `Product1` pattern matching. @tparam and @param descriptions match the signature. Dropping @return is justified since the first sentence begins with 'Returns' and fully states what is returned (per the stated rule). Uses backticks for `Product1` and a wiki-style [[scala.Some]] link as expected."
+    }
+  ],
+  "bonus_findings": [
+    {
+      "declaration": "Product1._1 (pre-existing, trait Product1)",
+      "severity": "nit",
+      "confidence": "medium",
+      "comment": "Pre-existing doc outside the diff: 'A projection of element 1 of this Product.' with '@return A projection of element 1.' is circular/redundant and adds no information beyond the summary. Not part of this diff, flagged for a human to consider separately."
+    }
+  ]
+}
+

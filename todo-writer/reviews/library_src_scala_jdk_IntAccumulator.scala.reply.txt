@@ -1,0 +1,7 @@
+All three worklist items applied as targeted comment-only patches; committed as `6294fe9417`.
+
+- **blocker, `update(Int, Int)` (line ~208):** removed the Long-to-Int wraparound-overwrite scenario from both the prose and the `@throws` condition, and replaced it with a sentence stating the Int index widens losslessly, so it can only land in unused current-array capacity or throw. The wraparound case stays documented on `update(Long, Int)` only.
+- **nit, `flatMap`:** added the "unlike the inherited `flatMap`, which builds an `AnyAccumulator`, this overload keeps the elements unboxed" note, matching `map`.
+- **nit, `iterableFactory`:** reworded to "...inherited operations, such as `map`, that can produce elements of any type."
+
+The diff touches only Scaladoc lines; no declarations, bodies, or blank lines changed.

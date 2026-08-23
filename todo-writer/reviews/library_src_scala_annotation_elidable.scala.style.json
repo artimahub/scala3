@@ -1,0 +1,13 @@
+{
+  "verdict": "approve",
+  "declarations": [
+    {
+      "name": "final class elidable",
+      "severity": "nit",
+      "confidence": "medium",
+      "needs_human": false,
+      "comment": "The second paragraph opens with 'This is a compatibility annotation ...' — a mild self-reference. The rule targets descriptions that begin with 'This class/trait/object/method', so this does not breach it strictly (the first sentence leads with 'Marks'), but the 'This is ...' opener is still self-referential. A third-person alternative such as 'Acts as a compatibility annotation ...' or 'A compatibility annotation that only records ...' would be more consistent with the voice of the first sentence."
+    }
+  ],
+  "bonus_findings": []
+}

@@ -1,0 +1,104 @@
+{
+  "verdict": "revise",
+  "summary": "Factual inaccuracies in return descriptions for Duration multiplication methods",
+  "resolved_items": [
+    {
+      "symbol": "IntMult.*(Duration)",
+      "line": 132,
+      "severity": "blocker",
+      "instruction": "Change return description to: 'the result of multiplying the given Duration by this Int (converted to Double)'",
+      "raised_by": "accuracy",
+      "needs_human": false
+    },
+    {
+      "symbol": "IntMult.*(FiniteDuration)",
+      "line": 137,
+      "severity": "blocker",
+      "instruction": "Change return description to: 'the result of multiplying the given FiniteDuration by this Int (converted to Long)'",
+      "raised_by": "accuracy",
+      "needs_human": false
+    },
+    {
+      "symbol": "LongMult.*(Duration)",
+      "line": 151,
+      "severity": "blocker",
+      "instruction": "Change return description to: 'the result of multiplying the given Duration by this Long (converted to Double)'",
+      "raised_by": "accuracy",
+      "needs_human": false
+    },
+    {
+      "symbol": "LongMult.*(FiniteDuration)",
+      "line": 156,
+      "severity": "blocker",
+      "instruction": "Change return description to: 'the result of multiplying the given FiniteDuration by this Long'",
+      "raised_by": "accuracy",
+      "needs_human": false
+    },
+    {
+      "symbol": "IntMult.*(Duration)",
+      "line": 132,
+      "severity": "nit",
+      "instruction": "Change to: 'Multiplies this Int by a Duration.'",
+      "raised_by": "accuracy",
+      "needs_human": false
+    },
+    {
+      "symbol": "IntMult.*(FiniteDuration)",
+      "line": 137,
+      "severity": "nit",
+      "instruction": "Change to: 'Multiplies this Int by a FiniteDuration.'",
+      "raised_by": "accuracy",
+      "needs_human": false
+    },
+    {
+      "symbol": "LongMult.*(Duration)",
+      "line": 151,
+      "severity": "nit",
+      "instruction": "Change to: 'Multiplies this Long by a Duration.'",
+      "raised_by": "accuracy",
+      "needs_human": false
+    },
+    {
+      "symbol": "LongMult.*(FiniteDuration)",
+      "line": 156,
+      "severity": "nit",
+      "instruction": "Change to: 'Multiplies this Long by a FiniteDuration.'",
+      "raised_by": "accuracy",
+      "needs_human": false
+    }
+  ],
+  "disagreements": [
+    {
+      "symbol": "IntMult.*(Duration)",
+      "line": 132,
+      "accuracy_position": "Change return description to: 'the result of multiplying the given Duration by this Int (converted to Double)'",
+      "style_position": "",
+      "ruling": "accuracy",
+      "rationale": "The accuracy reviewer's suggestion aligns with the actual implementation, which delegates to `d * i.toDouble`."
+    },
+    {
+      "symbol": "IntMult.*(FiniteDuration)",
+      "line": 137,
+      "accuracy_position": "Change return description to: 'the result of multiplying the given FiniteDuration by this Int (converted to Long)'",
+      "style_position": "",
+      "ruling": "accuracy",
+      "rationale": "The accuracy reviewer's suggestion aligns with the actual implementation, which delegates to `d * i.toLong`."
+    },
+    {
+      "symbol": "LongMult.*(Duration)",
+      "line": 151,
+      "accuracy_position": "Change return description to: 'the result of multiplying the given Duration by this Long (converted to Double)'",
+      "style_position": "",
+      "ruling": "accuracy",
+      "rationale": "The accuracy reviewer's suggestion aligns with the actual implementation, which delegates to `d * i.toDouble`."
+    },
+    {
+      "symbol": "LongMult.*(FiniteDuration)",
+      "line": 156,
+      "accuracy_position": "Change return description to: 'the result of multiplying the given FiniteDuration by this Long'",
+      "style_position": "",
+      "ruling": "accuracy",
+      "rationale": "The accuracy reviewer's suggestion aligns with the actual implementation, which delegates to `d * i.toLong`."
+    }
+  ]
+}

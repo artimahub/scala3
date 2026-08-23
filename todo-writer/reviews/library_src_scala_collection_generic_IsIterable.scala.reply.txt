@@ -1,0 +1,76 @@
+<<<<<<< SEARCH
+  @deprecated("'conversion' is now a method named 'apply'", "2.13.0")
+  @untrackedCaptures
+  /** A deprecated alias for the `apply` method, which converts a `Repr` to an `IterableOps[A, Iterable, C]`.
+   *
+   *  @deprecated("'conversion' is now a method named 'apply'", "2.13.0")
+   */
+  override val conversion: Repr => IterableOps[A, Iterable, C] = apply(_)
+=======
+  /** A deprecated alias for the `apply` method, which converts a `Repr` to an `IterableOps[A, Iterable, C]`. */
+  @deprecated("'conversion' is now a method named 'apply'", "2.13.0")
+  @untrackedCaptures
+  override val conversion: Repr => IterableOps[A, Iterable, C] = apply(_)
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Converts an `IsSeq` instance to an `IsIterable` instance.
+   *
+   *  @tparam Repr the representation type that can be converted to an `Iterable`
+   *  @param isSeqLike the `IsSeq` instance to convert
+   *  @return an `IsIterable` instance with the same element and collection types as the given `IsSeq`
+   */
+=======
+  /** Makes an `IsSeq` instance visible as an `IsIterable` instance.
+   *
+   *  @tparam Repr the representation type that can be converted to an `Iterable`
+   *  @param isSeqLike the `IsSeq` instance to convert
+   *  @return an `IsIterable` instance with the same element and collection types as the given `IsSeq`
+   */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Converts an `IsMap` instance to an `IsIterable` instance.
+   *
+   *  @tparam Repr the representation type that can be converted to an `Iterable`
+   *  @param isMapLike the `IsMap` instance to convert
+   *  @return an `IsIterable` instance with the same element and collection types as the given `IsMap`
+   */
+=======
+  /** Makes an `IsMap` instance visible as an `IsIterable` instance.
+   *
+   *  @tparam Repr the representation type that can be converted to an `Iterable`
+   *  @param isMapLike the `IsMap` instance to convert
+   *  @return an `IsIterable` instance with the same element and collection types as the given `IsMap`
+   */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Provides an `IsIterable` instance for any `IterableOps` type.
+   *
+   *  @tparam A0 the element type of the collection
+   *  @tparam CC0 the collection type constructor, which must be a subtype of `IterableOps`
+   *  @return an `IsIterable` instance for the given `IterableOps` type
+   */
+=======
+  /** Provides an `IsIterable` instance for any `IterableOps` type.
+   *
+   *  @tparam A0 the element type of the collection
+   *  @tparam CC0 the collection type constructor, which must be a subtype of `IterableOps`
+   *  @return an `IsIterable` instance for the given `IterableOps` type, with `A` set to `A0` and `C` set to `CC0[A0]`
+   */
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  /** Provides an `IsIterable` instance for `BitSet` types.
+   *
+   *  @tparam C0 the `BitSet` type, which must extend both `BitSet` and `BitSetOps`
+   *  @return an `IsIterable` instance for the given `BitSet` type
+   */
+=======
+  /** Provides an `IsIterable` instance for `BitSet` types.
+   *
+   *  @tparam C0 the `BitSet` type, which must extend both `BitSet` and `BitSetOps`
+   *  @return an `IsIterable` instance for the given `BitSet` type, with `A` set to `Int` and `C` set to `C0`
+   */
+>>>>>>> REPLACE

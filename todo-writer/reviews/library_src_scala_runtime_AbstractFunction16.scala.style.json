@@ -1,0 +1,11 @@
+{
+  "verdict": "approve",
+  "needs_human": false,
+  "items": [],
+  "bonus_findings": []
+}
+
+
+Reviewed the Scaladoc diff for `AbstractFunction16.scala`. The class body is empty (just `extends Function16[...]`), so there's nothing to contradict — the summary sentence, the "extending this class" explanation, and all 17 `@tparam` entries (T1-T16, R) are accurate.
+
+Style is consistent with sibling files already filled in this batch (`AbstractFunction10/11/12/15.scala` use the identical "`AbstractFunctionN` is a base class for N-parameter function implementations." + "Extending this class allows..." pattern), and the `@tparam` wording matches `scala.Function16`'s own doc verbatim ("the type of the Nth argument"). No inaccuracies, no missing `@return` (N/A for a class), no stray `NEEDS-HUMAN` marker. No pre-existing issues nearby worth flagging as bonus findings either.

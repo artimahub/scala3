@@ -1,0 +1,48 @@
+{
+  "verdict": "approve",
+  "findings": [
+    {
+      "declaration": "toByte / toShort / toChar",
+      "severity": "ok",
+      "confidence": "high",
+      "needs_human": false,
+      "comment": "First sentence stands alone, 'Returns' opener correctly drops @return, wiki-style links used, truncation caveat is appropriately added. Consistent with nearby conversion docs."
+    },
+    {
+      "declaration": "toInt",
+      "severity": "ok",
+      "confidence": "high",
+      "needs_human": false,
+      "comment": "'Returns this value unchanged.' is concise and correct for a no-op conversion."
+    },
+    {
+      "declaration": "toLong / toDouble",
+      "severity": "ok",
+      "confidence": "high",
+      "needs_human": false,
+      "comment": "No precision loss or truncation for these widening conversions, so no caveat is appropriate. Wiki links used correctly."
+    },
+    {
+      "declaration": "toFloat",
+      "severity": "ok",
+      "confidence": "high",
+      "needs_human": false,
+      "comment": "Precision caveat integrated into the description, @return correctly dropped."
+    },
+    {
+      "declaration": "int2float",
+      "severity": "ok",
+      "confidence": "high",
+      "needs_human": false,
+      "comment": "Description begins with 'Returns' but @return is kept because it adds a meaningful edge case (precision loss with explanation). That satisfies the retention rule. @param and @return tags are lowercase with no trailing period. Backticks used for code refs."
+    },
+    {
+      "declaration": "int2long / int2double",
+      "severity": "ok",
+      "confidence": "high",
+      "needs_human": false,
+      "comment": "@return correctly dropped: description begins with 'Returns' and fully states the result; no edge case is omitted since these conversions are lossless. @param tags are well-formed."
+    }
+  ],
+  "bonus_findings": []
+}

@@ -1,0 +1,56 @@
+{
+  "verdict": "approve",
+  "summary": "No blockers remain after merging and reconciling reviewer feedback.",
+  "resolved_items": [
+    {
+      "symbol": "IsMap.apply",
+      "line": 49,
+      "severity": "nit",
+      "instruction": "Either reword the opening to 'Returns a conversion from `Repr` to `MapOps[K, V, Iterable, C]`' to satisfy the drop rule, or keep a short @return restating the 'view of the collection' phrasing.",
+      "raised_by": "accuracy",
+      "needs_human": false
+    },
+    {
+      "symbol": "IsMap.mapViewIsMap",
+      "line": 85,
+      "severity": "nit",
+      "instruction": "Write '... which must be a subtype of `MapView[X, Y]`' to match the bound exactly.",
+      "raised_by": "accuracy",
+      "needs_human": false
+    },
+    {
+      "symbol": "IsMap.apply",
+      "line": 49,
+      "severity": "nit",
+      "instruction": "Change the note to: \"@note The third type parameter of the returned `MapOps` value is still `Iterable` (not `Map`) because `MapView[K, V]` only extends `MapOps[K, V, View, View[A]]`.\"",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "mapOpsIsMap",
+      "line": 70,
+      "severity": "nit",
+      "instruction": "Simplify to: \"@tparam CC0 the collection type constructor, a subtype of `MapOps[X, Y, Tupled[Iterable]#Ap, CC0[X, Y]]`.\"",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "anyRefMapIsMap",
+      "line": 100,
+      "severity": "nit",
+      "instruction": "Add a note: \"@note This instance is deprecated because `AnyRefMap` is deprecated.\"",
+      "raised_by": "style",
+      "needs_human": false
+    }
+  ],
+  "disagreements": [
+    {
+      "symbol": "IsMap.apply",
+      "line": 49,
+      "accuracy_position": "The @return tag was dropped, but the description does not literally begin with 'Returns' as the drop rule requires.",
+      "style_position": "The @return tag was correctly removed from `apply` in `IsMap` trait, as the description already states the return value.",
+      "ruling": "accuracy",
+      "rationale": "The house rule requires the description to begin with 'Returns' to drop the @return tag, which it does not."
+    }
+  ]
+}

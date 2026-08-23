@@ -1,0 +1,20 @@
+{
+  "verdict": "revise",
+  "needs_human": false,
+  "items": [
+    {
+      "declaration": "ShutdownHookThread.remove",
+      "severity": "blocker",
+      "confidence": "high",
+      "comment": "Runtime.removeShutdownHook also declares `SecurityException` (thrown if a security manager denies RuntimePermission(\"shutdownHooks\")), which the added doc omits — only IllegalStateException is mentioned."
+    },
+    {
+      "declaration": "ShutdownHookThread.remove",
+      "severity": "nit",
+      "confidence": "medium",
+      "comment": "The exception is documented as a plain prose paragraph rather than an `@throws` tag, inconsistent with the `@param`/`@return` tag usage in `ShutdownHookThread.apply` just below. Prefer `@throws IllegalStateException ...` / `@throws SecurityException ...`."
+    }
+  ],
+  "bonus_findings": []
+}
+

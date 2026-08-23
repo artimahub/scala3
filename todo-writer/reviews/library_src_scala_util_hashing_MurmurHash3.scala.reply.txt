@@ -1,0 +1,192 @@
+I'll apply the targeted patches to the Scaladoc comments as specified in the worklist. Here are the changes:
+
+1. Line 88 (productHash):
+```scala
+  /** Computes the hash code of a Product instance.
+   *
+   *  @param x the Product instance to hash
+   *  @param seed the initial seed for the hash computation
+   *  @param ignorePrefix whether to ignore the product prefix in the hash computation
+   *  @return the hash code of `x`, derived from the product prefix (if not ignored) and each product element
+   */
+```
+Changed to:
+```scala
+  /** Computes the hash code of a Product instance.
+   *
+   *  @param x the Product instance to hash
+   *  @param seed the initial seed for the hash computation
+   *  @param ignorePrefix whether to ignore the product prefix in the hash computation
+   *  @return the hash code of `x`, derived from the product prefix (mixed into the seed when `ignorePrefix` is false) and each product element
+   *  @note For case classes compiled before 2.13.17, `ignorePrefix` is false and the product prefix is included in the hash.
+   */
+```
+
+2. Line 430 (arrayHash):
+```scala
+  /** Computes the hash of an array using the default array seed.
+   *
+   *  @param a the array to hash
+   *  @return the hash of `a`, computed with the default array seed
+   */
+```
+Changed to:
+```scala
+  /** Computes the hash of an array using the default array seed.
+   *
+   *  @param a the array to hash
+   *  @return the hash of `a`, computed with the default array seed
+   *  @note This method delegates to `arrayHash(a, arraySeed)`
+   */
+```
+
+3. Line 435 (bytesHash):
+```scala
+  /** Computes the hash of a byte array using the default array seed.
+   *
+   *  @param data the byte array to hash
+   *  @return the hash of `data`, computed with the default array seed
+   */
+```
+Changed to:
+```scala
+  /** Computes the hash of a byte array using the default array seed.
+   *
+   *  @param data the byte array to hash
+   *  @return the hash of `data`, computed with the default array seed
+   *  @note This method delegates to `bytesHash(data, arraySeed)`
+   */
+```
+
+4. Line 450 (unorderedHash):
+```scala
+  /** Computes the order-independent hash of an iterable collection using the default traversable seed.
+   *
+   *  @param xs the elements to hash (order-independent)
+   *  @return the order-independent hash of `xs`, computed with the default traversable seed
+   */
+```
+Changed to:
+```scala
+  /** Computes the order-independent hash of an iterable collection using the default traversable seed.
+   *
+   *  @param xs the elements to hash (order-independent)
+   *  @return the order-independent hash of `xs`, computed with the default traversable seed
+   *  @note The same elements in any order will produce the same hash value
+   */
+```
+
+5. Line 455 (rangeHash):
+```scala
+  /** Computes the hash of a range using the default sequence seed.
+   *
+   *  @param start the first element of the range
+   *  @param step the increment between successive elements
+   *  @param last the actual last element produced by the range
+   *  @return the hash of the range, computed with the default sequence seed
+   */
+```
+Changed to:
+```scala
+  /** Computes the hash of a range using the default sequence seed.
+   *
+   *  @param start the first element of the range
+   *  @param step the increment between successive elements
+   *  @param last the actual last element produced by the range
+   *  @return the hash of the range, computed with the default sequence seed
+   *  @note This method delegates to `rangeHash(start, step, last, seqSeed)`
+   */
+```
+
+6. Line 465 (productHash deprecated):
+```scala
+  @deprecated("use `caseClassHash` instead", "2.13.17")
+  /** Computes the hash code of a Product instance using the default product seed.
+   *
+   *  @param x the Product instance to hash
+   *  @return the hash code of `x`, derived from the product prefix and each product element
+   */
+```
+Changed to:
+```scala
+  @deprecated("use `caseClassHash` instead", "2.13.17")
+  /** Computes the hash code of a Product instance using the default product seed.
+   *
+   *  @param x the Product instance to hash
+   *  @return the hash code of `x`, derived from the product prefix and each product element
+   *  @note This method is deprecated in favor of `caseClassHash` and delegates to `caseClassHash(x, productSeed, null)`
+   */
+```
+
+7. Line 545 (apply in accum):
+```scala
+        /** Processes a map entry by updating the accumulated hash values.
+         *
+         *  @param k the key of the map entry
+         *  @param v the value of the map entry
+         */
+```
+Changed to:
+```scala
+        /** Processes a map entry by updating the accumulated hash values.
+         *
+         *  @param k the key of the map entry
+         *  @param v the value of the map entry
+         *  @note This method updates the accumulated values `a`, `b`, `n`, and `c`
+         */
+```
+
+8. Line 565 (setHash):
+```scala
+  /** Computes the hash of a set using the default set seed.
+   *
+   *  @param xs the set to hash
+   *  @return the hash of `xs`, computed with the default set seed
+   */
+```
+Changed to:
+```scala
+  /** Computes the hash of a set using the default set seed.
+   *
+   *  @param xs the set to hash
+   *  @return the hash of `xs`, computed with the default set seed
+   *  @note This method delegates to `unorderedHash(xs, setSeed)`
+   */
+```
+
+9. Line 575 (ArrayHashing.hash):
+```scala
+    /** Computes the hash of an array.
+     *
+     *  @param a the array to hash
+     */
+```
+Changed to:
+```scala
+    /** Computes the hash of an array.
+     *
+     *  @param a the array to hash
+     *  @note This method delegates to `arrayHash(a)`
+     */
+```
+
+10. Line 530 (mapHash):
+```scala
+  /** Computes the hash of a map using the default map seed.
+   *
+   *  @param xs the map to hash
+   *  @return the hash of `xs`, computed with the default map seed
+   */
+```
+Changed to:
+```scala
+  /** Computes the hash of a map using the default map seed.
+   *
+   *  @param xs the map to hash
+   *  @return the hash of `xs`, computed with the default map seed
+   *  @note For empty maps, this delegates to `emptyMapHash`. For non-empty maps, it accumulates
+   *        hash values for each entry using `tuple2Hash` and combines them with `mix` and `mixLast`.
+   */
+```
+
+All changes have been applied as targeted patches to only the Scaladoc comments, without modifying any code or other parts of the file. The changes address all the blockers identified in the worklist.

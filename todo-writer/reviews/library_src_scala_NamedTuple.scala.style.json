@@ -1,0 +1,28 @@
+{
+  "verdict": "approve",
+  "needs_human": false,
+  "items": [
+    {
+      "declaration": "NamedTuple.apply[N, V]",
+      "severity": "ok",
+      "confidence": "high",
+      "notes": "First sentence stands alone and is accurate. @tparam N correctly notes N is unconstrained beyond Tuple despite the String-literal convention. @return is nearly a restatement of the first sentence (minor redundancy) but doesn't violate the drop rule since the summary doesn't start with 'Returns'; not worth blocking."
+    },
+    {
+      "declaration": "NamedTuple.unapply[N, V]",
+      "severity": "ok",
+      "confidence": "high",
+      "notes": "Accurately describes that the extractor always succeeds (return type Some[V], not Option[V]) and that it drops the names. @return correctly adds the 'Some wrapping' detail not present in the summary."
+    },
+    {
+      "declaration": "NamedTupleDecomposition.createSeqMap[N, V]",
+      "severity": "nit",
+      "confidence": "medium",
+      "notes": "Accurate: the productIterator.zip truncates to the shorter tuple, matching 'extra elements ... disregarded'; the asInstanceOf cast is unchecked, matching the @tparam N claim. Minor style nit: phrasing 'are disregarded' (present tense) differs slightly from the near-identical existing sentence for `zip` at line 242-243 ('will be disregarded', future tense) — same claim, inconsistent tense with nearby doc in the same file."
+    }
+  ],
+  "bonus_findings": []
+}
+
+
+No blockers. The three filled-in docstrings are factually accurate against their implementations and follow the file's existing Scaladoc conventions (no trailing periods on tag continuations, backticked code references, consistent `@tparam`/`@param`/`@return` ordering). Only a couple of low-severity nits (a slightly redundant `@return` on `apply`, and a tense mismatch with the `zip` doc's near-duplicate sentence) — neither rises to blocker level.

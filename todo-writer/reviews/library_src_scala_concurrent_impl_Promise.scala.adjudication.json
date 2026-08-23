@@ -1,0 +1,424 @@
+{
+  "verdict": "revise",
+  "summary": "Multiple blockers found in accuracy and style, primarily around missing edge cases, incorrect summaries, and style violations.",
+  "resolved_items": [
+    {
+      "symbol": "CompletionLatch.result",
+      "line": 40,
+      "severity": "blocker",
+      "instruction": "Revise to: 'Returns the current result of this latch as `Try[T] | Null`, where `null` indicates the latch is not yet completed.'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "CompletionLatch.tryAcquireShared",
+      "line": 43,
+      "severity": "nit",
+      "instruction": "Revise the first sentence to: 'Acquires the shared lock if the latch is completed, otherwise fails.'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "CompletionLatch.tryReleaseShared",
+      "line": 51,
+      "severity": "nit",
+      "instruction": "Revise the first sentence to: 'Releases the shared lock by setting the state to 1, indicating completion.'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "CompletionLatch.apply",
+      "line": 58,
+      "severity": "blocker",
+      "instruction": "Revise to: 'Sets the result of this latch to the given value and then releases the shared lock, ensuring the result is visible to other threads before the lock is released.'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "DefaultPromise",
+      "line": 135,
+      "severity": "nit",
+      "instruction": "Revise the first sentence to: 'A `Promise[T]` that can be asynchronously completed with a value of type `T` or an exception.'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "DefaultPromise.transform",
+      "line": 160,
+      "severity": "blocker",
+      "instruction": "Revise to: 'Returns a new `Future[S]` that is completed with the result of applying the given function `f` to this `Future`'s result. If `f` throws an exception, the returned `Future` will be completed with that exception.'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "DefaultPromise.transformWith",
+      "line": 172,
+      "severity": "blocker",
+      "instruction": "Revise to: 'Returns a new `Future[S]` that is completed with the result of applying the given function `f` to this `Future`'s result. If `f` throws an exception or returns a failed `Future`, the returned `Future` will be completed with that exception.'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "DefaultPromise.zipWith",
+      "line": 184,
+      "severity": "blocker",
+      "instruction": "Revise to: 'Returns a new `Future[R]` that is completed with the result of applying the given function `f` to the results of this `Future` and the given `Future[U]`. If either `Future` fails or `f` throws an exception, the returned `Future` will be completed with the first failure encountered.'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "DefaultPromise.foreach",
+      "line": 201,
+      "severity": "blocker",
+      "instruction": "Revise to: 'Applies the given function `f` to the result of this `Future` if it is successful. If this `Future` fails, `f` is not applied.'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "DefaultPromise.flatMap",
+      "line": 220,
+      "severity": "blocker",
+      "instruction": "Revise to: 'Returns a new `Future[S]` that is completed with the result of applying the given function `f` to this `Future`'s result. If this `Future` is not successful, the returned `Future` will be this `Future` cast to `Future[S]`.'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "DefaultPromise.map",
+      "line": 233,
+      "severity": "blocker",
+      "instruction": "Revise to: 'Returns a new `Future[S]` that is completed with the result of applying the given function `f` to this `Future`'s result. If this `Future` is not successful, the returned `Future` will be this `Future` cast to `Future[S]`.'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "DefaultPromise.filter",
+      "line": 246,
+      "severity": "blocker",
+      "instruction": "Revise to: 'Returns a new `Future[T]` that is completed with the result of this `Future` if it satisfies the given predicate `p`. If the predicate returns `false`, the returned `Future` will fail with a `NoSuchElementException`.'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "DefaultPromise.collect",
+      "line": 260,
+      "severity": "blocker",
+      "instruction": "Revise to: 'Returns a new `Future[S]` that is completed with the result of applying the given partial function `pf` to this `Future`'s result. If `pf` is not defined at the result, the returned `Future` will fail with a `NoSuchElementException`.'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "DefaultPromise.recoverWith",
+      "line": 274,
+      "severity": "blocker",
+      "instruction": "Revise to: 'Returns a new `Future[U]` that is completed with the result of applying the given partial function `pf` to the exception of this `Future` if it fails. If this `Future` is not failed, the returned `Future` will be this `Future` cast to `Future[U]`.'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "DefaultPromise.recover",
+      "line": 288,
+      "severity": "blocker",
+      "instruction": "Revise to: 'Returns a new `Future[U]` that is completed with the result of applying the given partial function `pf` to the exception of this `Future` if it fails. If this `Future` is not failed, the returned `Future` will be this `Future` cast to `Future[U]`.'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "DefaultPromise.mapTo",
+      "line": 302,
+      "severity": "blocker",
+      "instruction": "Revise to: 'Returns a new `Future[S]` that is completed with the result of this `Future` cast to type `S`. If the result cannot be cast to `S`, the returned `Future` will fail with a `ClassCastException`.'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "DefaultPromise.onComplete",
+      "line": 315,
+      "severity": "blocker",
+      "instruction": "Revise to: 'Registers a callback function `func` to be executed asynchronously when this `Future` is completed, regardless of success or failure.'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "DefaultPromise.failed",
+      "line": 347,
+      "severity": "blocker",
+      "instruction": "Revise to: 'Returns a `Future[Throwable]` that is completed with the exception of this `Future` if it fails. If this `Future` is successful, the returned `Future` will be a cached failed `Future` instance.'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "DefaultPromise.ready",
+      "line": 391,
+      "severity": "nit",
+      "instruction": "Revise the first sentence to: 'Blocks until this `Future` is completed and then returns this `Future`.'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "DefaultPromise.result",
+      "line": 404,
+      "severity": "blocker",
+      "instruction": "Revise to: 'Blocks until this `Future` is completed and returns its result. If this `Future` fails, the contained exception is thrown.'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "DefaultPromise.isCompleted",
+      "line": 411,
+      "severity": "nit",
+      "instruction": "Revise to: 'Indicates whether this `Future` has been completed, either successfully or with a failure.'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "DefaultPromise.value",
+      "line": 417,
+      "severity": "nit",
+      "instruction": "Revise to: 'Returns the result of this `Future` as `Some(Try[T])` if it is completed, or `None` otherwise.'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "DefaultPromise.tryComplete",
+      "line": 432,
+      "severity": "blocker",
+      "instruction": "Revise to: 'Attempts to complete this `Promise` with the given value. If successful, recursively completes any other `Promise`s linked to this one. Returns `true` if this `Promise` was completed, `false` if it was already completed.'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "DefaultPromise.completeWith",
+      "line": 445,
+      "severity": "blocker",
+      "instruction": "Revise to: 'Completes this `Promise` with the result of the given `Future`. If the `Future` is already completed, this `Promise` is completed immediately; otherwise, it is completed when the `Future` completes. Returns this `Promise`.'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "Transformation.benefitsFromBatching",
+      "line": 650,
+      "severity": "nit",
+      "instruction": "Revise to: 'Indicates whether this transformation can be batched for efficiency, excluding `onComplete` and `foreach` operations.'",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "Transformation.submitWithValue",
+      "line": 660,
+      "severity": "blocker",
+      "instruction": "Revise to: 'Submits this transformation for asynchronous execution with the given value, scheduling it to be run by the `ExecutionContext`. Returns this transformation.'",
+      "raised_by": "style",
+      "needs_human": false
+    }
+  ],
+  "disagreements": [
+    {
+      "symbol": "CompletionLatch.result",
+      "line": 40,
+      "accuracy_position": "The description could be more precise about the return type.",
+      "style_position": "The documentation claims to return 'the current result of this latch, or null if not yet completed,' but the implementation shows `_result` is of type `Try[T] | Null`. The documentation does not clarify that the return type is `Try[T] | Null`, which is critical for callers to understand. Additionally, the first sentence is not a standalone API summary.",
+      "ruling": "style",
+      "rationale": "The style reviewer's point about the return type being `Try[T] | Null` is critical for callers to understand, and the first sentence should be a standalone API summary."
+    },
+    {
+      "symbol": "CompletionLatch.tryAcquireShared",
+      "line": 43,
+      "accuracy_position": "",
+      "style_position": "The first sentence is a fragment ('Attempts to acquire the shared lock') and does not stand alone as an API summary. The `@return` tag is correct but could be more precise.",
+      "ruling": "style",
+      "rationale": "The style reviewer's suggestion to revise the first sentence to stand alone as an API summary is valid."
+    },
+    {
+      "symbol": "CompletionLatch.tryReleaseShared",
+      "line": 51,
+      "accuracy_position": "",
+      "style_position": "The first sentence is a fragment ('Releases the shared lock by setting the state to 1') and does not stand alone as an API summary. The `@return` tag is redundant with the implementation.",
+      "ruling": "style",
+      "rationale": "The style reviewer's suggestion to revise the first sentence to stand alone as an API summary is valid."
+    },
+    {
+      "symbol": "CompletionLatch.apply",
+      "line": 58,
+      "accuracy_position": "",
+      "style_position": "The documentation states 'Sets the result of this latch and releases the shared lock,' but the implementation shows `_result = value` is set BEFORE `releaseShared(1)`. This is a critical ordering detail for thread safety, and the documentation misrepresents the behavior.",
+      "ruling": "style",
+      "rationale": "The style reviewer's point about the critical ordering detail for thread safety is valid and should be included in the documentation."
+    },
+    {
+      "symbol": "DefaultPromise",
+      "line": 135,
+      "accuracy_position": "The description could be more concise.",
+      "style_position": "The first sentence is a fragment ('A promise that can be completed with a value or an exception') and does not stand alone as an API summary. The `@tparam` tag is correct but could be more precise.",
+      "ruling": "style",
+      "rationale": "The style reviewer's suggestion to revise the first sentence to stand alone as an API summary is valid."
+    },
+    {
+      "symbol": "DefaultPromise.transform",
+      "line": 160,
+      "accuracy_position": "The description could be more concise.",
+      "style_position": "The documentation does not mention that the returned `Future[S]` may fail if the transformation function `f` throws an exception. This is a material omission.",
+      "ruling": "style",
+      "rationale": "The style reviewer's point about the material omission of the exception case is valid and should be included in the documentation."
+    },
+    {
+      "symbol": "DefaultPromise.transformWith",
+      "line": 172,
+      "accuracy_position": "The description could be more concise.",
+      "style_position": "The documentation does not mention that the returned `Future[S]` may fail if the transformation function `f` throws an exception or if the `Future[S]` returned by `f` fails. This is a material omission.",
+      "ruling": "style",
+      "rationale": "The style reviewer's point about the material omission of the exception case is valid and should be included in the documentation."
+    },
+    {
+      "symbol": "DefaultPromise.zipWith",
+      "line": 184,
+      "accuracy_position": "The description could be more concise.",
+      "style_position": "The documentation does not mention that the returned `Future[R]` will fail if either this `Future` or the given `Future[U]` fails, or if the function `f` throws an exception. This is a material omission.",
+      "ruling": "style",
+      "rationale": "The style reviewer's point about the material omission of the failure cases is valid and should be included in the documentation."
+    },
+    {
+      "symbol": "DefaultPromise.foreach",
+      "line": 201,
+      "accuracy_position": "The description could be more concise.",
+      "style_position": "The documentation does not mention that the function `f` is only applied if this `Future` is successful. This is a material omission for callers expecting side effects.",
+      "ruling": "style",
+      "rationale": "The style reviewer's point about the material omission of the condition for applying the function is valid and should be included in the documentation."
+    },
+    {
+      "symbol": "DefaultPromise.flatMap",
+      "line": 220,
+      "accuracy_position": "The description could be more concise.",
+      "style_position": "The documentation states 'or this Future if it is already failed,' but the implementation shows it returns `this.asInstanceOf[Future[S]]` for any non-`Success` state, not just `Failure`. This is misleading.",
+      "ruling": "style",
+      "rationale": "The style reviewer's point about the misleading description is valid and should be corrected."
+    },
+    {
+      "symbol": "DefaultPromise.map",
+      "line": 233,
+      "accuracy_position": "The description could be more concise.",
+      "style_position": "Same issue as `flatMap`: the documentation implies it only returns `this` for `Failure`, but the implementation returns `this` for any non-`Success` state.",
+      "ruling": "style",
+      "rationale": "The style reviewer's point about the misleading description is valid and should be corrected."
+    },
+    {
+      "symbol": "DefaultPromise.filter",
+      "line": 246,
+      "accuracy_position": "The description could be more concise.",
+      "style_position": "The documentation does not mention that the returned `Future` will fail with a `NoSuchElementException` if the predicate `p` returns `false`. This is a material omission.",
+      "ruling": "style",
+      "rationale": "The style reviewer's point about the material omission of the exception case is valid and should be included in the documentation."
+    },
+    {
+      "symbol": "DefaultPromise.collect",
+      "line": 260,
+      "accuracy_position": "The description could be more concise.",
+      "style_position": "The documentation does not mention that the returned `Future` will fail with a `NoSuchElementException` if the partial function `pf` is not defined at the result of this `Future`. This is a material omission.",
+      "ruling": "style",
+      "rationale": "The style reviewer's point about the material omission of the exception case is valid and should be included in the documentation."
+    },
+    {
+      "symbol": "DefaultPromise.recoverWith",
+      "line": 274,
+      "accuracy_position": "The description could be more concise.",
+      "style_position": "The documentation states 'or this Future if it is already successful,' but the implementation shows it returns `this` for any non-`Failure` state, not just `Success`. This is misleading.",
+      "ruling": "style",
+      "rationale": "The style reviewer's point about the misleading description is valid and should be corrected."
+    },
+    {
+      "symbol": "DefaultPromise.recover",
+      "line": 288,
+      "accuracy_position": "The description could be more concise.",
+      "style_position": "Same issue as `recoverWith`: the documentation implies it only returns `this` for `Success`, but the implementation returns `this` for any non-`Failure` state.",
+      "ruling": "style",
+      "rationale": "The style reviewer's point about the misleading description is valid and should be corrected."
+    },
+    {
+      "symbol": "DefaultPromise.mapTo",
+      "line": 302,
+      "accuracy_position": "The description could be more concise.",
+      "style_position": "The documentation does not mention that the returned `Future` will fail with a `ClassCastException` if the result cannot be cast to type `S`. This is a material omission.",
+      "ruling": "style",
+      "rationale": "The style reviewer's point about the material omission of the exception case is valid and should be included in the documentation."
+    },
+    {
+      "symbol": "DefaultPromise.onComplete",
+      "line": 315,
+      "accuracy_position": "The description could be more concise.",
+      "style_position": "The documentation does not mention that the callback function `func` may be executed asynchronously, which is critical for thread safety.",
+      "ruling": "style",
+      "rationale": "The style reviewer's point about the asynchronous execution is critical for thread safety and should be included in the documentation."
+    },
+    {
+      "symbol": "DefaultPromise.failed",
+      "line": 347,
+      "accuracy_position": "The description could be more concise.",
+      "style_position": "The documentation states 'or a failed Future otherwise,' but the implementation shows it returns a cached `Future.failedFailureFuture` for `Success` states. The documentation should clarify this edge case.",
+      "ruling": "style",
+      "rationale": "The style reviewer's point about the cached failed `Future` instance is valid and should be included in the documentation."
+    },
+    {
+      "symbol": "DefaultPromise.ready",
+      "line": 391,
+      "accuracy_position": "",
+      "style_position": "The first sentence is a fragment ('Awaits the completion of this Future and returns this Future') and does not stand alone as an API summary. The `@return` tag is redundant.",
+      "ruling": "style",
+      "rationale": "The style reviewer's suggestion to revise the first sentence to stand alone as an API summary is valid."
+    },
+    {
+      "symbol": "DefaultPromise.result",
+      "line": 404,
+      "accuracy_position": "The description could be more concise.",
+      "style_position": "The documentation does not mention that this method may throw the exception contained in this `Future` if it fails. This is a material omission.",
+      "ruling": "style",
+      "rationale": "The style reviewer's point about the material omission of the exception case is valid and should be included in the documentation."
+    },
+    {
+      "symbol": "DefaultPromise.isCompleted",
+      "line": 411,
+      "accuracy_position": "The description could be more concise.",
+      "style_position": "The first sentence is a fragment ('Returns whether this Future is completed') and does not stand alone as an API summary.",
+      "ruling": "style",
+      "rationale": "The style reviewer's suggestion to revise the first sentence to stand alone as an API summary is valid."
+    },
+    {
+      "symbol": "DefaultPromise.value",
+      "line": 417,
+      "accuracy_position": "The description could be more concise.",
+      "style_position": "The first sentence is a fragment ('Returns the result of this Future if it is completed') and does not stand alone as an API summary.",
+      "ruling": "style",
+      "rationale": "The style reviewer's suggestion to revise the first sentence to stand alone as an API summary is valid."
+    },
+    {
+      "symbol": "DefaultPromise.tryComplete",
+      "line": 432,
+      "accuracy_position": "The description could be more concise.",
+      "style_position": "The documentation does not mention that the method may recursively complete other `Promise`s linked to this one, which is a critical side effect.",
+      "ruling": "style",
+      "rationale": "The style reviewer's point about the recursive completion of other `Promise`s is valid and should be included in the documentation."
+    },
+    {
+      "symbol": "DefaultPromise.completeWith",
+      "line": 445,
+      "accuracy_position": "The description could be more concise.",
+      "style_position": "The documentation does not mention that this method may lead to recursive completion of other `Promise`s, similar to `tryComplete`. This is a material omission.",
+      "ruling": "style",
+      "rationale": "The style reviewer's point about the recursive completion of other `Promise`s is valid and should be included in the documentation."
+    },
+    {
+      "symbol": "Transformation.benefitsFromBatching",
+      "line": 650,
+      "accuracy_position": "The description could be more concise.",
+      "style_position": "The first sentence is a fragment ('Indicates whether this transformation benefits from batching') and does not stand alone as an API summary. The `@return` tag is missing.",
+      "ruling": "style",
+      "rationale": "The style reviewer's suggestion to revise the first sentence to stand alone as an API summary is valid."
+    },
+    {
+      "symbol": "Transformation.submitWithValue",
+      "line": 660,
+      "accuracy_position": "The description could be more concise.",
+      "style_position": "The documentation does not mention that this method schedules the transformation to be executed asynchronously by the `ExecutionContext`. This is a critical detail for thread safety.",
+      "ruling": "style",
+      "rationale": "The style reviewer's point about the asynchronous execution is critical for thread safety and should be included in the documentation."
+    }
+  ]
+}

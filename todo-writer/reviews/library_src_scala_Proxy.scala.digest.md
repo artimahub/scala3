@@ -1,0 +1,13 @@
+# Doc review digest: library/src/scala/Proxy.scala
+
+- converged: false (after up to 2 rounds)
+- final refinement after review limit: true (not re-reviewed)
+- Codex verdict (accuracy emphasis): approve
+- Claude verdict (style emphasis): approve
+
+## Needs human / low confidence (check these first)
+
+(could not parse reviews)
+
+## Inline NEEDS-HUMAN markers left in source
+(none)

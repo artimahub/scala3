@@ -1,0 +1,22 @@
+{
+  "verdict": "approve",
+  "findings": [
+    {
+      "declaration": "trait App",
+      "doc": "Turns an object into an executable program by treating the object's body as its `main` method.",
+      "severity": "ok",
+      "confidence": "high",
+      "needs_human": false,
+      "notes": "Clean one-liner: active verb, third person, present tense, no self-reference, backtick on `main`, no HTML. Consistent with the voice of other members in the file."
+    },
+    {
+      "declaration": "def delayedInit",
+      "doc": "Stores the given initialization code so that it runs later when `main` is invoked. @param body the initialization code to be stored for later execution",
+      "severity": "ok",
+      "confidence": "high",
+      "needs_human": false,
+      "notes": "@param tag starts lowercase, no trailing period. First sentence stands alone. Backtick on `main`. No @return needed (Unit). No HTML."
+    }
+  ],
+  "bonus_findings": []
+}

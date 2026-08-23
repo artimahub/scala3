@@ -1,0 +1,40 @@
+{
+  "verdict": "revise",
+  "summary": "Blocker: Inaccurate return type description in `FutureValue.unapply` Scaladoc.",
+  "resolved_items": [
+    {
+      "symbol": "FutureValue.unapply",
+      "line": 220,
+      "severity": "blocker",
+      "instruction": "Revise the `@return` tag to: `@return `Some(Try[T])` if `a` is a `Future`, otherwise `None` (i.e., the raw `Option[Try[T]]` from pattern matching).`",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "FutureValue.unapply",
+      "line": 220,
+      "severity": "nit",
+      "instruction": "Revise the first sentence to: `Extracts the value of a `Future` as `Some(Try[T])` if the `Awaitable` is a `Future`, otherwise `None`.",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "FutureValue.unapply",
+      "line": 222,
+      "severity": "nit",
+      "instruction": "Revise the `@param` tag to: `@param a the `Awaitable` whose value is extracted if it is a `Future`.",
+      "raised_by": "style",
+      "needs_human": false
+    }
+  ],
+  "disagreements": [
+    {
+      "symbol": "FutureValue.unapply",
+      "line": 220,
+      "accuracy_position": "",
+      "style_position": "The `@return` tag claims the method returns `Some(Try[T])` if `a` is a `Future`, but the implementation returns the raw `Try[T]` from `f.value` directly, not wrapped in `Some`. The actual return type is `Option[Try[T]]`, where `Future` cases return `Some(Try[T])` and non-`Future` cases return `None`. The description conflates the `Option` wrapper with the `Try` value.",
+      "ruling": "style",
+      "rationale": "The accuracy reviewer did not raise any issues, while the style reviewer correctly identified an inaccuracy in the return type description."
+    }
+  ]
+}

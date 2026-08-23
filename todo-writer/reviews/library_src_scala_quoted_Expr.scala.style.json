@@ -1,0 +1,26 @@
+{
+  "verdict": "approve",
+  "summary": "Checked ofTupleFromSeq's rewritten doc against its implementation (lines 145-172, and helpers ofTupleFromSeq1..22 at 174-280, ofTupleFromSeqXXL/tupleTypeFromSeq at 281-292): the size-0 case returning `Tuple()`, sizes 1-22 dispatching to `TupleNconstructor` via ofTupleFromSeqN, and sizes 23+ using `Tuple.fromIArray` via ofTupleFromSeqXXL are all accurately described; @param seq and @return match the signature and behavior including the empty-seq sentinel. Only minor nits found, no blockers.",
+  "items": [
+    {
+      "symbol": "Expr.ofTupleFromSeq",
+      "line": 137,
+      "severity": "nit",
+      "issue": "First summary sentence ends with a period, while the two sibling doc comments directly above it (ofSeq at line 109, ofList at line 123) use the identical 'Creates an expression that will construct a copy of this X' opening with no trailing period.",
+      "suggestion": "Drop the trailing period to match the adjacent ofSeq/ofList summaries, or add periods to those too for consistency.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "Expr.ofTupleFromSeq",
+      "line": 139,
+      "severity": "nit",
+      "issue": "\"Sequences of up to 22 elements are built with the corresponding `TupleN` constructor\" loosely includes the 0-element case, but the code's `case 0` builds `Tuple()` directly rather than going through any `ofTupleFromSeqN` helper or a 'TupleN' class (there is no Tuple0). The @return tag correctly calls out the empty case separately, so the behavior is not misdescribed overall, but the wording in this sentence reads as if 0 falls under 'TupleN constructor' too.",
+      "suggestion": "Reword slightly, e.g. \"Non-empty sequences of up to 22 elements are built with the corresponding `TupleN` constructor, longer ones with `Tuple.fromIArray`.\"",
+      "confidence": "medium",
+      "needs_human": false
+    }
+  ],
+  "bonus_findings": []
+}
+

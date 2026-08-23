@@ -1,0 +1,13 @@
+{
+  "verdict": "approve",
+  "declarations": [
+    {
+      "name": "static",
+      "severity": "ok",
+      "confidence": "high",
+      "needs_human": false,
+      "comments": "First sentence is self-contained and meaningful as an index summary. Declarative third-person present tense; no self-reference. Not redundant with the signature. Code reference `static` correctly backtick-quoted. No HTML tags. No @return applicable. Altitude is appropriate for a one-line annotation class."
+    }
+  ],
+  "bonus_findings": []
+}

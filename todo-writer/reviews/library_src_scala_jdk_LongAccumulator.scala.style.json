@@ -1,0 +1,34 @@
+{
+  "verdict": "approve",
+  "summary": "Read the full implementation (LongAccumulator, its companion, SerializationProxy, and LongAccumulatorStepper) and checked every changed doc against the code, including the deep edge cases in update/nextStep/trySplit; all claims verified true and no @return-drop or @throws-formatting violations found — only minor wording-consistency nits remain.",
+  "items": [
+    {
+      "symbol": "LongAccumulator.collect",
+      "line": 270,
+      "severity": "nit",
+      "issue": "map and flatMap both note \"Unlike the inherited `X`, which builds an AnyAccumulator, this overload keeps the elements unboxed\", but collect (which overrides the same way, for the same reason) omits that cross-reference.",
+      "suggestion": "Add the same \"Unlike the inherited `collect`...\" sentence for consistency with its siblings.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "LongAccumulator.countLong",
+      "line": 347,
+      "severity": "nit",
+      "issue": "First sentence (\"Counts the elements of this `LongAccumulator` that satisfy a predicate.\") breaks from the \"Returns ...\" pattern used by every other summary in this diff, including its sibling count.",
+      "suggestion": "Rephrase as \"Returns the number of elements of this `LongAccumulator` that satisfy `p`.\" to match count's phrasing.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "LongAccumulator.update(idx: Long, elem: Long)",
+      "line": 179,
+      "severity": "nit",
+      "issue": "The description is verified accurate (checked against the offset arithmetic and seekSlot's Int narrowing) but is far more detailed than any other doc in the file, documenting internal arithmetic wraparound mechanics rather than just caller-relevant behavior.",
+      "suggestion": "Consider trimming to the caller-relevant facts (silent no-op into unused capacity, possible silent corruption, otherwise throws) and dropping the derivation of exactly which narrowing causes which wraparound, if a terser style is preferred; not required since every sentence is factually correct.",
+      "confidence": "medium",
+      "needs_human": false
+    }
+  ],
+  "bonus_findings": []
+}

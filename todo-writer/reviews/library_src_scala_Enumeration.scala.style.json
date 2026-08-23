@@ -1,0 +1,53 @@
+{
+  "verdict": "revise",
+  "needs_human": true,
+  "items": [
+    {
+      "declaration": "ValueSet.iteratorFrom",
+      "file": "library/src/scala/Enumeration.scala",
+      "line": 386,
+      "severity": "blocker",
+      "confidence": "medium",
+      "needs_human": true,
+      "comment": "The doc's own body and its @param contradict each other, and both are describing what looks like a real offset bug rather than the intended contract. The code is `nnIds iteratorFrom start.id map (id => thisenum.apply(bottomId + id))` — it passes the raw `start.id` to `nnIds.iteratorFrom` without subtracting `bottomId`, unlike every sibling method (`contains`, `incl`, `excl`, `iterator`) which all use `v.id - bottomId`. When `bottomId < 0` (the enumeration has negative ids), this means the returned iterator actually includes values whose id is *below* `start` (verified by tracing concrete ids: e.g. bottomId=-3, start.id=2 yields actual ids -1,0,1,2,3,4 — i.e. -1,0,1 which are less than start). The main doc text does capture this quirk ('otherwise iteration begins at the value ... which lies below `start`'), but: (1) the @param right below it flatly says '`start` the value whose id marks where to begin iterating' with no caveat, directly contradicting the preceding sentence about iteration beginning below `start`; (2) the explanation invents undefined jargon ('zero-adjusted id') for an internal implementation detail never introduced as a public concept, making this very hard for an API reader to parse; (3) nothing signals to the reader that this offset behavior is a corner case worth being suspicious of (it looks like an actual bug, not a documented feature) — a reader will take this as an intentional, guaranteed contract. A human familiar with the original design intent should confirm whether this is a known bug (in which case the doc should just state the plain `SortedSet.iteratorFrom` contract and flag the discrepancy separately, or the code should be fixed) or is genuinely intentional (in which case the @param must at least be corrected so it doesn't contradict the main sentence)."
+    },
+    {
+      "declaration": "ValueSet.incl / ValueSet.excl",
+      "file": "library/src/scala/Enumeration.scala",
+      "line": 372,
+      "severity": "nit",
+      "confidence": "low",
+      "needs_human": false,
+      "comment": "'@return a new `ValueSet`, unchanged if `value` is already an element of this set' (and the excl analogue) is ambiguous: `incl`/`excl` always allocate a fresh `ValueSet` wrapper via `new ValueSet(...)`, so 'unchanged' can't mean the same reference is returned — only that its element contents are unchanged. Worth a small wording tweak (e.g. 'containing the same values as this set if...') to avoid implying reference identity is preserved."
+    },
+    {
+      "declaration": "ValueSet.isEmpty",
+      "file": "library/src/scala/Enumeration.scala",
+      "line": 365,
+      "severity": "nit",
+      "confidence": "low",
+      "needs_human": false,
+      "comment": "Phrased as 'Returns `true` if this set contains no values' while the sibling `contains` a few lines below uses 'Tests whether this set contains the given value. @return `true` if ... `false` otherwise.' Minor inconsistency in style for boolean-returning methods within the same class; not incorrect, just not uniform."
+    },
+    {
+      "declaration": "Val.readResolve",
+      "file": "library/src/scala/Enumeration.scala",
+      "line": 312,
+      "severity": "nit",
+      "confidence": "low",
+      "needs_human": false,
+      "comment": "'Returns the value with this value's id taken from the deserialized enumeration singleton' reads awkwardly — it's not the id that's taken from the singleton, it's the value (looked up by this value's id) that's taken from the singleton's map. Consider: 'Returns the value from the deserialized enumeration singleton whose id matches this value's id, ...' for clarity."
+    }
+  ],
+  "bonus_findings": [
+    {
+      "declaration": "Enumeration @param initial (pre-existing, outside diff)",
+      "file": "library/src/scala/Enumeration.scala",
+      "line": 86,
+      "comment": "'The initial value from which to count the integers that identifies values at run-time' has a subject/verb number mismatch ('integers that identifies' should be 'identify'). Not part of the reviewed diff, flagged for a human to fix opportunistically."
+    }
+  ]
+}
+
+
+The one blocker is `ValueSet.iteratorFrom` (Enumeration.scala:386-394): the newly written Scaladoc's `@param` contradicts its own preceding sentence, and both are documenting what appears to be a genuine offset bug (missing `- bottomId`) as if it were sanctioned behavior, using undefined internal jargon. That needs a human decision on intent before the doc (or code) is finalized. The remaining items are minor polish nits that don't block approval on their own.

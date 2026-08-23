@@ -1,0 +1,48 @@
+{
+  "verdict": "approve",
+  "findings": [
+    {
+      "declaration": "class ReferenceQueue",
+      "severity": "ok",
+      "confidence": "high",
+      "needs_human": false,
+      "comment": "First sentence is a clear, standalone summary. Third-person declarative, no self-reference. @tparam lowercase with no trailing period."
+    },
+    {
+      "declaration": "override def toString()",
+      "severity": "ok",
+      "confidence": "high",
+      "needs_human": false,
+      "comment": "Description begins with 'Returns' and fully states the return value; dropping @return is correct. Adds meaningful context ('underlying Java reference queue') beyond what the signature provides."
+    },
+    {
+      "declaration": "protected def Wrapper",
+      "severity": "ok",
+      "confidence": "high",
+      "needs_human": false,
+      "comment": "Description does not begin with 'Returns', so keeping @return is correct. @return adds the Some/None distinction not stated in the first sentence. Backticks on `null`, `Some`, `None`, `jref` all correct. Tags lowercase, no trailing periods."
+    },
+    {
+      "declaration": "def poll",
+      "severity": "ok",
+      "confidence": "high",
+      "needs_human": false,
+      "comment": "Single sentence starting with 'Returns'; @return correctly dropped. None case is covered inline. Backtick on `None` correct."
+    },
+    {
+      "declaration": "def remove",
+      "severity": "ok",
+      "confidence": "high",
+      "needs_human": false,
+      "comment": "Same 'Returns and removes' pattern as poll; @return correctly dropped."
+    },
+    {
+      "declaration": "def remove(timeout: Long)",
+      "severity": "nit",
+      "confidence": "high",
+      "needs_human": false,
+      "comment": "First sentence opens with 'Removes and returns' while the sibling methods poll and remove use 'Returns and removes'. The inconsistency is minor but visible; prefer 'Returns and removes' for consistency. The @return is correctly kept regardless, since the description does not begin with 'Returns' and the Some/None distinction it adds is not in the first sentence. @param and @return tags are lowercase with no trailing periods; backticks on `0`, `IllegalArgumentException`, `Some`, and `None` are all correct."
+    }
+  ],
+  "bonus_findings": []
+}

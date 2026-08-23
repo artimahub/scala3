@@ -1,0 +1,142 @@
+{
+  "verdict": "revise",
+  "summary": "Multiple factual inaccuracies and style issues in the added Scaladoc for Future.Never and OnCompleteRunnable.",
+  "items": [
+    {
+      "symbol": "Future.Never.onComplete",
+      "line": 666,
+      "severity": "blocker",
+      "issue": "The documentation claims the callback will never be executed because the future is never completed, but the implementation is `() => ()`, which is a no-op. This is correct, but the prose is misleading: it implies the callback is registered but never triggered, when in fact the implementation does nothing at all (not even registering). The behavior is correct, but the explanation is inaccurate.",
+      "suggestion": "Change to: 'Does nothing. This future is never completed, so no callback is ever registered or executed.'",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "Future.Never.failed",
+      "line": 678,
+      "severity": "blocker",
+      "issue": "The documentation states 'this method returns the future itself', but the return type is `Future[Throwable]`, while `this` is `Future[Nothing]`. The implementation returns `this`, which is a `Future[Nothing]`, but the return type is `Future[Throwable]`. This is a type mismatch in the prose.",
+      "suggestion": "Change to: 'Returns a `Future[Throwable]` that is never completed, as this future is never completed.'",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "Future.Never.transform",
+      "line": 708,
+      "severity": "blocker",
+      "issue": "The first overload of `transform` (with two functions) is documented as returning 'a new future with the transformed result', but the implementation returns `this`. The return type is `Future[S]`, but the behavior is to return the same `Future.Never` instance, not a new future. This is a factual inaccuracy.",
+      "suggestion": "Change to: 'Since this future is never completed, this method returns the future itself.' (consistent with other methods)",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "Future.Never.transform",
+      "line": 713,
+      "severity": "blocker",
+      "issue": "The second overload of `transform` (with a single function) has a `@param f` description that says 'the function to apply to the result of this future', but the parameter is of type `Try[Nothing] => Try[S]`. The description should clarify that it is a function applied to the `Try` result.",
+      "suggestion": "Change `@param f` to: 'the function to apply to the `Try` result of this future'",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "Future.Never.transformWith",
+      "line": 720,
+      "severity": "blocker",
+      "issue": "The `@return` tag states 'a new future with the transformed result', but the implementation returns `this`. This is a factual inaccuracy.",
+      "suggestion": "Change to: 'Since this future is never completed, this method returns the future itself.'",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "Future.Never.map",
+      "line": 727,
+      "severity": "blocker",
+      "issue": "The `@return` tag states 'a future which will be completed with the result of the application of the function', but the implementation returns `this`. This is a factual inaccuracy.",
+      "suggestion": "Change to: 'Since this future is never completed, this method returns the future itself.'",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "Future.Never.flatMap",
+      "line": 734,
+      "severity": "blocker",
+      "issue": "The `@return` tag states 'a future which will be completed with the result of the application of the function', but the implementation returns `this`. This is a factual inaccuracy.",
+      "suggestion": "Change to: 'Since this future is never completed, this method returns the future itself.'",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "Future.Never.recover",
+      "line": 743,
+      "severity": "blocker",
+      "issue": "The `@return` tag states 'a future with the successful value of this future or the result of the partial function', but the implementation returns `this`. This is a factual inaccuracy.",
+      "suggestion": "Change to: 'Since this future is never completed, this method returns the future itself.'",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "Future.Never.recoverWith",
+      "line": 750,
+      "severity": "blocker",
+      "issue": "The `@return` tag states 'a future with the successful value of this future or the outcome of the future returned by the partial function', but the implementation returns `this`. This is a factual inaccuracy.",
+      "suggestion": "Change to: 'Since this future is never completed, this method returns the future itself.'",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "Future.Never.zip",
+      "line": 757,
+      "severity": "blocker",
+      "issue": "The `@return` tag states 'a future with the results of both futures or the failure of the first of them that failed', but the implementation returns `this`. This is a factual inaccuracy.",
+      "suggestion": "Change to: 'Since this future is never completed, this method returns the future itself.'",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "Future.Never.fallbackTo",
+      "line": 765,
+      "severity": "blocker",
+      "issue": "The `@return` tag states 'a future with the successful result of this or that future or the failure of this future if both fail', but the implementation returns `this`. This is a factual inaccuracy.",
+      "suggestion": "Change to: 'Since this future is never completed, this method returns the future itself.'",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "Future.Never.andThen",
+      "line": 771,
+      "severity": "blocker",
+      "issue": "The `@return` tag states 'a future which will be completed with the exact same outcome as this future but after the partial function has been executed', but the implementation returns `this`. This is a factual inaccuracy.",
+      "suggestion": "Change to: 'Since this future is never completed, this method returns the future itself.'",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "Future.Never.andThen",
+      "line": 771,
+      "severity": "nit",
+      "issue": "The `@tparam U` description 'only used to accept any return type of the given partial function' is awkward and not idiomatic Scaladoc.",
+      "suggestion": "Change to: 'the return type of the partial function'",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "Future.Never.toString",
+      "line": 778,
+      "severity": "nit",
+      "issue": "The first sentence 'Returns a string representation of this future.' is redundant with the method name and could be more concise.",
+      "suggestion": "Change to: 'A string representation of this future.'",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "OnCompleteRunnable",
+      "line": 1113,
+      "severity": "nit",
+      "issue": "The first sentence 'A trait for runnables that can be batched together for more efficient execution.' is a fragment and does not stand alone well as an API-index summary.",
+      "suggestion": "Change to: 'A trait for runnables that can be batched together for more efficient execution.' -> 'A trait for runnables that can be batched for more efficient execution.'",
+      "confidence": "medium",
+      "needs_human": false
+    }
+  ],
+  "bonus_findings": []
+}

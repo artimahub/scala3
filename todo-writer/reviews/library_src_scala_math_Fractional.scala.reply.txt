@@ -1,0 +1,60 @@
+<<<<<<< 1
+/** A typeclass for fractional numeric types.
+ *
+ *  @tparam T the type of the fractional numbers
+ */
+>>>>>>>
+
+<<<<<<< 2
+/** Returns the result of dividing `x` by `y`.
+ *
+ *  @param x the dividend
+ *  @param y the divisor
+ *  @return the quotient of `x` divided by `y`
+ */
+>>>>>>>
+
+<<<<<<< 3
+/** Provides fractional operations for a given value.
+ *
+ *  @param lhs the value to perform operations on
+ */
+>>>>>>>
+
+<<<<<<< 4
+/** Returns the result of dividing `lhs` by `rhs`.
+ *
+ *  @param rhs the divisor
+ */
+>>>>>>>
+
+<<<<<<< 5
+/** Returns an object that provides fractional operations for `lhs`.
+ *
+ *  @param lhs the value to perform operations on
+ *  @return an object providing fractional operations for `lhs`
+ */
+>>>>>>>
+
+<<<<<<< 6
+/** Returns the `Fractional` instance for type `T`.
+ *
+ *  @tparam T the type of the fractional numbers
+ *  @param frac the implicit `Fractional` instance for `T`
+ *  @return the `Fractional` instance for `T`
+ */
+>>>>>>>
+
+<<<<<<< 7
+/** Provides additional implicit conversions for fractional types. */
+>>>>>>>
+
+<<<<<<< 8
+/** Returns an object that provides fractional operations for `x`.
+ *
+ *  @tparam T the type of the fractional numbers
+ *  @param x the value to perform operations on
+ *  @param num the implicit `Fractional` instance for `T`
+ *  @return an object providing fractional operations for `x`
+ */
+>>>>>>>

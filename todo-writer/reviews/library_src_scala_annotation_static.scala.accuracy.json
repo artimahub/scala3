@@ -1,0 +1,1 @@
+{"verdict":"approve","summary":"The added Scaladoc matches the compiler handling: @static is for members in objects with companion classes and emits JVM static fields/methods on the companion class.","items":[],"bonus_findings":[]}

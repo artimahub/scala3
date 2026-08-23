@@ -1,0 +1,25 @@
+{
+  "verdict": "approve",
+  "items": [
+    {
+      "declaration": "SystemProperties#default",
+      "line": 36,
+      "severity": "nit",
+      "confidence": "medium",
+      "needs_human": false,
+      "note": "\"which is what a lookup yields for a key with no value in the map\" is a bit ambiguous: `default` is only consulted by the inherited `apply`/`applyOrElse` (e.g. `props(\"x\")`), not by `get`, which this class overrides separately to return `None` for a missing key. A reader could conflate the two. Consider \"...which `apply` returns for a key with no value in the map\" for precision. Not a blocker since the base `scala.collection.Map#default` doc uses similarly loose phrasing (\"returned when a key is not found\")."
+    },
+    {
+      "declaration": "SystemProperties#wrapAccess",
+      "line": 102,
+      "severity": "nit",
+      "confidence": "low",
+      "needs_human": false,
+      "note": "`@return `Some` result of `body`, or `None` if...` reads a little awkwardly (\"Some result of body\" vs. the intended \"the result of `body`, wrapped in `Some`\"). Minor wording polish only."
+    }
+  ],
+  "bonus_findings": []
+}
+
+
+Reviewed the diff against the actual implementation in `SystemProperties.scala` line by line — every `@param`/`@return`/description checked for accuracy (null/None/empty-string edge cases, `AccessControlException` swallowing, `NullPointerException` on null values in `addOne`, `default`'s unused param, `help`'s fallback case, etc.) and all match the code. Style is consistent with house rules: lowercase/no-period tag continuations, correct `$coll` substitution, appropriate `@return` retention/omission per the stated rule, backticked code references. No blockers, no `NEEDS-HUMAN` markers, no pre-existing-doc issues worth flagging. Two low-severity wording nits only — verdict is **approve**.

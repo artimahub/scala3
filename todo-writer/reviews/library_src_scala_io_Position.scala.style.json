@@ -1,0 +1,13 @@
+{
+  "verdict": "approve",
+  "findings": [
+    {
+      "declaration": "object Position.checkInput",
+      "severity": "nit",
+      "confidence": "medium",
+      "needs_human": false,
+      "comment": "The @param parentheticals use the compressed phrase \"negative values throw\", treating \"throw\" as intransitive. Prefer \"negative values are rejected\" (matching the prose in the description body) for grammatical consistency and to avoid ambiguity with the noun sense of \"throw\"."
+    }
+  ],
+  "bonus_findings": []
+}

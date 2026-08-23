@@ -1,0 +1,35 @@
+{
+  "verdict": "revise",
+  "summary": "getOrElseUpdate's new doc is accurate and matches the implementation; removeRefEq/replaceRefEq rewordings remain accurate (confirmed against TrieMap's overrides); but the new @throws tag on updateWith is malformed (no exception class token, just prose starting with 'the'), which breaks the standard @throws syntax and will render/link incorrectly.",
+  "items": [
+    {
+      "symbol": "Map.updateWith",
+      "line": 165,
+      "severity": "blocker",
+      "issue": "The new `@throws` tag is written as `@throws the exception thrown by `remappingFunction` if it fails.` -- Scaladoc's `@throws` tag expects the first token to be the exception class name (see e.g. `@throws NoSuchElementException if ...` elsewhere in this codebase, such as collection/Map.scala:326 and Iterable.scala:229). Here the first token is \"the\", which Scaladoc will try to resolve as a type and fail to link, producing broken/garbled output instead of a proper exception cross-reference. It also never actually names an exception type, and duplicates the sentence already in the description (\"the exception is rethrown\") without adding a class name, which is the whole point of `@throws`.",
+      "suggestion": "Use the standard `@throws` form, e.g. `@throws Exception if \\`remappingFunction\\` throws` (or `@throws Throwable ...` since the propagated exception is whatever remappingFunction throws), dropping the leading \"the\" and the trailing period per the tag-continuation convention.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "Map.getOrElseUpdate",
+      "line": 109,
+      "severity": "nit",
+      "issue": "The `@return` tag (\"the value associated with the key: the existing value, the newly computed and stored value, or a value inserted concurrently by another thread\") restates the description above almost verbatim, which already opens with \"Returns\" and fully states all three outcomes. Per house rule, `@return` should be dropped when the description already begins with \"Returns\" and fully states the return value, keeping it only when it adds an edge case not already in the description.",
+      "suggestion": "Drop the `@return` tag, or trim it to add something the description doesn't already say (there isn't such a detail here).",
+      "confidence": "medium",
+      "needs_human": false
+    },
+    {
+      "symbol": "Map.getOrElseUpdate",
+      "line": 106,
+      "severity": "nit",
+      "issue": "Two consecutive blank Scaladoc lines appear between the description paragraph and the `@param` tags (lines 105-106), which is stray formatting left over from editing.",
+      "suggestion": "Remove the extra blank `*` line so there is only one blank line separating the description from the tags.",
+      "confidence": "high",
+      "needs_human": false
+    }
+  ],
+  "bonus_findings": []
+}
+

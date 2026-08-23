@@ -1,0 +1,27 @@
+{
+  "verdict": "approve",
+  "items": [
+    {
+      "declaration": "class deprecated",
+      "severity": "nit",
+      "confidence": "medium",
+      "needs_human": false,
+      "comment": "The new block's two description sentences are word-for-word identical to the opening of the comprehensive pre-existing block at lines 18-19. If Scaladoc renders the comment closest to the `class` keyword (i.e. this new block rather than the one before the annotations), the extensive examples, @see links, and policy prose in the first block would be silently dropped. The structural decision to keep two blocks is pre-existing and out of scope here, but the content duplication is worth a second look to confirm the rendering intent is correct."
+    },
+    {
+      "declaration": "class deprecated — @param message",
+      "severity": "ok",
+      "confidence": "high",
+      "needs_human": false,
+      "comment": "Lowercase, no trailing period, clear phrasing. Matches the pre-existing param text exactly."
+    },
+    {
+      "declaration": "class deprecated — @param since",
+      "severity": "ok",
+      "confidence": "high",
+      "needs_human": false,
+      "comment": "Lowercase, no trailing period, well-worded."
+    }
+  ],
+  "bonus_findings": []
+}

@@ -1,0 +1,57 @@
+I'll apply the targeted patches to the Scaladoc comments as specified in the worklist. Here are the changes:
+
+```scala
+package scala.util
+
+import language.experimental.captureChecking
+
+import scala.annotation.implicitNotFound
+import scala.annotation.experimental
+
+/** Type class relating a `FunctionN[..., R]` with an equivalent tupled function `Function1[TupleN[...], R]`
+ *
+ *  @tparam F a function type
+ *  @tparam G a tupled function type (function of arity 1 receiving a tuple as argument)
+ */
+@implicitNotFound("${F} cannot be tupled as ${G}")
+@experimental
+sealed trait TupledFunction[F, G]:
+  /** Applies the tupled conversion to the given function.
+   *
+   *  The conversion is defined by the instance's `tupledImpl` function.
+   *
+   *  @param f the function to convert
+   *  @return the tupled function equivalent to `f`
+   */
+  def tupled(f: F): G
+  /** Applies the untupled conversion to the given tupled function.
+   *
+   *  The conversion is defined by the instance's `untupledImpl` function.
+   *
+   *  @param g the tupled function to convert
+   *  @return the function equivalent to `g`
+   */
+  def untupled(g: G): F
+
+@experimental
+private[scala] object TupledFunction:
+  /** Creates a `TupledFunction` instance from the given conversion functions.
+   *
+   *  @tparam F the function type to convert from
+   *  @tparam G the tupled function type to convert to
+   *  @param tupledImpl the function that converts from `F` to `G`
+   *  @param untupledImpl the function that converts from `G` to `F`
+   *  @return a new `TupledFunction` instance that uses the provided conversion functions
+   */
+  def apply[F, G](tupledImpl: F => G, untupledImpl: G => F): TupledFunction[F, G]^{tupledImpl, untupledImpl} =
+    new TupledFunction[F, G]:
+      def tupled(f: F): G = tupledImpl(f)
+      def untupled(g: G): F = untupledImpl(g)
+```
+
+Changes made:
+1. Line 16 (`tupled` method): Updated summary to be more concise and added clarification that the conversion is defined by `tupledImpl`
+2. Line 22 (`untupled` method): Updated summary to be more concise and added clarification that the conversion is defined by `untupledImpl`
+3. Line 32 (`apply` method): Updated `@return` description to clarify that a new `TupledFunction` instance is created
+
+All changes are targeted patches to only the Scaladoc comment lines as specified in the worklist, without modifying any code or other parts of the file.

@@ -1,0 +1,113 @@
+{
+  "verdict": "revise",
+  "summary": "Multiple blockers found in accuracy and style, including incorrect claims about behavior, missing edge cases, and Scaladoc convention violations.",
+  "items": [
+    {
+      "symbol": "ExecutionContextImpl.execute",
+      "line": 23,
+      "severity": "blocker",
+      "issue": "The documentation claims the method 'executes the given runnable task using the underlying executor' but does not mention that the executor may throw a `RejectedExecutionException` if the task cannot be accepted for execution. This is a material omission.",
+      "suggestion": "Add a `@throws` tag for `RejectedExecutionException` and clarify that the task execution is delegated to the underlying executor, which may reject it.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "ExecutionContextImpl.reportFailure",
+      "line": 28,
+      "severity": "nit",
+      "issue": "The first sentence is clear but could be more concise. 'Reports the given throwable to the configured reporter' is slightly verbose. Consider 'Reports a throwable to the configured reporter.'",
+      "suggestion": "Reword to: 'Reports a throwable to the configured reporter.'",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "DefaultThreadFactory",
+      "line": 35,
+      "severity": "blocker",
+      "issue": "The documentation states that the thread factory 'creates daemon or non-daemon threads with configurable blocking behavior and exception handling,' but it does not clarify that `maxBlockers` is enforced via a `Semaphore`, which may block or reject thread creation if the limit is exceeded. This is a material omission for users who need to understand blocking behavior.",
+      "suggestion": "Add a `@note` explaining that thread creation may block or fail if `maxBlockers` is exceeded, and that this is enforced via a `Semaphore`.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "DefaultThreadFactory.daemonic",
+      "line": 40,
+      "severity": "nit",
+      "issue": "The parameter description 'Whether created threads should be daemon threads' is redundant with the parameter name. The description should clarify the effect of daemon threads (e.g., JVM exit behavior).",
+      "suggestion": "Reword to: 'If true, created threads will be daemon threads, allowing the JVM to exit even if they are running.'",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "DefaultThreadFactory.maxBlockers",
+      "line": 42,
+      "severity": "blocker",
+      "issue": "The description 'The maximum number of threads that can block simultaneously' is misleading. The `maxBlockers` parameter limits the number of threads that can *acquire* the semaphore for blocking operations, not the number of threads that can block simultaneously in general. This could confuse users about the actual behavior.",
+      "suggestion": "Reword to: 'The maximum number of threads that can acquire permits for blocking operations, enforced via a semaphore.'",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "DefaultThreadFactory.wire",
+      "line": 58,
+      "severity": "nit",
+      "issue": "The `@return` tag description 'the configured thread' is redundant with the method signature. The description should clarify what configuration was applied.",
+      "suggestion": "Reword to: 'The thread configured with daemon status, exception handler, and name prefix.'",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "DefaultThreadFactory.newThread(runnable: Runnable)",
+      "line": 70,
+      "severity": "nit",
+      "issue": "The `@return` tag description 'the newly created thread' is redundant. The description should clarify that the thread is configured via the `wire` method.",
+      "suggestion": "Reword to: 'A new thread configured via `wire` to execute the given runnable.'",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "DefaultThreadFactory.newThread(fjp: ForkJoinPool)",
+      "line": 77,
+      "severity": "blocker",
+      "issue": "The documentation claims the method 'creates a new ForkJoinWorkerThread that supports blocking operations,' but it does not mention that the thread is configured with `BlockContext` or that blocking operations may be limited by `maxBlockers`. This is a material omission for users relying on blocking behavior.",
+      "suggestion": "Add a `@note` explaining that the thread supports blocking operations via `BlockContext` and that blocking is subject to the `maxBlockers` limit.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "createDefaultExecutorService",
+      "line": 87,
+      "severity": "blocker",
+      "issue": "The documentation does not mention that the method may throw exceptions if system properties for parallelism or other parameters are malformed or out of bounds. This is a material omission for users who need to handle configuration errors.",
+      "suggestion": "Add a `@throws` tag for `IllegalArgumentException` or `NumberFormatException` to clarify that invalid system properties may cause failures.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "fromExecutor",
+      "line": 102,
+      "severity": "blocker",
+      "issue": "The documentation states that the method 'creates an ExecutionContextExecutor from the given executor,' but it does not clarify that passing `null` for `e` results in the use of a default executor. This is a material omission for users who need to understand the fallback behavior.",
+      "suggestion": "Add a `@note` explaining that if `e` is `null`, a default executor is used.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "symbol": "fromExecutorService",
+      "line": 112,
+      "severity": "blocker",
+      "issue": "The documentation does not clarify that passing `null` for `es` results in the use of a default executor service, similar to `fromExecutor`. This is a material omission for consistency and user expectations.",
+      "suggestion": "Add a `@note` explaining that if `es` is `null`, a default executor service is used.",
+      "confidence": "high",
+      "needs_human": false
+    }
+  ],
+  "bonus_findings": [
+    {
+      "symbol": "ExecutionContextImpl",
+      "line": 20,
+      "issue": "The class documentation is missing entirely. While not part of the diff, this is a significant omission for an internal API that users may interact with indirectly.",
+      "suggestion": "Add class-level Scaladoc explaining the purpose of `ExecutionContextImpl`, its relationship to `ExecutionContextExecutor`, and its role in task execution and failure reporting."
+    }
+  ]
+}

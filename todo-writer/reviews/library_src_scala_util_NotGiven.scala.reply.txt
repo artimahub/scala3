@@ -1,0 +1,27 @@
+I'll apply the two blocker fixes as targeted patches to the Scaladoc comment lines.
+
+```scala
+/** A lower-priority fallback that provides a `NotGiven[T]` for any type `T`, used to emulate negation in Scala 2. */
+trait LowPriorityNotGiven {
+
+  /** A fallback method used to emulate negation in Scala 2. */
+  given default[T]: NotGiven[T] = NotGiven.value
+}
+```
+
+becomes:
+
+```scala
+/** A low-priority fallback that provides an implicit `NotGiven[T]` only when no
+ *  higher-priority implicit `NotGiven[T]` is available.
+ */
+trait LowPriorityNotGiven {
+
+  /** Provides an implicit `NotGiven[T]` fallback instance when no higher-priority
+   *  instance is available.
+   *
+   *  @return a `NotGiven[T]` instance
+   */
+  given default[T]: NotGiven[T] = NotGiven.value
+}
+```

@@ -1,0 +1,22 @@
+{
+  "verdict": "approve",
+  "needs_human": false,
+  "items": [
+    {
+      "declaration": "object #::.unapply[A](s: LazyList[A])",
+      "severity": "ok",
+      "confidence": "high",
+      "note": "First sentence is a standalone, accurate summary; @tparam/@param/@return are correctly cased, punctuated, and match the implementation (Some((head, tail)) when nonEmpty, None otherwise). Wiki-style link to LazyList used correctly."
+    },
+    {
+      "declaration": "object #::.unapply[A](s: Stream[A])",
+      "severity": "nit",
+      "confidence": "low",
+      "note": "Accurate and consistent with the LazyList variant. Minor: phrasing 'supporting the `head #:: tail` pattern in a match expression' slightly undersells that the extractor also works in val/for-comprehension destructuring, not just match expressions — not inaccurate, just narrow. Not blocking."
+    }
+  ],
+  "bonus_findings": []
+}
+
+
+Both doc comments accurately describe the `unapply` implementations (correct return semantics for empty/non-empty cases), use proper `[[...]]` links and backticks, and follow tag-casing/punctuation conventions. No blockers found; only a very minor nit on phrasing scope for the Stream variant.

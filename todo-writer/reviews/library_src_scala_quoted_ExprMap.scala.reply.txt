@@ -1,0 +1,7 @@
+Worklist done, committed as `c22b9654c3`.
+
+- **Blocker, `transformChildren` @return (line 29):** added `Inlined`'s `call` to the list of children left untransformed. Also applied the same correction to the matching sentence in `transformTermChildren`'s description, since it is the same reused text describing the method that actually does the pass-through.
+- **Blocker, `transformTermChildren` @return (line 93):** replaced `Closure` in the childless list with `This` and `Super`, and added that a `Closure` is returned unchanged so its `meth` is a real but untransformed child, parallel to the existing `Return` sentence.
+- **Nit, `transformChildren` (line 29):** added an `@note` that a bare `Closure` term (buildable via the reflect `Closure.apply`, not just the compiler's `Block`-wrapped encoding) is returned completely unmodified, body unvisited.
+
+The three overruled accuracy items needed no change. Diff touches Scaladoc comment lines only; no `needs_human` items were in the list, so no NEEDS-HUMAN notes were added.

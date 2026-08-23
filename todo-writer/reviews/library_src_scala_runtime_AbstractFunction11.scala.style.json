@@ -1,0 +1,15 @@
+{
+  "verdict": "approve",
+  "needs_human": false,
+  "items": [
+    {
+      "declaration": "AbstractFunction11 (class doc + @tparam T1..T11, R)",
+      "severity": "ok",
+      "confidence": "high",
+      "needs_human": false,
+      "comment": "Accurate and consistent with the sibling AbstractFunction10 doc already written in this PR; correctly reflects the extends Function11[...] signature."
+    }
+  ],
+  "bonus_findings": []
+}
+

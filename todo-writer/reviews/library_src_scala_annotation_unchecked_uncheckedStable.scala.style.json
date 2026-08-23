@@ -1,0 +1,14 @@
+{
+  "verdict": "approve",
+  "summary": "The replacement doc is clear, declarative, and substantively better than the original. No blockers found.",
+  "findings": [
+    {
+      "symbol": "uncheckedStable",
+      "severity": "ok",
+      "confidence": "high",
+      "needs_human": false,
+      "comments": "First sentence stands alone well as an index summary. Voice is correct (third person, present tense, no self-reference). Altitude is appropriate - the density is justified by the technical concept (volatile types / path-dependent type prefixes). No HTML, no redundant @return, no convention violations. The referent of 'it' and 'its' (both resolving to 'a value') is unambiguous in context."
+    }
+  ],
+  "bonus_findings": []
+}

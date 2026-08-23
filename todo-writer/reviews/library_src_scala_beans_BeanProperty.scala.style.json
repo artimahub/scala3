@@ -1,0 +1,20 @@
+{
+  "verdict": "approve",
+  "items": [
+    {
+      "declaration": "BeanProperty — module-level doc block first sentence (the 'When attached to a field…' comment)",
+      "severity": "nit",
+      "confidence": "medium",
+      "needs_human": false,
+      "comment": "The reworded first sentence reads 'When attached to a field, this annotation adds a getter method following the Java Bean convention, and, if the field is a `var`, a setter as well.' The double comma — 'and, if the field is a `var`,' — creates a slightly clunky parenthetical. Dropping one comma ('and if the field is a `var`, a setter as well') or restructuring ('… a getter, and a setter for `var` fields') reads more naturally."
+    },
+    {
+      "declaration": "class BeanProperty — class-level Scaladoc",
+      "severity": "nit",
+      "confidence": "medium",
+      "needs_human": false,
+      "comment": "The new doc reads 'A field annotation that generates a Java Bean-style getter for the annotated `val` or `var`, and a setter when it is a `var`.' The pronoun 'it' in 'when it is a `var`' is slightly ambiguous (antecedent is 'the annotated `val` or `var`' several words back). The module-level doc uses the clearer 'if the field is a `var`'; matching that phrasing here ('and a setter if the field is a `var`') would be more consistent and easier to parse."
+    }
+  ],
+  "bonus_findings": []
+}

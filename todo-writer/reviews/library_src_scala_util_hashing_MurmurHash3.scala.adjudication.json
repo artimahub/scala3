@@ -1,0 +1,168 @@
+{
+  "verdict": "revise",
+  "summary": "Multiple blockers found in style review, including incorrect descriptions and missing edge cases.",
+  "resolved_items": [
+    {
+      "symbol": "productHash",
+      "line": 88,
+      "severity": "blocker",
+      "instruction": "Revise the documentation to clarify that the product prefix is mixed into the seed when `ignorePrefix` is false, and explicitly mention the behavior for case classes compiled before 2.13.17.",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "arrayHash",
+      "line": 430,
+      "severity": "blocker",
+      "instruction": "Revise the documentation to mention that the method delegates to `arrayHash(a, arraySeed)` and remove the redundant `@return` tag.",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "bytesHash",
+      "line": 435,
+      "severity": "blocker",
+      "instruction": "Revise the documentation to mention that the method delegates to `bytesHash(data, arraySeed)` and remove the redundant `@return` tag.",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "unorderedHash",
+      "line": 450,
+      "severity": "blocker",
+      "instruction": "Revise the description to clarify that the same elements in any order produce the same hash.",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "rangeHash",
+      "line": 455,
+      "severity": "blocker",
+      "instruction": "Revise the documentation to mention that the method delegates to `rangeHash(start, step, last, seqSeed)` and remove the redundant `@return` tag.",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "productHash (deprecated)",
+      "line": 465,
+      "severity": "blocker",
+      "instruction": "Revise the documentation to mention that this method is deprecated in favor of `caseClassHash` and that it delegates to `caseClassHash(x, productSeed, null)`.",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "apply (in accum)",
+      "line": 545,
+      "severity": "blocker",
+      "instruction": "Revise the documentation to describe the side effects of the method (updating `a`, `b`, `n`, and `c`).",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "setHash",
+      "line": 565,
+      "severity": "blocker",
+      "instruction": "Revise the documentation to mention that the method delegates to `unorderedHash(xs, setSeed)` and remove the redundant `@return` tag.",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "ArrayHashing.hash",
+      "line": 575,
+      "severity": "blocker",
+      "instruction": "Revise the documentation to mention that the method delegates to `arrayHash(a)`.",
+      "raised_by": "style",
+      "needs_human": false
+    },
+    {
+      "symbol": "mapHash",
+      "line": 530,
+      "severity": "blocker",
+      "instruction": "Revise the documentation to describe the edge case for empty maps (delegating to `emptyMapHash`) and the accumulation logic for non-empty maps.",
+      "raised_by": "style",
+      "needs_human": false
+    }
+  ],
+  "disagreements": [
+    {
+      "symbol": "productHash",
+      "line": 88,
+      "accuracy_position": "",
+      "style_position": "The documentation does not accurately describe the behavior of the method. The method's implementation mixes in the product prefix only if `ignorePrefix` is false, but the documentation states 'derived from the product prefix (if not ignored)' without clarifying that the prefix is mixed into the seed, not just conditionally included. Additionally, the method's behavior for case classes compiled before 2.13.17 (where `ignorePrefix` is false) is not mentioned, which is a material detail for callers.",
+      "ruling": "style",
+      "rationale": "The style reviewer's concern about the accuracy of the description is valid and material to the API."
+    },
+    {
+      "symbol": "arrayHash",
+      "line": 430,
+      "accuracy_position": "",
+      "style_position": "The documentation does not mention that the method delegates to `arrayHash(a, arraySeed)`, which is a material detail for callers who might expect a different seed or behavior. The `@return` tag is also redundant with the description.",
+      "ruling": "style",
+      "rationale": "The delegation detail is material and the `@return` tag is redundant."
+    },
+    {
+      "symbol": "bytesHash",
+      "line": 435,
+      "accuracy_position": "",
+      "style_position": "The documentation does not mention that the method delegates to `bytesHash(data, arraySeed)`, which is a material detail for callers. The `@return` tag is redundant with the description.",
+      "ruling": "style",
+      "rationale": "The delegation detail is material and the `@return` tag is redundant."
+    },
+    {
+      "symbol": "unorderedHash",
+      "line": 450,
+      "accuracy_position": "",
+      "style_position": "The description uses 'order-independent' but does not clarify that this means the same elements in any order produce the same hash. This is a material detail for callers.",
+      "ruling": "style",
+      "rationale": "The clarification of 'order-independent' is material for callers."
+    },
+    {
+      "symbol": "rangeHash",
+      "line": 455,
+      "accuracy_position": "",
+      "style_position": "The documentation does not mention that the method delegates to `rangeHash(start, step, last, seqSeed)`, which is a material detail for callers. The `@return` tag is also redundant with the description.",
+      "ruling": "style",
+      "rationale": "The delegation detail is material and the `@return` tag is redundant."
+    },
+    {
+      "symbol": "productHash (deprecated)",
+      "line": 465,
+      "accuracy_position": "",
+      "style_position": "The documentation does not mention that this method is deprecated in favor of `caseClassHash` or that it delegates to `caseClassHash(x, productSeed, null)`. This is a material detail for callers who might not notice the `@deprecated` annotation.",
+      "ruling": "style",
+      "rationale": "The deprecation and delegation details are material for callers."
+    },
+    {
+      "symbol": "apply (in accum)",
+      "line": 545,
+      "accuracy_position": "",
+      "style_position": "The documentation does not describe the side effects of the method (updating `a`, `b`, `n`, and `c`), which are material to its behavior. The description is also vague ('Processes a map entry').",
+      "ruling": "style",
+      "rationale": "The side effects are material to the method's behavior."
+    },
+    {
+      "symbol": "setHash",
+      "line": 565,
+      "accuracy_position": "",
+      "style_position": "The documentation does not mention that the method delegates to `unorderedHash(xs, setSeed)`, which is a material detail for callers. The `@return` tag is redundant with the description.",
+      "ruling": "style",
+      "rationale": "The delegation detail is material and the `@return` tag is redundant."
+    },
+    {
+      "symbol": "ArrayHashing.hash",
+      "line": 575,
+      "accuracy_position": "",
+      "style_position": "The documentation does not mention that the method delegates to `arrayHash(a)`, which is a material detail for callers. The description is also too terse ('Computes the hash of an array').",
+      "ruling": "style",
+      "rationale": "The delegation detail is material for callers."
+    },
+    {
+      "symbol": "mapHash",
+      "line": 530,
+      "accuracy_position": "",
+      "style_position": "The documentation does not describe the edge case for empty maps (delegating to `emptyMapHash`) or the accumulation logic for non-empty maps. This is a material omission for callers.",
+      "ruling": "style",
+      "rationale": "The edge case and accumulation logic are material for callers."
+    }
+  ]
+}

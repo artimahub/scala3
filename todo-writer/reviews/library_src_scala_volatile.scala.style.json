@@ -1,0 +1,16 @@
+{
+  "items": [
+    {
+      "declaration": "final class volatile",
+      "file": "library/src/scala/volatile.scala",
+      "line": 19,
+      "severity": "nit",
+      "confidence": "high",
+      "needs_human": false,
+      "comment": "Accurate and reasonably idiomatic: correctly describes that the annotation marks a field as JVM-volatile, granting visibility and happens-before ordering guarantees on reads/writes, consistent with the @field meta-annotation restricting it to fields. Minor style nit: 'JVM's volatile-field visibility and ordering semantics' is a slightly awkward compound; something like 'giving reads and writes of the field the JVM's volatile memory-visibility and ordering guarantees' reads more smoothly, but this is polish, not a blocker."
+    }
+  ],
+  "bonus_findings": [],
+  "verdict": "approve"
+}
+

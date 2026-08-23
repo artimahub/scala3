@@ -1,0 +1,17 @@
+{
+  "verdict": "approve",
+  "needs_human": false,
+  "items": [
+    {
+      "declaration": "object Product3.unapply[T1, T2, T3]",
+      "severity": "ok",
+      "confidence": "high",
+      "needs_human": false,
+      "notes": "Summary accurately describes the always-succeeding extractor (unapply always returns Some(x)). The claim that this makes Product3 usable in a pattern match (e.g. `case Product3(a, b, c) => ...`) is correct: Scala's product-match pattern binds via the _1.._N accessors that Product3 provides, so no Tuple-specific unapply is required. @tparam and @param entries are accurate, lowercase, and unpunctuated. Dropping @return is consistent with the house rule since the first sentence ('Returns the given product wrapped in a [[scala.Some]]...') already fully states the return value. Phrasing and structure match the analogous Product1/Product2 docs exactly, preserving in-file consistency."
+    }
+  ],
+  "bonus_findings": []
+}
+
+
+No blockers or nits found; the documentation is accurate and consistent with the sibling `Product1`/`Product2` docs already reviewed elsewhere in this batch.

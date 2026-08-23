@@ -1,0 +1,56 @@
+{
+  "verdict": "revise",
+  "summary": "FromString and fromStringOption docs need exception guarantees and a non-redundant @return tag; fromString was outside the diff and is not acted on.",
+  "resolved_items": [
+    {
+      "symbol": "FromString",
+      "line": 68,
+      "severity": "blocker",
+      "instruction": "Add to the trait description that conversion may fail, e.g., 'A type class for converting a command line `String` into a value of type `T`; conversion may throw `IllegalArgumentException`.'",
+      "raised_by": "accuracy",
+      "needs_human": false
+    },
+    {
+      "symbol": "FromString.fromStringOption",
+      "line": 80,
+      "severity": "blocker",
+      "instruction": "Add an `@return` tag stating the guarantee the description omits — that `None` is returned when `fromString` throws, e.g., '@return `Some(value)` if conversion succeeds, or `None` if `fromString` throws.'",
+      "raised_by": "both",
+      "needs_human": false
+    },
+    {
+      "symbol": "FromString.fromStringOption",
+      "line": 80,
+      "severity": "nit",
+      "instruction": "Use 'converted from `s`' instead of 'parsed from `s`' for terminology consistency with the trait description.",
+      "raised_by": "accuracy",
+      "needs_human": false
+    }
+  ],
+  "disagreements": [
+    {
+      "symbol": "FromString",
+      "line": 68,
+      "accuracy_position": "Keep @tparam T; add exception guarantee to the trait description.",
+      "style_position": "Remove @tparam T as redundant; rewrite first sentence for clarity without mentioning the exception.",
+      "ruling": "accuracy",
+      "rationale": "The exception guarantee is a load-bearing fact the code supports (fromString can throw IllegalArgumentException), so it must be stated; the @tparam tag is retained because the house rule only drops tags when they add nothing, and here it names the target type."
+    },
+    {
+      "symbol": "fromString",
+      "line": 72,
+      "accuracy_position": "",
+      "style_position": "Add a @throws tag and a full main description to fromString.",
+      "ruling": "neither",
+      "rationale": "The fromString declaration and its 'Can throw java.lang.IllegalArgumentException' comment are pre-existing and outside the diff; reviewers were instructed to judge only the added lines, so this is out of scope for this round."
+    },
+    {
+      "symbol": "FromString.fromStringOption",
+      "line": 80,
+      "accuracy_position": "Keep @return carrying the exception-to-None guarantee; drop the leading 'Returns' to avoid redundancy.",
+      "style_position": "Add @return; revise the first sentence to active present-tense declarative.",
+      "ruling": "merged",
+      "rationale": "Both agree @return is needed; the instruction keeps the tag to carry the exception guarantee per the house rule and lets style dictate the declarative phrasing."
+    }
+  ]
+}

@@ -1,0 +1,475 @@
+<<<<<<< SEARCH
+/** A trait containing low-priority implicit `Equiv` instances.
+ *
+ *  These instances are not in the default scope to avoid accidental usage.
+ */
+=======
+/** A trait containing low-priority implicit `Equiv` instances.
+ *
+ *  These instances are inherited into `Equiv`'s implicit scope but are
+ *  deprioritized via subclassing.
+ */
+>>>>>>> REPLACE
+<<<<<<< SEARCH
+  /** Use `Equiv.universal` explicitly instead. If you really want an implicit universal `Equiv` instance
+   *  @deprecated This implicit universal `Equiv` instance allows accidentally
+   *  comparing instances of types for which equality isn't well-defined or implemented.
+   *  (For example, it does not make sense to compare two `Function1` instances.)
+   *
+   *  despite the potential problems, consider `implicit def universalEquiv[T]: Equiv[T] = universal[T]`.
+   */
+  @deprecated("Use explicit Equiv.universal instead. See Scaladoc entry for more information: " +
+    "https://www.scala-lang.org/api/current/scala/math/Equiv$.html#universalEquiv[T]:scala.math.Equiv[T]",
+    since = "2.13.0")
+  /** Returns an `Equiv` instance that uses universal equality (`==`) for any type `T`.
+   *
+   *  @tparam T the type of values to compare
+   *  @return an `Equiv[T]` that compares values using `==`
+   */
+=======
+  /** Use `Equiv.universal` explicitly instead. If you really want an implicit universal `Equiv` instance
+   *  despite the potential problems, consider `implicit def universalEquiv[T]: Equiv[T] = universal[T]`.
+   *
+   *  @deprecated This implicit universal `Equiv` instance allows accidentally
+   *  comparing instances of types for which equality isn't well-defined or implemented.
+   *  (For example, it does not make sense to compare two `Function1` instances.)
+   */
+  @deprecated("Use explicit Equiv.universal instead. See Scaladoc entry for more information: " +
+    "https://www.scala-lang.org/api/current/scala/math/Equiv$.html#universalEquiv[T]:scala.math.Equiv[T]",
+    since = "2.13.0")
+>>>>>>> REPLACE
+<<<<<<< SEARCH
+  /** Creates an `Equiv` instance from a `Comparator`.
+   *
+   *  @tparam T the type of values to compare
+   *  @param cmp the `Comparator` used to compare values
+   *  @return an `Equiv[T]` that uses `cmp.compare(x, y) == 0` to determine equivalence
+   */
+=======
+  /** Returns an `Equiv` instance from a `Comparator`.
+   *
+   *  @tparam T the type of values to compare
+   *  @param cmp the `Comparator` used to compare values
+   *  @return an `Equiv[T]` that uses `cmp.compare(x, y) == 0` to determine equivalence
+   */
+>>>>>>> REPLACE
+<<<<<<< SEARCH
+    /** Returns `true` if the two iterables `x` and `y` are equivalent.
+     *
+     *  @param x the first iterable to compare
+     *  @param y the second iterable to compare
+     *  @return `true` if `x` and `y` have the same length and all corresponding elements are equivalent, `false` otherwise
+     */
+=======
+    /** Returns `true` if the two iterables `x` and `y` are equivalent.
+     *
+     *  @param x the first iterable to compare
+     *  @param y the second iterable to compare
+     *  @return `true` if `x` and `y` have the same length and all corresponding elements are equivalent in iteration order, `false` otherwise
+     */
+>>>>>>> REPLACE
+<<<<<<< SEARCH
+    /** Returns `true` if the two `Option` values are equivalent.
+     *
+     *  @param x the first `Option` value to compare
+     *  @param y the second `Option` value to compare
+     *  @return `true` if both `x` and `y` are `None`, or if both are `Some` and their elements are equivalent, `false` otherwise
+     */
+=======
+    /** Returns `true` if the two `Option` values are equivalent.
+     *
+     *  @param x the first `Option` value to compare
+     *  @param y the second `Option` value to compare
+     *  @return `true` if both are `None` or both are `Some` with equivalent elements
+     */
+>>>>>>> REPLACE
+<<<<<<< SEARCH
+    /** Returns `true` if the two tuples are equivalent.
+     *
+     *  @param x the first tuple to compare
+     *  @param y the second tuple to compare
+     *  @return `true` if the first elements of `x` and `y` are equivalent and the second elements of `x` and `y` are equivalent, `false` otherwise
+     */
+=======
+    /** Returns `true` if the two tuples are equivalent.
+     *
+     *  @param x the first tuple to compare
+     *  @param y the second tuple to compare
+     *  @return `true` if both elements are equivalent
+     */
+>>>>>>> REPLACE
+<<<<<<< SEARCH
+    /** Returns `true` if the two tuples are equivalent.
+     *
+     *  @param x the first tuple to compare
+     *  @param y the second tuple to compare
+     *  @return `true` if the first, second, and third elements of `x` and `y` are equivalent, `false` otherwise
+     */
+=======
+    /** Returns `true` if the two tuples are equivalent.
+     *
+     *  @param x the first tuple to compare
+     *  @param y the second tuple to compare
+     *  @return `true` if all three elements are equivalent
+     */
+>>>>>>> REPLACE
+<<<<<<< SEARCH
+    /** Returns `true` if the two tuples are equivalent.
+     *
+     *  @param x the first tuple to compare
+     *  @param y the second tuple to compare
+     *  @return `true` if the first, second, third, and fourth elements of `x` and `y` are equivalent, `false` otherwise
+     */
+=======
+    /** Returns `true` if the two tuples are equivalent.
+     *
+     *  @param x the first tuple to compare
+     *  @param y the second tuple to compare
+     *  @return `true` if all four elements are equivalent
+     */
+>>>>>>> REPLACE
+<<<<<<< SEARCH
+    /** Returns `true` if the two tuples are equivalent.
+     *
+     *  @param x the first tuple to compare
+     *  @param y the second tuple to compare
+     *  @return `true` if the first, second, third, fourth, and fifth elements of `x` and `y` are equivalent, `false` otherwise
+     */
+=======
+    /** Returns `true` if the two tuples are equivalent.
+     *
+     *  @param x the first tuple to compare
+     *  @param y the second tuple to compare
+     *  @return `true` if all five elements are equivalent
+     */
+>>>>>>> REPLACE
+<<<<<<< SEARCH
+    /** Returns `true` if the two tuples are equivalent.
+     *
+     *  @param x the first tuple to compare
+     *  @param y the second tuple to compare
+     *  @return `true` if the first, second, third, fourth, fifth, and sixth elements of `x` and `y` are equivalent, `false` otherwise
+     */
+=======
+    /** Returns `true` if the two tuples are equivalent.
+     *
+     *  @param x the first tuple to compare
+     *  @param y the second tuple to compare
+     *  @return `true` if all six elements are equivalent
+     */
+>>>>>>> REPLACE
+<<<<<<< SEARCH
+    /** Returns `true` if the two tuples are equivalent.
+     *
+     *  @param x the first tuple to compare
+     *  @param y the second tuple to compare
+     *  @return `true` if the first, second, third, fourth, fifth, sixth, and seventh elements of `x` and `y` are equivalent, `false` otherwise
+     */
+=======
+    /** Returns `true` if the two tuples are equivalent.
+     *
+     *  @param x the first tuple to compare
+     *  @param y the second tuple to compare
+     *  @return `true` if all seven elements are equivalent
+     */
+>>>>>>> REPLACE
+<<<<<<< SEARCH
+    /** Returns `true` if the two tuples are equivalent.
+     *
+     *  @param x the first tuple to compare
+     *  @param y the second tuple to compare
+     *  @return `true` if the first, second, third, fourth, fifth, sixth, seventh, and eighth elements of `x` and `y` are equivalent, `false` otherwise
+     */
+=======
+    /** Returns `true` if the two tuples are equivalent.
+     *
+     *  @param x the first tuple to compare
+     *  @param y the second tuple to compare
+     *  @return `true` if all eight elements are equivalent
+     */
+>>>>>>> REPLACE
+<<<<<<< SEARCH
+    /** Returns `true` if the two tuples are equivalent.
+     *
+     *  @param x the first tuple to compare
+     *  @param y the second tuple to compare
+     *  @return `true` if the first, second, third, fourth, fifth, sixth, seventh, eighth, and ninth elements of `x` and `y` are equivalent, `false` otherwise
+     */
+=======
+    /** Returns `true` if the two tuples are equivalent.
+     *
+     *  @param x the first tuple to compare
+     *  @param y the second tuple to compare
+     *  @return `true` if all nine elements are equivalent
+     */
+>>>>>>> REPLACE
+<<<<<<< SEARCH
+  /** Returns `true` if the two `Boolean` values are equivalent.
+   *
+   *  @param x the first `Boolean` value to compare
+   *  @param y the second `Boolean` value to compare
+   *  @return `true` if `x` and `y` are equal, `false` otherwise
+   */
+=======
+  /** Returns `true` if the two `Boolean` values are equivalent.
+   *
+   *  @param x the first `Boolean` value to compare
+   *  @param y the second `Boolean` value to compare
+   */
+>>>>>>> REPLACE
+<<<<<<< SEARCH
+  /** Returns `true` if the two `Byte` values are equivalent.
+   *
+   *  @param x the first `Byte` value to compare
+   *  @param y the second `Byte` value to compare
+   *  @return `true` if `x` and `y` are equal, `false` otherwise
+   */
+=======
+  /** Returns `true` if the two `Byte` values are equivalent.
+   *
+   *  @param x the first `Byte` value to compare
+   *  @param y the second `Byte` value to compare
+   */
+>>>>>>> REPLACE
+<<<<<<< SEARCH
+  /** Returns `true` if the two `Char` values are equivalent.
+   *
+   *  @param x the first `Char` value to compare
+   *  @param y the second `Char` value to compare
+   *  @return `true` if `x` and `y` are equal, `false` otherwise
+   */
+=======
+  /** Returns `true` if the two `Char` values are equivalent.
+   *
+   *  @param x the first `Char` value to compare
+   *  @param y the second `Char` value to compare
+   */
+>>>>>>> REPLACE
+<<<<<<< SEARCH
+  /** Returns `true` if the two `Short` values are equivalent.
+   *
+   *  @param x the first `Short` value to compare
+   *  @param y the second `Short` value to compare
+   *  @return `true` if `x` and `y` are equal, `false` otherwise
+   */
+=======
+  /** Returns `true` if the two `Short` values are equivalent.
+   *
+   *  @param x the first `Short` value to compare
+   *  @param y the second `Short` value to compare
+   */
+>>>>>>> REPLACE
+<<<<<<< SEARCH
+  /** Returns `true` if the two `Int` values are equivalent.
+   *
+   *  @param x the first `Int` value to compare
+   *  @param y the second `Int` value to compare
+   *  @return `true` if `x` and `y` are equal, `false` otherwise
+   */
+=======
+  /** Returns `true` if the two `Int` values are equivalent.
+   *
+   *  @param x the first `Int` value to compare
+   *  @param y the second `Int` value to compare
+   */
+>>>>>>> REPLACE
+<<<<<<< SEARCH
+  /** Returns `true` if the two `Long` values are equivalent.
+   *
+   *  @param x the first `Long` value to compare
+   *  @param y the second `Long` value to compare
+   *  @return `true` if `x` and `y` are equal, `false` otherwise
+   */
+=======
+  /** Returns `true` if the two `Long` values are equivalent.
+   *
+   *  @param x the first `Long` value to compare
+   *  @param y the second `Long` value to compare
+   */
+>>>>>>> REPLACE
+<<<<<<< SEARCH
+  /** Returns `true` if the two `BigInt` values are equivalent.
+   *
+   *  @param x the first `BigInt` value to compare
+   *  @param y the second `BigInt` value to compare
+   *  @return `true` if `x` and `y` are equal, `false` otherwise
+   */
+=======
+  /** Returns `true` if the two `BigInt` values are equivalent.
+   *
+   *  @param x the first `BigInt` value to compare
+   *  @param y the second `BigInt` value to compare
+   */
+>>>>>>> REPLACE
+<<<<<<< SEARCH
+  /** Returns `true` if the two `BigDecimal` values are equivalent.
+   *
+   *  @param x the first `BigDecimal` value to compare
+   *  @param y the second `BigDecimal` value to compare
+   *  @return `true` if `x` and `y` are equal, `false` otherwise
+   */
+=======
+  /** Returns `true` if the two `BigDecimal` values are equivalent.
+   *
+   *  @param x the first `BigDecimal` value to compare
+   *  @param y the second `BigDecimal` value to compare
+   */
+>>>>>>> REPLACE
+<<<<<<< SEARCH
+  /** Returns `true` if the two `String` values are equivalent.
+   *
+   *  @param x the first `String` value to compare
+   *  @param y the second `String` value to compare
+   *  @return `true` if `x` and `y` are equal, `false` otherwise
+   */
+=======
+  /** Returns `true` if the two `String` values are equivalent.
+   *
+   *  @param x the first `String` value to compare
+   *  @param y the second `String` value to compare
+   */
+>>>>>>> REPLACE
+<<<<<<< SEARCH
+  /** Returns `true` if the two `Symbol` values are equivalent.
+   *
+   *  @param x the first `Symbol` value to compare
+   *  @param y the second `Symbol` value to compare
+   *  @return `true` if `x` and `y` are equal, `false` otherwise
+   */
+=======
+  /** Returns `true` if the two `Symbol` values are equivalent.
+   *
+   *  @param x the first `Symbol` value to compare
+   *  @param y the second `Symbol` value to compare
+   */
+>>>>>>> REPLACE
+<<<<<<< SEARCH
+    /** Returns `true` if this `IterableEquiv` is equal to `obj`.
+     *
+     *  @param obj the object to compare with
+     *  @return `true` if `obj` is an `IterableEquiv` with the same underlying `Equiv` instance, `false` otherwise
+     */
+=======
+    /** Returns `true` if this `IterableEquiv` is equal to `obj`.
+     *
+     *  @param obj the object to compare with
+     *  @return `true` if `obj` is an `IterableEquiv` with the same underlying `Equiv` instance
+     */
+>>>>>>> REPLACE
+<<<<<<< SEARCH
+    /** Returns `true` if this `OptionEquiv` is equal to `obj`.
+     *
+     *  @param obj the object to compare with
+     *  @return `true` if `obj` is an `OptionEquiv` with the same underlying `Equiv` instance, `false` otherwise
+     */
+=======
+    /** Returns `true` if this `OptionEquiv` is equal to `obj`.
+     *
+     *  @param obj the object to compare with
+     *  @return `true` if `obj` is an `OptionEquiv` with the same underlying `Equiv` instance
+     */
+>>>>>>> REPLACE
+<<<<<<< SEARCH
+    /** Returns `true` if this `Tuple2Equiv` is equal to `obj`.
+     *
+     *  @param obj the object to compare with
+     *  @return `true` if `obj` is a `Tuple2Equiv` with the same underlying `Equiv` instances, `false` otherwise
+     */
+=======
+    /** Returns `true` if this `Tuple2Equiv` is equal to `obj`.
+     *
+     *  @param obj the object to compare with
+     *  @return `true` if `obj` is a `Tuple2Equiv` with the same underlying `Equiv` instances
+     */
+>>>>>>> REPLACE
+<<<<<<< SEARCH
+    /** Returns `true` if this `Tuple3Equiv` is equal to `obj`.
+     *
+     *  @param obj the object to compare with
+     *  @return `true` if `obj` is a `Tuple3Equiv` with the same underlying `Equiv` instances, `false` otherwise
+     */
+=======
+    /** Returns `true` if this `Tuple3Equiv` is equal to `obj`.
+     *
+     *  @param obj the object to compare with
+     *  @return `true` if `obj` is a `Tuple3Equiv` with the same underlying `Equiv` instances
+     */
+>>>>>>> REPLACE
+<<<<<<< SEARCH
+    /** Returns `true` if this `Tuple4Equiv` is equal to `obj`.
+     *
+     *  @param obj the object to compare with
+     *  @return `true` if `obj` is a `Tuple4Equiv` with the same underlying `Equiv` instances, `false` otherwise
+     */
+=======
+    /** Returns `true` if this `Tuple4Equiv` is equal to `obj`.
+     *
+     *  @param obj the object to compare with
+     *  @return `true` if `obj` is a `Tuple4Equiv` with the same underlying `Equiv` instances
+     */
+>>>>>>> REPLACE
+<<<<<<< SEARCH
+    /** Returns `true` if this `Tuple5Equiv` is equal to `obj`.
+     *
+     *  @param obj the object to compare with
+     *  @return `true` if `obj` is a `Tuple5Equiv` with the same underlying `Equiv` instances, `false` otherwise
+     */
+=======
+    /** Returns `true` if this `Tuple5Equiv` is equal to `obj`.
+     *
+     *  @param obj the object to compare with
+     *  @return `true` if `obj` is a `Tuple5Equiv` with the same underlying `Equiv` instances
+     */
+>>>>>>> REPLACE
+<<<<<<< SEARCH
+    /** Returns `true` if this `Tuple6Equiv` is equal to `obj`.
+     *
+     *  @param obj the object to compare with
+     *  @return `true` if `obj` is a `Tuple6Equiv` with the same underlying `Equiv` instances, `false` otherwise
+     */
+=======
+    /** Returns `true` if this `Tuple6Equiv` is equal to `obj`.
+     *
+     *  @param obj the object to compare with
+     *  @return `true` if `obj` is a `Tuple6Equiv` with the same underlying `Equiv` instances
+     */
+>>>>>>> REPLACE
+<<<<<<< SEARCH
+    /** Returns `true` if this `Tuple7Equiv` is equal to `obj`.
+     *
+     *  @param obj the object to compare with
+     *  @return `true` if `obj` is a `Tuple7Equiv` with the same underlying `Equiv` instances, `false` otherwise
+     */
+=======
+    /** Returns `true` if this `Tuple7Equiv` is equal to `obj`.
+     *
+     *  @param obj the object to compare with
+     *  @return `true` if `obj` is a `Tuple7Equiv` with the same underlying `Equiv` instances
+     */
+>>>>>>> REPLACE
+<<<<<<< SEARCH
+    /** Returns `true` if this `Tuple8Equiv` is equal to `obj`.
+     *
+     *  @param obj the object to compare with
+     *  @return `true` if `obj` is a `Tuple8Equiv` with the same underlying `Equiv` instances, `false` otherwise
+     */
+=======
+    /** Returns `true` if this `Tuple8Equiv` is equal to `obj`.
+     *
+     *  @param obj the object to compare with
+     *  @return `true` if `obj` is a `Tuple8Equiv` with the same underlying `Equiv` instances
+     */
+>>>>>>> REPLACE
+<<<<<<< SEARCH
+    /** Returns `true` if this `Tuple9Equiv` is equal to `obj`.
+     *
+     *  @param obj the object to compare with
+     *  @return `true` if `obj` is a `Tuple9Equiv` with the same underlying `Equiv` instances, `false` otherwise
+     */
+=======
+    /** Returns `true` if this `Tuple9Equiv` is equal to `obj`.
+     *
+     *  @param obj the object to compare with
+     *  @return `true` if `obj` is a `Tuple9Equiv` with the same underlying `Equiv` instances
+     */
+>>>>>>> REPLACE

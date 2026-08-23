@@ -1,0 +1,16 @@
+{
+  "verdict": "approve",
+  "needs_human": false,
+  "items": [
+    {
+      "declaration": "object Product22.unapply",
+      "severity": "nit",
+      "confidence": "high",
+      "issue": "The `@return` tag (`x` wrapped in a `[[scala.Some]]`) is fully redundant with the first sentence, which already states \"Returns the given product wrapped in a `[[scala.Some]]`\". The review's own convention says @return should be dropped in exactly this case. The sibling file in this same PR, Product2.scala, correctly drops @return under identical wording (\"Returns the given product wrapped in a [[scala.Some]]...\"), so Product22.scala is inconsistent with that established pattern. Not a factual error, just redundant/padded per the stated rule."
+    }
+  ],
+  "bonus_findings": []
+}
+
+
+Summary: the diff is accurate (unapply always returns `Some(x)`, ordinals and tparam descriptions all correct), so it approves. One nit: the `@return` tag duplicates the first sentence verbatim and should have been dropped per the stated house rule — sibling file Product2.scala in the same PR did drop it in the identical situation, so Product22.scala is inconsistent with that pattern.

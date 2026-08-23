@@ -1,0 +1,147 @@
+# Doc review digest: library/src/scala/concurrent/impl/Promise.scala
+
+- models: writer devstral-2512 | accuracy mistral-medium-2508 | style mistral-large-2512 | adjudicator devstral-2512
+- converged: false (up to 2 rounds)
+- final refinement after review limit: true (not re-reviewed)
+- accuracy verdict: approve
+- style verdict: revise
+- ADJUDICATOR verdict (final): revise
+
+## Reviewer disagreements the adjudicator settled
+
+- L40 `CompletionLatch.result` -> ruled for **style**
+  - accuracy: The description could be more precise about the return type.
+  - style: The documentation claims to return 'the current result of this latch, or null if not yet completed,' but the implementation shows `_result` is of type `Try[T] | Null`. The documentation does not clarify that the return type is `Try[T] | Null`, which is critical for callers to understand. Additionally, the first sentence is not a standalone API summary.
+  - why: The style reviewer's point about the return type being `Try[T] | Null` is critical for callers to understand, and the first sentence should be a standalone API summary.
+- L43 `CompletionLatch.tryAcquireShared` -> ruled for **style**
+  - accuracy: 
+  - style: The first sentence is a fragment ('Attempts to acquire the shared lock') and does not stand alone as an API summary. The `@return` tag is correct but could be more precise.
+  - why: The style reviewer's suggestion to revise the first sentence to stand alone as an API summary is valid.
+- L51 `CompletionLatch.tryReleaseShared` -> ruled for **style**
+  - accuracy: 
+  - style: The first sentence is a fragment ('Releases the shared lock by setting the state to 1') and does not stand alone as an API summary. The `@return` tag is redundant with the implementation.
+  - why: The style reviewer's suggestion to revise the first sentence to stand alone as an API summary is valid.
+- L58 `CompletionLatch.apply` -> ruled for **style**
+  - accuracy: 
+  - style: The documentation states 'Sets the result of this latch and releases the shared lock,' but the implementation shows `_result = value` is set BEFORE `releaseShared(1)`. This is a critical ordering detail for thread safety, and the documentation misrepresents the behavior.
+  - why: The style reviewer's point about the critical ordering detail for thread safety is valid and should be included in the documentation.
+- L135 `DefaultPromise` -> ruled for **style**
+  - accuracy: The description could be more concise.
+  - style: The first sentence is a fragment ('A promise that can be completed with a value or an exception') and does not stand alone as an API summary. The `@tparam` tag is correct but could be more precise.
+  - why: The style reviewer's suggestion to revise the first sentence to stand alone as an API summary is valid.
+- L160 `DefaultPromise.transform` -> ruled for **style**
+  - accuracy: The description could be more concise.
+  - style: The documentation does not mention that the returned `Future[S]` may fail if the transformation function `f` throws an exception. This is a material omission.
+  - why: The style reviewer's point about the material omission of the exception case is valid and should be included in the documentation.
+- L172 `DefaultPromise.transformWith` -> ruled for **style**
+  - accuracy: The description could be more concise.
+  - style: The documentation does not mention that the returned `Future[S]` may fail if the transformation function `f` throws an exception or if the `Future[S]` returned by `f` fails. This is a material omission.
+  - why: The style reviewer's point about the material omission of the exception case is valid and should be included in the documentation.
+- L184 `DefaultPromise.zipWith` -> ruled for **style**
+  - accuracy: The description could be more concise.
+  - style: The documentation does not mention that the returned `Future[R]` will fail if either this `Future` or the given `Future[U]` fails, or if the function `f` throws an exception. This is a material omission.
+  - why: The style reviewer's point about the material omission of the failure cases is valid and should be included in the documentation.
+- L201 `DefaultPromise.foreach` -> ruled for **style**
+  - accuracy: The description could be more concise.
+  - style: The documentation does not mention that the function `f` is only applied if this `Future` is successful. This is a material omission for callers expecting side effects.
+  - why: The style reviewer's point about the material omission of the condition for applying the function is valid and should be included in the documentation.
+- L220 `DefaultPromise.flatMap` -> ruled for **style**
+  - accuracy: The description could be more concise.
+  - style: The documentation states 'or this Future if it is already failed,' but the implementation shows it returns `this.asInstanceOf[Future[S]]` for any non-`Success` state, not just `Failure`. This is misleading.
+  - why: The style reviewer's point about the misleading description is valid and should be corrected.
+- L233 `DefaultPromise.map` -> ruled for **style**
+  - accuracy: The description could be more concise.
+  - style: Same issue as `flatMap`: the documentation implies it only returns `this` for `Failure`, but the implementation returns `this` for any non-`Success` state.
+  - why: The style reviewer's point about the misleading description is valid and should be corrected.
+- L246 `DefaultPromise.filter` -> ruled for **style**
+  - accuracy: The description could be more concise.
+  - style: The documentation does not mention that the returned `Future` will fail with a `NoSuchElementException` if the predicate `p` returns `false`. This is a material omission.
+  - why: The style reviewer's point about the material omission of the exception case is valid and should be included in the documentation.
+- L260 `DefaultPromise.collect` -> ruled for **style**
+  - accuracy: The description could be more concise.
+  - style: The documentation does not mention that the returned `Future` will fail with a `NoSuchElementException` if the partial function `pf` is not defined at the result of this `Future`. This is a material omission.
+  - why: The style reviewer's point about the material omission of the exception case is valid and should be included in the documentation.
+- L274 `DefaultPromise.recoverWith` -> ruled for **style**
+  - accuracy: The description could be more concise.
+  - style: The documentation states 'or this Future if it is already successful,' but the implementation shows it returns `this` for any non-`Failure` state, not just `Success`. This is misleading.
+  - why: The style reviewer's point about the misleading description is valid and should be corrected.
+- L288 `DefaultPromise.recover` -> ruled for **style**
+  - accuracy: The description could be more concise.
+  - style: Same issue as `recoverWith`: the documentation implies it only returns `this` for `Success`, but the implementation returns `this` for any non-`Failure` state.
+  - why: The style reviewer's point about the misleading description is valid and should be corrected.
+- L302 `DefaultPromise.mapTo` -> ruled for **style**
+  - accuracy: The description could be more concise.
+  - style: The documentation does not mention that the returned `Future` will fail with a `ClassCastException` if the result cannot be cast to type `S`. This is a material omission.
+  - why: The style reviewer's point about the material omission of the exception case is valid and should be included in the documentation.
+- L315 `DefaultPromise.onComplete` -> ruled for **style**
+  - accuracy: The description could be more concise.
+  - style: The documentation does not mention that the callback function `func` may be executed asynchronously, which is critical for thread safety.
+  - why: The style reviewer's point about the asynchronous execution is critical for thread safety and should be included in the documentation.
+- L347 `DefaultPromise.failed` -> ruled for **style**
+  - accuracy: The description could be more concise.
+  - style: The documentation states 'or a failed Future otherwise,' but the implementation shows it returns a cached `Future.failedFailureFuture` for `Success` states. The documentation should clarify this edge case.
+  - why: The style reviewer's point about the cached failed `Future` instance is valid and should be included in the documentation.
+- L391 `DefaultPromise.ready` -> ruled for **style**
+  - accuracy: 
+  - style: The first sentence is a fragment ('Awaits the completion of this Future and returns this Future') and does not stand alone as an API summary. The `@return` tag is redundant.
+  - why: The style reviewer's suggestion to revise the first sentence to stand alone as an API summary is valid.
+- L404 `DefaultPromise.result` -> ruled for **style**
+  - accuracy: The description could be more concise.
+  - style: The documentation does not mention that this method may throw the exception contained in this `Future` if it fails. This is a material omission.
+  - why: The style reviewer's point about the material omission of the exception case is valid and should be included in the documentation.
+- L411 `DefaultPromise.isCompleted` -> ruled for **style**
+  - accuracy: The description could be more concise.
+  - style: The first sentence is a fragment ('Returns whether this Future is completed') and does not stand alone as an API summary.
+  - why: The style reviewer's suggestion to revise the first sentence to stand alone as an API summary is valid.
+- L417 `DefaultPromise.value` -> ruled for **style**
+  - accuracy: The description could be more concise.
+  - style: The first sentence is a fragment ('Returns the result of this Future if it is completed') and does not stand alone as an API summary.
+  - why: The style reviewer's suggestion to revise the first sentence to stand alone as an API summary is valid.
+- L432 `DefaultPromise.tryComplete` -> ruled for **style**
+  - accuracy: The description could be more concise.
+  - style: The documentation does not mention that the method may recursively complete other `Promise`s linked to this one, which is a critical side effect.
+  - why: The style reviewer's point about the recursive completion of other `Promise`s is valid and should be included in the documentation.
+- L445 `DefaultPromise.completeWith` -> ruled for **style**
+  - accuracy: The description could be more concise.
+  - style: The documentation does not mention that this method may lead to recursive completion of other `Promise`s, similar to `tryComplete`. This is a material omission.
+  - why: The style reviewer's point about the recursive completion of other `Promise`s is valid and should be included in the documentation.
+- L650 `Transformation.benefitsFromBatching` -> ruled for **style**
+  - accuracy: The description could be more concise.
+  - style: The first sentence is a fragment ('Indicates whether this transformation benefits from batching') and does not stand alone as an API summary. The `@return` tag is missing.
+  - why: The style reviewer's suggestion to revise the first sentence to stand alone as an API summary is valid.
+- L660 `Transformation.submitWithValue` -> ruled for **style**
+  - accuracy: The description could be more concise.
+  - style: The documentation does not mention that this method schedules the transformation to be executed asynchronously by the `ExecutionContext`. This is a critical detail for thread safety.
+  - why: The style reviewer's point about the asynchronous execution is critical for thread safety and should be included in the documentation.
+
+## Outstanding worklist at the end
+
+- L40 `CompletionLatch.result` [blocker/style]: Revise to: 'Returns the current result of this latch as `Try[T] | Null`, where `null` indicates the latch is not yet completed.'
+- L58 `CompletionLatch.apply` [blocker/style]: Revise to: 'Sets the result of this latch to the given value and then releases the shared lock, ensuring the result is visible to other threads before the lock is released.'
+- L160 `DefaultPromise.transform` [blocker/style]: Revise to: 'Returns a new `Future[S]` that is completed with the result of applying the given function `f` to this `Future`'s result. If `f` throws an exception, the returned `Future` will be completed with that exception.'
+- L172 `DefaultPromise.transformWith` [blocker/style]: Revise to: 'Returns a new `Future[S]` that is completed with the result of applying the given function `f` to this `Future`'s result. If `f` throws an exception or returns a failed `Future`, the returned `Future` will be completed with that exception.'
+- L184 `DefaultPromise.zipWith` [blocker/style]: Revise to: 'Returns a new `Future[R]` that is completed with the result of applying the given function `f` to the results of this `Future` and the given `Future[U]`. If either `Future` fails or `f` throws an exception, the returned `Future` will be completed with the first failure encountered.'
+- L201 `DefaultPromise.foreach` [blocker/style]: Revise to: 'Applies the given function `f` to the result of this `Future` if it is successful. If this `Future` fails, `f` is not applied.'
+- L220 `DefaultPromise.flatMap` [blocker/style]: Revise to: 'Returns a new `Future[S]` that is completed with the result of applying the given function `f` to this `Future`'s result. If this `Future` is not successful, the returned `Future` will be this `Future` cast to `Future[S]`.'
+- L233 `DefaultPromise.map` [blocker/style]: Revise to: 'Returns a new `Future[S]` that is completed with the result of applying the given function `f` to this `Future`'s result. If this `Future` is not successful, the returned `Future` will be this `Future` cast to `Future[S]`.'
+- L246 `DefaultPromise.filter` [blocker/style]: Revise to: 'Returns a new `Future[T]` that is completed with the result of this `Future` if it satisfies the given predicate `p`. If the predicate returns `false`, the returned `Future` will fail with a `NoSuchElementException`.'
+- L260 `DefaultPromise.collect` [blocker/style]: Revise to: 'Returns a new `Future[S]` that is completed with the result of applying the given partial function `pf` to this `Future`'s result. If `pf` is not defined at the result, the returned `Future` will fail with a `NoSuchElementException`.'
+- L274 `DefaultPromise.recoverWith` [blocker/style]: Revise to: 'Returns a new `Future[U]` that is completed with the result of applying the given partial function `pf` to the exception of this `Future` if it fails. If this `Future` is not failed, the returned `Future` will be this `Future` cast to `Future[U]`.'
+- L288 `DefaultPromise.recover` [blocker/style]: Revise to: 'Returns a new `Future[U]` that is completed with the result of applying the given partial function `pf` to the exception of this `Future` if it fails. If this `Future` is not failed, the returned `Future` will be this `Future` cast to `Future[U]`.'
+- L302 `DefaultPromise.mapTo` [blocker/style]: Revise to: 'Returns a new `Future[S]` that is completed with the result of this `Future` cast to type `S`. If the result cannot be cast to `S`, the returned `Future` will fail with a `ClassCastException`.'
+- L315 `DefaultPromise.onComplete` [blocker/style]: Revise to: 'Registers a callback function `func` to be executed asynchronously when this `Future` is completed, regardless of success or failure.'
+- L347 `DefaultPromise.failed` [blocker/style]: Revise to: 'Returns a `Future[Throwable]` that is completed with the exception of this `Future` if it fails. If this `Future` is successful, the returned `Future` will be a cached failed `Future` instance.'
+- L404 `DefaultPromise.result` [blocker/style]: Revise to: 'Blocks until this `Future` is completed and returns its result. If this `Future` fails, the contained exception is thrown.'
+- L432 `DefaultPromise.tryComplete` [blocker/style]: Revise to: 'Attempts to complete this `Promise` with the given value. If successful, recursively completes any other `Promise`s linked to this one. Returns `true` if this `Promise` was completed, `false` if it was already completed.'
+- L445 `DefaultPromise.completeWith` [blocker/style]: Revise to: 'Completes this `Promise` with the result of the given `Future`. If the `Future` is already completed, this `Promise` is completed immediately; otherwise, it is completed when the `Future` completes. Returns this `Promise`.'
+- L660 `Transformation.submitWithValue` [blocker/style]: Revise to: 'Submits this transformation for asynchronous execution with the given value, scheduling it to be run by the `ExecutionContext`. Returns this transformation.'
+- L43 `CompletionLatch.tryAcquireShared` [nit/style]: Revise the first sentence to: 'Acquires the shared lock if the latch is completed, otherwise fails.'
+- L51 `CompletionLatch.tryReleaseShared` [nit/style]: Revise the first sentence to: 'Releases the shared lock by setting the state to 1, indicating completion.'
+- L135 `DefaultPromise` [nit/style]: Revise the first sentence to: 'A `Promise[T]` that can be asynchronously completed with a value of type `T` or an exception.'
+- L391 `DefaultPromise.ready` [nit/style]: Revise the first sentence to: 'Blocks until this `Future` is completed and then returns this `Future`.'
+- L411 `DefaultPromise.isCompleted` [nit/style]: Revise to: 'Indicates whether this `Future` has been completed, either successfully or with a failure.'
+- L417 `DefaultPromise.value` [nit/style]: Revise to: 'Returns the result of this `Future` as `Some(Try[T])` if it is completed, or `None` otherwise.'
+- L650 `Transformation.benefitsFromBatching` [nit/style]: Revise to: 'Indicates whether this transformation can be batched for efficiency, excluding `onComplete` and `foreach` operations.'
+
+## Inline NEEDS-HUMAN markers left in source
+(none)
