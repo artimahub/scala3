@@ -262,14 +262,49 @@ and `Numeric` instances, the `jdk` accumulators, 365 wrappers in
 
 - **Be consistent within a family.** Write the shared text once and apply it,
   varying only what actually differs.
-- **Consistency is not worth a rewrite.** If members are worded differently but
-  all correct, leave them. A family worded two ways is untidy; it misleads
-  nobody. An automated reviewer spent four rounds demanding "reword this like
-  its 40 siblings" and improved nothing.
+- **Rewording for its own sake is not an improvement.** If two members say the
+  same true thing in different words, and both are clear, that is fine. An
+  automated reviewer spent four rounds demanding "phrase this like its 40
+  siblings" and improved nothing while risking a new false claim with every
+  rewrite. Leave those alone.
+
+But notation is a different matter, and it cuts the other way.
 
 Prose that is true of the first member of a family is often false of the fifth,
 because the members are what differ. Check the shared text against every member
 it lands on.
+
+### Notation, and the one time to touch existing comments
+
+Two different things get called consistency and they deserve opposite answers.
+Wording is the one above: leave it. **Notation is not, and you should make it
+uniform everywhere.**
+
+The clearest example is real, from this project's own output: some comments say
+"the second element" and others say "the 2nd element". Nobody is misled by
+either. But that unevenness is exactly what makes a library look unfinished, and
+looking finished is half the reason this work exists. Spelling out an ordinal in
+one comment and using a numeral in the next is the documentation equivalent of
+mismatched indentation.
+
+The same goes for any notational choice the library makes repeatedly: how types
+are referred to, whether code names are in backticks, capitalisation of tag
+continuations, how a sentence in a tag is punctuated. Find the form the library
+predominantly uses, and use that form.
+
+**Do it across files, not just within one.** The inconsistency exists because the
+pipeline that wrote weeks 3 through 6 was handed one file at a time and could
+not see that `Vector` and `List` had made different choices. You can hold the
+whole library at once. That is one of the reasons this job came to you, and it
+is work only you can do.
+
+**This is the one case where you should edit documentation that predates this
+project.** If an existing comment uses "2nd" and the library's prevailing form is
+"second", change it. Otherwise leave pre-existing comments alone: they are not
+your remit, they have already been reviewed by someone, and every one you touch
+enlarges the diff a maintainer has to check. Notational consistency is worth
+that cost because it is invisible work that makes the whole library read as one
+thing. Rewriting someone else's correct prose is not.
 
 ### Voice
 
