@@ -274,22 +274,16 @@ Prose that is true of the first member of a family is often false of the fifth,
 because the members are what differ. Check the shared text against every member
 it lands on.
 
-### Notation, and the one time to touch existing comments
+### Notation, and the one edit permitted to existing comments
 
 Two different things get called consistency and they deserve opposite answers.
-Wording is the one above: leave it. **Notation is not, and you should make it
-uniform everywhere.**
+Wording is the one above: leave it. Notation matters, because unevenness is
+exactly what makes a library look unfinished, and looking finished is half the
+reason this work exists. But the permission to act on it is deliberately narrow.
 
-The clearest example is real, from this project's own output: some comments say
-"the second element" and others say "the 2nd element". Nobody is misled by
-either. But that unevenness is exactly what makes a library look unfinished, and
-looking finished is half the reason this work exists. Spelling out an ordinal in
-one comment and using a numeral in the next is the documentation equivalent of
-mismatched indentation.
-
-**For that particular case the library has already chosen, so do not re-decide
-it.** In the arity families, `Function1`-`Function22`, `Tuple1`-`Tuple22`,
-`Product1`-`Product22`, positional elements are referred to by NUMERAL ordinal:
+**The library has already chosen the ordinal form, so do not re-decide it.** In
+the arity families, `Function1`-`Function22`, `Tuple1`-`Tuple22`,
+`Product1`-`Product22`, positional elements take the NUMERAL ordinal:
 
 ```scala
  *  @tparam T1 the type of the 1st element
@@ -297,36 +291,39 @@ it.** In the arity families, `Function1`-`Function22`, `Tuple1`-`Tuple22`,
 ```
 
 That form appears in about 90 files and several hundred tags, established by
-PR #25996. Ordinary prose elsewhere keeps the spelled form, and should:
+PR #25996. Ordinary prose elsewhere keeps the spelled form and should keep it:
 "returns the first element of this list" is English, not an index into an arity,
 and appears that way over 200 times across `Option`, `Predef` and `collection`.
+Leave every one of those alone.
 
-Known stragglers, if you are in those files anyway:
+**The one edit you may make to documentation that predates this project** is
+changing a spelled ordinal to the numeral form, and only when both hold:
 
-- `Tuple.scala:48`, `Tuple2.scala:30-31`, `Product.scala:34` use the spelled
-  form where the numeral form is the family's convention.
-- 17 `Tuple` files use a third form in `@param` tags, `Element 1 of this Tuple2`,
-  which predates this project. It is a bare cardinal where its neighbouring
-  `@tparam` tags use ordinals, in the same comment.
+1. it sits in the same family or tag list you are already documenting, and
+2. it is inconsistent with its immediate neighbours there.
 
-The same goes for any notational choice the library makes repeatedly: how types
-are referred to, whether code names are in backticks, capitalisation of tag
-continuations, how a sentence in a tag is punctuated. Find the form the library
-predominantly uses, and use that form.
+So if you are filling in `@tparam T4` through `@tparam T22` as `4th` through
+`22nd`, and `T1`, `T2` and `T3` already read "first", "second", "third", change
+those three. They are one list and half of it would otherwise be in the other
+notation. Known instances: `Tuple.scala:48`, `Tuple2.scala:30-31` and
+`Product.scala:34`, plus 17 `Tuple` files whose `@param` tags read `Element 1 of
+this Tuple2` directly beneath ordinal `@tparam` tags in the same comment.
 
-**Do it across files, not just within one.** The inconsistency exists because the
-pipeline that wrote weeks 3 through 6 was handed one file at a time and could
-not see that `Vector` and `List` had made different choices. You can hold the
-whole library at once. That is one of the reasons this job came to you, and it
-is work only you can do.
+**Nothing else.** No other edit to pre-existing documentation, for any reason,
+including other notational inconsistencies you are certain about. Not in files
+you are not otherwise touching, not elsewhere in files you are, and not for a
+different kind of inconsistency in the same comment.
 
-**This is the one case where you should edit documentation that predates this
-project.** If an existing comment uses "2nd" and the library's prevailing form is
-"second", change it. Otherwise leave pre-existing comments alone: they are not
-your remit, they have already been reviewed by someone, and every one you touch
-enlarges the diff a maintainer has to check. Notational consistency is worth
-that cost because it is invisible work that makes the whole library read as one
-thing. Rewriting someone else's correct prose is not.
+**Everything else you notice goes in a file, not in the diff.** Record it in
+`todo-writer/docs/consistency-notes.md`: what is inconsistent, where, which form
+predominates, and how many places are affected. Those become their own pull
+request later, reviewed on their own terms.
+
+The reason for the narrowness is the same one that sizes the pull requests.
+Every pre-existing line you change is a line a maintainer must re-review, mixed
+in among thousands of new ones, and it dilutes the property that makes these
+PRs acceptable at all: that the diff is new documentation where there was none.
+A cleanup worth doing is worth doing where it can be seen.
 
 ### Voice
 
