@@ -248,6 +248,53 @@ One real example worth imitating, found in week 6:
 That required reading three files and may be a real bug rather than a
 documentation gap.
 
+### When the code is wrong
+
+Different from the case above, and more important. Sometimes the code does not
+merely fail to reveal its intent, it is plainly wrong: an off-by-one, a guard on
+the wrong variable, a branch that cannot be reached. This will happen. You are
+about to read several thousand declarations more carefully than anyone has in
+years.
+
+Three rules, in order:
+
+1. **Do not document the buggy behaviour as though it were intended.** A doc
+   comment faithfully describing a bug makes the bug permanent: it turns a
+   defect into a specified contract, and the next reader has no way to tell
+   which it is.
+2. **Do not fix it.** These pull requests are comment-only, and that property is
+   what lets a reviewer accept 900 declarations without auditing them line by
+   line. A code fix buried in a documentation PR costs that trust and stalls the
+   whole thing.
+3. **Report it, in two places.** Leave a `@note NEEDS-HUMAN:` at the site saying
+   what looks wrong, and add an entry to `todo-writer/docs/suspected-bugs.md`
+   so they can be read in one place without hunting through the diff.
+
+For the declaration itself, either leave the marker unfilled with the
+NEEDS-HUMAN note explaining why, or document only what is unambiguously true and
+flag the rest. Do not guess which behaviour was meant.
+
+This is a proven path, not a formality: a bug found this way a few weeks ago was
+raised as its own small pull request and accepted immediately. Separating the
+two kinds of change is what made that quick.
+
+Format for `suspected-bugs.md`, one entry each:
+
+```markdown
+## `collection/concurrent/TrieMap.scala:1204` — `DoubleAccumulatorStepper.hasStep`
+
+The guard is `n <= 0`, the size of the current block, whereas
+`AnyAccumulatorStepper` and `IntAccumulatorStepper` guard on `N <= 0`, the
+elements remaining. Stepping past the end of an exhausted stepper therefore
+appears to be unchecked here and checked in the siblings.
+
+Not documented; `@note NEEDS-HUMAN` left at the site.
+```
+
+Include what the code does, what the siblings or the contract suggest it should
+do, and the evidence for both. Someone who has not read the file needs to be
+able to judge it from your entry alone.
+
 ## Known defects in the existing work
 
 **Read the human review threads first.** They are the most valuable input you
@@ -312,7 +359,8 @@ week, and keep every one of them comment-only.
 
 Read the code before you describe it. Never touch a non-comment line. One commit
 per week, two for week 11. When the code does not tell you, say so rather than
-inventing an answer.
+inventing an answer. When the code is wrong, do not document it and do not fix
+it: write it down in `suspected-bugs.md` and leave it for a separate PR.
 
 And read the two PR threads before you start. The existing documentation in
 weeks 3 through 6 is a draft by a weaker writer; you are free to replace all of
