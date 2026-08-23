@@ -185,11 +185,10 @@ final class IntAccumulator
    *
    *  `idx` is not validated, and an out-of-range index has more than one possible outcome. It can
    *  land in unused capacity of the current array, in which case the write silently succeeds
-   *  without changing any element this accumulator reports, or in the two trailing slots of an
-   *  array that hold the cumulative element count, corrupting this accumulator. Because the offset
-   *  into the current array is computed as a `Long` and then narrowed to an `Int`, an index far
-   *  enough out of range can also wrap onto an occupied slot and silently overwrite an element
-   *  this accumulator does report. Otherwise the write throws.
+   *  without changing any element this accumulator reports. Because the offset into the current
+   *  array is computed as a `Long` and then narrowed to an `Int`, an index far enough out of range
+   *  can also wrap onto an occupied slot and silently overwrite an element this accumulator does
+   *  report. Otherwise the write throws.
    *
    *  @param idx the zero-based index of the element to replace
    *  @param elem the `Int` value to store at index `idx`
@@ -209,11 +208,10 @@ final class IntAccumulator
    *
    *  `idx` is not validated, and an out-of-range index has more than one possible outcome. It can
    *  land in unused capacity of the current array, in which case the write silently succeeds
-   *  without changing any element this accumulator reports, or in the two trailing slots of an
-   *  array that hold the cumulative element count, corrupting this accumulator. Because the offset
-   *  into the current array is computed as a `Long` and then narrowed to an `Int`, an index far
-   *  enough out of range can also wrap onto an occupied slot and silently overwrite an element
-   *  this accumulator does report. Otherwise the write throws.
+   *  without changing any element this accumulator reports. Because the offset into the current
+   *  array is computed as a `Long` and then narrowed to an `Int`, an index far enough out of range
+   *  can also wrap onto an occupied slot and silently overwrite an element this accumulator does
+   *  report. Otherwise the write throws.
    *
    *  @param idx the zero-based index of the element to replace
    *  @param elem the `Int` value to store at index `idx`
