@@ -465,17 +465,31 @@ Per-file digests with the full item lists are in `todo-writer/reviews/*.digest.m
 
 ## Weeks 1 and 2, handled differently
 
-Weeks 1 and 2 are already an open, undrafted pull request, so their branch must
-not be rewritten. Instead:
+Weeks 1 and 2 are two separate pull requests, both already open and undrafted,
+meaning a maintainer may be reading them right now:
 
-1. Branch **off that PR branch**.
-2. Read the documentation it added, and change only what is genuinely wrong or
-   materially unclear, judged by the rules above.
-3. Commit those improvements as **one separate commit**.
+| week | PR | branch | scope |
+|---|---|---|---|
+| 1 | [#26429](https://github.com/scala/scala3/pull/26429) | `scaladoc-missing-docs-io-ref-numeric` | `scala/io`, `scala/ref`, the numeric root files |
+| 2 | [#26657](https://github.com/scala/scala3/pull/26657) | `scaladoc-missing-docs-misc-dirs-root-misc` | `scala/reflect`, `scala/annotation` and friends, loose root files |
 
-The point is that a human reviewer can see your changes as a distinct, small
-diff on top of what they have already reviewed. If nothing is worth changing,
-say so and make no commit; that is a legitimate outcome.
+Those branches must not be rewritten. For each week separately:
+
+1. Branch **off that week's PR branch**, not off your own.
+2. Read the documentation it added and improve what you judge worth improving.
+3. Commit as **one commit** on that branch, and stop.
+
+Two of these, one per week, kept apart so each can be merged into its own PR.
+
+Judge these more conservatively than weeks 3 through 6. Those you may rewrite
+freely because nobody has reviewed them. These are live, in front of a
+maintainer, and every line you change is a line they must look at again on a PR
+they may have already worked through. Worth changing: something false, something
+that will mislead, a notational break of the kind described above. Not worth
+changing: prose you would have phrased differently.
+
+If nothing is worth changing on a week, say so and make no commit. That is a
+legitimate and useful outcome; it tells us the earlier work holds up.
 
 ## After you finish
 
