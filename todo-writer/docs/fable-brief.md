@@ -5,8 +5,14 @@ through 11 of an 11-week plan. Weeks 1 and 2 are already in an open pull request
 and are handled separately at the end of this brief.
 
 Everything below is drawn from six weeks of doing this with an automated
-pipeline. That pipeline is no longer in charge of this work and you are, so its
-failure modes are offered as your rules rather than imposed as its process.
+pipeline, which is no longer in charge of this work. You are.
+
+That means none of its process binds you; how you work is your call entirely.
+What does bind you is the output: comment-only changes, one commit per week, and
+documentation that is true of the code. Between those two sits everything else
+below, the mistakes that pipeline actually made. They are not procedure and they
+are not optional; they are the ways this particular job goes wrong, and they go
+wrong the same way whoever is doing it.
 
 Where a rule looks oddly specific, it is because that exact mistake was made and
 caught. Some were caught by the human reviewer on PR #26822, who filed 51
