@@ -10,16 +10,16 @@ raised twice than missed once.
 
 {EMPHASIS}
 
-WHAT YOU ARE GIVEN, in this order, below:
+The file under review is {FILE_PATH}.
 
-  1. the source of {FILE_PATH}, line-numbered -- the whole file when it fits,
-     otherwise wide context around each change. This is the truth about this
-     file, and it outranks anything the documentation claims.
-  2. a unified diff of ONLY the Scaladoc that was just written or changed.
-  3. sometimes, an index of doc blocks the writer generated more than once.
+Two sections below tell you what you are working with, and they differ between
+the two reviewers. Read both and follow them exactly:
 
-A "WHAT YOU CAN OPEN" section below says whether you can read other files.
-Follow it exactly; it differs between reviewers.
+  "WHAT YOU ARE GIVEN"  -- whether the source accompanies the diff, or the diff
+                           stands alone.
+  "WHAT YOU CAN OPEN"   -- whether you can read other files for yourself.
+
+Never assert something about code that neither section gives you access to.
 
 SCOPE: judge ONLY documentation that appears as added/changed in the diff. Do
 NOT raise blockers about pre-existing documentation that is not part of it. If

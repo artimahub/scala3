@@ -424,6 +424,34 @@ EOT
     fi
 }
 
+# Roles no longer get identical payloads, so each must be told what it has.
+# A reviewer that believes it was given the source will reason about code it
+# cannot see, which is how week 4's reviewers invented context.
+payload_note() {   # $1 = "source" | "diff"
+    echo
+    echo "=== WHAT YOU ARE GIVEN ==="
+    if [ "$1" = source ]; then
+        cat <<'EOT'
+  1. the source of the file, line-numbered. It is the truth about this file and
+     outranks anything the documentation claims.
+  2. a unified diff of ONLY the Scaladoc that was just written or changed.
+  3. sometimes, an index of doc blocks the writer generated more than once.
+EOT
+    else
+        cat <<'EOT'
+  1. a unified diff of ONLY the Scaladoc that was just written or changed, with
+     several lines of surrounding context.
+  2. sometimes, an index of doc blocks the writer generated more than once.
+
+You do NOT have the whole source file. Judge what the diff shows you. Where a
+finding would depend on code you cannot see -- what a body really does, what an
+override overrides -- either say so and set confidence "low", or leave it to the
+other reviewer, who does have the source. Do not reason about code from a
+signature and call the result a fact.
+EOT
+    fi
+}
+
 HOUSE_RULES_FILE="${HOUSE_RULES_FILE:-$TODO_WRITER_DIR/docs/house-rules.md}"
 house_rules() {
   if [ -s "$HOUSE_RULES_FILE" ]; then
@@ -856,6 +884,8 @@ for index in "${!TARGETS[@]}"; do
             echo
             cat "$ADJ_BLOCK"
         } > "$DIFF_BLOCK"
+        REVIEW_PAYLOAD_KIND=diff
+        [ "$nlines" -le "$REVIEW_FILE_MAX_LINES" ] && REVIEW_PAYLOAD_KIND=source
         if [ "$nlines" -le "$REVIEW_FILE_MAX_LINES" ]; then
             log "    review input: full source ($nlines lines) + diff"
         else
@@ -876,15 +906,18 @@ for index in "${!TARGETS[@]}"; do
         # reviewers may be on different transports, and a reviewer must be told
         # the truth about what it can open: one of them can read the repository,
         # the other cannot, and each fails differently if it believes otherwise.
-        render_review() {   # $1 = emphasis text  $2 = that role's provider
+        render_review() {   # $1 = emphasis  $2 = that role's provider  $3 = payload kind
             render "$ABS" "$PROMPTS_DIR/doc-review-prompt.txt" \
               | awk -v e="$1" '{gsub(/\{EMPHASIS\}/, e); print}'
+            payload_note "$3"
             tools_note "$2"
             house_rules
             echo; echo "=== SCHEMA (conform exactly) ==="; cat "$SCHEMA"
         }
-        render_review "$ACCURACY_EMPHASIS" "$ACCURACY_PROVIDER" > "$WORK_DIR/${SAFE}.accsys"
-        render_review "$STYLE_EMPHASIS"    "$STYLE_PROVIDER"    > "$WORK_DIR/${SAFE}.stysys"
+        local sty_payload_kind=diff
+        [ "${STYLE_REVIEW_FULL_SOURCE:-false}" = true ] && sty_payload_kind="$REVIEW_PAYLOAD_KIND"
+        render_review "$ACCURACY_EMPHASIS" "$ACCURACY_PROVIDER" "$REVIEW_PAYLOAD_KIND" > "$WORK_DIR/${SAFE}.accsys"
+        render_review "$STYLE_EMPHASIS"    "$STYLE_PROVIDER"    "$sty_payload_kind"    > "$WORK_DIR/${SAFE}.stysys"
 
         # The accuracy reviewer may share a provider with the writer; space it.
         if [ "$ACCURACY_PROVIDER" = "$WRITER_PROVIDER" ] && [ "$PROVIDER_SPACING" -gt 0 ]; then
@@ -895,8 +928,24 @@ for index in "${!TARGETS[@]}"; do
         if [ "$STYLE_PROVIDER" = "$ACCURACY_PROVIDER" ] && [ "$PROVIDER_SPACING" -gt 0 ]; then
             sleep "$PROVIDER_SPACING"
         fi
+        # The style reviewer gets the DIFF, not the source. It judges prose
+        # conventions, tag rules, voice and altitude, all of which live in the
+        # diff; accuracy is the role that has to read method bodies.
+        #
+        # Sending it the source was killing it on large files. mistral-large
+        # copes with about 125 KB and Ordering.scala's review input was 162 KB:
+        # four attempts, backing off 30s to 240s, all returning nothing usable,
+        # and the file went through its whole review with style UNAVAILABLE.
+        # Week 6 would have hit this much harder -- quoted/Quotes.scala is 6208
+        # lines before any documentation is added to it.
+        #
+        # STYLE_REVIEW_FULL_SOURCE=true restores the old behaviour for a run
+        # where the style reviewer is on a model with room for it.
+        local style_input="$ADJ_BLOCK"
+        [ "${STYLE_REVIEW_FULL_SOURCE:-false}" = true ] && style_input="$DIFF_BLOCK"
+        log "    style payload: $(( $(wc -c < "$style_input") / 1024 )) KB | accuracy payload: $(( $(wc -c < "$DIFF_BLOCK") / 1024 )) KB"
         graded_review style "$STYLE_PROVIDER" "$STYLE_MODEL" \
-                      "$WORK_DIR/${SAFE}.stysys" "$DIFF_BLOCK" "$final_sty"
+                      "$WORK_DIR/${SAFE}.stysys" "$style_input" "$final_sty"
 
         acc_verdict=$(verdict_of "$final_acc")
         sty_verdict=$(verdict_of "$final_sty")

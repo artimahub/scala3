@@ -38,6 +38,14 @@ mistake that shipped.
 
 - Use `@throws` tags for what a method throws, rather than prose in the
   description. Give one tag per exception type with the condition that raises it.
+- The FIRST token after `@throws` must be the exception class, then the
+  condition: `@throws IllegalArgumentException if `n` is negative`. Scaladoc
+  reads that first word as the class name, so `@throws the exception thrown by
+  `f`` renders as an exception called "the". Week 5 shipped exactly that in
+  `concurrent/Map.scala`.
+- Never write a literal `@deprecated(...)` line inside a doc comment. The real
+  annotation on the declaration is what Scaladoc renders; a copy of it in the
+  comment is duplicated output. Week 5 did this in `math/Numeric.scala`.
 
 ### Do not write a second doc comment
 
