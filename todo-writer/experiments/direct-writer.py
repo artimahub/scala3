@@ -356,119 +356,14 @@ def post(base_url, api_key, payload, timeout):
     return json.loads(body[start:])
 
 
-def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--file", required=True)
-    ap.add_argument("--prompt", required=True)
-    ap.add_argument("--model", required=True)
-    ap.add_argument("--base-url", required=True)
-    ap.add_argument("--api-key-env", required=True)
-    ap.add_argument("--max-tokens", type=int, default=32000)
-    ap.add_argument("--timeout", type=int, default=900)
-    ap.add_argument("--reasoning-effort", default="")
-    ap.add_argument("--retry-backoff", type=int, default=30)
-    ap.add_argument("--dump", default="", help="write the raw reply here")
-    args = ap.parse_args()
+def apply_reply(args, src, reply, marker_blocks):
+    """Parse a model reply and apply its blocks. Shared by both transports.
 
-    api_key = os.environ.get(args.api_key_env, "")
-    if not api_key:
-        print(f"ERROR: ${args.api_key_env} is empty", file=sys.stderr)
-        return 1
-
-    src = open(args.file, encoding="utf-8").read()
-    instructions = open(args.prompt, encoding="utf-8").read()
-
-    # The worklist, numbered from the file itself. We already know where every
-    # marker is, so the model is never asked to describe a location -- which is
-    # the whole reason SEARCH/REPLACE failed on repetitive files, where a dozen
-    # comments are byte-identical and nothing it could quote would be unique.
-    marker_blocks = find_marker_blocks(src, MARKER)
-    print(f"  markers found:   {len(marker_blocks)}")
-
-    # One user message: the instructions, then the file. Deliberately no system
-    # prompt -- that is what silenced GLM through aider.
-    content = (
-        f"{instructions}\n\n"
-        f"Here is the current content of {args.file}:\n\n"
-        f"```scala\n{src}\n```\n\n"
-        f"{marker_manifest(marker_blocks)}"
-    )
-    payload = {
-        "model": args.model,
-        "max_tokens": args.max_tokens,
-        "messages": [{"role": "user", "content": content}],
-    }
-    # Reasoning control, which is NOT portable between providers.
-    #
-    # Cerebras takes  reasoning_effort: "none"|"low"|"medium"|"high"
-    # OpenRouter takes reasoning: {"enabled": false} / {"effort": "..."}
-    #
-    # This matters more than a compatibility nicety. Reasoning models emit into
-    # a separate channel before any `content`, and with a large budget they can
-    # spend all of it thinking. cohere/north-mini-code:free did exactly that:
-    # completion=32000, reasoning=32910, content empty, 1011 seconds for zero
-    # blocks. Sending the wrong provider's spelling means the setting is
-    # silently ignored and the run burns the full budget again.
-    if args.reasoning_effort:
-        if "openrouter.ai" in args.base_url:
-            if args.reasoning_effort == "none":
-                payload["reasoning"] = {"enabled": False}
-            else:
-                payload["reasoning"] = {"effort": args.reasoning_effort}
-        else:
-            payload["reasoning_effort"] = args.reasoning_effort
-
-    # Retry on rate limits. Mistral's free tier 429s readily when several roles
-    # fire in quick succession; the first pipeline run lost both refine passes
-    # to it. Everything else fails fast, since retrying a 400 just repeats it.
-    resp = None
-    delay = args.retry_backoff
-    for attempt in range(1, 5):
-        try:
-            resp = post(args.base_url, api_key, payload, args.timeout)
-            break
-        except urllib.error.HTTPError as e:
-            body = e.read().decode()[:400]
-            if e.code in (429, 503) and attempt < 4:
-                print(f"  rate limited (HTTP {e.code}), attempt {attempt}/4; waiting {delay}s")
-                sys.stdout.flush()
-                time.sleep(delay)
-                delay *= 2
-                continue
-            print(f"ERROR: HTTP {e.code}: {body}", file=sys.stderr)
-            return 1
-        except urllib.error.URLError as e:
-            # DNS and transient network failures. Seen live: "Errno -3 Temporary
-            # failure in name resolution" mid-run, with both endpoints healthy
-            # seconds later. Worth retrying rather than losing the file.
-            if attempt < 4:
-                print(f"  network error ({e.reason}), attempt {attempt}/4; waiting {delay}s")
-                sys.stdout.flush()
-                time.sleep(delay)
-                delay *= 2
-                continue
-            print(f"ERROR: URLError: {e}", file=sys.stderr)
-            return 1
-        except Exception as e:  # malformed JSON, anything unexpected
-            print(f"ERROR: {type(e).__name__}: {e}", file=sys.stderr)
-            return 1
-    if resp is None:
-        print("ERROR: exhausted retries", file=sys.stderr)
-        return 1
-
-    choice = (resp.get("choices") or [{}])[0]
-    msg = choice.get("message") or {}
-    reply = msg.get("content") or ""
-    usage = resp.get("usage") or {}
-    details = usage.get("completion_tokens_details") or {}
-
-    print(f"  finish_reason:   {choice.get('finish_reason')}")
-    print(
-        f"  tokens:          prompt={usage.get('prompt_tokens')} "
-        f"completion={usage.get('completion_tokens')} "
-        f"reasoning={details.get('reasoning_tokens')}"
-    )
-
+    Split out of main() so a reply fetched by a coding-agent CLI goes through
+    exactly the same parsing, the same ID/SEARCH-REPLACE protocols and the same
+    per-block refusal of anything touching a non-comment line. A second code
+    path here would be a second set of bugs.
+    """
     if args.dump:
         with open(args.dump, "w", encoding="utf-8") as fh:
             fh.write(reply)
@@ -523,6 +418,152 @@ def main():
     if stats["unchanged"]:
         print(f"  no-op blocks:    {stats['unchanged']}")
     return 0
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--file", required=True)
+    ap.add_argument("--prompt", required=True)
+    ap.add_argument("--model", default="")
+    ap.add_argument("--base-url", default="")
+    ap.add_argument("--api-key-env", default="")
+    # Apply a reply somebody else obtained, instead of calling an API. This is
+    # what lets a coding-agent CLI (claude -p, codex exec) be the writer while
+    # the block protocol, the per-block code guard and the marker-ID worklist
+    # all stay exactly as they are. Without it, moving the writer to a CLI would
+    # mean handing that agent an Edit tool and losing every one of those checks.
+    ap.add_argument("--reply-file", default="",
+                    help="read the model's reply from here; make no API call")
+    # Print the prompt this run would send, and exit. The CLI transport needs
+    # the prompt built the same way -- instructions, file, marker manifest --
+    # and duplicating that assembly in shell would be a second source of truth.
+    ap.add_argument("--emit-prompt", default="",
+                    help="write the assembled prompt here and exit")
+    ap.add_argument("--max-tokens", type=int, default=32000)
+    ap.add_argument("--timeout", type=int, default=900)
+    ap.add_argument("--reasoning-effort", default="")
+    ap.add_argument("--retry-backoff", type=int, default=30)
+    ap.add_argument("--dump", default="", help="write the raw reply here")
+    args = ap.parse_args()
+
+    api_key = ""
+    if not args.reply_file and not args.emit_prompt:
+        for required in ("model", "base_url", "api_key_env"):
+            if not getattr(args, required):
+                print(f"ERROR: --{required.replace('_','-')} is required "
+                      f"unless --reply-file or --emit-prompt is given", file=sys.stderr)
+                return 1
+        api_key = os.environ.get(args.api_key_env, "")
+        if not api_key:
+            print(f"ERROR: ${args.api_key_env} is empty", file=sys.stderr)
+            return 1
+
+    src = open(args.file, encoding="utf-8").read()
+    instructions = open(args.prompt, encoding="utf-8").read()
+
+    # The worklist, numbered from the file itself. We already know where every
+    # marker is, so the model is never asked to describe a location -- which is
+    # the whole reason SEARCH/REPLACE failed on repetitive files, where a dozen
+    # comments are byte-identical and nothing it could quote would be unique.
+    marker_blocks = find_marker_blocks(src, MARKER)
+    print(f"  markers found:   {len(marker_blocks)}")
+
+    # One user message: the instructions, then the file. Deliberately no system
+    # prompt -- that is what silenced GLM through aider.
+    content = (
+        f"{instructions}\n\n"
+        f"Here is the current content of {args.file}:\n\n"
+        f"```scala\n{src}\n```\n\n"
+        f"{marker_manifest(marker_blocks)}"
+    )
+    if args.emit_prompt:
+        with open(args.emit_prompt, "w", encoding="utf-8") as fh:
+            fh.write(content)
+        print(f"  prompt written:  {len(content)} bytes -> {args.emit_prompt}")
+        return 0
+
+    payload = {
+        "model": args.model,
+        "max_tokens": args.max_tokens,
+        "messages": [{"role": "user", "content": content}],
+    }
+    # Reasoning control, which is NOT portable between providers.
+    #
+    # Cerebras takes  reasoning_effort: "none"|"low"|"medium"|"high"
+    # OpenRouter takes reasoning: {"enabled": false} / {"effort": "..."}
+    #
+    # This matters more than a compatibility nicety. Reasoning models emit into
+    # a separate channel before any `content`, and with a large budget they can
+    # spend all of it thinking. cohere/north-mini-code:free did exactly that:
+    # completion=32000, reasoning=32910, content empty, 1011 seconds for zero
+    # blocks. Sending the wrong provider's spelling means the setting is
+    # silently ignored and the run burns the full budget again.
+    if args.reasoning_effort:
+        if "openrouter.ai" in args.base_url:
+            if args.reasoning_effort == "none":
+                payload["reasoning"] = {"enabled": False}
+            else:
+                payload["reasoning"] = {"effort": args.reasoning_effort}
+        else:
+            payload["reasoning_effort"] = args.reasoning_effort
+
+    # Retry on rate limits. Mistral's free tier 429s readily when several roles
+    # fire in quick succession; the first pipeline run lost both refine passes
+    # to it. Everything else fails fast, since retrying a 400 just repeats it.
+    if args.reply_file:
+        reply = open(args.reply_file, encoding="utf-8").read()
+        print(f"  reply:           {len(reply)} bytes from an external client")
+        return apply_reply(args, src, reply, marker_blocks)
+
+    resp = None
+    delay = args.retry_backoff
+    for attempt in range(1, 5):
+        try:
+            resp = post(args.base_url, api_key, payload, args.timeout)
+            break
+        except urllib.error.HTTPError as e:
+            body = e.read().decode()[:400]
+            if e.code in (429, 503) and attempt < 4:
+                print(f"  rate limited (HTTP {e.code}), attempt {attempt}/4; waiting {delay}s")
+                sys.stdout.flush()
+                time.sleep(delay)
+                delay *= 2
+                continue
+            print(f"ERROR: HTTP {e.code}: {body}", file=sys.stderr)
+            return 1
+        except urllib.error.URLError as e:
+            # DNS and transient network failures. Seen live: "Errno -3 Temporary
+            # failure in name resolution" mid-run, with both endpoints healthy
+            # seconds later. Worth retrying rather than losing the file.
+            if attempt < 4:
+                print(f"  network error ({e.reason}), attempt {attempt}/4; waiting {delay}s")
+                sys.stdout.flush()
+                time.sleep(delay)
+                delay *= 2
+                continue
+            print(f"ERROR: URLError: {e}", file=sys.stderr)
+            return 1
+        except Exception as e:  # malformed JSON, anything unexpected
+            print(f"ERROR: {type(e).__name__}: {e}", file=sys.stderr)
+            return 1
+    if resp is None:
+        print("ERROR: exhausted retries", file=sys.stderr)
+        return 1
+
+    choice = (resp.get("choices") or [{}])[0]
+    msg = choice.get("message") or {}
+    reply = msg.get("content") or ""
+    usage = resp.get("usage") or {}
+    details = usage.get("completion_tokens_details") or {}
+
+    print(f"  finish_reason:   {choice.get('finish_reason')}")
+    print(
+        f"  tokens:          prompt={usage.get('prompt_tokens')} "
+        f"completion={usage.get('completion_tokens')} "
+        f"reasoning={details.get('reasoning_tokens')}"
+    )
+
+    return apply_reply(args, src, reply, marker_blocks)
 
 
 if __name__ == "__main__":

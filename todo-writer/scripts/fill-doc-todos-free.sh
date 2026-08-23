@@ -149,7 +149,20 @@ set -uo pipefail
 # non-converging file now costs MAX_ROUNDS+1 accuracy calls counting the
 # verification pass.
 MAX_ROUNDS=${MAX_ROUNDS:-3}
-WRITER_MODEL=${WRITER_MODEL:-devstral-latest};             WRITER_PROVIDER=${WRITER_PROVIDER:-mistral}
+# Every role on a local coding-agent CLI, billed to the subscriptions signed in
+# on this machine. This is where the pipeline started, before the all-free
+# experiment; it comes back because Mistral's ceiling turned out to be the
+# binding constraint, not its quality. Eight of the nine dead calls across six
+# weeks were Mistral, all of them oversized payloads: 128 KB of diff on
+# FunctionWrappers killed two roles at once and cost that file every refine.
+#
+# Codex on accuracy is deliberate. `codex exec --output-schema` enforces the
+# JSON shape at the tool layer, which no other transport here can do -- `claude
+# -p` has no equivalent, so its schema is piped into the prompt and honoured on
+# trust. That trust broke once already, on TrieMap, where a 26-turn review came
+# back as prose and was discarded. And it keeps the two reviewers in different
+# model families, which is where reviewer independence actually comes from.
+WRITER_MODEL=${WRITER_MODEL:-opus};                        WRITER_PROVIDER=${WRITER_PROVIDER:-claude-cli}
 # The one role that is not on a free API model. Week 4 proved that a weak or
 # throttled accuracy reviewer is worse than none: it produces a verdict that
 # LOOKS like review and stops anyone looking further.
@@ -160,9 +173,9 @@ WRITER_MODEL=${WRITER_MODEL:-devstral-latest};             WRITER_PROVIDER=${WRI
 # reviewer can open the OTHER files a declaration depends on. Reviewing
 # `Ordering.scala` means following `Numeric`; reviewing an override means
 # reading the member it overrides.
-ACCURACY_MODEL=${ACCURACY_MODEL:-sonnet};   ACCURACY_PROVIDER=${ACCURACY_PROVIDER:-claude-cli}
-STYLE_MODEL=${STYLE_MODEL:-mistral-large-latest};    STYLE_PROVIDER=${STYLE_PROVIDER:-mistral}
-ADJUDICATOR_MODEL=${ADJUDICATOR_MODEL:-devstral-latest};  ADJUDICATOR_PROVIDER=${ADJUDICATOR_PROVIDER:-mistral}
+ACCURACY_MODEL=${ACCURACY_MODEL:-gpt-5.6-terra}; ACCURACY_PROVIDER=${ACCURACY_PROVIDER:-codex-cli}
+STYLE_MODEL=${STYLE_MODEL:-sonnet};         STYLE_PROVIDER=${STYLE_PROVIDER:-claude-cli}
+ADJUDICATOR_MODEL=${ADJUDICATOR_MODEL:-sonnet};   ADJUDICATOR_PROVIDER=${ADJUDICATOR_PROVIDER:-claude-cli}
 MAX_TOKENS=${MAX_TOKENS:-32000}
 # ONE brief, rendered identically for both reviewers. There is no "accuracy
 # reviewer" and no "style reviewer" any more: each is asked to judge accuracy
@@ -204,6 +217,22 @@ REVIEW_DIFF_CONTEXT=${REVIEW_DIFF_CONTEXT:-25}
 REPEAT_GROUP_MIN=${REPEAT_GROUP_MIN:-3}   # identical doc blocks before grouping
 FINAL_VERIFY=${FINAL_VERIFY:-true}        # review the final refine, do not ship it blind
 CLI_TIMEOUT=${CLI_TIMEOUT:-1800}          # per call, for claude-cli / codex-cli
+# How a CLI writer works.
+#   agent  -- it holds Edit and rewrites the file itself. What the original
+#             subscription pipeline did. Fewer moving parts, and the model
+#             places its own text rather than describing an edit for a parser.
+#   blocks -- it emits ID / SEARCH-REPLACE blocks and direct-writer.py applies
+#             them, refusing any block that touches a non-comment line.
+#
+# agent trades a per-edit guard for a per-file one. integrity_ok still compares
+# every non-comment, non-blank line before and after and reverts the file if a
+# single one moved, so code cannot survive being mangled; it just gets caught
+# after the fact rather than refused up front. Two models did silently delete
+# code under the old agent pipeline (see RESULTS.md), which is why that check
+# exists and why it runs after every writer and refine call.
+WRITER_MODE=${WRITER_MODE:-agent}
+WRITER_TOOLS=${WRITER_TOOLS:-Edit,Read,Grep,Glob}
+REVIEWER_TOOLS=${REVIEWER_TOOLS:-Read,Grep,Glob}   # no Edit: reviewers judge, they do not fix
 # Mistral answers a payload over roughly 125 KB with an empty body, every time.
 # Retrying that is not resilience, it is four sleeps into a wall: week 6's
 # FunctionWrappers.scala burned 15 minutes per round on two roles doing exactly
@@ -505,7 +534,7 @@ cli_call() {
                 cat "$sysf" "$usrf" \
                   | ( cd "$REPO_ROOT" && timeout "$CLI_TIMEOUT" "$bin" \
                         --dangerously-skip-permissions -p --model "$model" \
-                        --allowedTools Read,Grep,Glob --output-format json ) \
+                        --allowedTools "$REVIEWER_TOOLS" --output-format json ) \
                     > "$raw" 2> "$errf" || rc=$?
                 if [ "$rc" -eq 124 ]; then
                     err="claude CLI timed out after ${CLI_TIMEOUT}s"
@@ -777,6 +806,7 @@ for index in "${!TARGETS[@]}"; do
 
     run_writer() {                       # $1 = prompt file, $2 = log destination
         local key_env
+        if is_cli_provider "$WRITER_PROVIDER"; then cli_writer "$1" "$2"; return $?; fi
         case "$WRITER_PROVIDER" in
             mistral) key_env=MISTRAL_API_KEY ;; cerebras) key_env=CEREBRAS_API_KEY ;;
             openrouter) key_env=OPENROUTER_API_KEY ;; *) key_env=OPENAI_API_KEY ;;
@@ -787,10 +817,108 @@ for index in "${!TARGETS[@]}"; do
             --dump "$REVIEWS_DIR/${SAFE}.reply.txt" > "$2" 2>&1
     }
 
+    # The writer on a coding-agent CLI, in two steps: the CLI produces a reply,
+    # direct-writer.py applies it.
+    #
+    # It is NOT given an Edit tool, which is the whole point. The original
+    # subscription pipeline drove `claude -p --allowedTools Edit` and let the
+    # agent rewrite files itself, and RESULTS.md records two models silently
+    # deleting code while filling comments, with every success signal still
+    # reporting success. Routing the reply through direct-writer.py keeps the
+    # marker-ID worklist, the block protocols, and the per-block refusal of any
+    # block containing a non-comment line.
+    #
+    # Read/Grep/Glob it does get: a writer that can look up the member it is
+    # documenting writes better documentation than one guessing from a signature.
+    cli_writer() {                       # $1 = prompt file, $2 = log destination
+        local bin prompt reply rc=0
+        bin=$(cli_binary "$WRITER_PROVIDER")
+        prompt="$WORK_DIR/${SAFE}.writer-prompt"
+        reply="$REVIEWS_DIR/${SAFE}.reply.txt"
+
+        # ---- agent mode: the writer edits the file itself -----------------
+        if [ "$WRITER_MODE" = agent ]; then
+            case "$WRITER_PROVIDER" in
+                claude-cli)
+                    ( cd "$REPO_ROOT" && timeout "$CLI_TIMEOUT" "$bin" \
+                        --dangerously-skip-permissions -p --model "$WRITER_MODEL" \
+                        --allowedTools "$WRITER_TOOLS" --output-format json ) \
+                        < "$1" > "$WORK_DIR/${SAFE}.wraw" 2>>"$2" || rc=$?
+                    if [ -s "$WORK_DIR/${SAFE}.wraw" ]; then
+                        local cost turns
+                        cost=$(jq -r '.total_cost_usd // empty' "$WORK_DIR/${SAFE}.wraw" 2>/dev/null)
+                        turns=$(jq -r '.num_turns // empty' "$WORK_DIR/${SAFE}.wraw" 2>/dev/null)
+                        jq -r '.result // empty' "$WORK_DIR/${SAFE}.wraw" > "$reply" 2>/dev/null
+                        echo "  writer:          agent mode, ${turns:-?} turn(s), \$${cost:-?} against the subscription" >> "$2"
+                        if [ "$(jq -r '.is_error // false' "$WORK_DIR/${SAFE}.wraw" 2>/dev/null)" = true ]; then
+                            echo "  !! $WRITER_PROVIDER reported an error" >> "$2"; rc=1
+                        fi
+                    else
+                        echo "  !! $WRITER_PROVIDER/$WRITER_MODEL produced no output (rc=$rc)" >> "$2"; rc=1
+                    fi ;;
+                codex-cli)
+                    timeout "$CLI_TIMEOUT" "$bin" exec --model "$WRITER_MODEL" \
+                        --dangerously-bypass-approvals-and-sandbox --skip-git-repo-check \
+                        -C "$REPO_ROOT" --output-last-message "$reply" - < "$1" >> "$2" 2>&1 || rc=$?
+                    ;;
+            esac
+            # In agent mode nothing parses blocks, so the marker count IS the
+            # progress signal. The caller compares it before and after, and
+            # integrity_ok runs immediately after this returns.
+            echo "  markers left:    $(grep -c "$MARKER" "$ABS" 2>/dev/null || echo '?')" >> "$2"
+            return "$rc"
+        fi
+
+        # Ask direct-writer.py to assemble the prompt, so the CLI path and the
+        # HTTP path cannot drift apart in how the worklist is presented.
+        python3 "$DIRECT_WRITER" --file "$ABS" --prompt "$1" \
+            --emit-prompt "$prompt" > "$2" 2>&1 || rc=$?
+        if [ "$rc" -ne 0 ] || [ ! -s "$prompt" ]; then
+            echo "  !! could not assemble the writer prompt" >> "$2"; return 1
+        fi
+
+        : > "$reply"
+        case "$WRITER_PROVIDER" in
+            claude-cli)
+                ( cd "$REPO_ROOT" && timeout "$CLI_TIMEOUT" "$bin" \
+                    --dangerously-skip-permissions -p --model "$WRITER_MODEL" \
+                    --allowedTools Read,Grep,Glob --output-format json ) \
+                    < "$prompt" > "$WORK_DIR/${SAFE}.wraw" 2>>"$2" || rc=$?
+                if [ "$rc" -eq 0 ] && [ -s "$WORK_DIR/${SAFE}.wraw" ]; then
+                    jq -r '.result // empty' "$WORK_DIR/${SAFE}.wraw" > "$reply" 2>/dev/null
+                    local cost; cost=$(jq -r '.total_cost_usd // empty' "$WORK_DIR/${SAFE}.wraw" 2>/dev/null)
+                    [ -n "$cost" ] && echo "  writer cost:     \$$cost against the subscription" >> "$2"
+                fi ;;
+            codex-cli)
+                timeout "$CLI_TIMEOUT" "$bin" exec --model "$WRITER_MODEL" \
+                    --skip-git-repo-check -C "$REPO_ROOT" \
+                    --output-last-message "$reply" - < "$prompt" >> "$2" 2>&1 || rc=$?
+                ;;
+        esac
+
+        if [ ! -s "$reply" ]; then
+            echo "  !! $WRITER_PROVIDER/$WRITER_MODEL returned nothing (rc=$rc)" >> "$2"
+            return 1
+        fi
+        python3 "$DIRECT_WRITER" --file "$ABS" --prompt "$1" \
+            --reply-file "$reply" >> "$2" 2>&1
+    }
+
     check_pause "before writer: $REL"
 
     # ---- Writer -------------------------------------------------------------
-    render "$ABS" "$PROMPTS_DIR/doc-writer-prompt-direct.txt" > "$WORK_DIR/${SAFE}.wprompt"
+    # The prompt has to match the mode. -direct tells the model to emit blocks
+    # and touch nothing; -agent tells it to edit the file. Handing an agent the
+    # block prompt gets you a file that was never edited, which is exactly how
+    # the refine silently no-opped for five weeks.
+    if [ "$WRITER_MODE" = agent ] && is_cli_provider "$WRITER_PROVIDER"; then
+        WRITER_PROMPT_FILE="$PROMPTS_DIR/doc-writer-prompt-agent.txt"
+        REFINE_PROMPT_FILE="$PROMPTS_DIR/doc-refine-prompt-agent.txt"
+    else
+        WRITER_PROMPT_FILE="$PROMPTS_DIR/doc-writer-prompt-direct.txt"
+        REFINE_PROMPT_FILE="$PROMPTS_DIR/doc-refine-prompt-direct.txt"
+    fi
+    render "$ABS" "$WRITER_PROMPT_FILE" > "$WORK_DIR/${SAFE}.wprompt"
     house_rules >> "$WORK_DIR/${SAFE}.wprompt"
     # ---- Writer loop --------------------------------------------------------
     # Fill FIRST, review after. These are separate concerns and want separate
@@ -938,12 +1066,17 @@ for index in "${!TARGETS[@]}"; do
         render_review "$REVIEW_EMPHASIS" "$STYLE_PROVIDER"    "$sty_payload_kind"    > "$WORK_DIR/${SAFE}.stysys"
 
         # The accuracy reviewer may share a provider with the writer; space it.
-        if [ "$ACCURACY_PROVIDER" = "$WRITER_PROVIDER" ] && [ "$PROVIDER_SPACING" -gt 0 ]; then
+        # Spacing exists for one API key being hit by several roles in quick
+        # succession. Two CLI roles are separate processes against a
+        # subscription, so pausing between them buys nothing but wall clock.
+        if [ "$ACCURACY_PROVIDER" = "$WRITER_PROVIDER" ] && [ "$PROVIDER_SPACING" -gt 0 ] \
+           && ! is_cli_provider "$ACCURACY_PROVIDER"; then
             sleep "$PROVIDER_SPACING"
         fi
         graded_review accuracy "$ACCURACY_PROVIDER" "$ACCURACY_MODEL" \
                       "$WORK_DIR/${SAFE}.accsys" "$DIFF_BLOCK" "$final_acc"
-        if [ "$STYLE_PROVIDER" = "$ACCURACY_PROVIDER" ] && [ "$PROVIDER_SPACING" -gt 0 ]; then
+        if [ "$STYLE_PROVIDER" = "$ACCURACY_PROVIDER" ] && [ "$PROVIDER_SPACING" -gt 0 ] \
+           && ! is_cli_provider "$STYLE_PROVIDER"; then
             sleep "$PROVIDER_SPACING"
         fi
         # The style reviewer gets the DIFF, not the source. It judges prose
@@ -1008,7 +1141,8 @@ for index in "${!TARGETS[@]}"; do
         check_pause "before adjudication: $REL"
         # Space this away from the writer call on the same provider. The reviews
         # above take a few seconds; on a free tier that is not enough headroom.
-        if [ "$ADJUDICATOR_PROVIDER" = "$WRITER_PROVIDER" ] && [ "$PROVIDER_SPACING" -gt 0 ]; then
+        if [ "$ADJUDICATOR_PROVIDER" = "$WRITER_PROVIDER" ] && [ "$PROVIDER_SPACING" -gt 0 ] \
+           && ! is_cli_provider "$ADJUDICATOR_PROVIDER"; then
             sleep "$PROVIDER_SPACING"
         fi
         log "    adjudicating ($ADJUDICATOR_PROVIDER/$ADJUDICATOR_MODEL)..."
@@ -1117,6 +1251,7 @@ for index in "${!TARGETS[@]}"; do
         fi
 
         check_pause "before refine round $round: $REL"
+        refine_hash_before=$(md5sum "$ABS" | cut -d" " -f1)
         # doc-refine-prompt-DIRECT, not -agent. The -agent prompt was written for
         # a coding-agent client that edits files itself (the old Claude Code and
         # aider pipeline) and it names no reply format at all. When the writer
@@ -1131,7 +1266,7 @@ for index in "${!TARGETS[@]}"; do
         # is the writer's first pass, which is why week 4 drew 51 review comments
         # after "two rounds of review", and why reviewers kept re-finding the
         # same items on text that never changed.
-        { render "$ABS" "$PROMPTS_DIR/doc-refine-prompt-direct.txt"; house_rules
+        { render "$ABS" "$REFINE_PROMPT_FILE"; house_rules
           echo; cat "$final_adj"; } > "$WORK_DIR/${SAFE}.rprompt"
         run_writer "$WORK_DIR/${SAFE}.rprompt" "$REVIEWS_DIR/${SAFE}.refine${round}.log"
         integrity_ok "refine round $round" || break
@@ -1139,14 +1274,27 @@ for index in "${!TARGETS[@]}"; do
         # A refine that applied nothing is a failed refine, and it must say so.
         # The counters were printed all along; nothing read them, so a no-op
         # round looked exactly like a successful one.
-        r_applied=$(grep -oE "^ *applied: +[0-9]+" "$REVIEWS_DIR/${SAFE}.refine${round}.log" 2>/dev/null | awk '{print $2}' | head -1)
+        # In blocks mode the applier reports how many landed. In agent mode
+        # nothing counts edits, so the question becomes "did the file change at
+        # all", answered by hashing it either side of the call. Either way a
+        # refine that changed nothing against a non-empty worklist is a failure
+        # and has to say so.
+        if [ "$WRITER_MODE" = agent ] && is_cli_provider "$WRITER_PROVIDER"; then
+            [ "$refine_hash_before" != "$(md5sum "$ABS" | cut -d" " -f1)" ] && r_applied=1 || r_applied=0
+        else
+            r_applied=$(grep -oE "^ *applied: +[0-9]+" "$REVIEWS_DIR/${SAFE}.refine${round}.log" 2>/dev/null | awk '{print $2}' | head -1)
+        fi
         r_items=$(jq -r '(.resolved_items // []) | length' "$final_adj" 2>/dev/null || echo 0)
         if [ "${r_applied:-0}" -eq 0 ] && [ "${r_items:-0}" -gt 0 ]; then
             log "    !! refine applied NOTHING against ${r_items} adjudicated item(s)"
             log "    !! the reviewers' findings did not reach the file; see ${SAFE}.refine${round}.log"
             refine_failed=$(( refine_failed + 1 ))
         else
-            log "    refine applied ${r_applied:-0} edit(s) against ${r_items} item(s)"
+            if [ "$WRITER_MODE" = agent ] && is_cli_provider "$WRITER_PROVIDER"; then
+                log "    refine edited the file against ${r_items} item(s)"
+            else
+                log "    refine applied ${r_applied:-0} edit(s) against ${r_items} item(s)"
+            fi
         fi
 
         [ "$final_refinement" = "true" ] && break
