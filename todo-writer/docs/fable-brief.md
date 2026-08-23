@@ -6,8 +6,17 @@ and are handled separately at the end of this brief.
 
 Everything below is drawn from six weeks of doing this with an automated
 pipeline. The pipeline is being retired for this work and you are replacing it,
-so its failure modes are your rules. Where a rule looks oddly specific, it is
-because a real PR shipped that exact mistake and a human reviewer found it.
+so its failure modes are your rules.
+
+Where a rule looks oddly specific, it is because that exact mistake was made and
+caught. Some were caught by the human reviewer on PR #26822, who filed 51
+comments on one week's work: a `@param` naming the wrong parameter across 20
+methods, a tag saying a function was ignored when the body called it, a class
+documented as creating something it does not create. Others were caught by our
+own reviewers before any human saw them: an `@throws` that renders as an
+exception named "the", a method documented as making a deep copy when it copies
+a reference, exceptions promised that erasure makes impossible. Treat both kinds
+as equally real; the difference is only who noticed first.
 
 ## The job
 
