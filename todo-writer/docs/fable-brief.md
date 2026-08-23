@@ -287,6 +287,28 @@ looking finished is half the reason this work exists. Spelling out an ordinal in
 one comment and using a numeral in the next is the documentation equivalent of
 mismatched indentation.
 
+**For that particular case the library has already chosen, so do not re-decide
+it.** In the arity families, `Function1`-`Function22`, `Tuple1`-`Tuple22`,
+`Product1`-`Product22`, positional elements are referred to by NUMERAL ordinal:
+
+```scala
+ *  @tparam T1 the type of the 1st element
+ *  @tparam T2 the type of the 2nd element
+```
+
+That form appears in about 90 files and several hundred tags, established by
+PR #25996. Ordinary prose elsewhere keeps the spelled form, and should:
+"returns the first element of this list" is English, not an index into an arity,
+and appears that way over 200 times across `Option`, `Predef` and `collection`.
+
+Known stragglers, if you are in those files anyway:
+
+- `Tuple.scala:48`, `Tuple2.scala:30-31`, `Product.scala:34` use the spelled
+  form where the numeral form is the family's convention.
+- 17 `Tuple` files use a third form in `@param` tags, `Element 1 of this Tuple2`,
+  which predates this project. It is a bare cardinal where its neighbouring
+  `@tparam` tags use ordinals, in the same comment.
+
 The same goes for any notational choice the library makes repeatedly: how types
 are referred to, whether code names are in backticks, capitalisation of tag
 continuations, how a sentence in a tag is punctuated. Find the form the library
