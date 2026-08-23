@@ -112,10 +112,6 @@ work is visible as markers.
 tooling, write new tooling, or any mixture. Nothing in `todo-writer/` is
 required and nothing is off limits. Some of it may be useful:
 
-- `scripts/adversarial-gate.sh <files>` runs one strong-model pass over a
-  finished diff whose only job is to prove the documentation wrong. Run it on
-  your own output before committing if you want a second opinion; on week 4 it
-  found things four rounds of review had missed.
 - `scripts/repeated-doc-blocks.py --orig X --new Y` groups doc blocks and tag
   lines you have written more than once, which is how you check a family for a
   mistake replicated across 40 members.
@@ -129,6 +125,12 @@ required and nothing is off limits. Some of it may be useful:
 
 The constraints that follow are about the OUTPUT, not the method: comment-only
 changes, one commit per week, and documentation that is true of the code.
+
+**Do one good pass and stop.** Do not run review passes over your own work, and
+do not build a review loop out of the tooling above. Getting a second opinion on
+your own output is not your job and it is expensive; review happens after you,
+by other models, as described at the end of this brief. Spend your effort on the
+first pass being right rather than on checking it afterwards.
 
 ## The partitions, week by week
 
