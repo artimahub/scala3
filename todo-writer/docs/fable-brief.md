@@ -5,8 +5,8 @@ through 11 of an 11-week plan. Weeks 1 and 2 are already in an open pull request
 and are handled separately at the end of this brief.
 
 Everything below is drawn from six weeks of doing this with an automated
-pipeline. The pipeline is being retired for this work and you are replacing it,
-so its failure modes are your rules.
+pipeline. That pipeline is no longer in charge of this work and you are, so its
+failure modes are offered as your rules rather than imposed as its process.
 
 Where a rule looks oddly specific, it is because that exact mistake was made and
 caught. Some were caught by the human reviewer on PR #26822, who filed 51
@@ -61,7 +61,29 @@ A single branch, checked out, containing:
   across weeks 3 through 11.
 
 So the earlier weeks' work is visible to you as history, and the outstanding
-work is visible as markers. You do not need to run any tooling.
+work is visible as markers.
+
+**You are unrestrained in how you work.** Write by hand, run the existing
+tooling, write new tooling, or any mixture. Nothing in `todo-writer/` is
+required and nothing is off limits. Some of it may be useful:
+
+- `scripts/adversarial-gate.sh <files>` runs one strong-model pass over a
+  finished diff whose only job is to prove the documentation wrong. Run it on
+  your own output before committing if you want a second opinion; on week 4 it
+  found things four rounds of review had missed.
+- `scripts/repeated-doc-blocks.py --orig X --new Y` groups doc blocks and tag
+  lines you have written more than once, which is how you check a family for a
+  mistake replicated across 40 members.
+- `scripts/fill-doc-todos-free.sh` is the retired pipeline itself. Its writer,
+  two reviewers and adjudicator can be pointed at any provider or local CLI. It
+  is not recommended, but it is there and it works.
+- `reviews/*.digest.md` holds every review of weeks 4 through 6, including the
+  findings that were never applied.
+- `docs/house-rules.md` is a short list of conventions distilled from earlier
+  feedback. Append to it if you learn something worth passing on.
+
+The constraints that follow are about the OUTPUT, not the method: comment-only
+changes, one commit per week, and documentation that is true of the code.
 
 ## The partitions, week by week
 
