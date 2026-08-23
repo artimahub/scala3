@@ -145,7 +145,7 @@ trait BCodeSkelBuilder extends BCodeHelpers {
 
     /* ---------------- idiomatic way to ask questions to typer ---------------- */
 
-    def paramTKs(app: Apply, take: Int = -1)(using Context): List[BType] = app match {
+    def paramTKs(app: Apply)(using Context): List[BType] = if app.args.isEmpty then Nil else app match {
       case Apply(fun, _) =>
       val funSym = fun.symbol
       funSym.info.firstParamTypes.map(bTypeLoader.bTypeFromType) // this tracks mentioned inner classes (in innerClassBufferASM)
@@ -161,7 +161,6 @@ trait BCodeSkelBuilder extends BCodeHelpers {
 
     def genPlainClass(cd0: TypeDef)(using Context): ClassNode1 = (cd0: @unchecked) match {
       case TypeDef(_, impl: Template) =>
-      assert(cnode == null, "GenBCode detected nested methods.")
 
       claszSymbol       = cd0.symbol
       isCZStaticModule  = claszSymbol.isStaticModuleClass
