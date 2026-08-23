@@ -4,6 +4,13 @@ You are writing the missing Scaladoc for the Scala 3 standard library, weeks 3
 through 11 of an 11-week plan. Weeks 1 and 2 are already in an open pull request
 and are handled separately at the end of this brief.
 
+**"Week" is a name, not a schedule.** The original plan was one pull request per
+calendar week, and the label stuck as the name for a slice of the library. It
+carries no time budget and implies no pacing. Nine "weeks" does not mean nine
+weeks of work, or nine of anything; it means nine partitions, each of which
+becomes one pull request. Take whatever time each one actually needs and work
+at whatever rate you work.
+
 Everything below is drawn from six weeks of doing this with an automated
 pipeline, which is no longer in charge of this work. You are.
 
