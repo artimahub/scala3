@@ -41,7 +41,7 @@ object FunctionWrappers {
    *  @param underlying the Java `BiConsumer` to convert
    */
   class RichBiConsumerAsFunction2[T, U](private val underlying: java.util.function.BiConsumer[T, U]) extends AnyVal {
-    /** Returns a Scala `Function2` that calls `underlying`, or the original Scala function if `underlying` was itself produced by converting one. */
+    /** Returns a Scala `Function2` that calls `underlying`, or, if `underlying` is an `AsJavaBiConsumer`, the Scala function that wrapper holds. */
     @inline def asScala: scala.Function2[T, U, Unit] = underlying match {
       case AsJavaBiConsumer((sf @ _)) => sf.asInstanceOf[scala.Function2[T, U, Unit]]
       case _ => new FromJavaBiConsumer[T, U](underlying)
@@ -71,7 +71,7 @@ object FunctionWrappers {
    *  @param underlying the Scala `Function2` to convert
    */
   class RichFunction2AsBiConsumer[T, U](private val underlying: scala.Function2[T, U, Unit]) extends AnyVal {
-    /** Returns a Java `BiConsumer` that calls `underlying`, or the original Java `BiConsumer` if `underlying` was itself produced by converting one. */
+    /** Returns a Java `BiConsumer` that calls `underlying`, or, if `underlying` is a `FromJavaBiConsumer`, the Java `BiConsumer` that wrapper holds. */
     @inline def asJava: java.util.function.BiConsumer[T, U] = underlying match {
       case FromJavaBiConsumer((jf @ _)) => jf.asInstanceOf[java.util.function.BiConsumer[T, U]]
       case _ => new AsJavaBiConsumer[T, U](underlying)
@@ -111,7 +111,7 @@ object FunctionWrappers {
    *  @param underlying the Java `BiFunction` to convert
    */
   class RichBiFunctionAsFunction2[T, U, R](private val underlying: java.util.function.BiFunction[T, U, R]) extends AnyVal {
-    /** Returns a Scala `Function2` that calls `underlying`, or the original Scala function if `underlying` was itself produced by converting one. */
+    /** Returns a Scala `Function2` that calls `underlying`, or, if `underlying` is an `AsJavaBiFunction`, the Scala function that wrapper holds. */
     @inline def asScala: scala.Function2[T, U, R] = underlying match {
       case AsJavaBiFunction((sf @ _)) => sf.asInstanceOf[scala.Function2[T, U, R]]
       case _ => new FromJavaBiFunction[T, U, R](underlying)
@@ -142,7 +142,7 @@ object FunctionWrappers {
    *  @param underlying the Scala `Function2` to convert
    */
   class RichFunction2AsBiFunction[T, U, R](private val underlying: scala.Function2[T, U, R]) extends AnyVal {
-    /** Returns a Java `BiFunction` that calls `underlying`, or the original Java `BiFunction` if `underlying` was itself produced by converting one. */
+    /** Returns a Java `BiFunction` that calls `underlying`, or, if `underlying` is a `FromJavaBiFunction`, the Java `BiFunction` that wrapper holds. */
     @inline def asJava: java.util.function.BiFunction[T, U, R] = underlying match {
       case FromJavaBiFunction((jf @ _)) => jf.asInstanceOf[java.util.function.BiFunction[T, U, R]]
       case _ => new AsJavaBiFunction[T, U, R](underlying)
@@ -180,7 +180,7 @@ object FunctionWrappers {
    *  @param underlying the Java `BiPredicate` to convert
    */
   class RichBiPredicateAsFunction2[T, U](private val underlying: java.util.function.BiPredicate[T, U]) extends AnyVal {
-    /** Returns a Scala `Function2` that calls `underlying`, or the original Scala function if `underlying` was itself produced by converting one. */
+    /** Returns a Scala `Function2` that calls `underlying`, or, if `underlying` is an `AsJavaBiPredicate`, the Scala function that wrapper holds. */
     @inline def asScala: scala.Function2[T, U, Boolean] = underlying match {
       case AsJavaBiPredicate((sf @ _)) => sf.asInstanceOf[scala.Function2[T, U, Boolean]]
       case _ => new FromJavaBiPredicate[T, U](underlying)
@@ -209,7 +209,7 @@ object FunctionWrappers {
    *  @param underlying the Scala `Function2` to convert
    */
   class RichFunction2AsBiPredicate[T, U](private val underlying: scala.Function2[T, U, Boolean]) extends AnyVal {
-    /** Returns a Java `BiPredicate` that calls `underlying`, or the original Java `BiPredicate` if `underlying` was itself produced by converting one. */
+    /** Returns a Java `BiPredicate` that calls `underlying`, or, if `underlying` is a `FromJavaBiPredicate`, the Java `BiPredicate` that wrapper holds. */
     @inline def asJava: java.util.function.BiPredicate[T, U] = underlying match {
       case FromJavaBiPredicate((jf @ _)) => jf.asInstanceOf[java.util.function.BiPredicate[T, U]]
       case _ => new AsJavaBiPredicate[T, U](underlying)
@@ -245,7 +245,7 @@ object FunctionWrappers {
    *  @param underlying the Java `BinaryOperator` to convert
    */
   class RichBinaryOperatorAsFunction2[T](private val underlying: java.util.function.BinaryOperator[T]) extends AnyVal {
-    /** Returns a Scala `Function2` that calls `underlying`, or the original Scala function if `underlying` was itself produced by converting one. */
+    /** Returns a Scala `Function2` that calls `underlying`, or, if `underlying` is an `AsJavaBinaryOperator`, the Scala function that wrapper holds. */
     @inline def asScala: scala.Function2[T, T, T] = underlying match {
       case AsJavaBinaryOperator((sf @ _)) => sf.asInstanceOf[scala.Function2[T, T, T]]
       case _ => new FromJavaBinaryOperator[T](underlying)
@@ -272,7 +272,7 @@ object FunctionWrappers {
    *  @param underlying the Scala `Function2` to convert
    */
   class RichFunction2AsBinaryOperator[T](private val underlying: scala.Function2[T, T, T]) extends AnyVal {
-    /** Returns a Java `BinaryOperator` that calls `underlying`, or the original Java `BinaryOperator` if `underlying` was itself produced by converting one. */
+    /** Returns a Java `BinaryOperator` that calls `underlying`, or, if `underlying` is a `FromJavaBinaryOperator`, the Java `BinaryOperator` that wrapper holds. */
     @inline def asJava: java.util.function.BinaryOperator[T] = underlying match {
       case FromJavaBinaryOperator((jf @ _)) => jf.asInstanceOf[java.util.function.BinaryOperator[T]]
       case _ => new AsJavaBinaryOperator[T](underlying)
@@ -302,7 +302,7 @@ object FunctionWrappers {
    *  @param underlying the Java `BooleanSupplier` to convert
    */
   class RichBooleanSupplierAsFunction0(private val underlying: java.util.function.BooleanSupplier) extends AnyVal {
-    /** Returns a Scala `Function0` that calls `underlying`, or the original Scala function if `underlying` was itself produced by converting one. */
+    /** Returns a Scala `Function0` that calls `underlying`, or, if `underlying` is an `AsJavaBooleanSupplier`, the Scala function that wrapper holds. */
     @inline def asScala: scala.Function0[Boolean] = underlying match {
       case AsJavaBooleanSupplier((sf @ _)) => sf.asInstanceOf[scala.Function0[Boolean]]
       case _ => new FromJavaBooleanSupplier(underlying)
@@ -323,7 +323,7 @@ object FunctionWrappers {
    *  @param underlying the Scala `Function0` to convert
    */
   class RichFunction0AsBooleanSupplier(private val underlying: scala.Function0[Boolean]) extends AnyVal {
-    /** Returns a Java `BooleanSupplier` that calls `underlying`, or the original Java `BooleanSupplier` if `underlying` was itself produced by converting one. */
+    /** Returns a Java `BooleanSupplier` that calls `underlying`, or, if `underlying` is a `FromJavaBooleanSupplier`, the Java `BooleanSupplier` that wrapper holds. */
     @inline def asJava: java.util.function.BooleanSupplier = underlying match {
       case FromJavaBooleanSupplier((jf @ _)) => jf.asInstanceOf[java.util.function.BooleanSupplier]
       case _ => new AsJavaBooleanSupplier(underlying)
@@ -351,7 +351,7 @@ object FunctionWrappers {
    *  @param underlying the Java `Consumer` to convert
    */
   class RichConsumerAsFunction1[T](private val underlying: java.util.function.Consumer[T]) extends AnyVal {
-    /** Returns a Scala `Function1` that calls `underlying`, or the original Scala function if `underlying` was itself produced by converting one. */
+    /** Returns a Scala `Function1` that calls `underlying`, or, if `underlying` is an `AsJavaConsumer`, the Scala function that wrapper holds. */
     @inline def asScala: scala.Function1[T, Unit] = underlying match {
       case AsJavaConsumer((sf @ _)) => sf.asInstanceOf[scala.Function1[T, Unit]]
       case _ => new FromJavaConsumer[T](underlying)
@@ -378,7 +378,7 @@ object FunctionWrappers {
    *  @param underlying the Scala `Function1` to convert
    */
   class RichFunction1AsConsumer[T](private val underlying: scala.Function1[T, Unit]) extends AnyVal {
-    /** Returns a Java `Consumer` that calls `underlying`, or the original Java `Consumer` if `underlying` was itself produced by converting one. */
+    /** Returns a Java `Consumer` that calls `underlying`, or, if `underlying` is a `FromJavaConsumer`, the Java `Consumer` that wrapper holds. */
     @inline def asJava: java.util.function.Consumer[T] = underlying match {
       case FromJavaConsumer((jf @ _)) => jf.asInstanceOf[java.util.function.Consumer[T]]
       case _ => new AsJavaConsumer[T](underlying)
@@ -412,7 +412,7 @@ object FunctionWrappers {
    *  @param underlying the Java `DoubleBinaryOperator` to convert
    */
   class RichDoubleBinaryOperatorAsFunction2(private val underlying: java.util.function.DoubleBinaryOperator) extends AnyVal {
-    /** Returns a Scala `Function2` that calls `underlying`, or the original Scala function if `underlying` was itself produced by converting one. */
+    /** Returns a Scala `Function2` that calls `underlying`, or, if `underlying` is an `AsJavaDoubleBinaryOperator`, the Scala function that wrapper holds. */
     @inline def asScala: scala.Function2[Double, Double, Double] = underlying match {
       case AsJavaDoubleBinaryOperator((sf @ _)) => sf.asInstanceOf[scala.Function2[Double, Double, Double]]
       case _ => new FromJavaDoubleBinaryOperator(underlying)
@@ -437,7 +437,7 @@ object FunctionWrappers {
    *  @param underlying the Scala `Function2` to convert
    */
   class RichFunction2AsDoubleBinaryOperator(private val underlying: scala.Function2[Double, Double, Double]) extends AnyVal {
-    /** Returns a Java `DoubleBinaryOperator` that calls `underlying`, or the original Java `DoubleBinaryOperator` if `underlying` was itself produced by converting one. */
+    /** Returns a Java `DoubleBinaryOperator` that calls `underlying`, or, if `underlying` is a `FromJavaDoubleBinaryOperator`, the Java `DoubleBinaryOperator` that wrapper holds. */
     @inline def asJava: java.util.function.DoubleBinaryOperator = underlying match {
       case FromJavaDoubleBinaryOperator((jf @ _)) => jf.asInstanceOf[java.util.function.DoubleBinaryOperator]
       case _ => new AsJavaDoubleBinaryOperator(underlying)
@@ -463,7 +463,7 @@ object FunctionWrappers {
    *  @param underlying the Java `DoubleConsumer` to convert
    */
   class RichDoubleConsumerAsFunction1(private val underlying: java.util.function.DoubleConsumer) extends AnyVal {
-    /** Returns a Scala `Function1` that calls `underlying`, or the original Scala function if `underlying` was itself produced by converting one. */
+    /** Returns a Scala `Function1` that calls `underlying`, or, if `underlying` is an `AsJavaDoubleConsumer`, the Scala function that wrapper holds. */
     @inline def asScala: scala.Function1[Double, Unit] = underlying match {
       case AsJavaDoubleConsumer((sf @ _)) => sf.asInstanceOf[scala.Function1[Double, Unit]]
       case _ => new FromJavaDoubleConsumer(underlying)
@@ -488,7 +488,7 @@ object FunctionWrappers {
    *  @param underlying the Scala `Function1` to convert
    */
   class RichFunction1AsDoubleConsumer(private val underlying: scala.Function1[Double, Unit]) extends AnyVal {
-    /** Returns a Java `DoubleConsumer` that calls `underlying`, or the original Java `DoubleConsumer` if `underlying` was itself produced by converting one. */
+    /** Returns a Java `DoubleConsumer` that calls `underlying`, or, if `underlying` is a `FromJavaDoubleConsumer`, the Java `DoubleConsumer` that wrapper holds. */
     @inline def asJava: java.util.function.DoubleConsumer = underlying match {
       case FromJavaDoubleConsumer((jf @ _)) => jf.asInstanceOf[java.util.function.DoubleConsumer]
       case _ => new AsJavaDoubleConsumer(underlying)
@@ -515,7 +515,7 @@ object FunctionWrappers {
    *  @param underlying the Java `DoubleFunction` to convert
    */
   class RichDoubleFunctionAsFunction1[R](private val underlying: java.util.function.DoubleFunction[R]) extends AnyVal {
-    /** Returns a Scala `Function1` that calls `underlying`, or the original Scala function if `underlying` was itself produced by converting one. */
+    /** Returns a Scala `Function1` that calls `underlying`, or, if `underlying` is an `AsJavaDoubleFunction`, the Scala function that wrapper holds. */
     @inline def asScala: scala.Function1[Double, R] = underlying match {
       case AsJavaDoubleFunction((sf @ _)) => sf.asInstanceOf[scala.Function1[Double, R]]
       case _ => new FromJavaDoubleFunction[R](underlying)
@@ -541,7 +541,7 @@ object FunctionWrappers {
    *  @param underlying the Scala `Function1` to convert
    */
   class RichFunction1AsDoubleFunction[R](private val underlying: scala.Function1[Double, R]) extends AnyVal {
-    /** Returns a Java `DoubleFunction` that calls `underlying`, or the original Java `DoubleFunction` if `underlying` was itself produced by converting one. */
+    /** Returns a Java `DoubleFunction` that calls `underlying`, or, if `underlying` is a `FromJavaDoubleFunction`, the Java `DoubleFunction` that wrapper holds. */
     @inline def asJava: java.util.function.DoubleFunction[R] = underlying match {
       case FromJavaDoubleFunction((jf @ _)) => jf.asInstanceOf[java.util.function.DoubleFunction[R]]
       case _ => new AsJavaDoubleFunction[R](underlying)
@@ -574,7 +574,7 @@ object FunctionWrappers {
    *  @param underlying the Java `DoublePredicate` to convert
    */
   class RichDoublePredicateAsFunction1(private val underlying: java.util.function.DoublePredicate) extends AnyVal {
-    /** Returns a Scala `Function1` that calls `underlying`, or the original Scala function if `underlying` was itself produced by converting one. */
+    /** Returns a Scala `Function1` that calls `underlying`, or, if `underlying` is an `AsJavaDoublePredicate`, the Scala function that wrapper holds. */
     @inline def asScala: scala.Function1[Double, Boolean] = underlying match {
       case AsJavaDoublePredicate((sf @ _)) => sf.asInstanceOf[scala.Function1[Double, Boolean]]
       case _ => new FromJavaDoublePredicate(underlying)
@@ -598,7 +598,7 @@ object FunctionWrappers {
    *  @param underlying the Scala `Function1` to convert
    */
   class RichFunction1AsDoublePredicate(private val underlying: scala.Function1[Double, Boolean]) extends AnyVal {
-    /** Returns a Java `DoublePredicate` that calls `underlying`, or the original Java `DoublePredicate` if `underlying` was itself produced by converting one. */
+    /** Returns a Java `DoublePredicate` that calls `underlying`, or, if `underlying` is a `FromJavaDoublePredicate`, the Java `DoublePredicate` that wrapper holds. */
     @inline def asJava: java.util.function.DoublePredicate = underlying match {
       case FromJavaDoublePredicate((jf @ _)) => jf.asInstanceOf[java.util.function.DoublePredicate]
       case _ => new AsJavaDoublePredicate(underlying)
@@ -620,7 +620,7 @@ object FunctionWrappers {
    *  @param underlying the Java `DoubleSupplier` to convert
    */
   class RichDoubleSupplierAsFunction0(private val underlying: java.util.function.DoubleSupplier) extends AnyVal {
-    /** Returns a Scala `Function0` that calls `underlying`, or the original Scala function if `underlying` was itself produced by converting one. */
+    /** Returns a Scala `Function0` that calls `underlying`, or, if `underlying` is an `AsJavaDoubleSupplier`, the Scala function that wrapper holds. */
     @inline def asScala: scala.Function0[Double] = underlying match {
       case AsJavaDoubleSupplier((sf @ _)) => sf.asInstanceOf[scala.Function0[Double]]
       case _ => new FromJavaDoubleSupplier(underlying)
@@ -641,7 +641,7 @@ object FunctionWrappers {
    *  @param underlying the Scala `Function0` to convert
    */
   class RichFunction0AsDoubleSupplier(private val underlying: scala.Function0[Double]) extends AnyVal {
-    /** Returns a Java `DoubleSupplier` that calls `underlying`, or the original Java `DoubleSupplier` if `underlying` was itself produced by converting one. */
+    /** Returns a Java `DoubleSupplier` that calls `underlying`, or, if `underlying` is a `FromJavaDoubleSupplier`, the Java `DoubleSupplier` that wrapper holds. */
     @inline def asJava: java.util.function.DoubleSupplier = underlying match {
       case FromJavaDoubleSupplier((jf @ _)) => jf.asInstanceOf[java.util.function.DoubleSupplier]
       case _ => new AsJavaDoubleSupplier(underlying)
@@ -666,7 +666,7 @@ object FunctionWrappers {
    *  @param underlying the Java `DoubleToIntFunction` to convert
    */
   class RichDoubleToIntFunctionAsFunction1(private val underlying: java.util.function.DoubleToIntFunction) extends AnyVal {
-    /** Returns a Scala `Function1` that calls `underlying`, or the original Scala function if `underlying` was itself produced by converting one. */
+    /** Returns a Scala `Function1` that calls `underlying`, or, if `underlying` is an `AsJavaDoubleToIntFunction`, the Scala function that wrapper holds. */
     @inline def asScala: scala.Function1[Double, Int] = underlying match {
       case AsJavaDoubleToIntFunction((sf @ _)) => sf.asInstanceOf[scala.Function1[Double, Int]]
       case _ => new FromJavaDoubleToIntFunction(underlying)
@@ -690,7 +690,7 @@ object FunctionWrappers {
    *  @param underlying the Scala `Function1` to convert
    */
   class RichFunction1AsDoubleToIntFunction(private val underlying: scala.Function1[Double, Int]) extends AnyVal {
-    /** Returns a Java `DoubleToIntFunction` that calls `underlying`, or the original Java `DoubleToIntFunction` if `underlying` was itself produced by converting one. */
+    /** Returns a Java `DoubleToIntFunction` that calls `underlying`, or, if `underlying` is a `FromJavaDoubleToIntFunction`, the Java `DoubleToIntFunction` that wrapper holds. */
     @inline def asJava: java.util.function.DoubleToIntFunction = underlying match {
       case FromJavaDoubleToIntFunction((jf @ _)) => jf.asInstanceOf[java.util.function.DoubleToIntFunction]
       case _ => new AsJavaDoubleToIntFunction(underlying)
@@ -715,7 +715,7 @@ object FunctionWrappers {
    *  @param underlying the Java `DoubleToLongFunction` to convert
    */
   class RichDoubleToLongFunctionAsFunction1(private val underlying: java.util.function.DoubleToLongFunction) extends AnyVal {
-    /** Returns a Scala `Function1` that calls `underlying`, or the original Scala function if `underlying` was itself produced by converting one. */
+    /** Returns a Scala `Function1` that calls `underlying`, or, if `underlying` is an `AsJavaDoubleToLongFunction`, the Scala function that wrapper holds. */
     @inline def asScala: scala.Function1[Double, Long] = underlying match {
       case AsJavaDoubleToLongFunction((sf @ _)) => sf.asInstanceOf[scala.Function1[Double, Long]]
       case _ => new FromJavaDoubleToLongFunction(underlying)
@@ -739,7 +739,7 @@ object FunctionWrappers {
    *  @param underlying the Scala `Function1` to convert
    */
   class RichFunction1AsDoubleToLongFunction(private val underlying: scala.Function1[Double, Long]) extends AnyVal {
-    /** Returns a Java `DoubleToLongFunction` that calls `underlying`, or the original Java `DoubleToLongFunction` if `underlying` was itself produced by converting one. */
+    /** Returns a Java `DoubleToLongFunction` that calls `underlying`, or, if `underlying` is a `FromJavaDoubleToLongFunction`, the Java `DoubleToLongFunction` that wrapper holds. */
     @inline def asJava: java.util.function.DoubleToLongFunction = underlying match {
       case FromJavaDoubleToLongFunction((jf @ _)) => jf.asInstanceOf[java.util.function.DoubleToLongFunction]
       case _ => new AsJavaDoubleToLongFunction(underlying)
@@ -764,7 +764,7 @@ object FunctionWrappers {
    *  @param underlying the Java `DoubleUnaryOperator` to convert
    */
   class RichDoubleUnaryOperatorAsFunction1(private val underlying: java.util.function.DoubleUnaryOperator) extends AnyVal {
-    /** Returns a Scala `Function1` that calls `underlying`, or the original Scala function if `underlying` was itself produced by converting one. */
+    /** Returns a Scala `Function1` that calls `underlying`, or, if `underlying` is an `AsJavaDoubleUnaryOperator`, the Scala function that wrapper holds. */
     @inline def asScala: scala.Function1[Double, Double] = underlying match {
       case AsJavaDoubleUnaryOperator((sf @ _)) => sf.asInstanceOf[scala.Function1[Double, Double]]
       case _ => new FromJavaDoubleUnaryOperator(underlying)
@@ -788,7 +788,7 @@ object FunctionWrappers {
    *  @param underlying the Scala `Function1` to convert
    */
   class RichFunction1AsDoubleUnaryOperator(private val underlying: scala.Function1[Double, Double]) extends AnyVal {
-    /** Returns a Java `DoubleUnaryOperator` that calls `underlying`, or the original Java `DoubleUnaryOperator` if `underlying` was itself produced by converting one. */
+    /** Returns a Java `DoubleUnaryOperator` that calls `underlying`, or, if `underlying` is a `FromJavaDoubleUnaryOperator`, the Java `DoubleUnaryOperator` that wrapper holds. */
     @inline def asJava: java.util.function.DoubleUnaryOperator = underlying match {
       case FromJavaDoubleUnaryOperator((jf @ _)) => jf.asInstanceOf[java.util.function.DoubleUnaryOperator]
       case _ => new AsJavaDoubleUnaryOperator(underlying)
@@ -817,7 +817,7 @@ object FunctionWrappers {
    *  @param underlying the Java `Function` to convert
    */
   class RichFunctionAsFunction1[T, R](private val underlying: java.util.function.Function[T, R]) extends AnyVal {
-    /** Returns a Scala `Function1` that calls `underlying`, or the original Scala function if `underlying` was itself produced by converting one. */
+    /** Returns a Scala `Function1` that calls `underlying`, or, if `underlying` is an `AsJavaFunction`, the Scala function that wrapper holds. */
     @inline def asScala: scala.Function1[T, R] = underlying match {
       case AsJavaFunction((sf @ _)) => sf.asInstanceOf[scala.Function1[T, R]]
       case _ => new FromJavaFunction[T, R](underlying)
@@ -845,7 +845,7 @@ object FunctionWrappers {
    *  @param underlying the Scala `Function1` to convert
    */
   class RichFunction1AsFunction[T, R](private val underlying: scala.Function1[T, R]) extends AnyVal {
-    /** Returns a Java `Function` that calls `underlying`, or the original Java `Function` if `underlying` was itself produced by converting one. */
+    /** Returns a Java `Function` that calls `underlying`, or, if `underlying` is a `FromJavaFunction`, the Java `Function` that wrapper holds. */
     @inline def asJava: java.util.function.Function[T, R] = underlying match {
       case FromJavaFunction((jf @ _)) => jf.asInstanceOf[java.util.function.Function[T, R]]
       case _ => new AsJavaFunction[T, R](underlying)
@@ -879,7 +879,7 @@ object FunctionWrappers {
    *  @param underlying the Java `IntBinaryOperator` to convert
    */
   class RichIntBinaryOperatorAsFunction2(private val underlying: java.util.function.IntBinaryOperator) extends AnyVal {
-    /** Returns a Scala `Function2` that calls `underlying`, or the original Scala function if `underlying` was itself produced by converting one. */
+    /** Returns a Scala `Function2` that calls `underlying`, or, if `underlying` is an `AsJavaIntBinaryOperator`, the Scala function that wrapper holds. */
     @inline def asScala: scala.Function2[Int, Int, Int] = underlying match {
       case AsJavaIntBinaryOperator((sf @ _)) => sf.asInstanceOf[scala.Function2[Int, Int, Int]]
       case _ => new FromJavaIntBinaryOperator(underlying)
@@ -904,7 +904,7 @@ object FunctionWrappers {
    *  @param underlying the Scala `Function2` to convert
    */
   class RichFunction2AsIntBinaryOperator(private val underlying: scala.Function2[Int, Int, Int]) extends AnyVal {
-    /** Returns a Java `IntBinaryOperator` that calls `underlying`, or the original Java `IntBinaryOperator` if `underlying` was itself produced by converting one. */
+    /** Returns a Java `IntBinaryOperator` that calls `underlying`, or, if `underlying` is a `FromJavaIntBinaryOperator`, the Java `IntBinaryOperator` that wrapper holds. */
     @inline def asJava: java.util.function.IntBinaryOperator = underlying match {
       case FromJavaIntBinaryOperator((jf @ _)) => jf.asInstanceOf[java.util.function.IntBinaryOperator]
       case _ => new AsJavaIntBinaryOperator(underlying)
@@ -930,7 +930,7 @@ object FunctionWrappers {
    *  @param underlying the Java `IntConsumer` to convert
    */
   class RichIntConsumerAsFunction1(private val underlying: java.util.function.IntConsumer) extends AnyVal {
-    /** Returns a Scala `Function1` that calls `underlying`, or the original Scala function if `underlying` was itself produced by converting one. */
+    /** Returns a Scala `Function1` that calls `underlying`, or, if `underlying` is an `AsJavaIntConsumer`, the Scala function that wrapper holds. */
     @inline def asScala: scala.Function1[Int, Unit] = underlying match {
       case AsJavaIntConsumer((sf @ _)) => sf.asInstanceOf[scala.Function1[Int, Unit]]
       case _ => new FromJavaIntConsumer(underlying)
@@ -955,7 +955,7 @@ object FunctionWrappers {
    *  @param underlying the Scala `Function1` to convert
    */
   class RichFunction1AsIntConsumer(private val underlying: scala.Function1[Int, Unit]) extends AnyVal {
-    /** Returns a Java `IntConsumer` that calls `underlying`, or the original Java `IntConsumer` if `underlying` was itself produced by converting one. */
+    /** Returns a Java `IntConsumer` that calls `underlying`, or, if `underlying` is a `FromJavaIntConsumer`, the Java `IntConsumer` that wrapper holds. */
     @inline def asJava: java.util.function.IntConsumer = underlying match {
       case FromJavaIntConsumer((jf @ _)) => jf.asInstanceOf[java.util.function.IntConsumer]
       case _ => new AsJavaIntConsumer(underlying)
@@ -982,7 +982,7 @@ object FunctionWrappers {
    *  @param underlying the Java `IntFunction` to convert
    */
   class RichIntFunctionAsFunction1[R](private val underlying: java.util.function.IntFunction[R]) extends AnyVal {
-    /** Returns a Scala `Function1` that calls `underlying`, or the original Scala function if `underlying` was itself produced by converting one. */
+    /** Returns a Scala `Function1` that calls `underlying`, or, if `underlying` is an `AsJavaIntFunction`, the Scala function that wrapper holds. */
     @inline def asScala: scala.Function1[Int, R] = underlying match {
       case AsJavaIntFunction((sf @ _)) => sf.asInstanceOf[scala.Function1[Int, R]]
       case _ => new FromJavaIntFunction[R](underlying)
@@ -1008,7 +1008,7 @@ object FunctionWrappers {
    *  @param underlying the Scala `Function1` to convert
    */
   class RichFunction1AsIntFunction[R](private val underlying: scala.Function1[Int, R]) extends AnyVal {
-    /** Returns a Java `IntFunction` that calls `underlying`, or the original Java `IntFunction` if `underlying` was itself produced by converting one. */
+    /** Returns a Java `IntFunction` that calls `underlying`, or, if `underlying` is a `FromJavaIntFunction`, the Java `IntFunction` that wrapper holds. */
     @inline def asJava: java.util.function.IntFunction[R] = underlying match {
       case FromJavaIntFunction((jf @ _)) => jf.asInstanceOf[java.util.function.IntFunction[R]]
       case _ => new AsJavaIntFunction[R](underlying)
@@ -1041,7 +1041,7 @@ object FunctionWrappers {
    *  @param underlying the Java `IntPredicate` to convert
    */
   class RichIntPredicateAsFunction1(private val underlying: java.util.function.IntPredicate) extends AnyVal {
-    /** Returns a Scala `Function1` that calls `underlying`, or the original Scala function if `underlying` was itself produced by converting one. */
+    /** Returns a Scala `Function1` that calls `underlying`, or, if `underlying` is an `AsJavaIntPredicate`, the Scala function that wrapper holds. */
     @inline def asScala: scala.Function1[Int, Boolean] = underlying match {
       case AsJavaIntPredicate((sf @ _)) => sf.asInstanceOf[scala.Function1[Int, Boolean]]
       case _ => new FromJavaIntPredicate(underlying)
@@ -1065,7 +1065,7 @@ object FunctionWrappers {
    *  @param underlying the Scala `Function1` to convert
    */
   class RichFunction1AsIntPredicate(private val underlying: scala.Function1[Int, Boolean]) extends AnyVal {
-    /** Returns a Java `IntPredicate` that calls `underlying`, or the original Java `IntPredicate` if `underlying` was itself produced by converting one. */
+    /** Returns a Java `IntPredicate` that calls `underlying`, or, if `underlying` is a `FromJavaIntPredicate`, the Java `IntPredicate` that wrapper holds. */
     @inline def asJava: java.util.function.IntPredicate = underlying match {
       case FromJavaIntPredicate((jf @ _)) => jf.asInstanceOf[java.util.function.IntPredicate]
       case _ => new AsJavaIntPredicate(underlying)
@@ -1087,7 +1087,7 @@ object FunctionWrappers {
    *  @param underlying the Java `IntSupplier` to convert
    */
   class RichIntSupplierAsFunction0(private val underlying: java.util.function.IntSupplier) extends AnyVal {
-    /** Returns a Scala `Function0` that calls `underlying`, or the original Scala function if `underlying` was itself produced by converting one. */
+    /** Returns a Scala `Function0` that calls `underlying`, or, if `underlying` is an `AsJavaIntSupplier`, the Scala function that wrapper holds. */
     @inline def asScala: scala.Function0[Int] = underlying match {
       case AsJavaIntSupplier((sf @ _)) => sf.asInstanceOf[scala.Function0[Int]]
       case _ => new FromJavaIntSupplier(underlying)
@@ -1108,7 +1108,7 @@ object FunctionWrappers {
    *  @param underlying the Scala `Function0` to convert
    */
   class RichFunction0AsIntSupplier(private val underlying: scala.Function0[Int]) extends AnyVal {
-    /** Returns a Java `IntSupplier` that calls `underlying`, or the original Java `IntSupplier` if `underlying` was itself produced by converting one. */
+    /** Returns a Java `IntSupplier` that calls `underlying`, or, if `underlying` is a `FromJavaIntSupplier`, the Java `IntSupplier` that wrapper holds. */
     @inline def asJava: java.util.function.IntSupplier = underlying match {
       case FromJavaIntSupplier((jf @ _)) => jf.asInstanceOf[java.util.function.IntSupplier]
       case _ => new AsJavaIntSupplier(underlying)
@@ -1133,7 +1133,7 @@ object FunctionWrappers {
    *  @param underlying the Java `IntToDoubleFunction` to convert
    */
   class RichIntToDoubleFunctionAsFunction1(private val underlying: java.util.function.IntToDoubleFunction) extends AnyVal {
-    /** Returns a Scala `Function1` that calls `underlying`, or the original Scala function if `underlying` was itself produced by converting one. */
+    /** Returns a Scala `Function1` that calls `underlying`, or, if `underlying` is an `AsJavaIntToDoubleFunction`, the Scala function that wrapper holds. */
     @inline def asScala: scala.Function1[Int, Double] = underlying match {
       case AsJavaIntToDoubleFunction((sf @ _)) => sf.asInstanceOf[scala.Function1[Int, Double]]
       case _ => new FromJavaIntToDoubleFunction(underlying)
@@ -1157,7 +1157,7 @@ object FunctionWrappers {
    *  @param underlying the Scala `Function1` to convert
    */
   class RichFunction1AsIntToDoubleFunction(private val underlying: scala.Function1[Int, Double]) extends AnyVal {
-    /** Returns a Java `IntToDoubleFunction` that calls `underlying`, or the original Java `IntToDoubleFunction` if `underlying` was itself produced by converting one. */
+    /** Returns a Java `IntToDoubleFunction` that calls `underlying`, or, if `underlying` is a `FromJavaIntToDoubleFunction`, the Java `IntToDoubleFunction` that wrapper holds. */
     @inline def asJava: java.util.function.IntToDoubleFunction = underlying match {
       case FromJavaIntToDoubleFunction((jf @ _)) => jf.asInstanceOf[java.util.function.IntToDoubleFunction]
       case _ => new AsJavaIntToDoubleFunction(underlying)
@@ -1182,7 +1182,7 @@ object FunctionWrappers {
    *  @param underlying the Java `IntToLongFunction` to convert
    */
   class RichIntToLongFunctionAsFunction1(private val underlying: java.util.function.IntToLongFunction) extends AnyVal {
-    /** Returns a Scala `Function1` that calls `underlying`, or the original Scala function if `underlying` was itself produced by converting one. */
+    /** Returns a Scala `Function1` that calls `underlying`, or, if `underlying` is an `AsJavaIntToLongFunction`, the Scala function that wrapper holds. */
     @inline def asScala: scala.Function1[Int, Long] = underlying match {
       case AsJavaIntToLongFunction((sf @ _)) => sf.asInstanceOf[scala.Function1[Int, Long]]
       case _ => new FromJavaIntToLongFunction(underlying)
@@ -1206,7 +1206,7 @@ object FunctionWrappers {
    *  @param underlying the Scala `Function1` to convert
    */
   class RichFunction1AsIntToLongFunction(private val underlying: scala.Function1[Int, Long]) extends AnyVal {
-    /** Returns a Java `IntToLongFunction` that calls `underlying`, or the original Java `IntToLongFunction` if `underlying` was itself produced by converting one. */
+    /** Returns a Java `IntToLongFunction` that calls `underlying`, or, if `underlying` is a `FromJavaIntToLongFunction`, the Java `IntToLongFunction` that wrapper holds. */
     @inline def asJava: java.util.function.IntToLongFunction = underlying match {
       case FromJavaIntToLongFunction((jf @ _)) => jf.asInstanceOf[java.util.function.IntToLongFunction]
       case _ => new AsJavaIntToLongFunction(underlying)
@@ -1231,7 +1231,7 @@ object FunctionWrappers {
    *  @param underlying the Java `IntUnaryOperator` to convert
    */
   class RichIntUnaryOperatorAsFunction1(private val underlying: java.util.function.IntUnaryOperator) extends AnyVal {
-    /** Returns a Scala `Function1` that calls `underlying`, or the original Scala function if `underlying` was itself produced by converting one. */
+    /** Returns a Scala `Function1` that calls `underlying`, or, if `underlying` is an `AsJavaIntUnaryOperator`, the Scala function that wrapper holds. */
     @inline def asScala: scala.Function1[Int, Int] = underlying match {
       case AsJavaIntUnaryOperator((sf @ _)) => sf.asInstanceOf[scala.Function1[Int, Int]]
       case _ => new FromJavaIntUnaryOperator(underlying)
@@ -1255,7 +1255,7 @@ object FunctionWrappers {
    *  @param underlying the Scala `Function1` to convert
    */
   class RichFunction1AsIntUnaryOperator(private val underlying: scala.Function1[Int, Int]) extends AnyVal {
-    /** Returns a Java `IntUnaryOperator` that calls `underlying`, or the original Java `IntUnaryOperator` if `underlying` was itself produced by converting one. */
+    /** Returns a Java `IntUnaryOperator` that calls `underlying`, or, if `underlying` is a `FromJavaIntUnaryOperator`, the Java `IntUnaryOperator` that wrapper holds. */
     @inline def asJava: java.util.function.IntUnaryOperator = underlying match {
       case FromJavaIntUnaryOperator((jf @ _)) => jf.asInstanceOf[java.util.function.IntUnaryOperator]
       case _ => new AsJavaIntUnaryOperator(underlying)
@@ -1281,7 +1281,7 @@ object FunctionWrappers {
    *  @param underlying the Java `LongBinaryOperator` to convert
    */
   class RichLongBinaryOperatorAsFunction2(private val underlying: java.util.function.LongBinaryOperator) extends AnyVal {
-    /** Returns a Scala `Function2` that calls `underlying`, or the original Scala function if `underlying` was itself produced by converting one. */
+    /** Returns a Scala `Function2` that calls `underlying`, or, if `underlying` is an `AsJavaLongBinaryOperator`, the Scala function that wrapper holds. */
     @inline def asScala: scala.Function2[Long, Long, Long] = underlying match {
       case AsJavaLongBinaryOperator((sf @ _)) => sf.asInstanceOf[scala.Function2[Long, Long, Long]]
       case _ => new FromJavaLongBinaryOperator(underlying)
@@ -1306,7 +1306,7 @@ object FunctionWrappers {
    *  @param underlying the Scala `Function2` to convert
    */
   class RichFunction2AsLongBinaryOperator(private val underlying: scala.Function2[Long, Long, Long]) extends AnyVal {
-    /** Returns a Java `LongBinaryOperator` that calls `underlying`, or the original Java `LongBinaryOperator` if `underlying` was itself produced by converting one. */
+    /** Returns a Java `LongBinaryOperator` that calls `underlying`, or, if `underlying` is a `FromJavaLongBinaryOperator`, the Java `LongBinaryOperator` that wrapper holds. */
     @inline def asJava: java.util.function.LongBinaryOperator = underlying match {
       case FromJavaLongBinaryOperator((jf @ _)) => jf.asInstanceOf[java.util.function.LongBinaryOperator]
       case _ => new AsJavaLongBinaryOperator(underlying)
@@ -1332,7 +1332,7 @@ object FunctionWrappers {
    *  @param underlying the Java `LongConsumer` to convert
    */
   class RichLongConsumerAsFunction1(private val underlying: java.util.function.LongConsumer) extends AnyVal {
-    /** Returns a Scala `Function1` that calls `underlying`, or the original Scala function if `underlying` was itself produced by converting one. */
+    /** Returns a Scala `Function1` that calls `underlying`, or, if `underlying` is an `AsJavaLongConsumer`, the Scala function that wrapper holds. */
     @inline def asScala: scala.Function1[Long, Unit] = underlying match {
       case AsJavaLongConsumer((sf @ _)) => sf.asInstanceOf[scala.Function1[Long, Unit]]
       case _ => new FromJavaLongConsumer(underlying)
@@ -1357,7 +1357,7 @@ object FunctionWrappers {
    *  @param underlying the Scala `Function1` to convert
    */
   class RichFunction1AsLongConsumer(private val underlying: scala.Function1[Long, Unit]) extends AnyVal {
-    /** Returns a Java `LongConsumer` that calls `underlying`, or the original Java `LongConsumer` if `underlying` was itself produced by converting one. */
+    /** Returns a Java `LongConsumer` that calls `underlying`, or, if `underlying` is a `FromJavaLongConsumer`, the Java `LongConsumer` that wrapper holds. */
     @inline def asJava: java.util.function.LongConsumer = underlying match {
       case FromJavaLongConsumer((jf @ _)) => jf.asInstanceOf[java.util.function.LongConsumer]
       case _ => new AsJavaLongConsumer(underlying)
@@ -1384,7 +1384,7 @@ object FunctionWrappers {
    *  @param underlying the Java `LongFunction` to convert
    */
   class RichLongFunctionAsFunction1[R](private val underlying: java.util.function.LongFunction[R]) extends AnyVal {
-    /** Returns a Scala `Function1` that calls `underlying`, or the original Scala function if `underlying` was itself produced by converting one. */
+    /** Returns a Scala `Function1` that calls `underlying`, or, if `underlying` is an `AsJavaLongFunction`, the Scala function that wrapper holds. */
     @inline def asScala: scala.Function1[Long, R] = underlying match {
       case AsJavaLongFunction((sf @ _)) => sf.asInstanceOf[scala.Function1[Long, R]]
       case _ => new FromJavaLongFunction[R](underlying)
@@ -1410,7 +1410,7 @@ object FunctionWrappers {
    *  @param underlying the Scala `Function1` to convert
    */
   class RichFunction1AsLongFunction[R](private val underlying: scala.Function1[Long, R]) extends AnyVal {
-    /** Returns a Java `LongFunction` that calls `underlying`, or the original Java `LongFunction` if `underlying` was itself produced by converting one. */
+    /** Returns a Java `LongFunction` that calls `underlying`, or, if `underlying` is a `FromJavaLongFunction`, the Java `LongFunction` that wrapper holds. */
     @inline def asJava: java.util.function.LongFunction[R] = underlying match {
       case FromJavaLongFunction((jf @ _)) => jf.asInstanceOf[java.util.function.LongFunction[R]]
       case _ => new AsJavaLongFunction[R](underlying)
@@ -1443,7 +1443,7 @@ object FunctionWrappers {
    *  @param underlying the Java `LongPredicate` to convert
    */
   class RichLongPredicateAsFunction1(private val underlying: java.util.function.LongPredicate) extends AnyVal {
-    /** Returns a Scala `Function1` that calls `underlying`, or the original Scala function if `underlying` was itself produced by converting one. */
+    /** Returns a Scala `Function1` that calls `underlying`, or, if `underlying` is an `AsJavaLongPredicate`, the Scala function that wrapper holds. */
     @inline def asScala: scala.Function1[Long, Boolean] = underlying match {
       case AsJavaLongPredicate((sf @ _)) => sf.asInstanceOf[scala.Function1[Long, Boolean]]
       case _ => new FromJavaLongPredicate(underlying)
@@ -1467,7 +1467,7 @@ object FunctionWrappers {
    *  @param underlying the Scala `Function1` to convert
    */
   class RichFunction1AsLongPredicate(private val underlying: scala.Function1[Long, Boolean]) extends AnyVal {
-    /** Returns a Java `LongPredicate` that calls `underlying`, or the original Java `LongPredicate` if `underlying` was itself produced by converting one. */
+    /** Returns a Java `LongPredicate` that calls `underlying`, or, if `underlying` is a `FromJavaLongPredicate`, the Java `LongPredicate` that wrapper holds. */
     @inline def asJava: java.util.function.LongPredicate = underlying match {
       case FromJavaLongPredicate((jf @ _)) => jf.asInstanceOf[java.util.function.LongPredicate]
       case _ => new AsJavaLongPredicate(underlying)
@@ -1489,7 +1489,7 @@ object FunctionWrappers {
    *  @param underlying the Java `LongSupplier` to convert
    */
   class RichLongSupplierAsFunction0(private val underlying: java.util.function.LongSupplier) extends AnyVal {
-    /** Returns a Scala `Function0` that calls `underlying`, or the original Scala function if `underlying` was itself produced by converting one. */
+    /** Returns a Scala `Function0` that calls `underlying`, or, if `underlying` is an `AsJavaLongSupplier`, the Scala function that wrapper holds. */
     @inline def asScala: scala.Function0[Long] = underlying match {
       case AsJavaLongSupplier((sf @ _)) => sf.asInstanceOf[scala.Function0[Long]]
       case _ => new FromJavaLongSupplier(underlying)
@@ -1510,7 +1510,7 @@ object FunctionWrappers {
    *  @param underlying the Scala `Function0` to convert
    */
   class RichFunction0AsLongSupplier(private val underlying: scala.Function0[Long]) extends AnyVal {
-    /** Returns a Java `LongSupplier` that calls `underlying`, or the original Java `LongSupplier` if `underlying` was itself produced by converting one. */
+    /** Returns a Java `LongSupplier` that calls `underlying`, or, if `underlying` is a `FromJavaLongSupplier`, the Java `LongSupplier` that wrapper holds. */
     @inline def asJava: java.util.function.LongSupplier = underlying match {
       case FromJavaLongSupplier((jf @ _)) => jf.asInstanceOf[java.util.function.LongSupplier]
       case _ => new AsJavaLongSupplier(underlying)
@@ -1535,7 +1535,7 @@ object FunctionWrappers {
    *  @param underlying the Java `LongToDoubleFunction` to convert
    */
   class RichLongToDoubleFunctionAsFunction1(private val underlying: java.util.function.LongToDoubleFunction) extends AnyVal {
-    /** Returns a Scala `Function1` that calls `underlying`, or the original Scala function if `underlying` was itself produced by converting one. */
+    /** Returns a Scala `Function1` that calls `underlying`, or, if `underlying` is an `AsJavaLongToDoubleFunction`, the Scala function that wrapper holds. */
     @inline def asScala: scala.Function1[Long, Double] = underlying match {
       case AsJavaLongToDoubleFunction((sf @ _)) => sf.asInstanceOf[scala.Function1[Long, Double]]
       case _ => new FromJavaLongToDoubleFunction(underlying)
@@ -1559,7 +1559,7 @@ object FunctionWrappers {
    *  @param underlying the Scala `Function1` to convert
    */
   class RichFunction1AsLongToDoubleFunction(private val underlying: scala.Function1[Long, Double]) extends AnyVal {
-    /** Returns a Java `LongToDoubleFunction` that calls `underlying`, or the original Java `LongToDoubleFunction` if `underlying` was itself produced by converting one. */
+    /** Returns a Java `LongToDoubleFunction` that calls `underlying`, or, if `underlying` is a `FromJavaLongToDoubleFunction`, the Java `LongToDoubleFunction` that wrapper holds. */
     @inline def asJava: java.util.function.LongToDoubleFunction = underlying match {
       case FromJavaLongToDoubleFunction((jf @ _)) => jf.asInstanceOf[java.util.function.LongToDoubleFunction]
       case _ => new AsJavaLongToDoubleFunction(underlying)
@@ -1584,7 +1584,7 @@ object FunctionWrappers {
    *  @param underlying the Java `LongToIntFunction` to convert
    */
   class RichLongToIntFunctionAsFunction1(private val underlying: java.util.function.LongToIntFunction) extends AnyVal {
-    /** Returns a Scala `Function1` that calls `underlying`, or the original Scala function if `underlying` was itself produced by converting one. */
+    /** Returns a Scala `Function1` that calls `underlying`, or, if `underlying` is an `AsJavaLongToIntFunction`, the Scala function that wrapper holds. */
     @inline def asScala: scala.Function1[Long, Int] = underlying match {
       case AsJavaLongToIntFunction((sf @ _)) => sf.asInstanceOf[scala.Function1[Long, Int]]
       case _ => new FromJavaLongToIntFunction(underlying)
@@ -1608,7 +1608,7 @@ object FunctionWrappers {
    *  @param underlying the Scala `Function1` to convert
    */
   class RichFunction1AsLongToIntFunction(private val underlying: scala.Function1[Long, Int]) extends AnyVal {
-    /** Returns a Java `LongToIntFunction` that calls `underlying`, or the original Java `LongToIntFunction` if `underlying` was itself produced by converting one. */
+    /** Returns a Java `LongToIntFunction` that calls `underlying`, or, if `underlying` is a `FromJavaLongToIntFunction`, the Java `LongToIntFunction` that wrapper holds. */
     @inline def asJava: java.util.function.LongToIntFunction = underlying match {
       case FromJavaLongToIntFunction((jf @ _)) => jf.asInstanceOf[java.util.function.LongToIntFunction]
       case _ => new AsJavaLongToIntFunction(underlying)
@@ -1633,7 +1633,7 @@ object FunctionWrappers {
    *  @param underlying the Java `LongUnaryOperator` to convert
    */
   class RichLongUnaryOperatorAsFunction1(private val underlying: java.util.function.LongUnaryOperator) extends AnyVal {
-    /** Returns a Scala `Function1` that calls `underlying`, or the original Scala function if `underlying` was itself produced by converting one. */
+    /** Returns a Scala `Function1` that calls `underlying`, or, if `underlying` is an `AsJavaLongUnaryOperator`, the Scala function that wrapper holds. */
     @inline def asScala: scala.Function1[Long, Long] = underlying match {
       case AsJavaLongUnaryOperator((sf @ _)) => sf.asInstanceOf[scala.Function1[Long, Long]]
       case _ => new FromJavaLongUnaryOperator(underlying)
@@ -1657,7 +1657,7 @@ object FunctionWrappers {
    *  @param underlying the Scala `Function1` to convert
    */
   class RichFunction1AsLongUnaryOperator(private val underlying: scala.Function1[Long, Long]) extends AnyVal {
-    /** Returns a Java `LongUnaryOperator` that calls `underlying`, or the original Java `LongUnaryOperator` if `underlying` was itself produced by converting one. */
+    /** Returns a Java `LongUnaryOperator` that calls `underlying`, or, if `underlying` is a `FromJavaLongUnaryOperator`, the Java `LongUnaryOperator` that wrapper holds. */
     @inline def asJava: java.util.function.LongUnaryOperator = underlying match {
       case FromJavaLongUnaryOperator((jf @ _)) => jf.asInstanceOf[java.util.function.LongUnaryOperator]
       case _ => new AsJavaLongUnaryOperator(underlying)
@@ -1686,7 +1686,7 @@ object FunctionWrappers {
    *  @param underlying the Java `ObjDoubleConsumer` to convert
    */
   class RichObjDoubleConsumerAsFunction2[T](private val underlying: java.util.function.ObjDoubleConsumer[T]) extends AnyVal {
-    /** Returns a Scala `Function2` that calls `underlying`, or the original Scala function if `underlying` was itself produced by converting one. */
+    /** Returns a Scala `Function2` that calls `underlying`, or, if `underlying` is an `AsJavaObjDoubleConsumer`, the Scala function that wrapper holds. */
     @inline def asScala: scala.Function2[T, Double, Unit] = underlying match {
       case AsJavaObjDoubleConsumer((sf @ _)) => sf.asInstanceOf[scala.Function2[T, Double, Unit]]
       case _ => new FromJavaObjDoubleConsumer[T](underlying)
@@ -1714,7 +1714,7 @@ object FunctionWrappers {
    *  @param underlying the Scala `Function2` to convert
    */
   class RichFunction2AsObjDoubleConsumer[T](private val underlying: scala.Function2[T, Double, Unit]) extends AnyVal {
-    /** Returns a Java `ObjDoubleConsumer` that calls `underlying`, or the original Java `ObjDoubleConsumer` if `underlying` was itself produced by converting one. */
+    /** Returns a Java `ObjDoubleConsumer` that calls `underlying`, or, if `underlying` is a `FromJavaObjDoubleConsumer`, the Java `ObjDoubleConsumer` that wrapper holds. */
     @inline def asJava: java.util.function.ObjDoubleConsumer[T] = underlying match {
       case FromJavaObjDoubleConsumer((jf @ _)) => jf.asInstanceOf[java.util.function.ObjDoubleConsumer[T]]
       case _ => new AsJavaObjDoubleConsumer[T](underlying)
@@ -1751,7 +1751,7 @@ object FunctionWrappers {
    *  @param underlying the Java `ObjIntConsumer` to convert
    */
   class RichObjIntConsumerAsFunction2[T](private val underlying: java.util.function.ObjIntConsumer[T]) extends AnyVal {
-    /** Returns a Scala `Function2` that calls `underlying`, or the original Scala function if `underlying` was itself produced by converting one. */
+    /** Returns a Scala `Function2` that calls `underlying`, or, if `underlying` is an `AsJavaObjIntConsumer`, the Scala function that wrapper holds. */
     @inline def asScala: scala.Function2[T, Int, Unit] = underlying match {
       case AsJavaObjIntConsumer((sf @ _)) => sf.asInstanceOf[scala.Function2[T, Int, Unit]]
       case _ => new FromJavaObjIntConsumer[T](underlying)
@@ -1779,7 +1779,7 @@ object FunctionWrappers {
    *  @param underlying the Scala `Function2` to convert
    */
   class RichFunction2AsObjIntConsumer[T](private val underlying: scala.Function2[T, Int, Unit]) extends AnyVal {
-    /** Returns a Java `ObjIntConsumer` that calls `underlying`, or the original Java `ObjIntConsumer` if `underlying` was itself produced by converting one. */
+    /** Returns a Java `ObjIntConsumer` that calls `underlying`, or, if `underlying` is a `FromJavaObjIntConsumer`, the Java `ObjIntConsumer` that wrapper holds. */
     @inline def asJava: java.util.function.ObjIntConsumer[T] = underlying match {
       case FromJavaObjIntConsumer((jf @ _)) => jf.asInstanceOf[java.util.function.ObjIntConsumer[T]]
       case _ => new AsJavaObjIntConsumer[T](underlying)
@@ -1816,7 +1816,7 @@ object FunctionWrappers {
    *  @param underlying the Java `ObjLongConsumer` to convert
    */
   class RichObjLongConsumerAsFunction2[T](private val underlying: java.util.function.ObjLongConsumer[T]) extends AnyVal {
-    /** Returns a Scala `Function2` that calls `underlying`, or the original Scala function if `underlying` was itself produced by converting one. */
+    /** Returns a Scala `Function2` that calls `underlying`, or, if `underlying` is an `AsJavaObjLongConsumer`, the Scala function that wrapper holds. */
     @inline def asScala: scala.Function2[T, Long, Unit] = underlying match {
       case AsJavaObjLongConsumer((sf @ _)) => sf.asInstanceOf[scala.Function2[T, Long, Unit]]
       case _ => new FromJavaObjLongConsumer[T](underlying)
@@ -1844,7 +1844,7 @@ object FunctionWrappers {
    *  @param underlying the Scala `Function2` to convert
    */
   class RichFunction2AsObjLongConsumer[T](private val underlying: scala.Function2[T, Long, Unit]) extends AnyVal {
-    /** Returns a Java `ObjLongConsumer` that calls `underlying`, or the original Java `ObjLongConsumer` if `underlying` was itself produced by converting one. */
+    /** Returns a Java `ObjLongConsumer` that calls `underlying`, or, if `underlying` is a `FromJavaObjLongConsumer`, the Java `ObjLongConsumer` that wrapper holds. */
     @inline def asJava: java.util.function.ObjLongConsumer[T] = underlying match {
       case FromJavaObjLongConsumer((jf @ _)) => jf.asInstanceOf[java.util.function.ObjLongConsumer[T]]
       case _ => new AsJavaObjLongConsumer[T](underlying)
@@ -1879,7 +1879,7 @@ object FunctionWrappers {
    *  @param underlying the Java `Predicate` to convert
    */
   class RichPredicateAsFunction1[T](private val underlying: java.util.function.Predicate[T]) extends AnyVal {
-    /** Returns a Scala `Function1` that calls `underlying`, or the original Scala function if `underlying` was itself produced by converting one. */
+    /** Returns a Scala `Function1` that calls `underlying`, or, if `underlying` is an `AsJavaPredicate`, the Scala function that wrapper holds. */
     @inline def asScala: scala.Function1[T, Boolean] = underlying match {
       case AsJavaPredicate((sf @ _)) => sf.asInstanceOf[scala.Function1[T, Boolean]]
       case _ => new FromJavaPredicate[T](underlying)
@@ -1905,7 +1905,7 @@ object FunctionWrappers {
    *  @param underlying the Scala `Function1` to convert
    */
   class RichFunction1AsPredicate[T](private val underlying: scala.Function1[T, Boolean]) extends AnyVal {
-    /** Returns a Java `Predicate` that calls `underlying`, or the original Java `Predicate` if `underlying` was itself produced by converting one. */
+    /** Returns a Java `Predicate` that calls `underlying`, or, if `underlying` is a `FromJavaPredicate`, the Java `Predicate` that wrapper holds. */
     @inline def asJava: java.util.function.Predicate[T] = underlying match {
       case FromJavaPredicate((jf @ _)) => jf.asInstanceOf[java.util.function.Predicate[T]]
       case _ => new AsJavaPredicate[T](underlying)
@@ -1937,7 +1937,7 @@ object FunctionWrappers {
    *  @param underlying the Java `Supplier` to convert
    */
   class RichSupplierAsFunction0[T](private val underlying: java.util.function.Supplier[T]) extends AnyVal {
-    /** Returns a Scala `Function0` that calls `underlying`, or the original Scala function if `underlying` was itself produced by converting one. */
+    /** Returns a Scala `Function0` that calls `underlying`, or, if `underlying` is an `AsJavaSupplier`, the Scala function that wrapper holds. */
     @inline def asScala: scala.Function0[T] = underlying match {
       case AsJavaSupplier((sf @ _)) => sf.asInstanceOf[scala.Function0[T]]
       case _ => new FromJavaSupplier[T](underlying)
@@ -1960,7 +1960,7 @@ object FunctionWrappers {
    *  @param underlying the Scala `Function0` to convert
    */
   class RichFunction0AsSupplier[T](private val underlying: scala.Function0[T]) extends AnyVal {
-    /** Returns a Java `Supplier` that calls `underlying`, or the original Java `Supplier` if `underlying` was itself produced by converting one. */
+    /** Returns a Java `Supplier` that calls `underlying`, or, if `underlying` is a `FromJavaSupplier`, the Java `Supplier` that wrapper holds. */
     @inline def asJava: java.util.function.Supplier[T] = underlying match {
       case FromJavaSupplier((jf @ _)) => jf.asInstanceOf[java.util.function.Supplier[T]]
       case _ => new AsJavaSupplier[T](underlying)
@@ -1998,7 +1998,7 @@ object FunctionWrappers {
    *  @param underlying the Java `ToDoubleBiFunction` to convert
    */
   class RichToDoubleBiFunctionAsFunction2[T, U](private val underlying: java.util.function.ToDoubleBiFunction[T, U]) extends AnyVal {
-    /** Returns a Scala `Function2` that calls `underlying`, or the original Scala function if `underlying` was itself produced by converting one. */
+    /** Returns a Scala `Function2` that calls `underlying`, or, if `underlying` is an `AsJavaToDoubleBiFunction`, the Scala function that wrapper holds. */
     @inline def asScala: scala.Function2[T, U, Double] = underlying match {
       case AsJavaToDoubleBiFunction((sf @ _)) => sf.asInstanceOf[scala.Function2[T, U, Double]]
       case _ => new FromJavaToDoubleBiFunction[T, U](underlying)
@@ -2027,7 +2027,7 @@ object FunctionWrappers {
    *  @param underlying the Scala `Function2` to convert
    */
   class RichFunction2AsToDoubleBiFunction[T, U](private val underlying: scala.Function2[T, U, Double]) extends AnyVal {
-    /** Returns a Java `ToDoubleBiFunction` that calls `underlying`, or the original Java `ToDoubleBiFunction` if `underlying` was itself produced by converting one. */
+    /** Returns a Java `ToDoubleBiFunction` that calls `underlying`, or, if `underlying` is a `FromJavaToDoubleBiFunction`, the Java `ToDoubleBiFunction` that wrapper holds. */
     @inline def asJava: java.util.function.ToDoubleBiFunction[T, U] = underlying match {
       case FromJavaToDoubleBiFunction((jf @ _)) => jf.asInstanceOf[java.util.function.ToDoubleBiFunction[T, U]]
       case _ => new AsJavaToDoubleBiFunction[T, U](underlying)
@@ -2062,7 +2062,7 @@ object FunctionWrappers {
    *  @param underlying the Java `ToDoubleFunction` to convert
    */
   class RichToDoubleFunctionAsFunction1[T](private val underlying: java.util.function.ToDoubleFunction[T]) extends AnyVal {
-    /** Returns a Scala `Function1` that calls `underlying`, or the original Scala function if `underlying` was itself produced by converting one. */
+    /** Returns a Scala `Function1` that calls `underlying`, or, if `underlying` is an `AsJavaToDoubleFunction`, the Scala function that wrapper holds. */
     @inline def asScala: scala.Function1[T, Double] = underlying match {
       case AsJavaToDoubleFunction((sf @ _)) => sf.asInstanceOf[scala.Function1[T, Double]]
       case _ => new FromJavaToDoubleFunction[T](underlying)
@@ -2088,7 +2088,7 @@ object FunctionWrappers {
    *  @param underlying the Scala `Function1` to convert
    */
   class RichFunction1AsToDoubleFunction[T](private val underlying: scala.Function1[T, Double]) extends AnyVal {
-    /** Returns a Java `ToDoubleFunction` that calls `underlying`, or the original Java `ToDoubleFunction` if `underlying` was itself produced by converting one. */
+    /** Returns a Java `ToDoubleFunction` that calls `underlying`, or, if `underlying` is a `FromJavaToDoubleFunction`, the Java `ToDoubleFunction` that wrapper holds. */
     @inline def asJava: java.util.function.ToDoubleFunction[T] = underlying match {
       case FromJavaToDoubleFunction((jf @ _)) => jf.asInstanceOf[java.util.function.ToDoubleFunction[T]]
       case _ => new AsJavaToDoubleFunction[T](underlying)
@@ -2126,7 +2126,7 @@ object FunctionWrappers {
    *  @param underlying the Java `ToIntBiFunction` to convert
    */
   class RichToIntBiFunctionAsFunction2[T, U](private val underlying: java.util.function.ToIntBiFunction[T, U]) extends AnyVal {
-    /** Returns a Scala `Function2` that calls `underlying`, or the original Scala function if `underlying` was itself produced by converting one. */
+    /** Returns a Scala `Function2` that calls `underlying`, or, if `underlying` is an `AsJavaToIntBiFunction`, the Scala function that wrapper holds. */
     @inline def asScala: scala.Function2[T, U, Int] = underlying match {
       case AsJavaToIntBiFunction((sf @ _)) => sf.asInstanceOf[scala.Function2[T, U, Int]]
       case _ => new FromJavaToIntBiFunction[T, U](underlying)
@@ -2155,7 +2155,7 @@ object FunctionWrappers {
    *  @param underlying the Scala `Function2` to convert
    */
   class RichFunction2AsToIntBiFunction[T, U](private val underlying: scala.Function2[T, U, Int]) extends AnyVal {
-    /** Returns a Java `ToIntBiFunction` that calls `underlying`, or the original Java `ToIntBiFunction` if `underlying` was itself produced by converting one. */
+    /** Returns a Java `ToIntBiFunction` that calls `underlying`, or, if `underlying` is a `FromJavaToIntBiFunction`, the Java `ToIntBiFunction` that wrapper holds. */
     @inline def asJava: java.util.function.ToIntBiFunction[T, U] = underlying match {
       case FromJavaToIntBiFunction((jf @ _)) => jf.asInstanceOf[java.util.function.ToIntBiFunction[T, U]]
       case _ => new AsJavaToIntBiFunction[T, U](underlying)
@@ -2190,7 +2190,7 @@ object FunctionWrappers {
    *  @param underlying the Java `ToIntFunction` to convert
    */
   class RichToIntFunctionAsFunction1[T](private val underlying: java.util.function.ToIntFunction[T]) extends AnyVal {
-    /** Returns a Scala `Function1` that calls `underlying`, or the original Scala function if `underlying` was itself produced by converting one. */
+    /** Returns a Scala `Function1` that calls `underlying`, or, if `underlying` is an `AsJavaToIntFunction`, the Scala function that wrapper holds. */
     @inline def asScala: scala.Function1[T, Int] = underlying match {
       case AsJavaToIntFunction((sf @ _)) => sf.asInstanceOf[scala.Function1[T, Int]]
       case _ => new FromJavaToIntFunction[T](underlying)
@@ -2216,7 +2216,7 @@ object FunctionWrappers {
    *  @param underlying the Scala `Function1` to convert
    */
   class RichFunction1AsToIntFunction[T](private val underlying: scala.Function1[T, Int]) extends AnyVal {
-    /** Returns a Java `ToIntFunction` that calls `underlying`, or the original Java `ToIntFunction` if `underlying` was itself produced by converting one. */
+    /** Returns a Java `ToIntFunction` that calls `underlying`, or, if `underlying` is a `FromJavaToIntFunction`, the Java `ToIntFunction` that wrapper holds. */
     @inline def asJava: java.util.function.ToIntFunction[T] = underlying match {
       case FromJavaToIntFunction((jf @ _)) => jf.asInstanceOf[java.util.function.ToIntFunction[T]]
       case _ => new AsJavaToIntFunction[T](underlying)
@@ -2254,7 +2254,7 @@ object FunctionWrappers {
    *  @param underlying the Java `ToLongBiFunction` to convert
    */
   class RichToLongBiFunctionAsFunction2[T, U](private val underlying: java.util.function.ToLongBiFunction[T, U]) extends AnyVal {
-    /** Returns a Scala `Function2` that calls `underlying`, or the original Scala function if `underlying` was itself produced by converting one. */
+    /** Returns a Scala `Function2` that calls `underlying`, or, if `underlying` is an `AsJavaToLongBiFunction`, the Scala function that wrapper holds. */
     @inline def asScala: scala.Function2[T, U, Long] = underlying match {
       case AsJavaToLongBiFunction((sf @ _)) => sf.asInstanceOf[scala.Function2[T, U, Long]]
       case _ => new FromJavaToLongBiFunction[T, U](underlying)
@@ -2283,7 +2283,7 @@ object FunctionWrappers {
    *  @param underlying the Scala `Function2` to convert
    */
   class RichFunction2AsToLongBiFunction[T, U](private val underlying: scala.Function2[T, U, Long]) extends AnyVal {
-    /** Returns a Java `ToLongBiFunction` that calls `underlying`, or the original Java `ToLongBiFunction` if `underlying` was itself produced by converting one. */
+    /** Returns a Java `ToLongBiFunction` that calls `underlying`, or, if `underlying` is a `FromJavaToLongBiFunction`, the Java `ToLongBiFunction` that wrapper holds. */
     @inline def asJava: java.util.function.ToLongBiFunction[T, U] = underlying match {
       case FromJavaToLongBiFunction((jf @ _)) => jf.asInstanceOf[java.util.function.ToLongBiFunction[T, U]]
       case _ => new AsJavaToLongBiFunction[T, U](underlying)
@@ -2318,7 +2318,7 @@ object FunctionWrappers {
    *  @param underlying the Java `ToLongFunction` to convert
    */
   class RichToLongFunctionAsFunction1[T](private val underlying: java.util.function.ToLongFunction[T]) extends AnyVal {
-    /** Returns a Scala `Function1` that calls `underlying`, or the original Scala function if `underlying` was itself produced by converting one. */
+    /** Returns a Scala `Function1` that calls `underlying`, or, if `underlying` is an `AsJavaToLongFunction`, the Scala function that wrapper holds. */
     @inline def asScala: scala.Function1[T, Long] = underlying match {
       case AsJavaToLongFunction((sf @ _)) => sf.asInstanceOf[scala.Function1[T, Long]]
       case _ => new FromJavaToLongFunction[T](underlying)
@@ -2344,7 +2344,7 @@ object FunctionWrappers {
    *  @param underlying the Scala `Function1` to convert
    */
   class RichFunction1AsToLongFunction[T](private val underlying: scala.Function1[T, Long]) extends AnyVal {
-    /** Returns a Java `ToLongFunction` that calls `underlying`, or the original Java `ToLongFunction` if `underlying` was itself produced by converting one. */
+    /** Returns a Java `ToLongFunction` that calls `underlying`, or, if `underlying` is a `FromJavaToLongFunction`, the Java `ToLongFunction` that wrapper holds. */
     @inline def asJava: java.util.function.ToLongFunction[T] = underlying match {
       case FromJavaToLongFunction((jf @ _)) => jf.asInstanceOf[java.util.function.ToLongFunction[T]]
       case _ => new AsJavaToLongFunction[T](underlying)
@@ -2379,7 +2379,7 @@ object FunctionWrappers {
    *  @param underlying the Java `UnaryOperator` to convert
    */
   class RichUnaryOperatorAsFunction1[T](private val underlying: java.util.function.UnaryOperator[T]) extends AnyVal {
-    /** Returns a Scala `Function1` that calls `underlying`, or the original Scala function if `underlying` was itself produced by converting one. */
+    /** Returns a Scala `Function1` that calls `underlying`, or, if `underlying` is an `AsJavaUnaryOperator`, the Scala function that wrapper holds. */
     @inline def asScala: scala.Function1[T, T] = underlying match {
       case AsJavaUnaryOperator((sf @ _)) => sf.asInstanceOf[scala.Function1[T, T]]
       case _ => new FromJavaUnaryOperator[T](underlying)
@@ -2405,7 +2405,7 @@ object FunctionWrappers {
    *  @param underlying the Scala `Function1` to convert
    */
   class RichFunction1AsUnaryOperator[T](private val underlying: scala.Function1[T, T]) extends AnyVal {
-    /** Returns a Java `UnaryOperator` that calls `underlying`, or the original Java `UnaryOperator` if `underlying` was itself produced by converting one. */
+    /** Returns a Java `UnaryOperator` that calls `underlying`, or, if `underlying` is a `FromJavaUnaryOperator`, the Java `UnaryOperator` that wrapper holds. */
     @inline def asJava: java.util.function.UnaryOperator[T] = underlying match {
       case FromJavaUnaryOperator((jf @ _)) => jf.asInstanceOf[java.util.function.UnaryOperator[T]]
       case _ => new AsJavaUnaryOperator[T](underlying)
