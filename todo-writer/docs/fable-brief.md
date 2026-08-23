@@ -51,6 +51,12 @@ A single branch, checked out, containing:
 - **One commit per already-completed week**, for weeks 3, 4, 5 and 6. These hold
   documentation written by the retired pipeline. Weeks 3 and 4 are complete but
   drew heavy human review; weeks 5 and 6 are better but week 6 is only partial.
+
+  **None of it is sacred.** Treat that documentation as a suggestion from a
+  weaker writer, not as a baseline to preserve. Rewrite as much of it as you
+  think the work deserves, up to and including every comment in those four
+  weeks. You are being asked for the best documentation you can write, not for
+  a minimal diff against what is there.
 - **`TODO FILL IN` markers already inserted** for every remaining declaration
   across weeks 3 through 11.
 
@@ -61,15 +67,15 @@ work is visible as markers. You do not need to run any tooling.
 
 | Wk | Paths | ~decls | state |
 |----|-------|-------:|-------|
-| 3 | `scala/{Array,IArray,Option,Predef}`, `Function*`/`Tuple*`/`Product*`, `sys` | 400 | done, PR open, improve it |
-| 4 | `scala/util`, `scala/concurrent` | 480 | done, PR open, improve it |
-| 5 | `scala/math`, `collection/{generic,concurrent}` | 554 | done, 5 files have known defects |
+| 3 | `scala/{Array,IArray,Option,Predef}`, `Function*`/`Tuple*`/`Product*`, `sys` | 400 | done, PR #26669 open, rewrite freely |
+| 4 | `scala/util`, `scala/concurrent` | 480 | done, PR #26822 open, rewrite freely |
+| 5 | `scala/math`, `collection/{generic,concurrent}` | 554 | done, 5 files have known defects, rewrite freely |
 | 6 | `scala/quoted`, `scala/compiletime`, `scala/jdk` | 899 | **partial**: `quoted/Quotes.scala` (286 decls) untouched, plus 4 small `quoted` files |
 | 7 | `collection/convert`, `library-js` | 901 | not started |
 | 8 | `scala/runtime` | 687 | not started, 141 small files |
 | 9 | `collection/mutable` | 1048 | not started |
 | 10 | `collection` top level, excluding subtrees | 1257 | not started |
-| 11 | `collection/immutable` | 1739 | not started, the heavy files are `Vector`, `HashMap`, `ArraySeq`, `Map`, `HashSet` |
+| 11 | `collection/immutable` | 1739 | not started; **split into two commits**, heavy files (`Vector`, `HashMap`, `ArraySeq`, `Map`, `HashSet`) and the rest |
 
 ## How to commit
 
@@ -77,12 +83,19 @@ work is visible as markers. You do not need to run any tooling.
 about your output: each commit is cherry-picked onto its own branch off `main`
 and becomes one pull request. A commit spanning two weeks cannot be used.
 
+The exception is **week 11**, `collection/immutable`, at 1739 declarations. Split
+it into two commits, which become two pull requests: one for the heavy files
+(`Vector`, `HashMap`, `ArraySeq`, `Map`, `HashSet`) and one for the rest. If any
+other week runs far larger than expected once you are in it, splitting it the
+same way is fine; keep each commit to a single week's paths so the mapping from
+commit to PR stays one to one.
+
 ```
 Week 7: Scaladoc for collection/convert and library-js
 ```
 
-For weeks 3 through 6, where work already exists, your commit contains your
-changes on top of the existing commit, not a rewrite of it.
+For weeks 3 through 6, where work already exists, your commit sits on top of the
+existing one and contains whatever you changed, which may be nearly all of it.
 
 ## Rules
 
@@ -198,8 +211,20 @@ documentation gap.
 
 ## Known defects in the existing work
 
-Weeks 3 and 4 drew substantial human review; read those PR threads if you can
-reach them. Weeks 5 and 6 have machine-recorded defect lists. Fix these.
+**Read the human review threads first.** They are the most valuable input you
+have, worth more than anything in this brief, because they are a Scala
+maintainer saying in their own words what is wrong with documentation of exactly
+this kind:
+
+- week 3: https://github.com/scala/scala3/pull/26669
+- week 4: https://github.com/scala/scala3/pull/26822 (51 comments)
+
+Read every comment, including the ones that were declined and why. Apply what
+you learn across all the weeks you touch, not only to the files being discussed.
+
+Weeks 5 and 6 were never seen by a human, but our own reviewers recorded defect
+lists for them. These are a floor, not a ceiling; fix them and whatever else you
+find.
 
 **Week 5**, with open blockers recorded at the time:
 
@@ -247,5 +272,10 @@ week, and keep every one of them comment-only.
 ## The short version
 
 Read the code before you describe it. Never touch a non-comment line. One commit
-per week. When the code does not tell you, say so rather than inventing an
-answer.
+per week, two for week 11. When the code does not tell you, say so rather than
+inventing an answer.
+
+And read the two PR threads before you start. The existing documentation in
+weeks 3 through 6 is a draft by a weaker writer; you are free to replace all of
+it, and the only thing being judged is what a Scala maintainer thinks of the
+result.
