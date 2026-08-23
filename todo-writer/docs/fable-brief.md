@@ -1,5 +1,37 @@
 # Brief: finish the Scala 3 standard library Scaladoc rollout
 
+## Why this work exists
+
+Scala 3's standard library is mature and carefully built. Its documentation does
+not say so. Thousands of public declarations carry no Scaladoc at all, and a
+developer browsing the API reference meets one blank entry after another.
+
+That does two kinds of harm, and the second is the less obvious one.
+
+The practical harm is the one you would expect. Someone trying to use
+`Accumulator`, `TrieMap` or `Ordering` cannot find out what a method does, what
+it returns at the edges, or what it throws, without stopping to read the source.
+Every gap is a small tax on every person who hits it, forever.
+
+The other harm is to how Scala is perceived. An API reference full of holes
+reads as unfinished, as something not yet ready for production use. Scala is not
+that, and the gaps misrepresent it. Part of the point of this work is
+straightforwardly presentational: to make the language look as finished as it
+actually is. That is a real goal, not a lesser one.
+
+Both goals set the same quality bar, and it is higher than "something in every
+box". Documentation that is confidently wrong serves neither: it misleads the
+person who trusts it, and to anyone who checks it against the code, it looks
+worse than saying nothing would have. A blank entry is an omission. A false one
+is a defect, and it is the kind of defect that makes a library look careless
+rather than merely incomplete.
+
+So the standard throughout is: true first, useful second, complete third. If you
+cannot make an entry true, leave it undone and say why. There are instructions
+below for exactly that.
+
+## The task
+
 You are writing the missing Scaladoc for the Scala 3 standard library, weeks 3
 through 11 of an 11-week plan. Weeks 1 and 2 are already in an open pull request
 and are handled separately at the end of this brief.
