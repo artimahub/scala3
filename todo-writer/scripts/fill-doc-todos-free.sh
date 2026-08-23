@@ -164,12 +164,21 @@ ACCURACY_MODEL=${ACCURACY_MODEL:-sonnet};   ACCURACY_PROVIDER=${ACCURACY_PROVIDE
 STYLE_MODEL=${STYLE_MODEL:-mistral-large-latest};    STYLE_PROVIDER=${STYLE_PROVIDER:-mistral}
 ADJUDICATOR_MODEL=${ADJUDICATOR_MODEL:-devstral-latest};  ADJUDICATOR_PROVIDER=${ADJUDICATOR_PROVIDER:-mistral}
 MAX_TOKENS=${MAX_TOKENS:-32000}
-# Both reviewers get the SAME brief and are both asked to judge accuracy AND
-# style. These only tilt the attention. The aim is two full passes over the same
-# ground by different models: better that a problem is raised twice than missed
-# once.
-ACCURACY_EMPHASIS=${ACCURACY_EMPHASIS:-"Your particular focus is FACTUAL CORRECTNESS: API contracts, what the implementation really does, exception and edge-case behaviour, and subtle mismatches between prose and code. Still raise every style problem you see."}
-STYLE_EMPHASIS=${STYLE_EMPHASIS:-"Your particular focus is STYLE AND READABILITY: Scaladoc conventions, the project's tag rules, voice and altitude, and whether the text is genuinely useful to an API reader. Still raise every factual error you see, and treat it as a blocker."}
+# ONE brief, rendered identically for both reviewers. There is no "accuracy
+# reviewer" and no "style reviewer" any more: each is asked to judge accuracy
+# AND style in full, and the two differ only in which model runs them and what
+# each can see.
+#
+# The split used to be a pair of emphasis paragraphs tilting one toward facts
+# and one toward prose. It read well and it cost coverage: a reviewer told its
+# particular focus is style is a reviewer with an excuse not to read the body.
+# Week 4 is the cautionary case, where the factual reviewer was dead and the
+# stylistic one filed 45 rounds of wording notes without ever noticing that
+# Future.never's `map` documented a function it does not apply.
+#
+# Reviewer independence is supposed to come from different models looking at the
+# same thing, not from dividing the job between them.
+REVIEW_EMPHASIS=${REVIEW_EMPHASIS:-"Judge ACCURACY and STYLE equally, and in full. Neither is another reviewer's department: a factual error is a blocker whoever finds it, and a broken convention is a finding whoever finds it. Read the implementation of every declaration you assess before you judge its prose."}
 RATE_LIMIT_BACKOFF=${RATE_LIMIT_BACKOFF:-30}   # doubles per retry: 30, 60, 120
 PROVIDER_SPACING=${PROVIDER_SPACING:-45}       # gap between same-provider calls
 WRITER_MAX_PASSES=${WRITER_MAX_PASSES:-6}     # fill passes before review starts
@@ -916,8 +925,11 @@ for index in "${!TARGETS[@]}"; do
         }
         local sty_payload_kind=diff
         [ "${STYLE_REVIEW_FULL_SOURCE:-false}" = true ] && sty_payload_kind="$REVIEW_PAYLOAD_KIND"
-        render_review "$ACCURACY_EMPHASIS" "$ACCURACY_PROVIDER" "$REVIEW_PAYLOAD_KIND" > "$WORK_DIR/${SAFE}.accsys"
-        render_review "$STYLE_EMPHASIS"    "$STYLE_PROVIDER"    "$sty_payload_kind"    > "$WORK_DIR/${SAFE}.stysys"
+        # Same emphasis, same brief, both roles. The only text that differs
+        # between these two files is the factual description of what each one
+        # was handed and what it may open, which has to be true per role.
+        render_review "$REVIEW_EMPHASIS" "$ACCURACY_PROVIDER" "$REVIEW_PAYLOAD_KIND" > "$WORK_DIR/${SAFE}.accsys"
+        render_review "$REVIEW_EMPHASIS" "$STYLE_PROVIDER"    "$sty_payload_kind"    > "$WORK_DIR/${SAFE}.stysys"
 
         # The accuracy reviewer may share a provider with the writer; space it.
         if [ "$ACCURACY_PROVIDER" = "$WRITER_PROVIDER" ] && [ "$PROVIDER_SPACING" -gt 0 ]; then
