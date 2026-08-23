@@ -29,6 +29,7 @@ object FunctionWrappers {
      *
      *  @param x1 the first argument to pass to `jf`
      *  @param x2 the second argument to pass to `jf`
+     *  @return `()`, since the delegate is called only for its side effect
      */
     def apply(x1: T, x2: U) = jf.accept(x1, x2)
   }
@@ -58,6 +59,7 @@ object FunctionWrappers {
      *
      *  @param x1 the first argument to pass to `sf`
      *  @param x2 the second argument to pass to `sf`
+     *  @return `()`, since the delegate is called only for its side effect
      */
     def accept(x1: T, x2: U) = sf.apply(x1, x2)
   }
@@ -74,7 +76,10 @@ object FunctionWrappers {
       case FromJavaBiConsumer((jf @ _)) => jf.asInstanceOf[java.util.function.BiConsumer[T, U]]
       case _ => new AsJavaBiConsumer[T, U](underlying)
     };
-    /** Returns a Java `BiConsumer` that calls `underlying`, or the original Java `BiConsumer` if `underlying` was itself produced by converting one; an explicitly named alias for `asJava`. */
+    /** An explicitly named alias for `asJava`, with identical behavior.
+     *
+     *  @return the same Java `BiConsumer` value that `asJava` returns
+     */
     @inline def asJavaBiConsumer: java.util.function.BiConsumer[T, U] = underlying match {
       case FromJavaBiConsumer((sf @ _)) => sf.asInstanceOf[java.util.function.BiConsumer[T, U]]
       case _ => new AsJavaBiConsumer[T, U](underlying)
@@ -142,7 +147,10 @@ object FunctionWrappers {
       case FromJavaBiFunction((jf @ _)) => jf.asInstanceOf[java.util.function.BiFunction[T, U, R]]
       case _ => new AsJavaBiFunction[T, U, R](underlying)
     };
-    /** Returns a Java `BiFunction` that calls `underlying`, or the original Java `BiFunction` if `underlying` was itself produced by converting one; an explicitly named alias for `asJava`. */
+    /** An explicitly named alias for `asJava`, with identical behavior.
+     *
+     *  @return the same Java `BiFunction` value that `asJava` returns
+     */
     @inline def asJavaBiFunction: java.util.function.BiFunction[T, U, R] = underlying match {
       case FromJavaBiFunction((sf @ _)) => sf.asInstanceOf[java.util.function.BiFunction[T, U, R]]
       case _ => new AsJavaBiFunction[T, U, R](underlying)
@@ -206,7 +214,10 @@ object FunctionWrappers {
       case FromJavaBiPredicate((jf @ _)) => jf.asInstanceOf[java.util.function.BiPredicate[T, U]]
       case _ => new AsJavaBiPredicate[T, U](underlying)
     };
-    /** Returns a Java `BiPredicate` that calls `underlying`, or the original Java `BiPredicate` if `underlying` was itself produced by converting one; an explicitly named alias for `asJava`. */
+    /** An explicitly named alias for `asJava`, with identical behavior.
+     *
+     *  @return the same Java `BiPredicate` value that `asJava` returns
+     */
     @inline def asJavaBiPredicate: java.util.function.BiPredicate[T, U] = underlying match {
       case FromJavaBiPredicate((sf @ _)) => sf.asInstanceOf[java.util.function.BiPredicate[T, U]]
       case _ => new AsJavaBiPredicate[T, U](underlying)
@@ -266,7 +277,10 @@ object FunctionWrappers {
       case FromJavaBinaryOperator((jf @ _)) => jf.asInstanceOf[java.util.function.BinaryOperator[T]]
       case _ => new AsJavaBinaryOperator[T](underlying)
     };
-    /** Returns a Java `BinaryOperator` that calls `underlying`, or the original Java `BinaryOperator` if `underlying` was itself produced by converting one; an explicitly named alias for `asJava`. */
+    /** An explicitly named alias for `asJava`, with identical behavior.
+     *
+     *  @return the same Java `BinaryOperator` value that `asJava` returns
+     */
     @inline def asJavaBinaryOperator: java.util.function.BinaryOperator[T] = underlying match {
       case FromJavaBinaryOperator((sf @ _)) => sf.asInstanceOf[java.util.function.BinaryOperator[T]]
       case _ => new AsJavaBinaryOperator[T](underlying)
@@ -326,6 +340,7 @@ object FunctionWrappers {
     /** Invokes the wrapped Java `Consumer` with `x1`.
      *
      *  @param x1 the argument to pass to `jf`
+     *  @return `()`, since the delegate is called only for its side effect
      */
     def apply(x1: T) = jf.accept(x1)
   }
@@ -352,6 +367,7 @@ object FunctionWrappers {
     /** Invokes the wrapped Scala `Function1` with `x1`.
      *
      *  @param x1 the argument to pass to `sf`
+     *  @return `()`, since the delegate is called only for its side effect
      */
     def accept(x1: T) = sf.apply(x1)
   }
@@ -367,7 +383,10 @@ object FunctionWrappers {
       case FromJavaConsumer((jf @ _)) => jf.asInstanceOf[java.util.function.Consumer[T]]
       case _ => new AsJavaConsumer[T](underlying)
     };
-    /** Returns a Java `Consumer` that calls `underlying`, or the original Java `Consumer` if `underlying` was itself produced by converting one; an explicitly named alias for `asJava`. */
+    /** An explicitly named alias for `asJava`, with identical behavior.
+     *
+     *  @return the same Java `Consumer` value that `asJava` returns
+     */
     @inline def asJavaConsumer: java.util.function.Consumer[T] = underlying match {
       case FromJavaConsumer((sf @ _)) => sf.asInstanceOf[java.util.function.Consumer[T]]
       case _ => new AsJavaConsumer[T](underlying)
@@ -434,6 +453,7 @@ object FunctionWrappers {
     /** Invokes the wrapped Java `DoubleConsumer` with `x1`.
      *
      *  @param x1 the argument to pass to `jf`
+     *  @return `()`, since the delegate is called only for its side effect
      */
     def apply(x1: scala.Double) = jf.accept(x1)
   }
@@ -458,6 +478,7 @@ object FunctionWrappers {
     /** Invokes the wrapped Scala `Function1` with `x1`.
      *
      *  @param x1 the argument to pass to `sf`
+     *  @return `()`, since the delegate is called only for its side effect
      */
     def accept(x1: scala.Double) = sf.apply(x1)
   }
@@ -525,7 +546,10 @@ object FunctionWrappers {
       case FromJavaDoubleFunction((jf @ _)) => jf.asInstanceOf[java.util.function.DoubleFunction[R]]
       case _ => new AsJavaDoubleFunction[R](underlying)
     };
-    /** Returns a Java `DoubleFunction` that calls `underlying`, or the original Java `DoubleFunction` if `underlying` was itself produced by converting one; an explicitly named alias for `asJava`. */
+    /** An explicitly named alias for `asJava`, with identical behavior.
+     *
+     *  @return the same Java `DoubleFunction` value that `asJava` returns
+     */
     @inline def asJavaDoubleFunction: java.util.function.DoubleFunction[R] = underlying match {
       case FromJavaDoubleFunction((sf @ _)) => sf.asInstanceOf[java.util.function.DoubleFunction[R]]
       case _ => new AsJavaDoubleFunction[R](underlying)
@@ -826,7 +850,10 @@ object FunctionWrappers {
       case FromJavaFunction((jf @ _)) => jf.asInstanceOf[java.util.function.Function[T, R]]
       case _ => new AsJavaFunction[T, R](underlying)
     };
-    /** Returns a Java `Function` that calls `underlying`, or the original Java `Function` if `underlying` was itself produced by converting one; an explicitly named alias for `asJava`. */
+    /** An explicitly named alias for `asJava`, with identical behavior.
+     *
+     *  @return the same Java `Function` value that `asJava` returns
+     */
     @inline def asJavaFunction: java.util.function.Function[T, R] = underlying match {
       case FromJavaFunction((sf @ _)) => sf.asInstanceOf[java.util.function.Function[T, R]]
       case _ => new AsJavaFunction[T, R](underlying)
@@ -893,6 +920,7 @@ object FunctionWrappers {
     /** Invokes the wrapped Java `IntConsumer` with `x1`.
      *
      *  @param x1 the argument to pass to `jf`
+     *  @return `()`, since the delegate is called only for its side effect
      */
     def apply(x1: scala.Int) = jf.accept(x1)
   }
@@ -917,6 +945,7 @@ object FunctionWrappers {
     /** Invokes the wrapped Scala `Function1` with `x1`.
      *
      *  @param x1 the argument to pass to `sf`
+     *  @return `()`, since the delegate is called only for its side effect
      */
     def accept(x1: scala.Int) = sf.apply(x1)
   }
@@ -984,7 +1013,10 @@ object FunctionWrappers {
       case FromJavaIntFunction((jf @ _)) => jf.asInstanceOf[java.util.function.IntFunction[R]]
       case _ => new AsJavaIntFunction[R](underlying)
     };
-    /** Returns a Java `IntFunction` that calls `underlying`, or the original Java `IntFunction` if `underlying` was itself produced by converting one; an explicitly named alias for `asJava`. */
+    /** An explicitly named alias for `asJava`, with identical behavior.
+     *
+     *  @return the same Java `IntFunction` value that `asJava` returns
+     */
     @inline def asJavaIntFunction: java.util.function.IntFunction[R] = underlying match {
       case FromJavaIntFunction((sf @ _)) => sf.asInstanceOf[java.util.function.IntFunction[R]]
       case _ => new AsJavaIntFunction[R](underlying)
@@ -1290,6 +1322,7 @@ object FunctionWrappers {
     /** Invokes the wrapped Java `LongConsumer` with `x1`.
      *
      *  @param x1 the argument to pass to `jf`
+     *  @return `()`, since the delegate is called only for its side effect
      */
     def apply(x1: scala.Long) = jf.accept(x1)
   }
@@ -1314,6 +1347,7 @@ object FunctionWrappers {
     /** Invokes the wrapped Scala `Function1` with `x1`.
      *
      *  @param x1 the argument to pass to `sf`
+     *  @return `()`, since the delegate is called only for its side effect
      */
     def accept(x1: scala.Long) = sf.apply(x1)
   }
@@ -1381,7 +1415,10 @@ object FunctionWrappers {
       case FromJavaLongFunction((jf @ _)) => jf.asInstanceOf[java.util.function.LongFunction[R]]
       case _ => new AsJavaLongFunction[R](underlying)
     };
-    /** Returns a Java `LongFunction` that calls `underlying`, or the original Java `LongFunction` if `underlying` was itself produced by converting one; an explicitly named alias for `asJava`. */
+    /** An explicitly named alias for `asJava`, with identical behavior.
+     *
+     *  @return the same Java `LongFunction` value that `asJava` returns
+     */
     @inline def asJavaLongFunction: java.util.function.LongFunction[R] = underlying match {
       case FromJavaLongFunction((sf @ _)) => sf.asInstanceOf[java.util.function.LongFunction[R]]
       case _ => new AsJavaLongFunction[R](underlying)
@@ -1638,6 +1675,7 @@ object FunctionWrappers {
      *
      *  @param x1 the first argument to pass to `jf`
      *  @param x2 the second argument to pass to `jf`
+     *  @return `()`, since the delegate is called only for its side effect
      */
     def apply(x1: T, x2: scala.Double) = jf.accept(x1, x2)
   }
@@ -1665,6 +1703,7 @@ object FunctionWrappers {
      *
      *  @param x1 the first argument to pass to `sf`
      *  @param x2 the second argument to pass to `sf`
+     *  @return `()`, since the delegate is called only for its side effect
      */
     def accept(x1: T, x2: scala.Double) = sf.apply(x1, x2)
   }
@@ -1680,7 +1719,10 @@ object FunctionWrappers {
       case FromJavaObjDoubleConsumer((jf @ _)) => jf.asInstanceOf[java.util.function.ObjDoubleConsumer[T]]
       case _ => new AsJavaObjDoubleConsumer[T](underlying)
     };
-    /** Returns a Java `ObjDoubleConsumer` that calls `underlying`, or the original Java `ObjDoubleConsumer` if `underlying` was itself produced by converting one; an explicitly named alias for `asJava`. */
+    /** An explicitly named alias for `asJava`, with identical behavior.
+     *
+     *  @return the same Java `ObjDoubleConsumer` value that `asJava` returns
+     */
     @inline def asJavaObjDoubleConsumer: java.util.function.ObjDoubleConsumer[T] = underlying match {
       case FromJavaObjDoubleConsumer((sf @ _)) => sf.asInstanceOf[java.util.function.ObjDoubleConsumer[T]]
       case _ => new AsJavaObjDoubleConsumer[T](underlying)
@@ -1698,6 +1740,7 @@ object FunctionWrappers {
      *
      *  @param x1 the first argument to pass to `jf`
      *  @param x2 the second argument to pass to `jf`
+     *  @return `()`, since the delegate is called only for its side effect
      */
     def apply(x1: T, x2: scala.Int) = jf.accept(x1, x2)
   }
@@ -1725,6 +1768,7 @@ object FunctionWrappers {
      *
      *  @param x1 the first argument to pass to `sf`
      *  @param x2 the second argument to pass to `sf`
+     *  @return `()`, since the delegate is called only for its side effect
      */
     def accept(x1: T, x2: scala.Int) = sf.apply(x1, x2)
   }
@@ -1740,7 +1784,10 @@ object FunctionWrappers {
       case FromJavaObjIntConsumer((jf @ _)) => jf.asInstanceOf[java.util.function.ObjIntConsumer[T]]
       case _ => new AsJavaObjIntConsumer[T](underlying)
     };
-    /** Returns a Java `ObjIntConsumer` that calls `underlying`, or the original Java `ObjIntConsumer` if `underlying` was itself produced by converting one; an explicitly named alias for `asJava`. */
+    /** An explicitly named alias for `asJava`, with identical behavior.
+     *
+     *  @return the same Java `ObjIntConsumer` value that `asJava` returns
+     */
     @inline def asJavaObjIntConsumer: java.util.function.ObjIntConsumer[T] = underlying match {
       case FromJavaObjIntConsumer((sf @ _)) => sf.asInstanceOf[java.util.function.ObjIntConsumer[T]]
       case _ => new AsJavaObjIntConsumer[T](underlying)
@@ -1758,6 +1805,7 @@ object FunctionWrappers {
      *
      *  @param x1 the first argument to pass to `jf`
      *  @param x2 the second argument to pass to `jf`
+     *  @return `()`, since the delegate is called only for its side effect
      */
     def apply(x1: T, x2: scala.Long) = jf.accept(x1, x2)
   }
@@ -1785,6 +1833,7 @@ object FunctionWrappers {
      *
      *  @param x1 the first argument to pass to `sf`
      *  @param x2 the second argument to pass to `sf`
+     *  @return `()`, since the delegate is called only for its side effect
      */
     def accept(x1: T, x2: scala.Long) = sf.apply(x1, x2)
   }
@@ -1800,7 +1849,10 @@ object FunctionWrappers {
       case FromJavaObjLongConsumer((jf @ _)) => jf.asInstanceOf[java.util.function.ObjLongConsumer[T]]
       case _ => new AsJavaObjLongConsumer[T](underlying)
     };
-    /** Returns a Java `ObjLongConsumer` that calls `underlying`, or the original Java `ObjLongConsumer` if `underlying` was itself produced by converting one; an explicitly named alias for `asJava`. */
+    /** An explicitly named alias for `asJava`, with identical behavior.
+     *
+     *  @return the same Java `ObjLongConsumer` value that `asJava` returns
+     */
     @inline def asJavaObjLongConsumer: java.util.function.ObjLongConsumer[T] = underlying match {
       case FromJavaObjLongConsumer((sf @ _)) => sf.asInstanceOf[java.util.function.ObjLongConsumer[T]]
       case _ => new AsJavaObjLongConsumer[T](underlying)
@@ -1858,7 +1910,10 @@ object FunctionWrappers {
       case FromJavaPredicate((jf @ _)) => jf.asInstanceOf[java.util.function.Predicate[T]]
       case _ => new AsJavaPredicate[T](underlying)
     };
-    /** Returns a Java `Predicate` that calls `underlying`, or the original Java `Predicate` if `underlying` was itself produced by converting one; an explicitly named alias for `asJava`. */
+    /** An explicitly named alias for `asJava`, with identical behavior.
+     *
+     *  @return the same Java `Predicate` value that `asJava` returns
+     */
     @inline def asJavaPredicate: java.util.function.Predicate[T] = underlying match {
       case FromJavaPredicate((sf @ _)) => sf.asInstanceOf[java.util.function.Predicate[T]]
       case _ => new AsJavaPredicate[T](underlying)
@@ -1910,7 +1965,10 @@ object FunctionWrappers {
       case FromJavaSupplier((jf @ _)) => jf.asInstanceOf[java.util.function.Supplier[T]]
       case _ => new AsJavaSupplier[T](underlying)
     };
-    /** Returns a Java `Supplier` that calls `underlying`, or the original Java `Supplier` if `underlying` was itself produced by converting one; an explicitly named alias for `asJava`. */
+    /** An explicitly named alias for `asJava`, with identical behavior.
+     *
+     *  @return the same Java `Supplier` value that `asJava` returns
+     */
     @inline def asJavaSupplier: java.util.function.Supplier[T] = underlying match {
       case FromJavaSupplier((sf @ _)) => sf.asInstanceOf[java.util.function.Supplier[T]]
       case _ => new AsJavaSupplier[T](underlying)
@@ -1974,7 +2032,10 @@ object FunctionWrappers {
       case FromJavaToDoubleBiFunction((jf @ _)) => jf.asInstanceOf[java.util.function.ToDoubleBiFunction[T, U]]
       case _ => new AsJavaToDoubleBiFunction[T, U](underlying)
     };
-    /** Returns a Java `ToDoubleBiFunction` that calls `underlying`, or the original Java `ToDoubleBiFunction` if `underlying` was itself produced by converting one; an explicitly named alias for `asJava`. */
+    /** An explicitly named alias for `asJava`, with identical behavior.
+     *
+     *  @return the same Java `ToDoubleBiFunction` value that `asJava` returns
+     */
     @inline def asJavaToDoubleBiFunction: java.util.function.ToDoubleBiFunction[T, U] = underlying match {
       case FromJavaToDoubleBiFunction((sf @ _)) => sf.asInstanceOf[java.util.function.ToDoubleBiFunction[T, U]]
       case _ => new AsJavaToDoubleBiFunction[T, U](underlying)
@@ -2032,7 +2093,10 @@ object FunctionWrappers {
       case FromJavaToDoubleFunction((jf @ _)) => jf.asInstanceOf[java.util.function.ToDoubleFunction[T]]
       case _ => new AsJavaToDoubleFunction[T](underlying)
     };
-    /** Returns a Java `ToDoubleFunction` that calls `underlying`, or the original Java `ToDoubleFunction` if `underlying` was itself produced by converting one; an explicitly named alias for `asJava`. */
+    /** An explicitly named alias for `asJava`, with identical behavior.
+     *
+     *  @return the same Java `ToDoubleFunction` value that `asJava` returns
+     */
     @inline def asJavaToDoubleFunction: java.util.function.ToDoubleFunction[T] = underlying match {
       case FromJavaToDoubleFunction((sf @ _)) => sf.asInstanceOf[java.util.function.ToDoubleFunction[T]]
       case _ => new AsJavaToDoubleFunction[T](underlying)
@@ -2096,7 +2160,10 @@ object FunctionWrappers {
       case FromJavaToIntBiFunction((jf @ _)) => jf.asInstanceOf[java.util.function.ToIntBiFunction[T, U]]
       case _ => new AsJavaToIntBiFunction[T, U](underlying)
     };
-    /** Returns a Java `ToIntBiFunction` that calls `underlying`, or the original Java `ToIntBiFunction` if `underlying` was itself produced by converting one; an explicitly named alias for `asJava`. */
+    /** An explicitly named alias for `asJava`, with identical behavior.
+     *
+     *  @return the same Java `ToIntBiFunction` value that `asJava` returns
+     */
     @inline def asJavaToIntBiFunction: java.util.function.ToIntBiFunction[T, U] = underlying match {
       case FromJavaToIntBiFunction((sf @ _)) => sf.asInstanceOf[java.util.function.ToIntBiFunction[T, U]]
       case _ => new AsJavaToIntBiFunction[T, U](underlying)
@@ -2154,7 +2221,10 @@ object FunctionWrappers {
       case FromJavaToIntFunction((jf @ _)) => jf.asInstanceOf[java.util.function.ToIntFunction[T]]
       case _ => new AsJavaToIntFunction[T](underlying)
     };
-    /** Returns a Java `ToIntFunction` that calls `underlying`, or the original Java `ToIntFunction` if `underlying` was itself produced by converting one; an explicitly named alias for `asJava`. */
+    /** An explicitly named alias for `asJava`, with identical behavior.
+     *
+     *  @return the same Java `ToIntFunction` value that `asJava` returns
+     */
     @inline def asJavaToIntFunction: java.util.function.ToIntFunction[T] = underlying match {
       case FromJavaToIntFunction((sf @ _)) => sf.asInstanceOf[java.util.function.ToIntFunction[T]]
       case _ => new AsJavaToIntFunction[T](underlying)
@@ -2218,7 +2288,10 @@ object FunctionWrappers {
       case FromJavaToLongBiFunction((jf @ _)) => jf.asInstanceOf[java.util.function.ToLongBiFunction[T, U]]
       case _ => new AsJavaToLongBiFunction[T, U](underlying)
     };
-    /** Returns a Java `ToLongBiFunction` that calls `underlying`, or the original Java `ToLongBiFunction` if `underlying` was itself produced by converting one; an explicitly named alias for `asJava`. */
+    /** An explicitly named alias for `asJava`, with identical behavior.
+     *
+     *  @return the same Java `ToLongBiFunction` value that `asJava` returns
+     */
     @inline def asJavaToLongBiFunction: java.util.function.ToLongBiFunction[T, U] = underlying match {
       case FromJavaToLongBiFunction((sf @ _)) => sf.asInstanceOf[java.util.function.ToLongBiFunction[T, U]]
       case _ => new AsJavaToLongBiFunction[T, U](underlying)
@@ -2276,7 +2349,10 @@ object FunctionWrappers {
       case FromJavaToLongFunction((jf @ _)) => jf.asInstanceOf[java.util.function.ToLongFunction[T]]
       case _ => new AsJavaToLongFunction[T](underlying)
     };
-    /** Returns a Java `ToLongFunction` that calls `underlying`, or the original Java `ToLongFunction` if `underlying` was itself produced by converting one; an explicitly named alias for `asJava`. */
+    /** An explicitly named alias for `asJava`, with identical behavior.
+     *
+     *  @return the same Java `ToLongFunction` value that `asJava` returns
+     */
     @inline def asJavaToLongFunction: java.util.function.ToLongFunction[T] = underlying match {
       case FromJavaToLongFunction((sf @ _)) => sf.asInstanceOf[java.util.function.ToLongFunction[T]]
       case _ => new AsJavaToLongFunction[T](underlying)
@@ -2334,7 +2410,10 @@ object FunctionWrappers {
       case FromJavaUnaryOperator((jf @ _)) => jf.asInstanceOf[java.util.function.UnaryOperator[T]]
       case _ => new AsJavaUnaryOperator[T](underlying)
     };
-    /** Returns a Java `UnaryOperator` that calls `underlying`, or the original Java `UnaryOperator` if `underlying` was itself produced by converting one; an explicitly named alias for `asJava`. */
+    /** An explicitly named alias for `asJava`, with identical behavior.
+     *
+     *  @return the same Java `UnaryOperator` value that `asJava` returns
+     */
     @inline def asJavaUnaryOperator: java.util.function.UnaryOperator[T] = underlying match {
       case FromJavaUnaryOperator((sf @ _)) => sf.asInstanceOf[java.util.function.UnaryOperator[T]]
       case _ => new AsJavaUnaryOperator[T](underlying)
