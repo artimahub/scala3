@@ -1,0 +1,72 @@
+```json
+{
+  "overall_quality": "acceptable",
+  "issues": [
+    {
+      "line": 27,
+      "tag_type": "@return",
+      "tag_name": "",
+      "severity": "warning",
+      "current_text": "Nothing.",
+      "problem": "The return description says 'Nothing.' which is ambiguous — it could be read as 'returns nothing' rather than referring to the type `Nothing`. It should use backticks to clarify it refers to the Scala type.",
+      "suggestion": "this method never returns normally (return type is `Nothing`)"
+    },
+    {
+      "line": 33,
+      "tag_type": "@return",
+      "tag_name": "",
+      "severity": "warning",
+      "current_text": "Nothing.",
+      "problem": "Same ambiguity as above — 'Nothing.' without backticks could be misread as 'returns nothing'.",
+      "suggestion": "this method never returns normally (return type is `Nothing`)"
+    },
+    {
+      "line": 40,
+      "tag_type": "@return",
+      "tag_name": "",
+      "severity": "warning",
+      "current_text": "Nothing.",
+      "problem": "Same ambiguity as above — 'Nothing.' without backticks could be misread as 'returns nothing'.",
+      "suggestion": "this method never returns normally (return type is `Nothing`)"
+    },
+    {
+      "line": 55,
+      "tag_type": "@return",
+      "tag_name": "",
+      "severity": "suggestion",
+      "current_text": "a SystemProperties.",
+      "problem": "Inconsistent formatting — `SystemProperties` should use backticks like other type references in this file.",
+      "suggestion": "a `SystemProperties` instance wrapping the current system properties"
+    },
+    {
+      "line": 84,
+      "tag_type": "@return",
+      "tag_name": "",
+      "severity": "warning",
+      "current_text": "the   Thread which will run the shutdown hook.",
+      "problem": "Extra whitespace between 'the' and 'Thread', and 'Thread' should use backticks for consistency. Also `ShutdownHookThread` would be more precise than `Thread`.",
+      "suggestion": "the `ShutdownHookThread` which will run the shutdown hook"
+    },
+    {
+      "line": 26,
+      "tag_type": "@param",
+      "tag_name": "message",
+      "severity": "suggestion",
+      "current_text": "the error message for the `RuntimeException`",
+      "problem": "Good and accurate. Minor: could note that it becomes the detail message of the exception.",
+      "suggestion": "the detail message for the `RuntimeException`"
+    },
+    {
+      "line": 39,
+      "tag_type": "@param",
+      "tag_name": "status",
+      "severity": "suggestion",
+      "current_text": "the exit status code to pass to `System.exit`",
+      "problem": "Good and accurate. Minor: could mention convention that 0 indicates success and non-zero indicates failure.",
+      "suggestion": "the exit status code passed to `System.exit` (0 for success, non-zero for failure)"
+    }
+  ],
+  "general_feedback": "The two newly added @param descriptions are accurate and clear. However, several pre-existing @return tags in this file have issues: 'Nothing.' is ambiguous without backticks, there's inconsistent use of backticks for type names, and there's extra whitespace in the addShutdownHook @return tag. The newly written @param tags are good but could benefit from minor refinements.",
+  "requires_changes": false
+}
+```

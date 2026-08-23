@@ -1,0 +1,25 @@
+{
+  "overall_quality": "good",
+  "issues": [
+    {
+      "line": 13,
+      "tag_type": "@return",
+      "tag_name": "",
+      "severity": "suggestion",
+      "current_text": "the transformed expression, of the same type `T` as the input",
+      "problem": "Since `transform` is abstract, the description is somewhat speculative. Implementations may not return the same `T`, but the signature does fix the return type. The phrasing 'of the same type T as the input' is technically redundant with the signature but acceptable; could be slightly tightened.",
+      "suggestion": "the transformed expression of type `T`"
+    },
+    {
+      "line": 23,
+      "tag_type": "@return",
+      "tag_name": "",
+      "severity": "suggestion",
+      "current_text": "a new expression of type `T` with each of its sub-expressions replaced by the result of applying `transform` to it",
+      "problem": "Slightly long. Also, due to `mapConserve`, the result may be the same instance when no children change — not strictly 'a new expression'.",
+      "suggestion": "an expression of type `T` with each direct sub-expression replaced by the result of applying `transform` to it"
+    }
+  ],
+  "general_feedback": "Documentation is accurate, clear, and consistent across both methods. The @tparam and @param descriptions match actual usage, and the explanatory text around `Type[T]` and `Quotes` adds useful context. Minor suggestions concern conciseness and the subtle behavior of `mapConserve` reusing the original instance when no children change.",
+  "requires_changes": false
+}

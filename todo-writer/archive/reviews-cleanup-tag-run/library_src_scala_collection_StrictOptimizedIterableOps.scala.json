@@ -1,0 +1,25 @@
+{
+  "overall_quality": "good",
+  "issues": [
+    {
+      "line": 259,
+      "tag_type": "@return",
+      "tag_name": "",
+      "severity": "suggestion",
+      "current_text": "a new collection containing the last `n` elements of this collection, or all elements if `n` exceeds the size",
+      "problem": "Slightly verbose; could also mention behavior when `n` is non-positive (returns an empty collection) for completeness.",
+      "suggestion": "a new collection containing the last `n` elements of this collection, or all elements if `n` is greater than the size, or an empty collection if `n` is non-positive"
+    },
+    {
+      "line": 279,
+      "tag_type": "@return",
+      "tag_name": "",
+      "severity": "suggestion",
+      "current_text": "a new collection containing all elements of this collection except the last `n`, or an empty collection if `n` exceeds the size",
+      "problem": "Could mention that a non-positive `n` returns the full collection unchanged for symmetry with takeRight.",
+      "suggestion": "a new collection containing all elements of this collection except the last `n`, or an empty collection if `n` is greater than or equal to the size, or all elements if `n` is non-positive"
+    }
+  ],
+  "general_feedback": "The two filled-in @return descriptions are accurate, clear, and consistent with the existing @param style. Both correctly describe the primary behavior and the edge case where `n` exceeds the collection size. Only minor suggestions to mention the non-positive `n` edge case for additional completeness.",
+  "requires_changes": false
+}

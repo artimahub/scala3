@@ -1,0 +1,52 @@
+{
+  "overall_quality": "acceptable",
+  "issues": [
+    {
+      "line": 450,
+      "tag_type": "@return",
+      "tag_name": "unwrapping",
+      "severity": "error",
+      "current_text": "a `Catch[T]` that catches any of the specified exceptions and rethrows their innermost cause",
+      "problem": "The phrase 'innermost cause' is inaccurate. The `unwrap` loop only descends while the current throwable matches one of the supplied wrapper exceptions; it stops at the first cause that is not in the supplied set (or has no further cause). If the chain contains an intermediate throwable that isn't in the list, unwrapping halts there rather than continuing to the truly innermost cause.",
+      "suggestion": "a `Catch[T]` that catches any of the specified exceptions and rethrows the first cause in the chain that is not one of the supplied wrapper exceptions (or whose `getCause` is `null`)"
+    },
+    {
+      "line": 256,
+      "tag_type": "@return",
+      "tag_name": "apply",
+      "severity": "warning",
+      "current_text": "the result of `body`, or the result of `pf` applied to a caught exception",
+      "problem": "Doesn't mention that exceptions matching `rethrow` (by default `ControlThrowable` and `InterruptedException`) are rethrown rather than handled by `pf`, nor that unmatched exceptions propagate. Also omits that the finally logic in `fin` is always invoked.",
+      "suggestion": "the result of `body` on success, or the result of `pf` applied to a caught exception; exceptions for which `rethrow` returns `true` (or which `pf` does not handle) are propagated, and any `fin` logic is always invoked"
+    },
+    {
+      "line": 338,
+      "tag_type": "@return",
+      "tag_name": "allCatch",
+      "severity": "suggestion",
+      "current_text": "a `Catch` that catches every `Throwable` and rethrows it",
+      "problem": "Technically correct (the underlying catcher rethrows), but potentially misleading since the typical use is to compose with `opt`, `either`, `withTry`, or `withApply` to actually produce a result rather than rethrow.",
+      "suggestion": "a `Catch` whose handler matches every `Throwable` (rethrowing by default); typically composed with `opt`, `either`, `withTry`, or `withApply` to transform the result"
+    },
+    {
+      "line": 346,
+      "tag_type": "@return",
+      "tag_name": "nonFatalCatch",
+      "severity": "suggestion",
+      "current_text": "a `Catch` that catches every `NonFatal` `Throwable` and rethrows it",
+      "problem": "Same issue as `allCatch`: technically accurate but does not hint at the intended composition pattern; users will normally chain with `opt`/`either`/`withTry`/`withApply`.",
+      "suggestion": "a `Catch` whose handler matches every `NonFatal` `Throwable` (rethrowing by default); typically composed with `opt`, `either`, `withTry`, or `withApply` to transform the result"
+    },
+    {
+      "line": 376,
+      "tag_type": "@return",
+      "tag_name": "catchingPromiscuously",
+      "severity": "warning",
+      "current_text": "a `Catch` that catches exactly the specified exceptions without rethrowing $protectedExceptions",
+      "problem": "Slightly ambiguous wording: the key behavior is that the `rethrow` predicate is `_ => false`, so even $protectedExceptions among the supplied list are not auto-rethrown. The current phrasing could be read as merely restating the catch set.",
+      "suggestion": "a `Catch` that catches exactly the specified exceptions, including $protectedExceptions, without auto-rethrowing them"
+    }
+  ],
+  "general_feedback": "The added @return descriptions are generally accurate and follow Scaladoc conventions (lowercase, backticks around code references, concise). The main correctness concern is `unwrapping`, where 'innermost cause' misrepresents the unwrap loop's termination condition. A couple of canned-behavior returns (`allCatch`, `nonFatalCatch`) are literally correct but would benefit from a hint about typical composition. `apply` could note rethrow/finally behavior for completeness.",
+  "requires_changes": true
+}

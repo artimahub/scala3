@@ -1,0 +1,6 @@
+{
+  "overall_quality": "excellent",
+  "issues": [],
+  "general_feedback": "The @return description accurately captures what withValue returns: the result of evaluating the thunk with the variable temporarily bound to newval. It uses backticks for code references (`thunk` and `newval`), starts with lowercase, is concise, and is consistent with the surrounding @param descriptions. The pre-existing @tparam and @param tags are also accurate and well-written.",
+  "requires_changes": false
+}

@@ -1,0 +1,79 @@
+{
+  "overall_quality": "good",
+  "issues": [
+    {
+      "line": 133,
+      "tag_type": "@return",
+      "tag_name": "asin",
+      "severity": "suggestion",
+      "current_text": "the arc sine of `x`, in the range -π/2 through π/2",
+      "problem": "Does not mention the unit. Since the trig section header notes 'Arguments in radians' but `asin` is the inverse function that produces an angle, explicitly stating the result is in radians clarifies the unit for the angular range.",
+      "suggestion": "the arc sine of `x`, in radians, in the range -π/2 through π/2"
+    },
+    {
+      "line": 140,
+      "tag_type": "@return",
+      "tag_name": "acos",
+      "severity": "suggestion",
+      "current_text": "the arc cosine of `x`, in the range 0 through π",
+      "problem": "Same as `asin`: the unit (radians) of the returned angle is not stated explicitly.",
+      "suggestion": "the arc cosine of `x`, in radians, in the range 0 through π"
+    },
+    {
+      "line": 147,
+      "tag_type": "@return",
+      "tag_name": "atan",
+      "severity": "suggestion",
+      "current_text": "the arc tangent of `x`, in the range -π/2 through π/2",
+      "problem": "Same as `asin`/`acos`: the unit (radians) of the returned angle is not stated explicitly.",
+      "suggestion": "the arc tangent of `x`, in radians, in the range -π/2 through π/2"
+    },
+    {
+      "line": 626,
+      "tag_type": "@return",
+      "tag_name": "ulp",
+      "severity": "suggestion",
+      "current_text": "the size of an ulp of `x`",
+      "problem": "Tautological with the @param description ('the `Double` value whose ulp is to be returned') and does not explain what an ulp is. A brief expansion would be more informative to a reader unfamiliar with the term.",
+      "suggestion": "the positive distance between `x` and the `Double` value next larger in magnitude"
+    },
+    {
+      "line": 634,
+      "tag_type": "@return",
+      "tag_name": "ulp",
+      "severity": "suggestion",
+      "current_text": "the size of an ulp of `x`",
+      "problem": "Same tautology as the `Double` overload's `@return` description.",
+      "suggestion": "the positive distance between `x` and the `Float` value next larger in magnitude"
+    },
+    {
+      "line": 432,
+      "tag_type": "@return",
+      "tag_name": "nextAfter",
+      "severity": "suggestion",
+      "current_text": "the floating-point number adjacent to `start` in the direction of `direction`",
+      "problem": "Does not cover the edge case where `start == direction`, in which case `direction` is returned (i.e., no adjacent neighbor is taken).",
+      "suggestion": "the floating-point number adjacent to `start` in the direction of `direction`, or `direction` if `start` equals `direction`"
+    },
+    {
+      "line": 441,
+      "tag_type": "@return",
+      "tag_name": "nextAfter",
+      "severity": "suggestion",
+      "current_text": "the floating-point number adjacent to `start` in the direction of `direction`",
+      "problem": "Same edge-case omission as the `Double` overload: when `start == direction`, `direction` is returned.",
+      "suggestion": "the floating-point number adjacent to `start` in the direction of `direction`, or `direction` if `start` equals `direction`"
+    },
+    {
+      "line": 656,
+      "tag_type": "@return",
+      "tag_name": "addExact",
+      "severity": "suggestion",
+      "current_text": "the sum `x + y`, throwing `ArithmeticException` if the result overflows",
+      "problem": "Overflow behavior is documented in `@return` rather than via a `@throws` tag, mixing the return value with exception semantics. Same pattern repeats across the other *Exact methods. Stylistic only — the wording is accurate.",
+      "suggestion": "the sum `x + y` (and add a separate `@throws ArithmeticException if the result overflows an `Int``)"
+    }
+  ],
+  "general_feedback": "The filled-in `@return` descriptions are accurate, concise, and consistent with the surrounding style in the file. They correctly characterize the underlying `java.lang.Math` behavior, use backticks for code references, and start with a lowercase article as Scaladoc convention prefers. Main suggestions: state 'in radians' on the inverse trig results, expand the tautological `ulp` descriptions, mention the `start == direction` edge case for `nextAfter`, and consider moving overflow semantics on the *Exact methods to `@throws` tags. No errors or factual inaccuracies were found.",
+  "requires_changes": false
+}

@@ -1,0 +1,6 @@
+{
+  "overall_quality": "excellent",
+  "issues": [],
+  "general_feedback": "The single added @return description on Manager.apply at line 199 accurately documents the method's behavior: it returns the same resource unmodified (the `resource.type` singleton return type) to enable fluent use at the call site. It is concise, accurate, uses backticks for the code reference, and is consistent with the surrounding Scaladoc style.",
+  "requires_changes": false
+}

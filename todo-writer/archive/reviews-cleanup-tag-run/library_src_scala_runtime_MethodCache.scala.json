@@ -1,0 +1,25 @@
+{
+  "overall_quality": "good",
+  "issues": [
+    {
+      "line": 38,
+      "tag_type": "@return",
+      "tag_name": "find",
+      "severity": "suggestion",
+      "current_text": "the cached `JMethod` compatible with `forReceiver`, or `null` if no such method is cached",
+      "problem": "Accurate and clear, but could note that the caller is expected to perform a lookup and `add` the method when `null` is returned (a non-obvious contract documented in the class-level scaladoc).",
+      "suggestion": "the cached `JMethod` compatible with `forReceiver`, or `null` if no such method is cached (in which case the caller should look up the method and `add` it)"
+    },
+    {
+      "line": 76,
+      "tag_type": "@return",
+      "tag_name": "findInternal",
+      "severity": "suggestion",
+      "current_text": "the cached `JMethod` for `forReceiver` found anywhere in this chain, or `null` if no match exists",
+      "problem": "Slight terminology drift from the public `find` docs which use 'compatible with'. The match is based on reference equality (`eq`) with the cached receiver class, which is a non-obvious detail worth mentioning.",
+      "suggestion": "the cached `JMethod` whose receiver class is reference-equal to `forReceiver` anywhere in this chain, or `null` if no match exists"
+    }
+  ],
+  "general_feedback": "Both @return descriptions are accurate, well-formed, and use backticks consistently for code references. They start with lowercase, match the actual behavior (returning `JMethod | Null`), and align with the surrounding class-level documentation. Minor refinements could tighten the contract (caller responsibility on `null`) and the matching semantics (reference equality via `eq`), but the current text is solid as-is.",
+  "requires_changes": false
+}

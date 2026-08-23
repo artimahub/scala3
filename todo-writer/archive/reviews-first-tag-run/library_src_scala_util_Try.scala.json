@@ -1,0 +1,63 @@
+```json
+{
+  "overall_quality": "good",
+  "issues": [
+    {
+      "line": 86,
+      "tag_type": "@tparam",
+      "tag_name": "U",
+      "severity": "suggestion",
+      "current_text": "the type of the value, a supertype of `T`",
+      "problem": "Could be more specific about what value this refers to, since the method returns a `Try[U]`, not a bare `U`",
+      "suggestion": "the type of the value in the returned `Try`, a supertype of `T`"
+    },
+    {
+      "line": 98,
+      "tag_type": "@tparam",
+      "tag_name": "U",
+      "severity": "suggestion",
+      "current_text": "the result type of the function `f`",
+      "problem": "Slightly vague; could clarify that the result is discarded since `foreach` returns `Unit`",
+      "suggestion": "the (discarded) result type of the function `f`"
+    },
+    {
+      "line": 161,
+      "tag_type": "@tparam",
+      "tag_name": "U",
+      "severity": "warning",
+      "current_text": "the type of the value, a supertype of `T`",
+      "problem": "The description for `recoverWith`'s `@tparam U` says 'the type of the value' which is vague. It should clarify this is the type of the value in the resulting `Try`, consistent with the `flatMap` doc",
+      "suggestion": "the type of the value in the resulting `Try`, a supertype of `T`"
+    },
+    {
+      "line": 172,
+      "tag_type": "@tparam",
+      "tag_name": "U",
+      "severity": "warning",
+      "current_text": "the type of the value, a supertype of `T`",
+      "problem": "Same as `recoverWith`: 'the type of the value' is vague when used alone",
+      "suggestion": "the type of the value in the resulting `Try`, a supertype of `T`"
+    },
+    {
+      "line": 119,
+      "tag_type": "@tparam",
+      "tag_name": "U",
+      "severity": "suggestion",
+      "current_text": "the type of the collected value",
+      "problem": "Phrasing 'collected value' is slightly unusual; could be clearer about what 'collected' means here",
+      "suggestion": "the type of the value returned by the partial function"
+    },
+    {
+      "line": 87,
+      "tag_type": "@param",
+      "tag_name": "default",
+      "severity": "suggestion",
+      "current_text": "the fallback `Try` to return if this is a `Failure`",
+      "problem": "Good, but could mention that `default` is by-name (lazily evaluated), which is an important behavioral detail",
+      "suggestion": "the fallback `Try` to return if this is a `Failure` (evaluated lazily)"
+    }
+  ],
+  "general_feedback": "The documentation is well-written and consistent overall. All TODO placeholders have been properly filled in with accurate descriptions. The style follows Scaladoc conventions (lowercase starts, backtick references). The main areas for improvement are minor: a few `@tparam` descriptions for `U` could be slightly more specific about what 'value' refers to (i.e., 'the value in the resulting `Try`'), and the `recover`/`recoverWith` type parameter docs could be more consistent with similar methods like `flatMap` and `map`. These are minor polish issues rather than substantive problems.",
+  "requires_changes": false
+}
+```

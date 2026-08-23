@@ -1,0 +1,82 @@
+Now I have a thorough understanding of all the documented changes. Let me analyze the issues:
+
+1. **`updateWithShallowMutations` (line ~542-553)**: The doc has stale `@param key`, `@param originalHash`, `@param keyHash`, `@param shallowlyMutableNodeMap` which are pre-existing params not in the diff. The NEW params added are `@param element`, `@param elementHash`, `@param shift`. But the method signature is `(element: A, originalHash: Int, elementHash: Int, shift: Int, shallowlyMutableNodeMap: Int)`. The pre-existing docs reference `key`, `originalHash`, `keyHash`, `shallowlyMutableNodeMap` — but the actual parameter is named `element` not `key`, and `elementHash` not `keyHash`. These are pre-existing issues though, not part of the diff. The new docs reference `element`, `elementHash`, and `shift` correctly. But there's a problem: there are now duplicate documentation for the same concept — `@param key` and `@param element` both describe the same first parameter, and `@param keyHash` + `@param elementHash` both describe the improved hash. Also `@param originalHash` appears both in the old docs (as `key.##`) and the new docs don't add a new `@param originalHash`. Let me re-read this more carefully.
+
+Looking at the diff for `updateWithShallowMutations`:
+- The pre-existing `@param key`, `@param originalHash`, `@param keyHash`, `@param shallowlyMutableNodeMap` are NOT in the diff — they were already there.
+- The diff only replaces three `TODO FILL IN` entries:
+  - `@param element` → "the element to insert or update"
+  - `@param elementHash` → "the improved hash of `element`"  
+  - `@param shift` → "the bit shift for the current trie level (0 at root, incremented by `BitPartitionSize` per level)"
+
+But looking at the method signature: `def updateWithShallowMutations(element: A, originalHash: Int, elementHash: Int, shift: Int, shallowlyMutableNodeMap: Int): Int`. There are 5 params: `element`, `originalHash`, `elementHash`, `shift`, `shallowlyMutableNodeMap`. The pre-existing doc has `@param key`, `@param originalHash`, `@param keyHash`, `@param shallowlyMutableNodeMap` — these document 4 params, but `key` and `keyHash` don't match actual param names. The new additions document `@param element`, `@param elementHash`, `@param shift` — meaning `element` and `elementHash` are now documented TWICE (once with wrong name in old docs, once correctly in new).
+
+This is a pre-existing issue though, not something introduced by the new documentation. The new documentation itself is correct. I should flag the duplicated/mismatched pre-existing params as a warning though, since the reviewer should be aware.
+
+2. **`migrateFromNodeToInlineInPlace` (line ~944-948)**: The doc has `@param oldNode` and `@param node`, but looking at the method signature at line 950: `def migrateFromNodeToInlineInPlace(bitpos: Int, originalHash: Int, elementHash: Int, oldNode: SetNode[A], node: SetNode[A])`. The pre-existing doc says `@param oldNode the node currently stored at position bitpos` and `@param node the node containing the single element to migrate inline`. But wait, in the pre-existing doc, the param order is `@param bitpos`, `@param oldNode`, `@param node` — but the actual method signature order is `bitpos, originalHash, elementHash, oldNode, node`. So `@param oldNode` and `@param node` are in the doc but appear AFTER `@param originalHash` and `@param elementHash` in the parameter list. The new docs for `originalHash` and `elementHash` are correctly placed between `bitpos` and `oldNode`/`node`.
+
+Let me focus only on the newly added documentation (what's in the diff):
+
+```json
+{
+  "overall_quality": "good",
+  "issues": [
+    {
+      "line": 542,
+      "tag_type": "@param",
+      "tag_name": "key",
+      "severity": "warning",
+      "current_text": "the key to update",
+      "problem": "Pre-existing issue: `@param key` does not match actual parameter name `element`. This creates confusion with the newly added `@param element`. The old params `key`, `keyHash` should be removed or renamed to match the actual signature.",
+      "suggestion": "Remove the stale `@param key` and `@param keyHash` entries, as they duplicate the newly added `@param element` and `@param elementHash`"
+    },
+    {
+      "line": 548,
+      "tag_type": "@param",
+      "tag_name": "element",
+      "severity": "suggestion",
+      "current_text": "the element to insert or update",
+      "problem": "Accurate and clear, but duplicates the pre-existing `@param key` entry above which describes the same parameter with a different name",
+      "suggestion": "the element to insert or update"
+    },
+    {
+      "line": 549,
+      "tag_type": "@param",
+      "tag_name": "elementHash",
+      "severity": "suggestion",
+      "current_text": "the improved hash of `element`",
+      "problem": "Accurate and clear, but duplicates the pre-existing `@param keyHash` entry above which describes the same concept",
+      "suggestion": "the improved hash of `element`"
+    },
+    {
+      "line": 668,
+      "tag_type": "@return",
+      "tag_name": "",
+      "severity": "suggestion",
+      "current_text": "this node after the element has been removed",
+      "problem": "Could mention that `this` is returned (since return type is `this.type`), which is a notable detail for a mutation method — it returns the same instance, not a copy",
+      "suggestion": "`this` node, mutated in-place to remove the element"
+    },
+    {
+      "line": 891,
+      "tag_type": "@return",
+      "tag_name": "",
+      "severity": "suggestion",
+      "current_text": "this node after the migration",
+      "problem": "Similar to removeWithShallowMutations — since return type is `this.type`, could emphasize that the same instance is returned after mutation",
+      "suggestion": "`this` node, mutated in-place with the data at `bitpos` replaced by `node`"
+    },
+    {
+      "line": 1337,
+      "tag_type": "@return",
+      "tag_name": "",
+      "severity": "suggestion",
+      "current_text": "a new `BitmapIndexedSetNode` constructed from the specified parameters, or the empty node if `newSize` is 0, or `this` if `newSize` equals `size`",
+      "problem": "Thorough and accurate, but quite long for a @return tag. Consider whether this level of detail is needed, though it does accurately describe the three cases.",
+      "suggestion": "a new `BitmapIndexedSetNode` from the specified parameters, the empty node if `newSize` is 0, or `this` if `newSize` equals `size`"
+    }
+  ],
+  "general_feedback": "The newly added documentation is accurate, clear, and follows Scaladoc conventions well. All parameter descriptions correctly reflect the code behavior. The `@param shift` description is particularly good, explaining both the initial value and increment pattern. The main concern is the pre-existing `@param key`/`@param keyHash` entries in `updateWithShallowMutations` that conflict with the newly added `@param element`/`@param elementHash` — these stale entries should be cleaned up. All other additions are solid.",
+  "requires_changes": false
+}
+```

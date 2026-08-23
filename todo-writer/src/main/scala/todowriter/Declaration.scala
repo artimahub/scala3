@@ -1,0 +1,509 @@
+package todowriter
+
+import scala.util.matching.Regex
+
+/** The kind of a Scala declaration. */
+enum DeclKind:
+  case Def, Class, Trait, Object, Val, Var, Unknown
+
+/** Represents a parsed Scala declaration. */
+case class Declaration(
+    kind: DeclKind,
+    name: String,
+    tparams: List[String],
+    params: List[String],
+    returnType: Option[String]
+)
+
+object Declaration:
+  /** Regex to detect the start of a declaration (with optional modifiers/annotations).
+    *
+    *  The annotation part uses a precise regex that properly handles annotation
+    *  arguments (balanced `(...)` and `[...]` with one level of nesting) without
+    *  including whitespace in the character class. The old regex `@[\w\(\)\s,."]+`
+    *  was too greedy: because `\s` was in the character class it could consume
+    *  following keywords like `override` and `def`, causing failures when used
+    *  with replaceAll. With findFirstMatchIn the old regex still worked (via
+    *  backtracking), but the new regex is both more correct and more efficient.
+    */
+  private val DeclStartPattern: Regex =
+    """(?:@[\w.]+(?:\[[^\]]*\]|\((?:[^()]|\([^()]*\))*)*\s*)*(?:private|protected|final|override|inline|implicit|given|export|opaque|sealed|abstract|lazy|case\s+)*\s*(class|trait|object|def|val|var)\b""".r
+
+  /** Regex to parse a def declaration.
+   *
+   *  Supports one level of nested `[]` in type params (e.g. `F[_]`) and
+   *  one level of nested `()` in parameter types (e.g. `(Int, Int) => Int`).
+   */
+  private val DefPattern: Regex =
+    """def\s+([^\s\(\[:\=]+)\s*(?:\[((?:[^\[\]]|\[[^\[\]]*\])*)\])?\s*((?:\((?:[^()]|\([^()]*\))*\))*)\s*(?::\s*([^=\{]+))?""".r
+
+  /** Regex to parse a class/trait declaration.
+   *
+   *  Uses the same nested-bracket / nested-parenthesis handling as defs,
+   *  including multiple constructor parameter lists.
+   */
+  private val ClassPattern: Regex =
+    """(class|trait)\s+([^\s\(\[]+)\s*(?:\[((?:[^\[\]]|\[[^\[\]]*\])*)\])?\s*((?:\((?:[^()]|\([^()]*\))*\))*)""".r
+
+  /** Regex to parse an object declaration. */
+  private val ObjectPattern: Regex =
+    """object\s+([^\s\(\[{:]+)""".r
+
+  /** Regex to parse a val/var declaration. */
+  private val ValVarPattern: Regex =
+    """(val|var)\s+([A-Za-z0-9_]+)""".r
+
+  /** Parse a declaration from the text chunk following a Scaladoc block. */
+  def parse(chunk: String): Declaration =
+    val trimmed = chunk.trim
+
+    // Detect declaration kind
+    val kindMatch = DeclStartPattern.findFirstMatchIn(trimmed)
+    val kind = kindMatch.map(_.group(1)) match
+      case Some("def")    => DeclKind.Def
+      case Some("class")  => DeclKind.Class
+      case Some("trait")  => DeclKind.Trait
+      case Some("object") => DeclKind.Object
+      case Some("val")    => DeclKind.Val
+      case Some("var")    => DeclKind.Var
+      case _              => DeclKind.Unknown
+
+    kind match
+      case DeclKind.Def     => parseDef(trimmed)
+      case DeclKind.Class   => parseClass(trimmed, DeclKind.Class)
+      case DeclKind.Trait   => parseClass(trimmed, DeclKind.Trait)
+      case DeclKind.Object  => parseObject(trimmed)
+      case DeclKind.Val     => parseValVar(trimmed, DeclKind.Val)
+      case DeclKind.Var     => parseValVar(trimmed, DeclKind.Var)
+      case DeclKind.Unknown => Declaration(DeclKind.Unknown, "", Nil, Nil, None)
+
+  /** Returns true if the declaration text has a `private` access modifier.
+   *
+   *  Handles qualified forms like `private[pkg]` and `private[this]`, and
+   *  tolerates leading annotations and other modifiers (e.g. `final private`,
+   *  `@inline private`). `protected` is NOT treated as private, since protected
+   *  members are part of the documented (Scaladoc) API surface.
+   */
+  def isPrivate(chunk: String): Boolean =
+    // Strip non-access modifiers that may precede `private` (NOT `protected`).
+    val leadingModifiers =
+      List("final ", "override ", "inline ", "erased ", "lazy ", "open ",
+           "transparent ", "sealed ", "abstract ", "implicit ", "case ")
+    var remaining = chunk.linesIterator.mkString(" ").trim
+    var changed = true
+    while changed do
+      changed = false
+      remaining = dropLeadingAnnotations(remaining)
+      if remaining.startsWith("private") then
+        val rest = remaining.drop(7)
+        if rest.startsWith("[") || rest.headOption.forall(_.isWhitespace) then
+          return true
+      leadingModifiers.find(remaining.startsWith) match
+        case Some(m) =>
+          remaining = remaining.drop(m.length).trim
+          changed = true
+        case None => ()
+    false
+
+  private val AsciiSymbolChars = "~!@#%^*+-<>?:=&|/\\"
+
+  /** Whether a character is a valid Scala operator/symbol character.
+    *
+    *  Scala method names can be operator names composed of these characters,
+    *  e.g. `<:<`, `#::`, `+=`, `→`, etc. See the Scala Language Specification.
+    */
+  private def isSymbolChar(c: Char): Boolean =
+    AsciiSymbolChars.contains(c) ||
+      (Character.getType(c) match
+        case Character.MATH_SYMBOL | Character.OTHER_SYMBOL => true
+        case _                                              => false)
+
+  private def parseDef(chunk: String): Declaration =
+    // Normalize chunk: join lines, collapse whitespace
+    val normalized = chunk.linesIterator.mkString(" ").replaceAll("\\s+", " ")
+    val defIdx = normalized.indexOf("def ")
+    if defIdx < 0 then Declaration(DeclKind.Def, "", Nil, Nil, None)
+    else
+      var i = defIdx + 4
+      while i < normalized.length && normalized(i).isWhitespace do i += 1
+
+      val nameStart = i
+      // Scala method names come in two flavours:
+      //  - Identifier names: start with a letter / digit / '_' / '$'
+      //  - Operator (symbolic) names: consist of symbolic characters
+      //    (e.g. <:<, +=, :::, ::-, etc.)
+      // We branch on the first character so that ':' (a type-annotation
+      // separator for identifier names) is not mistakenly consumed as part
+      // of a symbolic name.
+      if i < normalized.length && (normalized(i).isLetterOrDigit || normalized(i) == '_' || normalized(i) == '$') then
+        while i < normalized.length &&
+            (normalized(i).isLetterOrDigit || normalized(i) == '_' || normalized(i) == '$') do i += 1
+      else
+        while i < normalized.length && isSymbolChar(normalized(i)) do i += 1
+      val name = normalized.substring(nameStart, i)
+
+      while i < normalized.length && normalized(i).isWhitespace do i += 1
+
+      val tparamsStr =
+        if i < normalized.length && normalized(i) == '[' then
+          val end = findBalancedEnd(normalized, i, '[', ']')
+          if end > i then
+            val inside = normalized.substring(i + 1, end)
+            i = end + 1
+            while i < normalized.length && normalized(i).isWhitespace do i += 1
+            inside
+          else ""
+        else ""
+
+      val paramsSb = new StringBuilder
+      var keepReadingParams = true
+      while keepReadingParams do
+        while i < normalized.length && normalized(i).isWhitespace do i += 1
+        if i < normalized.length && normalized(i) == '(' then
+          val end = findBalancedEnd(normalized, i, '(', ')')
+          if end > i then
+            paramsSb.append(normalized.substring(i, end + 1))
+            i = end + 1
+          else keepReadingParams = false
+        else keepReadingParams = false
+
+      while i < normalized.length && normalized(i).isWhitespace do i += 1
+      val returnTypeStr =
+        if i < normalized.length && normalized(i) == ':' then
+          Some(normalized.substring(i + 1).trim)
+        else None
+
+      val tparams = parseTypeParams(tparamsStr)
+      val params = parseParams(paramsSb.toString)
+      val returnType = returnTypeStr.map(cleanReturnType)
+
+      Declaration(DeclKind.Def, name, tparams, params, returnType)
+
+  private def parseClass(chunk: String, kind: DeclKind): Declaration =
+    val normalized = chunk.linesIterator.mkString(" ").replaceAll("\\s+", " ")
+
+    ClassPattern.findFirstMatchIn(normalized) match
+      case Some(m) =>
+        val name = m.group(2)
+        val tparamsStr = Option(m.group(3)).getOrElse("")
+        val paramsStr = Option(m.group(4)).getOrElse("")
+
+        val tparams = parseTypeParams(tparamsStr)
+        val params = parseParams(paramsStr)
+
+        Declaration(kind, name, tparams, params, None)
+      case None =>
+        Declaration(kind, "", Nil, Nil, None)
+
+  private def parseObject(chunk: String): Declaration =
+    ObjectPattern.findFirstMatchIn(chunk) match
+      case Some(m) =>
+        Declaration(DeclKind.Object, m.group(1), Nil, Nil, None)
+      case None =>
+        Declaration(DeclKind.Object, "", Nil, Nil, None)
+
+  private def parseValVar(chunk: String, kind: DeclKind): Declaration =
+    ValVarPattern.findFirstMatchIn(chunk) match
+      case Some(m) =>
+        Declaration(kind, m.group(2), Nil, Nil, None)
+      case None =>
+        Declaration(kind, "", Nil, Nil, None)
+
+  /** Parse type parameter names from a string like "A, B <: Foo, C". */
+  private def parseTypeParams(str: String): List[String] =
+    if str.trim.isEmpty then Nil
+    else
+      splitByCommasTopLevel(str).map { tp =>
+        // Extract just the name, before any bounds or variance
+        tp.trim
+          .stripPrefix("+")
+          .stripPrefix("-")
+          .trim
+          .takeWhile(c => c.isLetterOrDigit || c == '_')
+      }.filter(_.nonEmpty)
+
+  /** Parse parameter names from a string like "(x: Int, y: String)(z: Double)". */
+  private def parseParams(str: String): List[String] =
+    if str.trim.isEmpty then Nil
+    else
+      val groups = collectParamGroups(str)
+
+      groups.flatMap { group =>
+        splitByCommasTopLevel(group).flatMap { param =>
+          extractParamName(param.trim)
+        }
+      }
+
+  /** Collect top-level (...) parameter groups while tolerating nested parens in annotations/types. */
+  private def collectParamGroups(str: String): List[String] =
+    val groups = collection.mutable.ListBuffer[String]()
+    var i = 0
+    while i < str.length do
+      if str(i) == '(' then
+        val start = i + 1
+        var depth = 1
+        var inString = false
+        var quoteChar = '\u0000'
+        var escaped = false
+        i += 1
+        while i < str.length && depth > 0 do
+          val ch = str(i)
+          if inString then
+            if escaped then escaped = false
+            else if ch == '\\' then escaped = true
+            else if ch == quoteChar then inString = false
+          else
+            if ch == '"' || ch == '\'' then
+              inString = true
+              quoteChar = ch
+            else if ch == '(' then depth += 1
+            else if ch == ')' then depth -= 1
+          i += 1
+        if depth == 0 then
+          groups += str.substring(start, i - 1)
+        else
+          i = str.length
+      else i += 1
+    groups.toList
+
+  /** Find the matching closing delimiter for a balanced section starting at `start`. */
+  private def findBalancedEnd(str: String, start: Int, open: Char, close: Char): Int =
+    if start < 0 || start >= str.length || str(start) != open then -1
+    else
+      var i = start
+      var depth = 0
+      var inString = false
+      var quoteChar = '\u0000'
+      var escaped = false
+      while i < str.length do
+        val ch = str(i)
+        if inString then
+          if escaped then escaped = false
+          else if ch == '\\' then escaped = true
+          else if ch == quoteChar then inString = false
+        else
+          if ch == '"' || ch == '\'' then
+            inString = true
+            quoteChar = ch
+          else if ch == open then depth += 1
+          else if ch == close then
+            depth -= 1
+            if depth == 0 then return i
+        i += 1
+      -1
+
+  /** Extract parameter name from a param declaration like "x: Int" or "implicit ev: Eq[T]". */
+  private def extractParamName(param: String): Option[String] =
+    if param.isEmpty then None
+    else
+      var trimmed = param.trim
+      trimmed = dropLeadingAnnotations(trimmed)
+      // Handle implicit/using/given keywords
+      if trimmed.startsWith("implicit ") then trimmed = trimmed.drop(9).trim
+      else if trimmed.startsWith("using ") then trimmed = trimmed.drop(6).trim
+      else if trimmed.startsWith("given ") then trimmed = trimmed.drop(6).trim
+
+      // Handle val/var modifiers (for class constructor params)
+      if trimmed.startsWith("val ") then trimmed = trimmed.drop(4).trim
+      else if trimmed.startsWith("var ") then trimmed = trimmed.drop(4).trim
+      trimmed = dropLeadingAnnotations(trimmed)
+
+      // Handle access/override modifiers (including qualified private/protected, e.g. private[pkg])
+      trimmed = dropLeadingModifiers(trimmed)
+
+      // Check for val/var again after modifiers
+      if trimmed.startsWith("val ") then trimmed = trimmed.drop(4).trim
+      else if trimmed.startsWith("var ") then trimmed = trimmed.drop(4).trim
+      trimmed = dropLeadingAnnotations(trimmed)
+
+      // Unnamed contextual parameters like `(using Context)` have no identifier,
+      // so they should not produce an @param tag.
+      val colonIdx = trimmed.indexOf(':')
+      if colonIdx < 0 then None
+      else
+        val name = trimmed.substring(0, colonIdx).trim
+        val normalized = normalizeIdentifierName(name)
+
+        if normalized.nonEmpty && (normalized.head.isLetter || normalized.head == '_') then Some(normalized) else None
+
+  /** Remove leading modifiers from a parameter declaration head. */
+  private def dropLeadingModifiers(str: String): String =
+    var remaining = str.trim
+    var changed = true
+
+    while changed do
+      changed = false
+
+      if remaining.startsWith("override ") then
+        remaining = remaining.drop(9).trim
+        changed = true
+      else if remaining.startsWith("inline ") then
+        remaining = remaining.drop(7).trim
+        changed = true
+      else if remaining.startsWith("final ") then
+        remaining = remaining.drop(6).trim
+        changed = true
+      else if remaining.startsWith("erased ") then
+        remaining = remaining.drop(7).trim
+        changed = true
+      else if remaining.startsWith("lazy ") then
+        remaining = remaining.drop(5).trim
+        changed = true
+      else if remaining.startsWith("open ") then
+        remaining = remaining.drop(5).trim
+        changed = true
+      else if remaining.startsWith("transparent ") then
+        remaining = remaining.drop(12).trim
+        changed = true
+
+      if remaining.startsWith("private") then
+        val rest = remaining.drop(7)
+        if rest.startsWith("[") then
+          val close = rest.indexOf(']')
+          if close >= 0 then
+            remaining = rest.substring(close + 1).trim
+            changed = true
+        else if rest.headOption.exists(_.isWhitespace) then
+          remaining = rest.trim
+          changed = true
+
+      if remaining.startsWith("protected") then
+        val rest = remaining.drop(9)
+        if rest.startsWith("[") then
+          val close = rest.indexOf(']')
+          if close >= 0 then
+            remaining = rest.substring(close + 1).trim
+            changed = true
+        else if rest.headOption.exists(_.isWhitespace) then
+          remaining = rest.trim
+          changed = true
+
+      remaining = dropLeadingAnnotations(remaining)
+
+    remaining
+
+  /** Normalize identifier spellings used in docs/signatures (e.g. `type` -> type). */
+  private def normalizeIdentifierName(name: String): String =
+    if name.length >= 2 && name.head == '`' && name.last == '`' then
+      name.substring(1, name.length - 1)
+    else name
+
+  /** Remove leading annotations, including type and value arguments.
+    *
+    *  This properly handles annotations with string arguments (which may
+    *  contain spaces, commas, parens, etc.) by tracking string boundaries
+    *  and balanced parentheses. This is more robust than a regex with
+    *  whitespace in its character class, which would greedily consume
+    *  following keywords like `def` or `override`.
+    */
+  def dropLeadingAnnotations(str: String): String =
+    var remaining = str.trim
+    var changed = true
+    while changed && remaining.startsWith("@") do
+      val end = leadingAnnotationEnd(remaining)
+      if end > 0 then
+        remaining = remaining.substring(end).trim
+      else
+        changed = false
+    remaining
+
+  /** Find the end index (exclusive) of a leading annotation, or -1 if invalid. */
+  private def leadingAnnotationEnd(str: String): Int =
+    if str.isEmpty || str.head != '@' then -1
+    else
+      var i = 1
+      while i < str.length && (str(i).isLetterOrDigit || str(i) == '_' || str(i) == '.') do i += 1
+
+      var keepReadingArguments = true
+      while keepReadingArguments do
+        while i < str.length && str(i).isWhitespace do i += 1
+        if i < str.length && (str(i) == '(' || str(i) == '[') then
+          val open = str(i)
+          val close = if open == '(' then ')' else ']'
+          val end = balancedGroupEnd(str, i, open, close)
+          if end < 0 then return -1
+          i = end
+        else keepReadingArguments = false
+      i
+
+  /** Return the index after a balanced parenthesized or bracketed group, or -1 if unbalanced. */
+  private def balancedGroupEnd(str: String, start: Int, open: Char, close: Char): Int =
+    var i = start
+    var depth = 0
+    var inString = false
+    var quoteChar = '\u0000'
+    var escaped = false
+
+    while i < str.length do
+      val ch = str(i)
+      if inString then
+        if escaped then escaped = false
+        else if ch == '\\' then escaped = true
+        else if ch == quoteChar then inString = false
+      else
+        if ch == '"' || ch == '\'' then
+          inString = true
+          quoteChar = ch
+        else if ch == open then depth += 1
+        else if ch == close then
+          depth -= 1
+          if depth == 0 then return i + 1
+      i += 1
+    -1
+
+  /** Split a string by commas, but ignore commas inside brackets/parentheses. */
+  private def splitByCommasTopLevel(str: String): List[String] =
+    val parts = collection.mutable.ListBuffer[String]()
+    val current = new StringBuilder
+    var depth = 0
+
+    for ch <- str do
+      ch match
+        case '(' | '[' | '{' =>
+          depth += 1
+          current += ch
+        case ')' | ']' | '}' =>
+          depth = math.max(0, depth - 1)
+          current += ch
+        case ',' if depth == 0 =>
+          parts += current.toString
+          current.clear()
+        case _ =>
+          current += ch
+
+    val last = current.toString.trim
+    if last.nonEmpty then parts += last
+    parts.toList
+
+  /** Clean up a return type string. */
+  private def cleanReturnType(str: String): String =
+    // Remove trailing = or { and anything after
+    val cleaned = str.split("[=\\{]").head.trim
+    // Remove trailing : if present
+    if cleaned.endsWith(":") then cleaned.dropRight(1).trim else cleaned
+
+  /** Get the declaration chunk following a Scaladoc block. */
+  def getDeclarationAfter(text: String, scaladocEndIndex: Int): String =
+    val tail = text.substring(scaladocEndIndex)
+    val lines = tail.linesIterator.toList
+
+    // Skip blank lines and collect until we see a brace, equals, or end of signature
+    val chunkLines = collection.mutable.ListBuffer[String]()
+    var done = false
+    var lineCount = 0
+    val maxLines = 40
+
+    for line <- lines if !done && lineCount < maxLines do
+      lineCount += 1
+      if lineCount == 1 && line.trim.isEmpty then
+        // Skip leading blank line
+        ()
+      else
+        chunkLines += line
+        val trimmed = line.trim
+        // Stop when we see opening brace, equals sign, or end of signature
+        if trimmed.contains("{") || trimmed.contains("=") ||
+           trimmed.endsWith(")") || trimmed.endsWith(":") then
+          done = true
+
+    chunkLines.mkString("\n")

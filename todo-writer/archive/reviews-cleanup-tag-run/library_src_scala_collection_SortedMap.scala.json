@@ -1,0 +1,6 @@
+{
+  "overall_quality": "excellent",
+  "issues": [],
+  "general_feedback": "The newly filled-in @param and @return descriptions for `sortedMapFromIterable` and the @param for `collect`'s `ordering` are accurate, clear, and consistent with the existing surrounding documentation style (lowercase start, concise phrasing, matches the conventions used in adjacent `map`/`flatMap` methods).",
+  "requires_changes": false
+}

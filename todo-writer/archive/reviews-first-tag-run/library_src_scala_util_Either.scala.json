@@ -1,0 +1,99 @@
+```json
+{
+  "overall_quality": "good",
+  "issues": [
+    {
+      "line": 197,
+      "tag_type": "@param",
+      "tag_name": "fa",
+      "severity": "suggestion",
+      "current_text": "the function to apply if this is a `Left`",
+      "problem": "Could be more specific about what the function receives",
+      "suggestion": "the function to apply to the `Left` value"
+    },
+    {
+      "line": 198,
+      "tag_type": "@param",
+      "tag_name": "fb",
+      "severity": "suggestion",
+      "current_text": "the function to apply if this is a `Right`",
+      "problem": "Could be more specific about what the function receives, for consistency with fa",
+      "suggestion": "the function to apply to the `Right` value"
+    },
+    {
+      "line": 199,
+      "tag_type": "@return",
+      "tag_name": "",
+      "severity": "warning",
+      "current_text": "the results of applying the function",
+      "problem": "Vague — does not clarify which function, and uses plural 'results' when only one value is returned",
+      "suggestion": "the result of applying `fa` or `fb` to the contained value"
+    },
+    {
+      "line": 249,
+      "tag_type": "@tparam",
+      "tag_name": "B1",
+      "severity": "suggestion",
+      "current_text": "the supertype of `B` constrained to be an `Either[A1, C]`",
+      "problem": "B1 is declared as `B1 >: B` — the constraint that it is an `Either[A1, C]` comes from the implicit evidence, not from the type bound itself. The description is slightly misleading.",
+      "suggestion": "the supertype of `B`, evidenced to be an `Either[A1, C]`"
+    },
+    {
+      "line": 295,
+      "tag_type": "@param",
+      "tag_name": "f",
+      "severity": "suggestion",
+      "current_text": "The side-effecting function to execute.",
+      "problem": "Starts with an uppercase letter, which is inconsistent with the style of newly added tags that start lowercase",
+      "suggestion": "the side-effecting function to execute"
+    },
+    {
+      "line": 397,
+      "tag_type": "@param",
+      "tag_name": "f",
+      "severity": "suggestion",
+      "current_text": "The function to bind across `Right`.",
+      "problem": "Starts with an uppercase letter, inconsistent with the lowercase convention used in the new documentation",
+      "suggestion": "the function to bind across `Right`"
+    },
+    {
+      "line": 641,
+      "tag_type": "@param",
+      "tag_name": "f",
+      "severity": "suggestion",
+      "current_text": "The side-effecting function to execute.",
+      "problem": "Starts with uppercase, inconsistent with newly added tags",
+      "suggestion": "the side-effecting function to execute"
+    },
+    {
+      "line": 706,
+      "tag_type": "@param",
+      "tag_name": "f",
+      "severity": "suggestion",
+      "current_text": "The function to bind across `Left`.",
+      "problem": "Starts with uppercase, inconsistent with newly added tags",
+      "suggestion": "the function to bind across `Left`"
+    },
+    {
+      "line": 825,
+      "tag_type": "@param",
+      "tag_name": "f",
+      "severity": "suggestion",
+      "current_text": "The side-effecting function to execute.",
+      "problem": "Starts with uppercase, inconsistent with newly added tags",
+      "suggestion": "the side-effecting function to execute"
+    },
+    {
+      "line": 887,
+      "tag_type": "@param",
+      "tag_name": "f",
+      "severity": "suggestion",
+      "current_text": "The function to bind across `Right`.",
+      "problem": "Starts with uppercase, inconsistent with newly added tags",
+      "suggestion": "the function to bind across `Right`"
+    }
+  ],
+  "general_feedback": "The documentation is accurate, clear, and follows Scaladoc conventions well. All TODO placeholders have been properly replaced with meaningful descriptions. The type parameter docs correctly describe widening supertypes, implicit evidence parameters, and return values. The main issues are minor consistency nits: several pre-existing @param tags (not modified in this diff) start with uppercase letters while all newly written tags start with lowercase. The @return on `fold` is slightly vague. Overall this is solid work.",
+  "requires_changes": false
+}
+```

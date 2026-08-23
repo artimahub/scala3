@@ -1,0 +1,6 @@
+{
+  "overall_quality": "excellent",
+  "issues": [],
+  "general_feedback": "Both newly added @return descriptions accurately describe the boolean results of the `eq` and `ne` extension methods. The `eq` description correctly notes the null-equality edge case (since both sides are cast to AnyRef before reference comparison), and the `ne` description correctly inverts it. Style is consistent with surrounding Scaladoc: lowercase start, backticks around code references, and concise single-sentence form.",
+  "requires_changes": false
+}

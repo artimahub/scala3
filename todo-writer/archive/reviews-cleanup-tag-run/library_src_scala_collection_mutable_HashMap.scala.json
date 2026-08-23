@@ -1,0 +1,25 @@
+{
+  "overall_quality": "good",
+  "issues": [
+    {
+      "line": 91,
+      "tag_type": "@return",
+      "tag_name": "computeHash",
+      "severity": "suggestion",
+      "current_text": "the improved hash code of `o` used to determine its bucket",
+      "problem": "The 'used to determine its bucket' clause describes downstream usage rather than the return value itself; bucket selection is performed by a separate `index` method, not by this function.",
+      "suggestion": "the improved hash code of `o` (i.e., `improveHash(o.##)`)"
+    },
+    {
+      "line": 241,
+      "tag_type": "@return",
+      "tag_name": "put0",
+      "severity": "suggestion",
+      "current_text": "`Some` wrapping the previous value if `getOld` is true and `key` was already present, otherwise `null`",
+      "problem": "Correct but slightly dense; could explicitly call out that `null` is returned both when `getOld` is false and when the key was not previously present, matching the `Some[V] | Null` return type.",
+      "suggestion": "`Some` wrapping the previous value if `getOld` is true and `key` was already present; `null` otherwise (i.e., when `getOld` is false or `key` was not in the map)"
+    }
+  ],
+  "general_feedback": "All four @return tags accurately describe the methods' return values and are consistent with the existing @param style (lowercase start, backticked code references). The descriptions for `unimproveHash` and `improveHash` are particularly clear and correctly capture the self-inverse hash-mixing behavior. Only minor stylistic refinements are suggested.",
+  "requires_changes": false
+}

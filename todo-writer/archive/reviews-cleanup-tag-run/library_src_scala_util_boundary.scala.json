@@ -1,0 +1,6 @@
+{
+  "overall_quality": "excellent",
+  "issues": [],
+  "general_feedback": "The added @return on boundary.apply accurately describes both outcomes: the normal result of `body`, and the value carried by a matching `break`. It's concise, uses backticks for code references, starts with lowercase, and is consistent with the surrounding @tparam/@param style.",
+  "requires_changes": false
+}

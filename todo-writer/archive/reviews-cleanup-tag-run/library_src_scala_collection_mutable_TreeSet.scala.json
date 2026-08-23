@@ -1,0 +1,6 @@
+{
+  "overall_quality": "excellent",
+  "issues": [],
+  "general_feedback": "All three @return descriptions accurately reflect the code behavior. `pickLowerBound` correctly describes returning the more restrictive (max) of the two lower bounds, with `None` when both are unbounded. `pickUpperBound` mirrors this for upper bounds (min). `isInsideViewBounds` precisely captures the inclusive lower / exclusive upper semantics, and correctly notes that each bound is only enforced 'if any'. Style is consistent with the existing @param documentation, uses backticks for code references, and starts with lowercase.",
+  "requires_changes": false
+}

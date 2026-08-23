@@ -1,0 +1,6 @@
+{
+  "overall_quality": "excellent",
+  "issues": [],
+  "general_feedback": "The five @return tags filled in are accurate, concise, and consistent with the surrounding @param documentation. `count` correctly notes the `-1` sentinel for overflow, and the four factory methods clearly describe whether the resulting `Range` is exclusive/inclusive and the step value. Style (lowercase start, backticked code references) matches the existing conventions in this file.",
+  "requires_changes": false
+}

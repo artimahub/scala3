@@ -1,0 +1,43 @@
+{
+  "overall_quality": "good",
+  "issues": [
+    {
+      "line": 797,
+      "tag_type": "@return",
+      "tag_name": "start",
+      "severity": "suggestion",
+      "current_text": "the start index of the matched substring for group `i`, or -1 if the group did not match",
+      "problem": "The class-level description for `Match.start(i)` (line 794) does not mention the -1 case, unlike its `MatchData` counterpart. The @return introduces this detail not in the prose. While accurate (the underlying Java `Matcher.start(i)` returns -1 for unmatched groups), it creates a slight asymmetry between the description and @return.",
+      "suggestion": "Consider keeping as is or aligning with MatchData phrasing: 'the index of the first matched character for group `i`, or -1 if the group did not match'."
+    },
+    {
+      "line": 804,
+      "tag_type": "@return",
+      "tag_name": "end",
+      "severity": "suggestion",
+      "current_text": "the index following the last matched character for group `i`, or -1 if the group did not match",
+      "problem": "Same as above: the class-level description (line 801) does not mention the -1 case, so the @return adds information beyond the prose. Acceptable but slightly inconsistent with how the class describes the method.",
+      "suggestion": "Keep as is; the added detail is useful and matches the underlying Java behavior."
+    },
+    {
+      "line": 771,
+      "tag_type": "@param",
+      "tag_name": "_groupNames",
+      "severity": "suggestion",
+      "current_text": "the names of the capturing groups, used to look up groups by name",
+      "problem": "The corresponding `_groupNames` parameter on `MatchIterator` (line 862) is documented as 'the names of the capturing groups, if any'. The wording differs between the two related classes for what is essentially the same parameter.",
+      "suggestion": "For consistency, consider: 'the names of the capturing groups, if any, used to look up groups by name'."
+    },
+    {
+      "line": 670,
+      "tag_type": "@return",
+      "tag_name": "start",
+      "severity": "suggestion",
+      "current_text": "the start index of the matched substring for group `i`, or -1 if the group did not match",
+      "problem": "Minor terminology inconsistency: the description uses 'index of the first matched character' while the @return uses 'start index of the matched substring'. Both are accurate but phrased differently.",
+      "suggestion": "Consider: 'the index of the first matched character in group `i`, or -1 if the group did not match' to match the prose."
+    }
+  ],
+  "general_feedback": "The filled-in @return and @param documentation is accurate, clear, and uses consistent backtick formatting for code references and parameter names. All entries correctly describe the -1/null sentinel behavior for unmatched groups. The MatchIterator variants helpfully add 'in the current match' to distinguish iterator semantics. Only minor stylistic suggestions: a few terminology choices ('start index of the matched substring' vs. 'index of the first matched character') diverge slightly from existing prose, and the `_groupNames` description could be aligned across `Match` and `MatchIterator`. No factual errors.",
+  "requires_changes": false
+}

@@ -1,0 +1,16 @@
+{
+  "overall_quality": "acceptable",
+  "issues": [
+    {
+      "line": 89,
+      "tag_type": "@return",
+      "tag_name": "apply",
+      "severity": "warning",
+      "current_text": "the element at index `i`, or throws `IndexOutOfBoundsException` if `i` is out of bounds",
+      "problem": "The `@return` tag describes throwing behavior, but exceptions are not return values. The method already has a `@throws[IndexOutOfBoundsException]` annotation that documents the exception path. Mixing throw semantics into `@return` is non-idiomatic Scaladoc and duplicates information that belongs in `@throws`.",
+      "suggestion": "the element at index `i`"
+    }
+  ],
+  "general_feedback": "Only one tag was filled in (the `@return` on `apply` at line 89). The added text is factually accurate but combines two distinct concerns — the returned value and the exceptional path — into the `@return` tag. Since `@throws[IndexOutOfBoundsException]` is already present on the method, the `@return` should describe only the value returned on success. Keeping it to a single concise clause also matches the surrounding Scaladoc style in this file (e.g., `@return` entries for `indexOf`, `lastIndexOf`, etc., describe only the return value, with exceptional paths handled separately).",
+  "requires_changes": true
+}
