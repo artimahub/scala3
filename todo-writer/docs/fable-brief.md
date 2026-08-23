@@ -1,0 +1,242 @@
+# Brief: finish the Scala 3 standard library Scaladoc rollout
+
+You are writing the missing Scaladoc for the Scala 3 standard library, weeks 3
+through 11 of an 11-week plan. Weeks 1 and 2 are already in an open pull request
+and are handled separately at the end of this brief.
+
+Everything below is drawn from six weeks of doing this with an automated
+pipeline. The pipeline is being retired for this work and you are replacing it,
+so its failure modes are your rules. Where a rule looks oddly specific, it is
+because a real PR shipped that exact mistake and a human reviewer found it.
+
+## The job
+
+Scala 3's standard library has roughly 8,360 declarations with **no doc comment
+at all**. Earlier PRs handled declarations that already had a comment but were
+missing `@param`/`@tparam`/`@return` tags. This work is the remainder.
+
+Every declaration needing documentation has been marked for you with a
+`TODO FILL IN` placeholder, in one of three shapes:
+
+```scala
+/** TODO FILL IN */                       // a whole missing description
+
+/** TODO FILL IN
+ *
+ *  @param x TODO FILL IN
+ *  @return TODO FILL IN
+ */                                       // description and tags
+
+/** Existing prose that is fine.
+ *  @param x TODO FILL IN
+ */                                       // tags only
+```
+
+Replace every marker with real documentation. When you are done, `grep -c "TODO
+FILL IN"` over the library must return zero for the weeks you have completed.
+
+## What you will find when you start
+
+A single branch, checked out, containing:
+
+- **One commit per already-completed week**, for weeks 3, 4, 5 and 6. These hold
+  documentation written by the retired pipeline. Weeks 3 and 4 are complete but
+  drew heavy human review; weeks 5 and 6 are better but week 6 is only partial.
+- **`TODO FILL IN` markers already inserted** for every remaining declaration
+  across weeks 3 through 11.
+
+So the earlier weeks' work is visible to you as history, and the outstanding
+work is visible as markers. You do not need to run any tooling.
+
+## The partitions, week by week
+
+| Wk | Paths | ~decls | state |
+|----|-------|-------:|-------|
+| 3 | `scala/{Array,IArray,Option,Predef}`, `Function*`/`Tuple*`/`Product*`, `sys` | 400 | done, PR open, improve it |
+| 4 | `scala/util`, `scala/concurrent` | 480 | done, PR open, improve it |
+| 5 | `scala/math`, `collection/{generic,concurrent}` | 554 | done, 5 files have known defects |
+| 6 | `scala/quoted`, `scala/compiletime`, `scala/jdk` | 899 | **partial**: `quoted/Quotes.scala` (286 decls) untouched, plus 4 small `quoted` files |
+| 7 | `collection/convert`, `library-js` | 901 | not started |
+| 8 | `scala/runtime` | 687 | not started, 141 small files |
+| 9 | `collection/mutable` | 1048 | not started |
+| 10 | `collection` top level, excluding subtrees | 1257 | not started |
+| 11 | `collection/immutable` | 1739 | not started, the heavy files are `Vector`, `HashMap`, `ArraySeq`, `Map`, `HashSet` |
+
+## How to commit
+
+**One commit per week, in week order.** This matters more than anything else
+about your output: each commit is cherry-picked onto its own branch off `main`
+and becomes one pull request. A commit spanning two weeks cannot be used.
+
+```
+Week 7: Scaladoc for collection/convert and library-js
+```
+
+For weeks 3 through 6, where work already exists, your commit contains your
+changes on top of the existing commit, not a rewrite of it.
+
+## Rules
+
+### The one that gets the PR rejected
+
+**Change comment lines only.** Never alter a declaration, a body, an import, an
+annotation, or a blank line. This is checked mechanically before merge:
+
+```bash
+diff <(git show main:$f | grep -vE '^\s*(\*|/\*\*|\*/)' | grep -v '^\s*$') \
+     <(grep -vE '^\s*(\*|/\*\*|\*/)' $f | grep -v '^\s*$')
+```
+
+Every file must come back identical. Two models under the old pipeline silently
+deleted code while filling comments, and every other signal reported success.
+
+### Document the code, not the name
+
+This is the single largest source of defects across six weeks.
+
+Read the implementation of every declaration before documenting it. A method
+called `map` on a type that is never completed may be `= this`: nothing is
+applied, nothing is created, and prose about "the result of the function" is
+false. Week 4 shipped fifteen `@return` tags describing values their methods
+cannot produce, and a human reviewer filed 51 comments, roughly 46 of them
+factual.
+
+Concretely:
+
+- If the body is `= this`, say it returns itself, and why.
+- A method returning `Nothing`, or whose body ends in `throw`, never returns
+  normally. Do not give it an `@return`.
+- If a parameter is never used by the body, say so on its tag. If it **is** used,
+  never say "(ignored)". `Success.fold` shipped with `@param fa ... (ignored)`
+  while the body called `fa` on any non-fatal exception from `fb`.
+- Check each `@param` name against the signature. `DurationConversions` shipped
+  `@param c the classifier instance` on 20 methods where `ev` is the classifier
+  and `c` is the value being converted. That one mistake drew 20 identical
+  review comments.
+- Do not invent exceptions. Week 6 found documentation promising
+  `ClassCastException` on methods where erasure and `ClassTag` array-store
+  semantics make it impossible, and `ArrayIndexOutOfBoundsException` on a method
+  that silently corrupts state instead of throwing.
+
+### Tags
+
+- `@throws` takes the **exception class as its first token**, then the
+  condition: `@throws IllegalArgumentException if n is negative`. Scaladoc reads
+  that first word as the class name, so `@throws the exception thrown by f`
+  renders as an exception called "the".
+- Drop `@return` only when the description begins with the word "Returns" and
+  already states the whole return value. Otherwise keep it, carrying something
+  the description does not say: an edge case, a sentinel, a unit, an exception
+  guarantee.
+- Never write a literal `@deprecated(...)` line inside a doc comment. The real
+  annotation on the declaration is what Scaladoc renders.
+- A doc comment must sit **above** any annotation on its declaration. Below it,
+  the parser drops the comment entirely.
+- Never leave two adjacent `/** ... */` comments on one declaration. The second
+  wins and the first is orphaned. Check for an existing comment separated from
+  the declaration by `//` comments before adding one.
+
+### Families of near-identical members
+
+The library is full of them: `Function0` through `Function22`, the `Ordering`
+and `Numeric` instances, the `jdk` accumulators, 365 wrappers in
+`FunctionWrappers.scala`. Two rules:
+
+- **Be consistent within a family.** Write the shared text once and apply it,
+  varying only what actually differs.
+- **Consistency is not worth a rewrite.** If members are worded differently but
+  all correct, leave them. A family worded two ways is untidy; it misleads
+  nobody. An automated reviewer spent four rounds demanding "reword this like
+  its 40 siblings" and improved nothing.
+
+Prose that is true of the first member of a family is often false of the fifth,
+because the members are what differ. Check the shared text against every member
+it lands on.
+
+### Voice
+
+- The first sentence stands alone as an API-index summary.
+- Declarative, third person, present tense. Not "This method returns ...".
+- Backticks for code references, `[[...]]` for links, Markdown over HTML.
+- A one-line doc that only spells out the identifier in words adds nothing.
+  Either say something a reader could not infer from the name, the unit, the
+  reason for a value, what happens at a limit, or leave it for a human.
+
+### When the code does not tell you
+
+Some questions cannot be answered from the source. Do not guess. Leave the
+question in the file:
+
+```scala
+/** Clears all elements from this accumulator, resetting the internal arrays.
+ *
+ *  @note NEEDS-HUMAN: Confirm the side effects of `super.clear()`.
+ */
+```
+
+These are read and resolved by a human before merge. Use the mechanism when it
+is genuinely warranted; a marker on every third declaration is noise.
+
+One real example worth imitating, found in week 6:
+
+> `@note NEEDS-HUMAN`: the guard here is `n <= 0` (the size of the current
+> block), whereas `AnyAccumulatorStepper` and `IntAccumulatorStepper` guard on
+> `N <= 0` (the elements remaining). Is stepping past the end of an exhausted
+> stepper meant to be unchecked here?
+
+That required reading three files and may be a real bug rather than a
+documentation gap.
+
+## Known defects in the existing work
+
+Weeks 3 and 4 drew substantial human review; read those PR threads if you can
+reach them. Weeks 5 and 6 have machine-recorded defect lists. Fix these.
+
+**Week 5**, with open blockers recorded at the time:
+
+| file | blockers |
+|---|---|
+| `collection/concurrent/TrieMap.scala` | 3, including "deep copy" on `INode.copyToGen`, whose body writes the same main-node reference into the new node, and "Returns this TNode" on `TNode.copyTombed`, whose body is `new TNode(...)` |
+| `math/ScalaNumericConversions.scala` | 5 |
+| `math/Numeric.scala` | 2, including a literal `@deprecated(...)` line inside a doc comment |
+| `math/BigDecimal.scala` | 1, a missing `@throws` on a constructor that needs verifying against the code |
+| `collection/concurrent/Map.scala` | 1, a malformed `@throws` rendering as an exception named "the" |
+
+**Week 6**: `jdk/FunctionWrappers.scala` has one grouped blocker covering 21
+identical `@return` aliases. `quoted/Quotes.scala` (286 declarations, 6208
+lines) and four small `quoted` files were never started.
+
+Per-file digests with the full item lists are in `todo-writer/reviews/*.digest.md`.
+
+## Weeks 1 and 2, handled differently
+
+Weeks 1 and 2 are already an open, undrafted pull request, so their branch must
+not be rewritten. Instead:
+
+1. Branch **off that PR branch**.
+2. Read the documentation it added, and change only what is genuinely wrong or
+   materially unclear, judged by the rules above.
+3. Commit those improvements as **one separate commit**.
+
+The point is that a human reviewer can see your changes as a distinct, small
+diff on top of what they have already reviewed. If nothing is worth changing,
+say so and make no commit; that is a legitimate outcome.
+
+## After you finish
+
+For visibility, not for you to do:
+
+1. Codex reviews your work and reports findings **without making changes**.
+2. Opus adjudicates those findings.
+3. Each of your weekly commits is cherry-picked onto its own branch off `main`
+   and becomes one pull request. Weeks 3 and 4 have draft PRs that will be
+   force-pushed over.
+
+So your commits are the unit of delivery. Keep them clean, keep them one per
+week, and keep every one of them comment-only.
+
+## The short version
+
+Read the code before you describe it. Never touch a non-comment line. One commit
+per week. When the code does not tell you, say so rather than inventing an
+answer.
