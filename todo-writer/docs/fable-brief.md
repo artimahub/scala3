@@ -115,9 +115,20 @@ required and nothing is off limits. Some of it may be useful:
 - `scripts/repeated-doc-blocks.py --orig X --new Y` groups doc blocks and tag
   lines you have written more than once, which is how you check a family for a
   mistake replicated across 40 members.
-- `scripts/fill-doc-todos-free.sh` is the retired pipeline itself. Its writer,
-  two reviewers and adjudicator can be pointed at any provider or local CLI. It
-  is not recommended, but it is there and it works.
+- `scripts/fill-doc-todos-free.sh` is the pipeline that produced weeks 3 through
+  6. **It did not quite work**, which is why this job came to you. Look at it if
+  you are curious; do not expect it to do the work for you.
+
+  Why it fell short is worth knowing, because it says something about what this
+  job demands. An earlier phase of this project filled in missing `@param`,
+  `@tparam` and `@return` tags on declarations that *already had* documentation.
+  That is local, bounded analysis: the answer is nearly always in the signature
+  and the sentence above it, and a modest model does it well. Writing a
+  description from nothing is a different task. It means reading the body,
+  following an override to the member it overrides, checking a sibling in
+  another file, and judging what a caller actually needs to be told. That asks
+  for a broader view than those models could hold, and the results show it: the
+  defect lists later in this brief are what a narrower view produces.
 - `reviews/*.digest.md` holds every review of weeks 4 through 6, including the
   findings that were never applied.
 - `docs/house-rules.md` is a short list of conventions distilled from earlier
