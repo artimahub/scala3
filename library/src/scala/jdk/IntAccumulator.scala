@@ -208,16 +208,14 @@ final class IntAccumulator
    *
    *  `idx` is not validated, and an out-of-range index has more than one possible outcome. It can
    *  land in unused capacity of the current array, in which case the write silently succeeds
-   *  without changing any element this accumulator reports. Because the offset into the current
-   *  array is computed as a `Long` and then narrowed to an `Int`, an index far enough out of range
-   *  can also wrap onto an occupied slot and silently overwrite an element this accumulator does
-   *  report. Otherwise the write throws.
+   *  without changing any element this accumulator reports. Otherwise the write throws. An `Int`
+   *  index is widened to a `Long` without loss, so it can never wrap onto an occupied slot the way
+   *  a sufficiently large `Long` index can.
    *
    *  @param idx the zero-based index of the element to replace
    *  @param elem the `Int` value to store at index `idx`
    *  @throws ArrayIndexOutOfBoundsException if `idx` is out of range and the computed offset falls
-   *          outside the array being written, rather than into unused current-array capacity or
-   *          onto a slot reached by `Int` wraparound
+   *          outside the array being written, rather than into unused current-array capacity
    */
   def update(idx: Int, elem: Int): Unit = update(idx.toLong, elem)
 
@@ -255,6 +253,9 @@ final class IntAccumulator
 
   /** Returns a new `IntAccumulator` containing the elements produced by applying `f` to each
    *  element of this one, concatenated in order.
+   *
+   *  Unlike the inherited `flatMap`, which builds an [[AnyAccumulator]], this overload keeps the
+   *  elements unboxed.
    *
    *  @param f the function mapping each element to a collection of `Int`s
    */
@@ -424,7 +425,7 @@ final class IntAccumulator
   /** Returns a new, empty `IntAccumulator`, which acts as both the builder and its result. */
   override protected def newSpecificBuilder: IntAccumulator = IntAccumulator.newBuilder
   /** Returns the [[AnyAccumulator]] companion object, the factory used to build the results of
-   *  inherited operations that can produce elements of any type, such as `map` to another type.
+   *  inherited operations, such as `map`, that can produce elements of any type.
    */
   override def iterableFactory: SeqFactory[AnyAccumulator] = AnyAccumulator
 
