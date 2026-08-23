@@ -204,6 +204,12 @@ REVIEW_DIFF_CONTEXT=${REVIEW_DIFF_CONTEXT:-25}
 REPEAT_GROUP_MIN=${REPEAT_GROUP_MIN:-3}   # identical doc blocks before grouping
 FINAL_VERIFY=${FINAL_VERIFY:-true}        # review the final refine, do not ship it blind
 CLI_TIMEOUT=${CLI_TIMEOUT:-1800}          # per call, for claude-cli / codex-cli
+# Mistral answers a payload over roughly 125 KB with an empty body, every time.
+# Retrying that is not resilience, it is four sleeps into a wall: week 6's
+# FunctionWrappers.scala burned 15 minutes per round on two roles doing exactly
+# that, and produced no adjudication and therefore no refine on any round.
+# Below these sizes, behave as before. Above them, adapt instead of retrying.
+MISTRAL_PAYLOAD_LIMIT_KB=${MISTRAL_PAYLOAD_LIMIT_KB:-100}
 DRY_RUN=${DRY_RUN:-false}
 MARKER="TODO FILL IN"
 
@@ -955,9 +961,19 @@ for index in "${!TARGETS[@]}"; do
         # where the style reviewer is on a model with room for it.
         local style_input="$ADJ_BLOCK"
         [ "${STYLE_REVIEW_FULL_SOURCE:-false}" = true ] && style_input="$DIFF_BLOCK"
-        log "    style payload: $(( $(wc -c < "$style_input") / 1024 )) KB | accuracy payload: $(( $(wc -c < "$DIFF_BLOCK") / 1024 )) KB"
-        graded_review style "$STYLE_PROVIDER" "$STYLE_MODEL" \
-                      "$WORK_DIR/${SAFE}.stysys" "$style_input" "$final_sty"
+        local sty_kb; sty_kb=$(( $(wc -c < "$style_input") / 1024 ))
+        log "    style payload: ${sty_kb} KB | accuracy payload: $(( $(wc -c < "$DIFF_BLOCK") / 1024 )) KB"
+        if ! is_cli_provider "$STYLE_PROVIDER" && [ "$sty_kb" -gt "$MISTRAL_PAYLOAD_LIMIT_KB" ]; then
+            # Honest skip beats a doomed retry ladder. The verdict is
+            # UNAVAILABLE either way; this way it costs a second, not 7.5
+            # minutes, and the log says why.
+            log "    !! style review SKIPPED: ${sty_kb} KB exceeds MISTRAL_PAYLOAD_LIMIT_KB=${MISTRAL_PAYLOAD_LIMIT_KB}"
+            log "    !! this file is being judged by one reviewer, not two"
+            echo '{}' > "$final_sty"
+        else
+            graded_review style "$STYLE_PROVIDER" "$STYLE_MODEL" \
+                          "$WORK_DIR/${SAFE}.stysys" "$style_input" "$final_sty"
+        fi
 
         acc_verdict=$(verdict_of "$final_acc")
         sty_verdict=$(verdict_of "$final_sty")
@@ -998,7 +1014,22 @@ for index in "${!TARGETS[@]}"; do
         log "    adjudicating ($ADJUDICATOR_PROVIDER/$ADJUDICATOR_MODEL)..."
         { render "$ABS" "$PROMPTS_DIR/doc-adjudicator-prompt.txt"; house_rules
           echo; echo "=== ADJUDICATION SCHEMA (conform exactly) ==="; cat "$ADJ_SCHEMA"; } > "$WORK_DIR/${SAFE}.adjsys"
-        { cat "$ADJ_BLOCK"
+        # The two reviews are the substance of an adjudication; the diff is
+        # context for overruling a reviewer who is wrong about the code. On a
+        # file whose diff is enormous, the context is what has to give, because
+        # the alternative is no adjudication at all and therefore no refine.
+        local adj_kb; adj_kb=$(( $(wc -c < "$ADJ_BLOCK") / 1024 ))
+        { if is_cli_provider "$ADJUDICATOR_PROVIDER" || [ "$adj_kb" -le "$MISTRAL_PAYLOAD_LIMIT_KB" ]; then
+              cat "$ADJ_BLOCK"
+          else
+              log "    !! diff omitted from adjudication: ${adj_kb} KB exceeds MISTRAL_PAYLOAD_LIMIT_KB=${MISTRAL_PAYLOAD_LIMIT_KB}"
+              echo "=== DIFF OMITTED ==="
+              echo "The diff for this file is ${adj_kb} KB, too large to include."
+              echo "Judge from the two reviews below. Merge and rank what they raised."
+              echo "You cannot verify a reviewer's claim against the code here, so do"
+              echo "NOT overrule one for being wrong about the code: you cannot see it."
+              echo "Where a claim looks doubtful, keep it and lower its severity."
+          fi
           echo; echo "=== ACCURACY REVIEW (JSON) ==="; cat "$final_acc"
           echo; echo "=== STYLE REVIEW (JSON) ==="; cat "$final_sty"; } > "$WORK_DIR/${SAFE}.adjusr"
         log "    adjudication payload: $(( $(wc -c < "$WORK_DIR/${SAFE}.adjusr") / 1024 )) KB"
