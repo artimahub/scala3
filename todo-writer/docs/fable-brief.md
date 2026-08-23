@@ -43,6 +43,22 @@ weeks of work, or nine of anything; it means nine partitions, each of which
 becomes one pull request. Take whatever time each one actually needs and work
 at whatever rate you work.
 
+**Why it is split at all.** The whole job is roughly 8,360 undocumented
+declarations. As a single pull request that is unreviewable: nobody can read it
+and responsibly say yes, so it would sit unmerged or be waved through, and
+either outcome wastes the work. The partitions exist for one reason, to make
+each pull request small enough that a human can review it properly in a
+reasonable sitting, which in practice means a few hundred declarations of new
+prose. That is also why a commit must never span two weeks: the commit *is* the
+pull request.
+
+Worth remembering who is at the other end of it. The reviewer is a Scala
+maintainer spending their own time reading your prose against their library. On
+week 4 they typed essentially the same comment nineteen times, because one wrong
+`@param` had been copied across a family of methods. Every defect you avoid is
+time they get back; every one you leave is time they spend, and goodwill this
+project needs for another eight pull requests.
+
 Everything below is drawn from six weeks of doing this with an automated
 pipeline, which is no longer in charge of this work. You are.
 
