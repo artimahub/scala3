@@ -355,16 +355,23 @@ able to judge it from your entry alone.
 
 ## Known defects in the existing work
 
-**Read the human review threads first.** They are the most valuable input you
+**Read the human review comments first.** They are the most valuable input you
 have, worth more than anything in this brief, because they are a Scala
 maintainer saying in their own words what is wrong with documentation of exactly
-this kind:
+this kind.
 
-- week 3: https://github.com/scala/scala3/pull/26669
-- week 4: https://github.com/scala/scala3/pull/26822 (51 comments)
+All of them are captured in **`todo-writer/docs/human-review-comments.md`**, so
+you do not need network access: 8 comments on week 3 and 51 on week 4, with the
+diff each one points at, the author's replies, and an editor's note explaining
+the four that were declined and why. The originals are at
+<https://github.com/scala/scala3/pull/26669> and
+<https://github.com/scala/scala3/pull/26822>.
 
-Read every comment, including the ones that were declined and why. Apply what
-you learn across all the weeks you touch, not only to the files being discussed.
+Read all of it, including the declined comments; the reasoning there shows that
+a maintainer's comment can be wrong and what it takes to say so. Apply what you
+learn across every week you touch, not only to the files being discussed. Note
+also how the comments cluster: 19 of week 4's 51 were one mistake replicated
+across a family, and 15 more were another.
 
 Weeks 5 and 6 were never seen by a human, but our own reviewers recorded defect
 lists for them. These are a floor, not a ceiling; fix them and whatever else you
