@@ -32,7 +32,8 @@ trait ExprMap:
        *
        *  @param tree the statement to transform
        *  @param owner the symbol that owns `tree`
-       *  @return the transformed statement; an `Import` or `Export` is returned unchanged
+       *  @return the transformed statement; an `Import` or `Export` is returned unchanged, as is
+       *          a `Definition` that is a `TypeDef`
        */
       def transformStatement(tree: Statement)(owner: Symbol): Statement = {
         tree match {
@@ -76,8 +77,12 @@ trait ExprMap:
        *  @param tpe the expected type of `tree`, propagated to the children that share it,
        *         such as the branches of an `If` or the result expression of a `Block`
        *  @param owner the symbol that owns `tree`
-       *  @return a copy of `tree` with its children transformed, or `tree` itself when it has
-       *          no children to transform, as for an `Ident`, a `Literal` or a `Closure`
+       *  @return a copy of `tree` with its children transformed. `tree` itself is returned when
+       *          it has no children to transform, as for an `Ident`, a `Literal` or a `Closure`,
+       *          and also when transforming its children produces no change. A `Return` is
+       *          likewise returned unchanged, but only as a workaround for the owner symbol being
+       *          wrong at that point (see the `FIXME` in the body), so its `expr` is left
+       *          untransformed even though it is a real child.
        */
       def transformTermChildren(tree: Term, tpe: TypeRepr)(owner: Symbol): Term = tree match {
         case Ident(name) =>
@@ -138,7 +143,9 @@ trait ExprMap:
       }
 
       /** Transforms a term by applying `transform` to it when it is an expression, and by
-       *  transforming its children otherwise.
+       *  transforming its children otherwise, except for two cases: a `Closure` is returned
+       *  unchanged, and an `Inlined` tree only has its children transformed, bypassing
+       *  `transform` even when the `Inlined` tree is itself an expression.
        *
        *  @param tree the term to transform
        *  @param tpe the expected type of `tree`, used as the `Type` argument of `transform`
@@ -182,12 +189,12 @@ trait ExprMap:
       def transformCaseDef(tree: CaseDef, tpe: TypeRepr)(owner: Symbol): CaseDef =
         CaseDef.copy(tree)(tree.pattern, tree.guard.map(x => transformTerm(x, TypeRepr.of[Boolean])(owner)), transformTerm(tree.rhs, tpe)(owner))
 
-      /** Transforms the pattern and the right-hand side of a type case.
+      /** Returns `tree` unchanged, since `transformTypeTree` transforms neither the pattern nor
+       *  the right-hand side of a type case.
        *
-       *  @param tree the type case to transform
-       *  @param owner the symbol that owns `tree`
-       *  @return a copy of `tree` with `transformTypeTree` applied to its pattern and to its
-       *          right-hand side
+       *  @param tree the type case
+       *  @param owner the symbol that owns `tree`, passed on to `transformTypeTree`, which
+       *         ignores it, so its value has no effect
        */
       def transformTypeCaseDef(tree: TypeCaseDef)(owner: Symbol): TypeCaseDef =
         TypeCaseDef.copy(tree)(transformTypeTree(tree.pattern)(owner), transformTypeTree(tree.rhs)(owner))
@@ -236,11 +243,10 @@ trait ExprMap:
       def transformTerms(trees: List[Term], tpe: TypeRepr)(owner: Symbol): List[Term] =
         trees.mapConserve(x => transformTerm(x, tpe)(owner))
 
-      /** Transforms each type tree of `trees` with `transformTypeTree`.
+      /** Returns `trees` unchanged, since `transformTypeTree` does not transform type trees.
        *
-       *  @param trees the type trees to transform
+       *  @param trees the type trees
        *  @param owner the symbol that owns the type trees
-       *  @return `trees` itself, since type trees are not transformed
        */
       def transformTypeTrees(trees: List[TypeTree])(owner: Symbol): List[TypeTree] =
         trees.mapConserve(x => transformTypeTree(x)(owner))
@@ -255,11 +261,10 @@ trait ExprMap:
       def transformCaseDefs(trees: List[CaseDef], tpe: TypeRepr)(owner: Symbol): List[CaseDef] =
         trees.mapConserve(x => transformCaseDef(x, tpe)(owner))
 
-      /** Transforms each type case of `trees` with `transformTypeCaseDef`.
+      /** Returns `trees` unchanged, since `transformTypeCaseDef` never changes a type case.
        *
-       *  @param trees the type cases to transform
+       *  @param trees the type cases
        *  @param owner the symbol that owns the type cases
-       *  @return the transformed type cases, or `trees` itself if no type case changed
        */
       def transformTypeCaseDefs(trees: List[TypeCaseDef])(owner: Symbol): List[TypeCaseDef] =
         trees.mapConserve(x => transformTypeCaseDef(x)(owner))
