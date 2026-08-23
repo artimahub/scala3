@@ -21,7 +21,10 @@ trait ExprMap:
    *
    *  @tparam T the type of the expression whose children are transformed
    *  @param e the expression whose direct sub-expressions will be transformed via `transform`
-   *  @return an expression of type `T` with each direct sub-expression replaced by the result of applying `transform` to it
+   *  @return an expression of type `T` in which the direct sub-expressions of `e` have been
+   *          replaced by the result of applying `transform` to them. Not every direct child is
+   *          transformed: the left-hand side of an `Assign`, the type arguments of a `TypeApply`
+   *          and the expression of a `Return` are left as they are.
    */
   def transformChildren[T](e: Expr[T])(using Type[T])(using Quotes): Expr[T] = {
     import quotes.reflect.*
@@ -72,6 +75,9 @@ trait ExprMap:
       }
 
       /** Transforms the sub-trees of a term, rebuilding `tree` from the transformed children.
+       *  Some children are left as they are rather than transformed: the left-hand side of an
+       *  `Assign`, the type arguments of a `TypeApply` and, as described below, the expression
+       *  of a `Return`.
        *
        *  @param tree the term whose children are transformed
        *  @param tpe the expected type of `tree`, propagated to the children that share it,
@@ -148,7 +154,9 @@ trait ExprMap:
        *  `transform` even when the `Inlined` tree is itself an expression.
        *
        *  @param tree the term to transform
-       *  @param tpe the expected type of `tree`, used as the `Type` argument of `transform`
+       *  @param tpe the expected type of `tree`. It is used as the `Type` argument of `transform`
+       *         when `tree` is an expression, is passed on to `transformTermChildren` for an
+       *         `Inlined` tree and in the remaining case, and is unused for a `Closure`.
        *  @param owner the symbol that owns `tree`
        *  @return the transformed term; a `Closure` is returned unchanged and an `Inlined` tree
        *          has only its children transformed
@@ -224,6 +232,7 @@ trait ExprMap:
        *  @param tpes the expected types, in the same order as `trees` and at least as many
        *  @param owner the symbol that owns the terms
        *  @return the transformed terms, or `trees` itself if no term changed
+       *  @throws MatchError if `tpes` is shorter than `trees`
        */
       def transformTerms(trees: List[Term], tpes: List[TypeRepr])(owner: Symbol): List[Term] =
         var tpes2 = tpes // TODO use proper zipConserve
