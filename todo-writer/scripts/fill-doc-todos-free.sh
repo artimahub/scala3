@@ -1019,7 +1019,15 @@ for index in "${!TARGETS[@]}"; do
         local n_items n_dis
         n_items=$(jq -r '(.resolved_items // []) | length' "$final_adj" 2>/dev/null || echo 0)
         n_dis=$(jq -r '(.disagreements // []) | length' "$final_adj" 2>/dev/null || echo 0)
-        log "    adjudicator: $adj_verdict  (${n_items} item(s), ${n_dis} disagreement(s) settled)"
+        # Show the severity split, not just the count. Severity is what decides
+        # convergence, refine churn and the NOT-REVIEWED list, and inflation is
+        # invisible in a bare total: week 6's FunctionExtensions reported "34
+        # item(s)" for four rounds while every one of them was graded a blocker
+        # and nearly all were requests to reword a method like its siblings.
+        local n_block n_nit
+        n_block=$(jq -r '[(.resolved_items // [])[] | select(.severity=="blocker")] | length' "$final_adj" 2>/dev/null || echo 0)
+        n_nit=$(jq -r '[(.resolved_items // [])[] | select(.severity=="nit")] | length' "$final_adj" 2>/dev/null || echo 0)
+        log "    adjudicator: $adj_verdict  (${n_items} item(s): ${n_block} blocker, ${n_nit} nit; ${n_dis} disagreement(s) settled)"
 
         # NITS ALONE NEVER BLOCK -- the adjudicator's own rule, enforced here
         # because it does not always follow it. On TrieMap.scala round 3 both
