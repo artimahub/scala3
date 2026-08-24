@@ -37,13 +37,6 @@ trait Map[K, V]
   /*
   //TODO consider keeping `remove` because it returns the removed entry
   @deprecated("Use subtract or -= instead of remove", "2.13.0")
-  /** Removes a key from this map, returning the value previously associated
-   *  with that key as an option.
-   *
-   *  @param key the key to be removed
-   *  @return an option value containing the value previously associated with `key`,
-   *          or `None` if `key` was not present in the map
-   */
   def remove(key: K): Option[V] = {
     val old = get(key)
     if(old.isDefined) subtract(key)
