@@ -96,7 +96,6 @@ extends mutable.AbstractMap[String, String | Null] {
    */
   def addOne (kv: (String, String | Null)): this.type = { wrapAccess(System.setProperty(kv._1, kv._2)) ; this }
 
-  @annotation.nowarn("cat=deprecation") // AccessControlException is deprecated on JDK 17
   /** Evaluates `body`, catching and discarding any `AccessControlException` it
    *  raises.  This is intended for accessing the System properties, where such
    *  an exception indicates that a security manager denied access.
@@ -106,6 +105,7 @@ extends mutable.AbstractMap[String, String | Null] {
    *  @return the result of `body` wrapped in `Some`, or `None` if an
    *          `AccessControlException` was caught
    */
+  @annotation.nowarn("cat=deprecation") // AccessControlException is deprecated on JDK 17
   def wrapAccess[T](body: => T): Option[T] =
     try Some(body) catch { case _: AccessControlException => None }
 }
