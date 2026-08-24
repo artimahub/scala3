@@ -516,7 +516,6 @@ class AnyRefMap[K <: AnyRef, V] private[collection] (defaultEntry: K -> V, initi
     arm
   }
 
-  @deprecated("Consider requiring an immutable Map or fall back to Map.concat", "2.13.0")
   /** Returns a new `AnyRefMap` containing the entries of this map and one additional key/value pair.
    *
    *  This map is not modified.
@@ -525,9 +524,9 @@ class AnyRefMap[K <: AnyRef, V] private[collection] (defaultEntry: K -> V, initi
    *  @param kv the key/value pair to add; it overrides any entry of this map with the same key
    *  @return a new `AnyRefMap` with the entries of this map plus `kv`
    */
+  @deprecated("Consider requiring an immutable Map or fall back to Map.concat", "2.13.0")
   override def + [V1 >: V](kv: (K, V1)): AnyRefMap[K, V1] = AnyRefMap.from(new View.Appended(this, kv))
 
-  @deprecated("Use ++ with an explicit collection argument instead of + with varargs", "2.13.0")
   /** Returns a new `AnyRefMap` containing the entries of this map and two or more additional key/value pairs.
    *
    *  This map is not modified. When keys coincide, later pairs override earlier
@@ -539,6 +538,7 @@ class AnyRefMap[K <: AnyRef, V] private[collection] (defaultEntry: K -> V, initi
    *  @param elems the remaining key/value pairs to add, if any
    *  @return a new `AnyRefMap` with the entries of this map plus all the given pairs
    */
+  @deprecated("Use ++ with an explicit collection argument instead of + with varargs", "2.13.0")
   override def + [V1 >: V](elem1: (K, V1), elem2: (K, V1), elems: (K, V1)*): AnyRefMap[K, V1]^{} = {
     // An empty capture annotation is needed in the result type to satisfy the overriding checker.
     val m = this + elem1 + elem2
@@ -570,7 +570,6 @@ class AnyRefMap[K <: AnyRef, V] private[collection] (defaultEntry: K -> V, initi
    */
   override def ++[V2 >: V](xs: scala.collection.IterableOnce[(K, V2)]^): AnyRefMap[K, V2] = concat(xs)
 
-  @deprecated("Use m.clone().addOne(k,v) instead of m.updated(k, v)", "2.13.0")
   /** Returns a copy of this map with one key/value pair added or replaced.
    *
    *  This map is not modified.
@@ -580,6 +579,7 @@ class AnyRefMap[K <: AnyRef, V] private[collection] (defaultEntry: K -> V, initi
    *  @param value the value to associate with `key`
    *  @return a clone of this map with `key` mapped to `value`
    */
+  @deprecated("Use m.clone().addOne(k,v) instead of m.updated(k, v)", "2.13.0")
   override def updated[V1 >: V](key: K, value: V1): AnyRefMap[K, V1] =
     clone().asInstanceOf[AnyRefMap[K, V1]].addOne(key, value)
 
@@ -706,8 +706,8 @@ class AnyRefMap[K <: AnyRef, V] private[collection] (defaultEntry: K -> V, initi
   /** Returns a serialization proxy that rebuilds this map on deserialization; called by Java serialization. */
   protected def writeReplace(): AnyRef = new DefaultSerializationProxy(AnyRefMap.toFactory[K, V](AnyRefMap), this)
 
-  @nowarn("""cat=deprecation&origin=scala\.collection\.Iterable\.stringPrefix""")
   /** Returns `"AnyRefMap"`, the prefix used in this map's string representation. */
+  @nowarn("""cat=deprecation&origin=scala\.collection\.Iterable\.stringPrefix""")
   override protected def stringPrefix = "AnyRefMap"
 }
 
