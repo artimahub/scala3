@@ -1,8 +1,16 @@
-# Suspected bugs found while documenting (weeks 3-11)
+# Suspected bugs found while documenting (weeks 3-12)
 
 Each entry records what the code does, what the siblings or contract suggest
 it should do, and the evidence. None are fixed in the documentation PRs
-(comment-only); each site carries a `@note NEEDS-HUMAN:` where noted.
+(comment-only).
+
+Entries below say "NEEDS-HUMAN at the site" where the PR branch once carried
+an `@note NEEDS-HUMAN:` there. Those notes are gone: adjudication of the
+branch reviews on 2026-08-24 removed all 24 of them, because a `@note`
+renders as a visible block in the published Scaladoc. Where the code answered
+the question, the answer went into the doc in its place; otherwise the doc
+says only what is unambiguously true and this file carries the question. This
+file is now the only record.
 
 ## `library/src/scala/jdk/DoubleAccumulator.scala:561` and `LongAccumulator.scala:570` - `nextStep` exhaustion guard
 
@@ -202,3 +210,28 @@ scala/scala 2.13; documented factually ("bounds are checked only by the
 underlying sequence") rather than flagged in-file. Same category:
 `View.Updated.isEmpty` throws `IndexOutOfBoundsException` instead of
 returning a Boolean when the underlying collection is too short.
+
+## `compiler/src/scala/quoted/runtime/impl/QuotesImpl.scala:1812` - `OmitSelector.name` returns a tree rendering, not a name
+
+`OmitSelectorMethods` defines `def name: String = self.imported.toString`.
+`imported` is an `untpd.Ident`, so `toString` is the case-class rendering of
+the tree (`Ident(bar)`), not the bare name. Both neighbours use
+`imported.name.toString`: `SimpleSelectorMethods.name` at :1763 and
+`OmitSelector.unapply` at :1806, which is in the same object. So for
+`import foo.{bar => _}`, `unapply` yields `"bar"` while the extension method
+`name` yields `"Ident(bar)"` for the same selector.
+
+The abstract declaration in `library/src/scala/quoted/Quotes.scala`
+(`OmitSelectorMethods.name`) documents the contract as "the name of the
+omitted member, e.g. `bar` in `import foo.{bar => _}`", which is what the
+siblings implement; the deviation is in `QuotesImpl`, not in the API doc, so
+the week 6 branch documents the contract and leaves it at that.
+
+## `library/src/scala/collection/immutable/Vector.scala:~509` - `Vector.last` throws with the message `"empty.tail"`
+
+`last` on an empty vector throws
+`new NoSuchElementException("empty.tail")`; `head` immediately above throws
+`new NoSuchElementException("empty.head")`, so `"empty.last"` is what the
+pattern calls for. Cosmetic: the exception type, which is what callers can
+rely on, is correct, so the week 12 branch documents only the `@throws`.
+Same message in scala/scala 2.13.
