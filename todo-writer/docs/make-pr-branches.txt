@@ -1,0 +1,548 @@
+===============================================================================
+ Building one PR branch per week from fable-scaladoc-weeks-3-11
+===============================================================================
+
+ Run these yourself, block by block. Nothing here is automated: each week is a
+ self-contained block you can run, inspect, and push before moving on.
+
+ Weeks 3, 4 and 5 ADD ONE COMMIT to the branch that is already on origin, so
+ those PRs update in place and no -2 branches are created. Weeks 6 through 11b
+ have no existing branch, so each starts fresh off current main.
+
+ Everything below was dry-run in a throwaway worktree (since deleted; no
+ branches were left behind): weeks 3-5 onto their existing origin branches,
+ weeks 6-11 onto main = 804dd160a1. Every one applies CLEANLY except week 11b,
+ which hits one expected conflict on a todo-writer file; the fix is spelled
+ out in that block. The verify helper below was run as written.
+
+ Nothing was merged into fable-scaladoc-weeks-3-11. Each branch is built
+ directly on current main, so any upstream drift is resolved by the
+ cherry-pick itself, per week, where you can see it.
+
+
+-------------------------------------------------------------------------------
+ WHY SOME WEEKS NEED MORE THAN ONE CHERRY-PICK
+-------------------------------------------------------------------------------
+
+ Weeks 3-6 exist as TWO commits on fable-scaladoc-weeks-3-11: the original
+ pipeline commit, and the later revision commit that rewrote it. The revision
+ is a diff against the pipeline commit, so it only makes sense on top of that
+ pipeline content.
+
+ For weeks 3, 4 and 5 that pipeline content is ALREADY on origin, as the
+ branch behind the open PR. So those weeks pick up only the REVISION commit
+ (plus, for week 3, its audit fixup) and add it as one new commit to the
+ existing branch. I checked this file by file: each existing branch matches
+ its pipeline commit exactly, apart from upstream code drift in two files
+ (Option.scala gained @publicInBinary, Regex.scala gained a captureChecking
+ import and two self-type annotations). The cherry-picks leave that drift
+ alone and touch only comments; I confirmed the resulting documentation is
+ byte-identical to fable-scaladoc-weeks-3-11 in all 163 files across the three
+ weeks.
+
+ Week 6 is different: there is no scaladoc-missing-docs branch for it on
+ origin (its PR was never opened, since week 6 was still partial then). So
+ week 6 takes BOTH its commits onto a fresh branch off main, like weeks 7-11.
+
+ Weeks 3 and 9 also get fixup commits from the 2026-08-24 audit: doc comments
+ that had been left below an annotation (where the parser drops them), and one
+ that had been written inside a commented-out block in mutable/Map.scala.
+
+ Week 11b is four commits: the part-2 batch, the two hand-finished maps
+ (LongMap, TreeSeqMap), and the final part-2b batch.
+
+ The recipe is the same everywhere:
+
+     git cherry-pick -n <commits...>     # apply, staged, but do not commit
+     git commit -m "..."                 # one commit for the whole week
+
+ -n (--no-commit) is what gives you ONE new commit instead of several.
+
+
+-------------------------------------------------------------------------------
+ THE MAPPING
+-------------------------------------------------------------------------------
+
+ ADD A COMMIT TO THE EXISTING BRANCH (branch already on origin):
+
+ wk    branch                                                cherry-pick
+ ---   ---------------------------------------------------   -----------
+ 3     scaladoc-missing-docs-core-array-function-tuple-sys    92a8136fbe 4199d44413
+ 4     scaladoc-missing-docs-util-concurrent                  e7522614bc
+ 5     scaladoc-missing-docs-math-coll-generic                4a606b8410
+
+ NEW BRANCH OFF CURRENT MAIN (nothing on origin for these):
+
+ wk    branch                                                cherry-pick
+ ---   ---------------------------------------------------   -----------
+ 6     scaladoc-missing-docs-quoted-compiletime-jdk           5ac2a08bc1 04dca3f758
+ 7     scaladoc-missing-docs-collection-convert-js            f19cbe30fb
+ 8     scaladoc-missing-docs-runtime                          5120376880
+ 9     scaladoc-missing-docs-collection-mutable               bbaa29ed41 28afc16801 23dc7b1f04
+ 10    scaladoc-missing-docs-collection-core                  6b5cbdefb0
+ 11a   scaladoc-missing-docs-collection-immutable-a           c2a4e6d376
+ 11b   scaladoc-missing-docs-collection-immutable-b           8c78126fba 826ff0e4b5 92f203eef4 69deef6cf6
+
+ No -2 branches anywhere. Weeks 3-5 update their open PRs in place with one
+ added commit, which is a fast-forward push, so no --force is needed.
+
+ I searched origin for a week 6 branch under any name and there is none in the
+ scaladoc-missing-docs series. (scaladoc-tags-quoted-compiletime, -jdk and the
+ various experiment-* branches touch the same files but belong to the earlier
+ tag-filling project, not this one.)
+
+ File counts, as a sanity check when you run each block:
+
+   wk    new commit    whole PR
+   ---   ----------    --------
+   3         66          109
+   4         18           36
+   5         18           18
+   6         17           17
+   7         40           40
+   8        119          119
+   9         40           40
+   10        36           36
+   11a        5            5
+   11b       29           29
+
+
+-------------------------------------------------------------------------------
+ PREFLIGHT (run once)
+-------------------------------------------------------------------------------
+
+# Be on a clean tree and have main up to date. Expect main = 804dd160a1 or later.
+cd /workspace/scala3
+git status --short
+git switch main
+git pull --ff-only origin main
+git log --oneline -1
+
+# Keep the source branch handy. Everything below reads from it; nothing writes to it.
+git rev-parse --short fable-scaladoc-weeks-3-11
+
+
+-------------------------------------------------------------------------------
+ VERIFY HELPER (paste once per shell; used at the end of every week block)
+-------------------------------------------------------------------------------
+
+# Checks the branch you are standing on against a reference commit:
+#   1. every changed file differs from that reference in comment lines only
+#   2. no TODO FILL IN markers survive
+#   3. no doc comment sits directly below an annotation (the parser drops those)
+#
+# Weeks 6-11 build on current main, so plain "verify" is right for them.
+# Weeks 3-5 build on an OLDER base (their existing branch predates today's
+# main), so comparing against main would drown you in unrelated upstream
+# changes. For those, pass a reference explicitly:
+#     verify HEAD~1                        # is the commit I just added comment-only?
+#     verify $(git merge-base main HEAD)   # is the whole PR comment-only?
+verify() {                       # usage: verify [ref]   (ref defaults to main)
+  ref=${1:-main}; bad=0; n=0
+  for f in $(git diff --name-only $ref -- 'library/src' 'library-js/src'); do
+    n=$((n+1))
+    if [ -n "$(diff <(git show $ref:$f | grep -vE '^[[:space:]]*(\*|/\*\*|\*/)' | grep -v '^[[:space:]]*$') \
+                    <(grep -vE '^[[:space:]]*(\*|/\*\*|\*/)' "$f" | grep -v '^[[:space:]]*$'))" ]; then
+      echo "  NOT COMMENT-ONLY: $f"; bad=$((bad+1))
+    fi
+    if [ "$(grep -ac 'TODO FILL IN' "$f")" != "0" ]; then
+      echo "  LEFTOVER MARKER:  $f"; bad=$((bad+1))
+    fi
+    hits=$(awk '
+      /^[[:space:]]*\/\*[^*]/ { inblk=1 }          # entering a plain /* ... */ region
+      inblk { if (/\*\// ) inblk=0; next }
+      /^[[:space:]]*$/ { next }
+      ann && /^[[:space:]]*\/\*\*/ { print FILENAME ":" NR }
+      { ann = ($0 ~ /^[[:space:]]*@[A-Za-z_`]/ &&
+               $0 !~ /(^|[^A-Za-z])(def|val|var|class|trait|object|type|given|enum)([^A-Za-z]|$)/) }
+    ' "$f")
+    if [ -n "$hits" ]; then
+      echo "  DOC BELOW ANNOTATION: $hits"; bad=$((bad+1))
+    fi
+  done
+  echo "  files: $n   problems: $bad   (compared against $ref)"
+}
+
+
+-------------------------------------------------------------------------------
+ WEEK 3 - adds a commit to the EXISTING branch (PR #26669)
+-------------------------------------------------------------------------------
+
+# SUPERSEDED BY todo-writer/scripts/do3.sh. You decided to reset the draft PRs onto upstream/main
+# first, so week 3 is now: rebase onto upstream/main, THEN add this commit.
+# That script does both, with checks and a backup branch. The block below is still
+# correct if you want to add the commit WITHOUT moving the base.
+
+# The branch already on origin holds the pipeline version of week 3. What is
+# missing from it is the revision, plus one audit fixup.
+#
+# 92a8136fbe  Week 3 revision: complete and revise (rewrites much of the docs)
+# 4199d44413  Week 3 fixup: move wrapAccess's doc above its @nowarn annotation
+
+git switch scaladoc-missing-docs-core-array-function-tuple-sys
+git pull --ff-only origin scaladoc-missing-docs-core-array-function-tuple-sys
+
+# Confirm you are where the dry run was: 58e044950b, 1 commit on base ddd6514259.
+git log --oneline -1
+git rev-list --count $(git merge-base main HEAD)..HEAD
+
+git cherry-pick -n 92a8136fbe 4199d44413
+git commit -m "Revise the added Scaladoc for the core root files, Function/Tuple/Product and sys
+
+Rewrites the documentation added by the first commit on this branch, checking
+every claim against the implementation, and moves SystemProperties.wrapAccess's
+doc above its annotation so the parser does not drop it. Still comment-only."
+
+verify HEAD~1                      # expect: files: 66    problems: 0
+verify $(git merge-base main HEAD) # expect: files: 109   problems: 0
+git push origin scaladoc-missing-docs-core-array-function-tuple-sys
+
+
+-------------------------------------------------------------------------------
+ WEEK 4 - adds a commit to the EXISTING branch (PR #26822)
+-------------------------------------------------------------------------------
+
+# Same decision as week 3: rebase onto upstream/main first, then add the
+# commit. todo-writer/scripts/do3.sh is the week-3 version of that; week 4
+# needs the same shape
+# with OLD_BASE=3adfcbd32a, REVISION=e7522614bc, no fixup, 18 files in the
+# new commit and 36 in the PR. The block below is the no-rebase version.
+
+# e7522614bc  Week 4 revision: revise Scaladoc for scala.util and scala.concurrent
+#             (this is the commit that acts on cheeseng's 51 review comments)
+
+git switch scaladoc-missing-docs-util-concurrent
+git pull --ff-only origin scaladoc-missing-docs-util-concurrent
+
+# Confirm: 690244164c, 3 commits on base 3adfcbd32a.
+git log --oneline -1
+git rev-list --count $(git merge-base main HEAD)..HEAD
+
+git cherry-pick -n e7522614bc
+git commit -m "Revise the added Scaladoc for scala.util and scala.concurrent
+
+Acts on the review comments on this PR and rechecks every claim against the
+implementation: no @param naming the wrong parameter, no tag calling a function
+ignored where the body calls it, no exception promised that cannot be thrown.
+Still comment-only."
+
+verify HEAD~1                      # expect: files: 18   problems: 0
+verify $(git merge-base main HEAD) # expect: files: 36   problems: 0
+git push origin scaladoc-missing-docs-util-concurrent
+
+
+-------------------------------------------------------------------------------
+ WEEK 5 - adds a commit to the EXISTING branch
+-------------------------------------------------------------------------------
+
+# 4a606b8410  Week 5 revision: revise Scaladoc for scala.math and collection
+#             generic/concurrent (clears the recorded blockers in TrieMap,
+#             Numeric, BigDecimal, ScalaNumericConversions, concurrent/Map)
+
+git switch scaladoc-missing-docs-math-coll-generic
+git pull --ff-only origin scaladoc-missing-docs-math-coll-generic
+
+# Confirm: 7240b95fc7, 1 commit on base 5716d9f633.
+git log --oneline -1
+git rev-list --count $(git merge-base main HEAD)..HEAD
+
+git cherry-pick -n 4a606b8410
+git commit -m "Revise the added Scaladoc for scala.math and collection generic/concurrent
+
+Clears the recorded defects in the first commit on this branch: the 'deep copy'
+claim on INode.copyToGen, the 'returns this TNode' claim on TNode.copyTombed, a
+literal @deprecated line inside a doc comment, a malformed @throws that rendered
+as an exception named 'the', and a missing @throws on a BigDecimal constructor.
+Still comment-only."
+
+verify HEAD~1                      # expect: files: 18   problems: 0
+verify $(git merge-base main HEAD) # expect: files: 18   problems: 0
+git push origin scaladoc-missing-docs-math-coll-generic
+
+
+-------------------------------------------------------------------------------
+ WEEK 6 - scala/quoted, scala/compiletime, scala/jdk  (NEW branch off main)
+-------------------------------------------------------------------------------
+
+# Unlike weeks 3-5, week 6 has no branch on origin: its PR was never opened,
+# because week 6 was still only partly done at the time. So this one takes both
+# of its commits onto a fresh branch, like weeks 7-11.
+#
+# 5ac2a08bc1  Week 6 (partial): Scaladoc for scala.jdk and two quoted files
+# 04dca3f758  Week 6 completion: scala.quoted incl. Quotes.scala (286 decls), jdk revision
+git switch -c scaladoc-missing-docs-quoted-compiletime-jdk main
+git cherry-pick -n 5ac2a08bc1 04dca3f758
+git commit -m "Scaladoc for scala.quoted, scala.compiletime and scala.jdk
+
+Adds documentation to declarations that had none, including the 286 in
+quoted/Quotes.scala. Comment-only."
+verify
+# expect: files: 17   problems: 0
+git push -u origin scaladoc-missing-docs-quoted-compiletime-jdk
+
+
+-------------------------------------------------------------------------------
+ WEEK 7 - collection/convert, library-js
+-------------------------------------------------------------------------------
+
+# Single commit, so no -n needed; a plain cherry-pick already gives one commit.
+# f19cbe30fb  Week 7: Scaladoc for collection/convert and library-js
+git switch -c scaladoc-missing-docs-collection-convert-js main
+git cherry-pick f19cbe30fb
+verify
+# expect: files: 40   problems: 0
+git push -u origin scaladoc-missing-docs-collection-convert-js
+
+
+-------------------------------------------------------------------------------
+ WEEK 8 - scala/runtime (141 small files)
+-------------------------------------------------------------------------------
+
+# 5120376880  Week 8: Scaladoc for scala.runtime
+git switch -c scaladoc-missing-docs-runtime main
+git cherry-pick 5120376880
+verify
+# expect: files: 119   problems: 0
+git push -u origin scaladoc-missing-docs-runtime
+
+
+-------------------------------------------------------------------------------
+ WEEK 9 - collection/mutable
+-------------------------------------------------------------------------------
+
+# bbaa29ed41  Week 9: Scaladoc for collection.mutable
+# 28afc16801  Week 9 fixup: move four AnyRefMap docs above their annotations
+# 23dc7b1f04  Week 9 fixup: drop a doc comment added inside commented-out code
+git switch -c scaladoc-missing-docs-collection-mutable main
+git cherry-pick -n bbaa29ed41 28afc16801 23dc7b1f04
+git commit -m "Scaladoc for scala.collection.mutable
+
+Adds documentation to declarations that had none in scala.collection.mutable.
+Comment-only."
+verify
+# expect: files: 40   problems: 1
+#
+# That 1 is EXPECTED and is not ours: mutable/LinkedHashMap.scala's
+# LinkedKeySet has carried a doc comment below its @deprecated annotation
+# since long before this project (identical on main). It is recorded in
+# todo-writer/docs/consistency-notes.md as a cleanup candidate. Confirm the
+# reported line is LinkedHashMap.scala and nothing else:
+#     DOC BELOW ANNOTATION: library/src/scala/collection/mutable/LinkedHashMap.scala:364
+git push -u origin scaladoc-missing-docs-collection-mutable
+
+
+-------------------------------------------------------------------------------
+ WEEK 10 - collection top level
+-------------------------------------------------------------------------------
+
+# 6b5cbdefb0  Week 10: Scaladoc for the collection root
+git switch -c scaladoc-missing-docs-collection-core main
+git cherry-pick 6b5cbdefb0
+verify
+# expect: files: 36   problems: 0
+git push -u origin scaladoc-missing-docs-collection-core
+
+
+-------------------------------------------------------------------------------
+ WEEK 11a - collection/immutable, the five heavy files
+-------------------------------------------------------------------------------
+
+# c2a4e6d376  Week 11 (part 1): Vector, HashMap, ArraySeq, Map, HashSet
+git switch -c scaladoc-missing-docs-collection-immutable-a main
+git cherry-pick c2a4e6d376
+verify
+# expect: files: 5   problems: 0
+git push -u origin scaladoc-missing-docs-collection-immutable-a
+
+
+-------------------------------------------------------------------------------
+ WEEK 11b - collection/immutable, everything else  (ONE EXPECTED CONFLICT)
+-------------------------------------------------------------------------------
+
+# 8c78126fba  Week 11 (part 2, partial): trees, ranges, ordered maps
+# 826ff0e4b5  Week 11 (part 2): LongMap
+# 92f203eef4  Week 11 (part 2): TreeSeqMap   <-- also touches a todo-writer file
+# 69deef6cf6  Week 11 (part 2b): the last 16 files / 1,027 markers
+#
+# 92f203eef4 also edited todo-writer/docs/consistency-notes.md. todo-writer/
+# does not exist on main, so that one path conflicts (modify/delete). It is a
+# project note, not library documentation, and does not belong in the PR, so
+# the resolution is simply to drop it. That is why this week is split into
+# three cherry-pick calls instead of one.
+
+git switch -c scaladoc-missing-docs-collection-immutable-b main
+
+# 1. the two that apply cleanly
+git cherry-pick -n 8c78126fba 826ff0e4b5
+
+# 2. the one that conflicts. Expect exactly:
+#      CONFLICT (modify/delete): todo-writer/docs/consistency-notes.md deleted
+#      in HEAD and modified in 92f203eef4
+git cherry-pick -n 92f203eef4
+
+#    confirm that path is the ONLY unresolved one before continuing:
+git diff --name-only --diff-filter=U
+#      -> todo-writer/docs/consistency-notes.md
+
+#    drop it, then tell git to forget the interrupted sequence. --quit (not
+#    --abort) leaves everything already staged exactly as it is.
+git rm -q -f todo-writer/docs/consistency-notes.md
+git cherry-pick --quit
+
+# 3. the last one
+git cherry-pick -n 69deef6cf6
+
+# 4. nothing outside library/ should be staged. This must print nothing:
+git diff --cached --name-only | grep -v '^library/'
+
+git commit -m "Scaladoc for the rest of scala.collection.immutable
+
+Adds documentation to declarations that had none across the remainder of
+scala.collection.immutable: List, Set, Stream, the two LazyList variants,
+BitSet, WrappedString, the sorted and list-backed maps and sets, Queue, the
+trees and ranges, LongMap and TreeSeqMap. Comment-only."
+verify
+# expect: files: 29   problems: 0
+git push -u origin scaladoc-missing-docs-collection-immutable-b
+
+
+-------------------------------------------------------------------------------
+ AFTERWARDS
+-------------------------------------------------------------------------------
+
+# Back to somewhere neutral.
+git switch main
+
+# The three updated branches: each should now be one commit further along than
+# what is on origin was before you pushed, and still based on its old base.
+for b in scaladoc-missing-docs-core-array-function-tuple-sys \
+         scaladoc-missing-docs-util-concurrent \
+         scaladoc-missing-docs-math-coll-generic; do
+  printf '%-52s %s commit(s) on base %s, %s files\n' "$b" \
+    "$(git rev-list --count $(git merge-base main $b)..$b)" \
+    "$(git merge-base main $b | cut -c1-10)" \
+    "$(git diff --name-only $(git merge-base main $b)..$b | wc -l | tr -d ' ')"
+done
+# expect: 2 commits / 109 files, 4 commits / 36 files, 2 commits / 18 files
+
+# The seven new branches: each exactly one commit ahead of current main.
+for b in scaladoc-missing-docs-quoted-compiletime-jdk \
+         scaladoc-missing-docs-collection-convert-js \
+         scaladoc-missing-docs-runtime \
+         scaladoc-missing-docs-collection-mutable \
+         scaladoc-missing-docs-collection-core \
+         scaladoc-missing-docs-collection-immutable-a \
+         scaladoc-missing-docs-collection-immutable-b; do
+  printf '%-52s %s commit(s), %s files\n' "$b" \
+    "$(git rev-list --count main..$b)" "$(git diff --name-only main..$b | wc -l | tr -d ' ')"
+done
+# expect: 17, 40, 119, 40, 36, 5, 29 files, one commit each
+
+# Overlap check across all ten. This should print nothing: no file belongs to
+# two weeks, which is what keeps the PRs independent of each other.
+for b in scaladoc-missing-docs-core-array-function-tuple-sys \
+         scaladoc-missing-docs-util-concurrent \
+         scaladoc-missing-docs-math-coll-generic \
+         scaladoc-missing-docs-quoted-compiletime-jdk \
+         scaladoc-missing-docs-collection-convert-js \
+         scaladoc-missing-docs-runtime \
+         scaladoc-missing-docs-collection-mutable \
+         scaladoc-missing-docs-collection-core \
+         scaladoc-missing-docs-collection-immutable-a \
+         scaladoc-missing-docs-collection-immutable-b; do
+  git diff --name-only $(git merge-base main $b)..$b
+done | sort | uniq -d
+
+# Expected totals across the ten PRs: 449 distinct library files.
+
+# Note on the three updated branches: they sit on the base they were cut from,
+# so GitHub will show those PRs as behind main. That is unchanged by anything
+# here, and merging or rebasing them is a separate decision. The one thing to
+# know is that upstream has since edited two of their files in ways the docs do
+# not touch: Option.scala gained @publicInBinary on the compat orNull, and
+# Regex.scala gained a captureChecking import and two self-type annotations.
+# Those land when the PR merges; the cherry-picks deliberately left them alone.
+
+
+-------------------------------------------------------------------------------
+ IF SOMETHING GOES WRONG IN A BLOCK
+-------------------------------------------------------------------------------
+
+# A cherry-pick stopped and you want out, before you have committed:
+git cherry-pick --quit
+git reset --hard HEAD
+git clean -fd
+
+# Undo the commit you just added to an existing branch (weeks 3-5), as long as
+# you have NOT pushed yet:
+git reset --hard @{u}         # back to what origin has
+
+# If you already pushed and want it gone, that one does need a force push:
+git reset --hard @{u}~1
+git push --force-with-lease origin <the-branch>
+
+# Throw away a new branch (weeks 6-11) and start that week over:
+git switch main
+git branch -D <the-branch>
+
+# See what a single commit did, before or after picking it:
+git show --stat <sha>
+
+# See exactly what your added commit changed on an existing branch:
+git show --stat HEAD
+git diff HEAD~1 -- library/ | head -100
+
+
+-------------------------------------------------------------------------------
+ WHAT THE 2026-08-24 AUDIT FOUND (before these branches were planned)
+-------------------------------------------------------------------------------
+
+ All 449 library files touched by weeks 3-11 were re-scanned at the branch tip
+ with a Scala-aware tokenizer, and compared against the pre-project baseline
+ e47290a763. Results:
+
+   doc comments inserted inside a STRING literal .......... 0
+     Every string literal in all 449 files is byte-identical to the baseline,
+     so nothing was written into an @implicitNotFound message or any other
+     string. (The scanner was self-tested on a synthetic case to confirm it
+     would catch one.)
+
+   doc comments left BELOW an annotation .................. 5, all now fixed
+     library/src/scala/sys/SystemProperties.scala   wrapAccess       -> 4199d44413
+     library/src/scala/collection/mutable/AnyRefMap.scala  4 sites    -> 28afc16801
+     One more, in mutable/LinkedHashMap.scala, is pre-existing and untouched.
+
+   doc comments inserted inside COMMENTED-OUT code ........ 1, now fixed
+     library/src/scala/collection/mutable/Map.scala  remove          -> 23dc7b1f04
+     (A second such case, in immutable/List.scala, had already been removed
+     before 69deef6cf6 was committed.)
+
+   leftover TODO FILL IN markers .......................... 0
+   non-comment (code) changes ............................. 0 across 449 files
+   malformed @throws tags ................................. 0
+   em-dashes introduced ................................... 0
+     (25 exist in these files, all of them pre-existing on main.)
+
+ So the answer to "did Fable and Opus fix those as they went": the string
+ case, yes, completely. The annotation case, mostly: five slipped through,
+ in weeks 3 and 9, and they are fixed by the three fixup commits folded into
+ those two weeks above.
+
+
+-------------------------------------------------------------------------------
+ NOT INCLUDED IN ANY BRANCH, ON PURPOSE
+-------------------------------------------------------------------------------
+
+ These commits live on fable-scaladoc-weeks-3-11 and are project bookkeeping,
+ not library documentation. None of them belongs in a PR:
+
+   3f9f563401  Add todo-writer tooling, the brief, and the captured review comments
+   77cef31d4d  Record suspected bugs and notational inconsistencies (weeks 3-11)
+   9cf08ba73e  Add the handoff brief and writer rules for the next model
+   4ad15ab468  Drop the weeks 1-2 task from the handoff brief
+   dddead77b1  Record the Queue.apply doc/code mismatch in consistency notes
+   f27877a1c0  Record two pre-existing doc-placement defects found by the audit
+
+ todo-writer/docs/suspected-bugs.md (17 entries) is the one worth reading
+ before the PRs go out: it is the list of code defects found while writing,
+ each left undocumented and flagged in-file with @note NEEDS-HUMAN.
