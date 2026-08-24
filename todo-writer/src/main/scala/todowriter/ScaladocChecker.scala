@@ -100,7 +100,23 @@ object ScaladocChecker:
         case _: Throwable => None
     )
 
-  /** Find all .scala files recursively under the given directory. */
+  /** Directory names that are never scanned for .scala files: build output
+   *  directories, VCS metadata and editor/IDE metadata. Scanning these pollutes
+   *  downloaded or generated sources (e.g. `target/scala2-library/sources`)
+   *  and breaks builds that compile them.
+   */
+  private val ignoredDirectoryNames =
+    Set("target", ".git", ".bloop", ".metals", ".bsp", ".idea", ".scala-build", "node_modules")
+
+  /** True if any path segment of `rel` (relative to the scanned root) names an
+   *  ignored directory.
+   */
+  private def isInIgnoredDirectory(rel: Path): Boolean =
+    rel.iterator().asScala.exists(name => ignoredDirectoryNames.contains(name.toString))
+
+  /** Find all .scala files recursively under the given directory, skipping
+   *  build output and metadata directories.
+   */
   def findScalaFiles(root: Path): List[Path] =
     if !Files.isDirectory(root) then Nil
     else
@@ -110,7 +126,7 @@ object ScaladocChecker:
           .walk(root)
           .iterator()
           .asScala
-          .filter(p => Files.isRegularFile(p) && p.toString.endsWith(".scala"))
+          .filter(p => Files.isRegularFile(p) && p.toString.endsWith(".scala") && !isInIgnoredDirectory(root.relativize(p)))
           .toList
       )
 

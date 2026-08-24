@@ -228,7 +228,7 @@ object Main:
   private def performMigration(folder: Path, dry: Boolean): Unit =
     import java.nio.file.{Files => JFiles, Paths => JPaths}
     import scala.jdk.CollectionConverters._
-    val scalaFiles = JFiles.walk(folder).filter(p => p.toString.endsWith(".scala")).iterator().asScala.toList
+    val scalaFiles = ScaladocChecker.findScalaFiles(folder)
     var changed = 0
     val pattern = Pattern.compile("(?s)/\\*\\*(.*?)\\*/")
     for path <- scalaFiles do

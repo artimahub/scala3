@@ -78,10 +78,15 @@ object Fixer:
       val needsDescription = issues.contains(Issue.MissingDescription)
 
       if block.synthetic then
-        // Insert a brand-new Scaladoc stub before the declaration line.
+        // Insert a brand-new Scaladoc stub before the declaration line. The stub
+        // must go ABOVE any leading annotations (e.g. `@deprecated`) and comment
+        // lines that belong to the declaration, not between them and the
+        // declaration -- otherwise the annotation ends up sitting between the
+        // doc comment and the member it documents.
         if insertTodo && (needsDescription || tparamsToInsert.nonEmpty || paramsToInsert.nonEmpty || returnToInsert) then
+          val insertIdx = preambleStart(currentText, block.startIndex)
           val newStub = buildNewScaladocStub(currentText, block.startIndex, tparamsToInsert, paramsToInsert, returnToInsert)
-          currentText = currentText.substring(0, block.startIndex) + newStub + "\n" + currentText.substring(block.startIndex)
+          currentText = currentText.substring(0, insertIdx) + newStub + "\n" + currentText.substring(insertIdx)
           fixCount += 1
       else
         // Check if block is single-line
@@ -178,6 +183,128 @@ object Fixer:
       lines += s"$ws */"
       lines.mkString("\n")
 
+
+  /** Byte offset where a newly inserted Scaladoc stub should be placed for the
+   *  declaration beginning at `declLineStart`.
+   *
+   *  Returns the start of the declaration's leading annotation/comment preamble
+   *  (pure annotation lines, multi-line annotations, `//` line comments and
+   *  single-line `/* ... */` comments), so the stub is inserted ABOVE those
+   *  lines rather than between them and the declaration. When there is no such
+   *  preamble, the declaration line start is returned unchanged.
+   *
+   *  The candidate lines are first collected (annotations, comments and the
+   *  deeper-indented continuation lines of multi-line annotations) and then
+   *  validated as a single annotation/comment block, so the tail of an
+   *  unrelated multi-line statement above the declaration is not mistaken for
+   *  an annotation preamble.
+   */
+  private def preambleStart(text: String, declLineStart: Int): Int =
+    val declLine = text.substring(declLineStart).takeWhile(_ != '\n')
+    val declIndent = declLine.takeWhile(_.isWhitespace).length
+
+    var insertIdx = declLineStart
+    var pendingOpen = 0   // net of unmatched '('/'[' opens in the lines below
+    var collected = List.empty[String]  // lines, bottom-most first
+    var aboveEnd = declLineStart        // exclusive end of the line being examined
+    var continueScanning = true
+
+    while continueScanning && aboveEnd > 0 do
+      // The line being examined is the one ending at index `aboveEnd - 1`.
+      // Find the newline that precedes it to locate the line's start.
+      val nl = text.lastIndexOf('\n', aboveEnd - 2)
+      val lineStart = nl + 1
+      val line = text.substring(lineStart, aboveEnd - 1)
+      val trimmed = line.trim
+      val net = balancedGroupDelta(line)
+      val indent = line.takeWhile(_.isWhitespace).length
+
+      val isAnnotation = isAnnotationStart(line)
+      val isLineComment = trimmed.startsWith("//")
+      val isBlockComment = trimmed.startsWith("/*") && trimmed.endsWith("*/")
+      // A deeper-indented line with unbalanced groups is a continuation of a
+      // multi-line annotation whose opening `@` line sits further up.
+      val isContinuation = indent > declIndent && (pendingOpen != 0 || net != 0)
+
+      if trimmed.isEmpty then
+        continueScanning = false
+      else if isAnnotation || isLineComment || isBlockComment || isContinuation then
+        insertIdx = lineStart
+        pendingOpen += net
+        collected = line :: collected
+        aboveEnd = lineStart
+      else
+        continueScanning = false
+
+    // Validate the collected block (top-most line first): every line must be an
+    // annotation start, a comment, or the continuation of a multi-line
+    // annotation. Otherwise the collected lines are not a declaration preamble
+    // and we must not move the stub.
+    if collected.nonEmpty && isAnnotationBlock(collected) then insertIdx
+    else declLineStart
+
+  /** True if `line` starts an annotation: it is a pure annotation line (e.g.
+   *  `@deprecated("...", "2.13.0")`), or the opening line of a multi-line
+   *  annotation whose arguments continue on the following lines. A line like
+   *  `@inline def foo(...)` is NOT an annotation line -- it is the declaration
+   *  itself with a leading annotation, and must not be absorbed into the
+   *  preamble of a following declaration.
+   */
+  private def isAnnotationStart(line: String): Boolean =
+    val trimmed = line.trim
+    trimmed.startsWith("@") && (Declaration.dropLeadingAnnotations(trimmed).trim.isEmpty || balancedGroupDelta(line) != 0)
+
+  /** True if the given lines (ordered top-most first) form a valid annotation /
+   *  comment block: each line is an annotation start (starts with `@`), a
+   *  comment, or the continuation of a multi-line annotation opened on a line
+   *  above, with all groups balanced by the end of the block.
+   */
+  private def isAnnotationBlock(lines: List[String]): Boolean =
+    var openCount = 0
+    var valid = true
+    var i = 0
+    while valid && i < lines.length do
+      val trimmed = lines(i).trim
+      if openCount > 0 then
+        openCount += balancedGroupDelta(lines(i))
+      else if isAnnotationStart(lines(i)) then
+        openCount += balancedGroupDelta(lines(i))
+      else if trimmed.startsWith("//") || (trimmed.startsWith("/*") && trimmed.endsWith("*/")) then
+        () // comment between annotations
+      else
+        valid = false
+      i += 1
+    valid && openCount == 0
+
+  /** Net count of `(` and `[` minus `)` and `]` in `line`, ignoring brackets
+   *  inside string and character literals. Used to detect continuation lines of
+   *  multi-line annotations.
+   */
+  private def balancedGroupDelta(line: String): Int =
+    var delta = 0
+    var i = 0
+    var inString = false
+    var inChar = false
+    var escaped = false
+    while i < line.length do
+      val ch = line.charAt(i)
+      if inString then
+        if escaped then escaped = false
+        else if ch == '\\' then escaped = true
+        else if ch == '"' then inString = false
+      else if inChar then
+        if escaped then escaped = false
+        else if ch == '\\' then escaped = true
+        else if ch == '\'' then inChar = false
+      else
+        ch match
+          case '"'              => inString = true
+          case '\''             => inChar = true
+          case '(' | '['        => delta += 1
+          case ')' | ']'        => delta -= 1
+          case _                => ()
+      i += 1
+    delta
 
   /** Check if a result needs fixing (has issues that require insertion). */
   private def needsFix(result: CheckResult): Boolean =
