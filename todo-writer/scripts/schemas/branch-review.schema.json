@@ -1,0 +1,57 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["verdict", "summary", "items", "bonus_findings"],
+  "properties": {
+    "verdict": {
+      "type": "string",
+      "enum": ["approve", "revise"],
+      "description": "approve only if nothing in this chunk is a blocker"
+    },
+    "summary": {
+      "type": "string",
+      "description": "one-line assessment of the documentation in this chunk"
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["file", "symbol", "line", "severity", "issue", "suggestion", "confidence", "needs_human"],
+        "properties": {
+          "file": { "type": "string", "description": "repo-relative path, e.g. library/src/scala/collection/immutable/List.scala" },
+          "symbol": { "type": "string", "description": "declaration name, e.g. List.updated" },
+          "line": { "type": "integer", "description": "1-based line of the declaration in the branch version of the file" },
+          "severity": { "type": "string", "enum": ["blocker", "nit", "ok"] },
+          "issue": { "type": "string", "description": "what is wrong; empty string if severity is ok" },
+          "suggestion": { "type": "string", "description": "concrete fix; empty string if severity is ok" },
+          "confidence": {
+            "type": "string",
+            "enum": ["high", "medium", "low"],
+            "description": "how confident you are, given the code you read"
+          },
+          "needs_human": {
+            "type": "boolean",
+            "description": "true when the code does not make the intended meaning determinable"
+          }
+        }
+      }
+    },
+    "bonus_findings": {
+      "type": "array",
+      "description": "real problems noticed in PRE-EXISTING documentation or code outside the added comments; never affect the verdict",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["file", "symbol", "line", "issue", "suggestion"],
+        "properties": {
+          "file": { "type": "string" },
+          "symbol": { "type": "string" },
+          "line": { "type": "integer" },
+          "issue": { "type": "string" },
+          "suggestion": { "type": "string" }
+        }
+      }
+    }
+  }
+}
