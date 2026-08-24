@@ -1,0 +1,445 @@
+{
+  "week": "12",
+  "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+  "base": "190abc348060a547db89181f4bcef0559520ab95",
+  "head": "be1dd9f7e003c0605bb32b3975d97c29e767d21f",
+  "model": "gpt-5.6-terra",
+  "chunks": 10,
+  "verdict": "revise",
+  "blockers": 29,
+  "nits": 2,
+  "needs_human": 0,
+  "summary": "Four added Scaladoc entries make false representation or hash-contract claims; the diff is otherwise comment-only.  |  Several added comments misstate fallback/equality and builder behavior; the diff is otherwise comment-only.  |  No accuracy, placement, or comment-only blockers found; two factory summaries are minor sentence fragments.  |  Two List sharing/allocation comments overstate copying; the remaining reviewed additions are sound and comment-only.  |  Three added Scaladoc blocks misstate or omit observable behavior.  |  Several added comments overstate Range behavior, including an explicitly false inclusivity claim and incorrect iterator guarantees under integer overflow.  |  `validate` overstates the invariants it checks; the remaining reviewed additions are comment-only and substantively aligned with their implementations.  |  `Set.from` inaccurately promises that retained inputs are unordered and that all other inputs are rebuilt.  |  Several added comments overstate evaluation and allocation behavior in `Stream` and strict sequence operations.  |  Two added comments misstate equality and ordinal-appending behavior; the diff is otherwise comment-only.",
+  "items": [
+    {
+      "file": "library/src/scala/collection/immutable/BitSet.scala",
+      "symbol": "BitSet.fromSpecific",
+      "line": 53,
+      "severity": "blocker",
+      "issue": "The comment promises a new bitset, but the delegated factory returns `coll` unchanged when it is already an immutable `BitSet`.",
+      "suggestion": "Say it returns a bitset containing `coll`'s elements and note that an existing immutable bitset is returned unchanged.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/immutable/BitSet.scala",
+      "symbol": "BitSet.fromBitMaskNoCopy",
+      "line": 68,
+      "severity": "blocker",
+      "issue": "The wrapper is documented as directly backing the result with `elems`, but the delegated factory retains the array only when it has more than two words. Empty and small inputs use canonical/word-field representations instead.",
+      "suggestion": "Qualify the backing-array claim for arrays with more than two words, or describe only the bit contents.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/immutable/BitSet.scala",
+      "symbol": "BitSet.newBuilder",
+      "line": 221,
+      "severity": "blocker",
+      "issue": "The comment says the mutable builder's word array becomes the result's backing array without copying. That only holds for results with more than two words; empty and small bitsets use canonical/`BitSet1`/`BitSet2` representations.",
+      "suggestion": "Qualify the backing-array claim for results with more than two words, or remove the representation-detail paragraph.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/immutable/ChampCommon.scala",
+      "symbol": "Node.cachedJavaKeySetHashCode",
+      "line": 137,
+      "severity": "blocker",
+      "issue": "This is not a Java `Set`-contract hash: implementations accumulate improved hashes (`Hashing.improve(key.##)`), while the Java/Scala set hash contract uses ordinary element hash codes. It is also computed on demand in hash-collision nodes rather than universally cached.",
+      "suggestion": "Describe it as the sum of improved hashes used internally for trie equality/fast rejection, without claiming the Java `Set` contract or universal caching.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/immutable/TreeSet.scala",
+      "symbol": "TreeSet.equals",
+      "line": 426,
+      "severity": "blocker",
+      "issue": "The fallback does not generally compare elements using `equals` and `hashCode`. `Set.equals` calls `this.subsetOf(set)`, which calls the other set's `contains`; for another `TreeSet` with a different ordering, that lookup uses that ordering.",
+      "suggestion": "Describe the fallback as general set equality based on the other set's membership lookup, without claiming `equals`/`hashCode` semantics.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/immutable/VectorMap.scala",
+      "symbol": "VectorMap.removed",
+      "line": 213,
+      "severity": "blocker",
+      "issue": "The claim that an absent key returns `this` is false for an empty map that is not the cached singleton: the `isEmpty` branch returns `empty` before looking up `key`. For example, an empty map produced by a builder is replaced by the cached empty map.",
+      "suggestion": "Qualify the identity guarantee to non-empty maps, or say only that removing an absent key leaves the bindings unchanged.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/immutable/VectorMap.scala",
+      "symbol": "VectorMapBuilder.result",
+      "line": 411,
+      "severity": "blocker",
+      "issue": "After `result()`, `addOne` does not apply pairs to the previously returned instance. It assigns `aliased = aliased.updated(...)`; because `updated` is immutable, the prior result remains unchanged and the next `result()` returns a new map.",
+      "suggestion": "State that later additions replace the builder's cached result with a new map and leave previously returned maps unchanged.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/immutable/WrappedString.scala",
+      "symbol": "WrappedString.startsWith",
+      "line": 121,
+      "severity": "blocker",
+      "issue": "The stated false result for a negative or past-end `offset` is not true on the inherited fallback. With a non-`WrappedString` empty `IterableOnce`, `super.startsWith` returns `true` regardless of such an offset.",
+      "suggestion": "Limit the offset claim to the `WrappedString`/`String.startsWith` fast path, or document the inherited behavior without making the universal claim.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/immutable/WrappedString.scala",
+      "symbol": "WrappedString.indexOf",
+      "line": 149,
+      "severity": "blocker",
+      "issue": "A non-`Char` value can match under the inherited implementation: it compares with Scala `==`, so a user-defined value whose `equals` accepts a `Char` may be found. The comment says such a value can never occur.",
+      "suggestion": "Say that non-`Char` values use the inherited equality-based search; do not claim they cannot match.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/immutable/WrappedString.scala",
+      "symbol": "WrappedString.lastIndexOf",
+      "line": 172,
+      "severity": "blocker",
+      "issue": "As with `indexOf`, the inherited fallback can find a non-`Char` value through Scala equality, contrary to the claim that it can never occur.",
+      "suggestion": "Describe the non-`Char` path as the inherited equality-based backwards search.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/immutable/WrappedString.scala",
+      "symbol": "WrappedString.copyToArray",
+      "line": 193,
+      "severity": "blocker",
+      "issue": "The documentation omits the material negative-`start` case. On the `Array[Char]` fast path, `elemsToCopyToArray` can return a positive count for a negative start and `String.getChars` then throws rather than copying from a clamped index.",
+      "suggestion": "Document the required non-negative destination start and the exception, or otherwise accurately distinguish this fast path from the inherited behavior.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/immutable/LazyList.scala",
+      "symbol": "LazyList.iterableFactory",
+      "line": 366,
+      "severity": "nit",
+      "issue": "The summary is a noun fragment rather than a standalone declarative API-index sentence.",
+      "suggestion": "Use wording such as \"Returns the `LazyList` companion object, this lazy list's factory.\"",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/immutable/LazyListIterable.scala",
+      "symbol": "LazyListIterable.iterableFactory",
+      "line": 366,
+      "severity": "nit",
+      "issue": "The summary is a noun fragment rather than a standalone declarative API-index sentence.",
+      "suggestion": "Use wording such as \"Returns the `LazyListIterable` companion object, this lazy list's factory.\"",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/immutable/LazyList.scala",
+      "symbol": "LazyList.from",
+      "line": 1470,
+      "severity": "ok",
+      "issue": "",
+      "suggestion": "",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/immutable/LazyListIterable.scala",
+      "symbol": "LazyListIterable.apply",
+      "line": 432,
+      "severity": "ok",
+      "issue": "",
+      "suggestion": "",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/immutable/LazyListBase.scala",
+      "symbol": "LazyListBase.InRace",
+      "line": 98,
+      "severity": "ok",
+      "issue": "",
+      "suggestion": "",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/immutable/List.scala",
+      "symbol": "List.prependedAll",
+      "line": 173,
+      "severity": "blocker",
+      "issue": "The comment says only `prefix` is copied, but `prefix: List` with an empty receiver is returned unchanged by `xs ::: this`, and the `ListBuffer`/empty-receiver branch returns `b.toList` without copying its internal list.",
+      "suggestion": "Describe copying conditionally: construction copies prefix elements when needed, while a List prefix or an empty receiver can be returned/shared directly.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/immutable/List.scala",
+      "symbol": "List.slice",
+      "line": 245,
+      "severity": "blocker",
+      "issue": "The comment says kept elements are copied, but `slice` delegates to `drop(...).take(...)`; when `until` reaches past the end, `take` returns the dropped suffix itself, sharing it with the original list.",
+      "suggestion": "State that the kept elements are copied only when the slice ends before the source suffix; otherwise the whole selected suffix may be returned unchanged.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/immutable/ListMap.scala",
+      "symbol": "ListMap.Node.updated",
+      "line": 263,
+      "severity": "ok",
+      "issue": "",
+      "suggestion": "",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/immutable/ListSet.scala",
+      "symbol": "ListSet.Node.excl",
+      "line": 155,
+      "severity": "ok",
+      "issue": "",
+      "suggestion": "",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/immutable/LongMap.scala",
+      "symbol": "LongMap.firstKey",
+      "line": 728,
+      "severity": "blocker",
+      "issue": "The method returns a `Long` key, not an entry, and it throws `IllegalStateException` when the map is empty; neither fact is documented.",
+      "suggestion": "Document it as returning the lowest key in unsigned order and add `@throws IllegalStateException if this map is empty`.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/immutable/LongMap.scala",
+      "symbol": "LongMap.lastKey",
+      "line": 736,
+      "severity": "blocker",
+      "issue": "The method returns a `Long` key, not an entry, and it throws `IllegalStateException` when the map is empty; neither fact is documented.",
+      "suggestion": "Document it as returning the highest key in unsigned order and add `@throws IllegalStateException if this map is empty`.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/immutable/NumericRange.scala",
+      "symbol": "NumericRange.reverse",
+      "line": 389,
+      "severity": "blocker",
+      "issue": "The `@throws` condition is inaccurate: the method returns `this` for an empty range before negating its step, including an empty range over an unsigned integral. The actual check is whether a non-empty range's negated step has the same sign as its original step.",
+      "suggestion": "State the code-level condition, e.g. `@throws ArithmeticException if this range is non-empty and negating `step` does not change its sign`.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/immutable/Queue.scala",
+      "symbol": "Queue.appendedAll",
+      "line": 196,
+      "severity": "ok",
+      "issue": "",
+      "suggestion": "",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/immutable/Range.scala",
+      "symbol": "Range.Inclusive.isInclusive",
+      "line": 936,
+      "severity": "blocker",
+      "issue": "The comment says this range includes its `end` value, but an inclusive range includes `end` only when it is reachable by whole `step` increments (for example, `Range.inclusive(0, 5, 2)` does not contain 5).",
+      "suggestion": "Say that it returns `true` because `end` is an inclusive bound, and retain the reachability qualification.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/immutable/Range.scala",
+      "symbol": "Range.Int",
+      "line": 1052,
+      "severity": "blocker",
+      "issue": "`NumericRange[Int]` does not have the same behavior as `Range`: it has different string representations and, unlike `Range`, its `equals` implementation forces `length`, so it cannot compare overfull ranges without throwing.",
+      "suggestion": "Remove the claim that it has the same behavior, or qualify it to the intended construction/element semantics.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/immutable/Range.scala",
+      "symbol": "RangeIterator.knownSize",
+      "line": 1089,
+      "severity": "blocker",
+      "issue": "The method does not always return the number of remaining elements. `(lastElement - _next)` is evaluated as an `Int` and can overflow for ranges spanning sufficiently distant endpoints, yielding an incorrect value (including invalid negative values).",
+      "suggestion": "Do not promise an exact remaining-element count unless the implementation is fixed to calculate safely (or return `-1` when it cannot be represented).",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/immutable/Range.scala",
+      "symbol": "RangeIterator.drop",
+      "line": 1106,
+      "severity": "blocker",
+      "issue": "The claimed skip behavior fails when `step * n` overflows before being added to `_next.toLong`; for example, dropping `Int.MaxValue` elements from an iterator with step 2 can move it backward outside the range.",
+      "suggestion": "Fix the arithmetic to multiply in `Long` (`step.toLong * n`) before retaining this guarantee, or weaken/remove the claim.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/immutable/RedBlackTree.scala",
+      "symbol": "RedBlackTree.validate",
+      "line": 45,
+      "severity": "blocker",
+      "issue": "The documentation says this asserts the red-black tree invariants and throws if any invariant is violated, but the implementation never asserts that a non-empty top-level tree has a black root. A red-root tree with ordered keys, no red-red edge, and equal black heights passes validation.",
+      "suggestion": "Describe only the properties actually checked, or explicitly state that root colour is not checked. Do not claim every red-black invariant is asserted.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/immutable/Seq.scala",
+      "symbol": "IndexedSeq.sameElements",
+      "line": 109,
+      "severity": "ok",
+      "issue": "",
+      "suggestion": "",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/immutable/Set.scala",
+      "symbol": "Set.from",
+      "line": 150,
+      "severity": "blocker",
+      "issue": "The documentation says only unordered immutable-set implementations are returned unchanged, and that anything else cannot retain an ordering. The implementation also returns `MapOps.LazyImmutableKeySet` unchanged; such a key set can come from an ordered immutable map such as `ListMap` or `VectorMap` and retains that map's iteration order.",
+      "suggestion": "Describe the exact retained implementations (including immutable map key sets), or remove the claim that retained inputs are unordered and that the result cannot retain an ordering.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/immutable/SeqMap.scala",
+      "symbol": "SeqMap.from",
+      "line": 69,
+      "severity": "ok",
+      "issue": "",
+      "suggestion": "",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/immutable/Set.scala",
+      "symbol": "SetNIterator.drop",
+      "line": 279,
+      "severity": "ok",
+      "issue": "",
+      "suggestion": "",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/immutable/StrictOptimizedSeqOps.scala",
+      "symbol": "StrictOptimizedSeqOps.distinctBy",
+      "line": 48,
+      "severity": "blocker",
+      "issue": "The comment says that no copy is built when no duplicate is found, but for sequences with more than one element the implementation always allocates `newSpecificBuilder` and adds every element to it before discarding it and returning `coll`.",
+      "suggestion": "Say that the original sequence is returned when no duplicate is found, without claiming that no builder/copy is constructed.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/immutable/StrictOptimizedSeqOps.scala",
+      "symbol": "StrictOptimizedSeqOps.patch",
+      "line": 113,
+      "severity": "blocker",
+      "issue": "The stated result suffix, \"from `from + replaced` onwards\", is false when either argument is negative. The implementation clamps a negative `from` to zero and drops no elements for a negative `replaced`; e.g. `patch(-3, other, 5)` resumes at index 5, not index 2.",
+      "suggestion": "Describe the suffix using the normalized indices, or avoid the raw `from + replaced` formula and retain the preceding edge-case rules.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/immutable/Stream.scala",
+      "symbol": "Stream.Cons.tail",
+      "line": 595,
+      "severity": "blocker",
+      "issue": "The comment promises that the tail expression is evaluated once. If `tlGen.nn()` throws, `tlGen` is never cleared, so a later call retries the expression. The same successful-only qualification is also needed for the constructor parameter documentation.",
+      "suggestion": "State that a successfully evaluated tail is memoized and returned thereafter; a throwing tail expression is retried on a later call.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/immutable/Stream.scala",
+      "symbol": "Stream.toDeferrer",
+      "line": 638,
+      "severity": "blocker",
+      "issue": "The comment claims the deferred right operand is evaluated only when the result asks for its tail, but `prefix #::: l` evaluates `l()` immediately when `prefix` is empty: `lazyAppendedAll` returns `iterableFactory.from(suffix)` in that case.",
+      "suggestion": "Qualify the laziness guarantee to `#::`, or document the empty-prefix exception for `#:::`.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/immutable/Stream.scala",
+      "symbol": "Stream.WithFilter.foreach",
+      "line": 741,
+      "severity": "blocker",
+      "issue": "\"This computes all elements\" is unconditional, but traversal stops if the filter predicate or `f` throws (and does not complete for an infinite stream).",
+      "suggestion": "Qualify the claim, e.g. \"Traverses the underlying stream until it is exhausted, unless the predicate or `f` throws.\"",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/immutable/TreeMap.scala",
+      "symbol": "TreeMap.equals",
+      "line": 566,
+      "severity": "blocker",
+      "issue": "The fallback is not generally equality/hash-code based. `super.equals` uses `Map` equality, which performs lookups in the other map; with a differently ordered `TreeMap`, that lookup uses the other map's ordering and can produce asymmetric results.",
+      "suggestion": "Describe the fallback as general `Map` equality by key lookup, and note that its result depends on the other map's key-equivalence relation; do not claim it uses `equals` and `hashCode`.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/immutable/TreeSeqMap.scala",
+      "symbol": "TreeSeqMap.Ordering.append",
+      "line": 964,
+      "severity": "blocker",
+      "issue": "The documented precondition and `@throws` condition are not enforced. For example, on a `Tip` at ordinal 5, `append(3, value)` joins the new entry rather than throwing; an equal ordinal replaces the value. The `Bin` path also joins when the ordinal lies outside its prefix.",
+      "suggestion": "Remove the claimed enforced ordering constraint and exception guarantee, or fix the implementation separately to enforce them. At minimum, document that the current implementation can accept non-greater ordinals.",
+      "confidence": "high",
+      "needs_human": false
+    }
+  ],
+  "bonus_findings": [
+    {
+      "file": "library/src/scala/collection/immutable/Queue.scala",
+      "symbol": "Queue.apply",
+      "line": 63,
+      "issue": "Pre-existing Scaladoc says a short queue throws `NoSuchElementException`, but the implementation throws `IndexOutOfBoundsException`; additionally, a negative index returns `head` when the queue is non-empty.",
+      "suggestion": "Validate negative indices and throw `IndexOutOfBoundsException`, then correct the pre-existing `@throws` tag."
+    },
+    {
+      "file": "library/src/scala/collection/immutable/Range.scala",
+      "symbol": "RangeIterator.knownSize",
+      "line": 1090,
+      "issue": "The `Int` subtraction can overflow, causing `knownSize` to report an incorrect or invalid negative size.",
+      "suggestion": "Compute the difference in `Long` and return an exact representable size or `-1`."
+    },
+    {
+      "file": "library/src/scala/collection/immutable/Range.scala",
+      "symbol": "RangeIterator.drop",
+      "line": 1116,
+      "issue": "`step * n` is an overflowing `Int` multiplication despite being added to a `Long`; large drops can corrupt iterator position.",
+      "suggestion": "Use `_next.toLong + step.toLong * n`."
+    },
+    {
+      "file": "library/src/scala/collection/immutable/TreeSet.scala",
+      "symbol": "TreeSet.equals",
+      "line": 426,
+      "issue": "Pre-existing documentation makes the same incorrect claim that general set equality compares elements using `equals` and `hashCode`; general `Set` equality uses membership lookup and can depend on the other set's equivalence relation.",
+      "suggestion": "Revise it analogously to describe lookup-based general set equality."
+    }
+  ]
+}

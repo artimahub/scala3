@@ -1,0 +1,334 @@
+{
+  "week": "11",
+  "branch": "scaladoc-missing-docs-collection-immutable-vector-hashmap-arrayseq",
+  "base": "190abc348060a547db89181f4bcef0559520ab95",
+  "head": "106795f1f9e1da3b47d28db787bc70854322c3d6",
+  "model": "gpt-5.6-terra",
+  "chunks": 5,
+  "verdict": "revise",
+  "blockers": 27,
+  "nits": 4,
+  "needs_human": 6,
+  "summary": "Several comments overstate factory/stepper behavior, misdescribe negative sizes and invalid copy destinations, and leave two required human decisions unresolved.  |  Two added comments overpromise instance-sharing behavior that the implementations do not provide in all documented cases.  |  Five comments misstate identity or omit the inherited negative-count behavior.  |  Several comments overpromise identity/allocation behavior, and three unresolved `NEEDS-HUMAN` notes remain in public iterator documentation.  |  Several added comments overstate implementation behavior, and one unresolved NEEDS-HUMAN note remains in public Scaladoc.",
+  "items": [
+    {
+      "file": "library/src/scala/collection/immutable/ArraySeq.scala",
+      "symbol": "ArraySeq.iterableFactory",
+      "line": 53,
+      "severity": "blocker",
+      "issue": "The untagged factory can return a supplied `ArraySeq` unchanged through `ArraySeq.from`; it does not invariably build an `Array[AnyRef]`-backed result.",
+      "suggestion": "Qualify the representation claim to newly constructed collections, or omit it from this accessor’s documentation.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/immutable/ArraySeq.scala",
+      "symbol": "ArraySeq.stepper",
+      "line": 76,
+      "severity": "blocker",
+      "issue": "The abstract claim that primitive element types use unboxed steppers is false for the `ofBoolean` and `ofUnit` overrides, which always use boxed steppers.",
+      "suggestion": "Limit the statement to primitive types with a value-shaped stepper, and mention the Boolean/Unit exception, or remove the general representation claim.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/immutable/ArraySeq.scala",
+      "symbol": "ArraySeq.appendedAll",
+      "line": 208,
+      "severity": "blocker",
+      "issue": "NEEDS-HUMAN: resolve whether concatenating two primitive-backed `ArraySeq`s of different element types must be supported or documented as throwing `ArrayStoreException`; the fast path only distinguishes object versus primitive arrays.",
+      "suggestion": "Resolve the noted contract/implementation question before retaining representation guarantees in this public documentation.",
+      "confidence": "high",
+      "needs_human": true
+    },
+    {
+      "file": "library/src/scala/collection/immutable/ArraySeq.scala",
+      "symbol": "ArraySeq.prependedAll",
+      "line": 251,
+      "severity": "blocker",
+      "issue": "NEEDS-HUMAN: resolve whether prepending primitive-backed `ArraySeq`s of different element types must be supported or documented as throwing `ArrayStoreException`; this delegates to the same fast path.",
+      "suggestion": "Resolve the noted contract/implementation question before retaining representation guarantees in this public documentation.",
+      "confidence": "high",
+      "needs_human": true
+    },
+    {
+      "file": "library/src/scala/collection/immutable/ArraySeq.scala",
+      "symbol": "ArraySeq.copyToArray",
+      "line": 453,
+      "severity": "blocker",
+      "issue": "For a negative `start`, `elemsToCopyToArray` can return a positive count and the subsequent `Array.copy` throws; the comment instead says copying is bounded by capacity and that a nonpositive minimum merely copies nothing.",
+      "suggestion": "Document the negative-`start` exception/behavior, and do not describe all cases as a bounded successful copy.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/immutable/ArraySeq.scala",
+      "symbol": "ArraySeq.fill",
+      "line": 552,
+      "severity": "blocker",
+      "issue": "For negative `n`, `tabulate` allocates an empty array and evaluates `elem` zero times, not `n` times as documented.",
+      "suggestion": "State that the result has `max(n, 0)` elements and that `elem` is evaluated `max(n, 0)` times.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/immutable/ArraySeq.scala",
+      "symbol": "ArraySeq.tabulate",
+      "line": 566,
+      "severity": "blocker",
+      "issue": "For negative `n`, the implementation returns an empty array; it does not return an array of length `n` or apply `f` over the stated range.",
+      "suggestion": "Describe the result and applications of `f` in terms of `max(n, 0)`.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/immutable/ArraySeq.scala",
+      "symbol": "ArraySeq.untagged",
+      "line": 507,
+      "severity": "blocker",
+      "issue": "The factory delegates `from` to `ArraySeq.from` with `ClassTag.Any`, but that method returns an existing `ArraySeq` unchanged; therefore collections obtained through it are not always `Array[AnyRef]`-backed.",
+      "suggestion": "Restrict the claim to results the factory newly creates, rather than all collections built through it.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/immutable/ArraySeq.scala",
+      "symbol": "ArraySeq.ofByte.equals",
+      "line": 730,
+      "severity": "nit",
+      "issue": "This and the corresponding primitive-specialization `equals` comments omit `@return` despite opening with “Compares” rather than a complete “Returns” summary.",
+      "suggestion": "Add an `@return` describing when equality is true to this family, or rewrite each summary to begin with a complete “Returns” statement.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/immutable/HashMap.scala",
+      "symbol": "HashMap.updated",
+      "line": 260,
+      "severity": "blocker",
+      "issue": "The comment promises that any already-bound key with a reference-equal value returns this map. For a bitmap-node entry, the implementation returns `this` only when both the stored key and supplied key are reference-equal as well as the values; an equal but distinct key instance causes `copyAndSetValue` and produces a new map.",
+      "suggestion": "Qualify the identity guarantee to require both the stored key and value to be reference-equal, or omit the instance-sharing guarantee.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/immutable/HashMap.scala",
+      "symbol": "HashMapBuilder.result",
+      "line": 3427,
+      "severity": "blocker",
+      "issue": "The comment says the current root node is always wrapped and remembered in `aliased`. When the builder is empty, the implementation instead returns `HashMap.empty` immediately and does not set `aliased` or wrap `rootNode`.",
+      "suggestion": "Describe the aliasing/copy-on-write behavior as applying when the builder is non-empty, and state that the empty builder returns the shared empty map.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/immutable/HashMap.scala",
+      "symbol": "HashMapBuilder.clear",
+      "line": 3549,
+      "severity": "nit",
+      "issue": "The comment says a fresh empty root node is installed, but `clear` installs one only when the existing root is non-empty.",
+      "suggestion": "Say that the builder is reset to an empty root when necessary, or remove the freshness claim.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/immutable/HashSet.scala",
+      "symbol": "HashSet.concat",
+      "line": 142,
+      "severity": "blocker",
+      "issue": "The identity guarantee is false when both sets are empty: the `HashSet` case returns `that` immediately when `this.isEmpty`, even though `that` contributes no new elements and may be a distinct empty instance.",
+      "suggestion": "Qualify the `this`-identity statement to exclude the empty-`HashSet` fast path, or state that an empty receiver returns the `HashSet` argument.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/immutable/HashSet.scala",
+      "symbol": "HashSet.take",
+      "line": 521,
+      "severity": "blocker",
+      "issue": "The documentation omits the negative-`n` case. The inherited `Iterable.take` returns an empty set for negative `n`; “at most the first `n` elements” is also nonsensical/false for a negative count.",
+      "suggestion": "State explicitly that a negative `n` returns the empty set.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/immutable/HashSet.scala",
+      "symbol": "HashSet.takeRight",
+      "line": 536,
+      "severity": "blocker",
+      "issue": "The documentation omits the negative-`n` case. The inherited implementation returns an empty set when `n` is negative.",
+      "suggestion": "State explicitly that a negative `n` returns the empty set.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/immutable/HashSet.scala",
+      "symbol": "HashSet.drop",
+      "line": 564,
+      "severity": "blocker",
+      "issue": "The documentation omits the negative-`n` case. The inherited `Iterable.drop` drops no elements and returns the whole set for negative `n`.",
+      "suggestion": "State explicitly that a negative `n` drops no elements.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/immutable/HashSet.scala",
+      "symbol": "HashSet.dropRight",
+      "line": 579,
+      "severity": "blocker",
+      "issue": "The documentation omits the negative-`n` case. The inherited implementation drops no elements and returns the whole set for negative `n`.",
+      "suggestion": "State explicitly that a negative `n` drops no elements.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/immutable/Map.scala",
+      "symbol": "Map.toMap",
+      "line": 40,
+      "severity": "blocker",
+      "issue": "The comment says default immutable map implementations are returned unchanged. `Map.from` first checks `it.isEmpty` and returns `Map.empty`, so `HashMap.empty`, `ListMap.empty`, and `VectorMap.empty` are not returned unchanged.",
+      "suggestion": "Qualify the identity claim with “when non-empty,” or document that every empty source returns the shared `Map.empty` instance.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/immutable/Map.scala",
+      "symbol": "MapOps.-",
+      "line": 112,
+      "severity": "blocker",
+      "issue": "The comment guarantees a new map, but the implementation chains `removed`; built-in immutable maps return themselves when none of the supplied keys is present.",
+      "suggestion": "Say it returns a map without the supplied keys, without promising a new instance.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/immutable/Map.scala",
+      "symbol": "StrictOptimizedMapOps.concat",
+      "line": 258,
+      "severity": "blocker",
+      "issue": "The comment promises a new map, but the body initializes `result` to `coll` and returns it unchanged when `that` is empty.",
+      "suggestion": "Remove the guarantee that the result is new, or state that the receiver may be returned when no bindings are added.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/immutable/Map.scala",
+      "symbol": "Map.from",
+      "line": 392,
+      "severity": "blocker",
+      "issue": "The comment says default immutable map implementations are returned unchanged, but the initial `isEmpty` case replaces every empty input with the shared `Map.empty` before the implementation-specific cases run.",
+      "suggestion": "Document the empty-input case separately and limit the unchanged-instance claim to non-empty supported implementations.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/immutable/Map.scala",
+      "symbol": "Map.Map2.Map2Iterator.drop",
+      "line": 735,
+      "severity": "blocker",
+      "issue": "NEEDS-HUMAN: should this override retain its current nonstandard behavior for negative `n`? `i += n` rewinds the iterator and can replay elements, whereas the base `Iterator.drop` treats negative counts as zero.",
+      "suggestion": "Resolve whether to change the implementation to clamp `n` at zero or explicitly document the intentional deviation; remove the NEEDS-HUMAN note before publishing.",
+      "confidence": "high",
+      "needs_human": true
+    },
+    {
+      "file": "library/src/scala/collection/immutable/Map.scala",
+      "symbol": "Map.Map3.Map3Iterator.drop",
+      "line": 958,
+      "severity": "blocker",
+      "issue": "NEEDS-HUMAN: should this override retain its current nonstandard behavior for negative `n`? `i += n` rewinds the iterator and can replay elements, whereas the base `Iterator.drop` treats negative counts as zero.",
+      "suggestion": "Resolve whether to change the implementation to clamp `n` at zero or explicitly document the intentional deviation; remove the NEEDS-HUMAN note before publishing.",
+      "confidence": "high",
+      "needs_human": true
+    },
+    {
+      "file": "library/src/scala/collection/immutable/Map.scala",
+      "symbol": "Map.Map4.Map4Iterator.drop",
+      "line": 1200,
+      "severity": "blocker",
+      "issue": "NEEDS-HUMAN: should this override retain its current nonstandard behavior for negative `n`? `i += n` rewinds the iterator and can replay elements, whereas the base `Iterator.drop` treats negative counts as zero.",
+      "suggestion": "Resolve whether to change the implementation to clamp `n` at zero or explicitly document the intentional deviation; remove the NEEDS-HUMAN note before publishing.",
+      "confidence": "high",
+      "needs_human": true
+    },
+    {
+      "file": "library/src/scala/collection/immutable/Map.scala",
+      "symbol": "MapBuilderImpl.addOne",
+      "line": 1423,
+      "severity": "nit",
+      "issue": "The summary begins with “Adds” and does not state the method's `this.type` result; unlike the overload above, it has no `@return` tag.",
+      "suggestion": "Add `@return this builder`, or rewrite the summary to begin “Returns this builder after adding …”.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/immutable/Vector.scala",
+      "symbol": "Vector.from",
+      "line": 57,
+      "severity": "nit",
+      "issue": "The small-known-size path is described as producing a single-array vector for sizes \"at most 32\", but a non-Vector source with known size 0 returns the shared `Vector0`, not a single-array `Vector1`.",
+      "suggestion": "Say that non-empty sources with known size at most 32 use the direct single-array path, while known-empty sources return the shared empty vector.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/immutable/Vector.scala",
+      "symbol": "Vector.last",
+      "line": 512,
+      "severity": "blocker",
+      "issue": "The Scaladoc contains `@note NEEDS-HUMAN` asking whether the empty-vector exception message `\"empty.tail\"` is intentional. This unresolved internal question will render in the public API documentation.",
+      "suggestion": "Resolve whether the message is intentional, then remove the NEEDS-HUMAN note; if relevant, document only the stable exception contract.",
+      "confidence": "high",
+      "needs_human": true
+    },
+    {
+      "file": "library/src/scala/collection/immutable/Vector.scala",
+      "symbol": "VectorSliceBuilder.result",
+      "line": 2336,
+      "severity": "blocker",
+      "issue": "The comment says every result of at most 32 elements becomes a `Vector1`, but the `len == 0` branch returns `Vector0`.",
+      "suggestion": "Qualify this as a non-empty result of at most 32 elements, and mention that an empty result is `Vector0`.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/immutable/Vector.scala",
+      "symbol": "VectorStatics.prepend1IfSpace",
+      "line": 3620,
+      "severity": "blocker",
+      "issue": "The documented `null` condition \"if its size is not known\" is false for `Iterable` inputs: that branch calls `sizeCompare` and `size`, so an `Iterable` with unknown `knownSize` can still be accepted and copied when it fits.",
+      "suggestion": "Limit the unknown-size `null` condition to non-`Iterable` `IterableOnce` inputs, or describe the actual `Iterable` size-check behavior.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/immutable/Vector.scala",
+      "symbol": "VectorStatics.append1IfSpace",
+      "line": 3657,
+      "severity": "blocker",
+      "issue": "The documented `null` condition \"if its size is not known\" is false for `Iterable` inputs: that branch determines the size with `sizeCompare`/`size` and can use the fast path despite an unknown `knownSize`.",
+      "suggestion": "Limit the unknown-size `null` condition to non-`Iterable` `IterableOnce` inputs, or describe the actual `Iterable` size-check behavior.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/immutable/Vector.scala",
+      "symbol": "NewVectorIterator.toVector",
+      "line": 3909,
+      "severity": "blocker",
+      "issue": "The comment promises that the slice shares structure with the original vector, but `Vector1.slice0` copies its selected range. For example, converting a partially consumed single-array-vector iterator copies the remaining elements.",
+      "suggestion": "State only that this is implemented via `v.slice` and does not advance the iterator, or qualify sharing as implementation-dependent/where possible.",
+      "confidence": "high",
+      "needs_human": false
+    }
+  ],
+  "bonus_findings": [
+    {
+      "file": "library/src/scala/collection/immutable/Vector.scala",
+      "symbol": "NewVectorIterator.drop",
+      "line": 3814,
+      "issue": "`oldpos + n` can overflow for a positive large `n`, so `drop(Int.MaxValue)` from a nonzero position need not clamp to exhaustion as iterator semantics require.",
+      "suggestion": "Compute the target with overflow-safe arithmetic or compare `n` with `totalLength - oldpos` before adding."
+    }
+  ]
+}

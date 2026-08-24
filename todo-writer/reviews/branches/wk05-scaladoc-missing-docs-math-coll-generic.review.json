@@ -1,0 +1,284 @@
+{
+  "week": "5",
+  "branch": "scaladoc-missing-docs-math-coll-generic",
+  "base": "190abc348060a547db89181f4bcef0559520ab95",
+  "head": "bf522b58f29d3e27344543b598a833abb67e34c3",
+  "model": "gpt-5.6-terra",
+  "chunks": 4,
+  "verdict": "revise",
+  "blockers": 19,
+  "nits": 6,
+  "needs_human": 1,
+  "summary": "The chunk is comment-only, but it contains an unresolved NEEDS-HUMAN marker and several inaccurate or incomplete behavioral claims.  |  The added Scaladoc has several material exception omissions and incorrectly describes equality of composite `Equiv` instances as identity-based.  |  Several added comments omit or contradict observable edge-case behavior, chiefly null handling and `Numeric.abs` overflow.  |  The patch is comment-only, but several numeric-conversion docs misstate floating-point narrowing behavior and a few added docs need correction.",
+  "items": [
+    {
+      "file": "library/src/scala/collection/concurrent/Map.scala",
+      "symbol": "Map.getOrElseUpdate",
+      "line": 108,
+      "severity": "blocker",
+      "issue": "The concurrency guarantee is too strong. Another thread can insert a value after the initial lookup and remove it again before `putIfAbsent`; this invocation then stores and returns `defaultValue`, rather than returning the other thread's value.",
+      "suggestion": "Describe the result in terms of the atomic `putIfAbsent` attempt: an already-present value at that attempt is returned; otherwise the computed value is stored and returned.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/concurrent/TrieMap.scala",
+      "symbol": "INode.GCAS_READ",
+      "line": 77,
+      "severity": "blocker",
+      "issue": "The added `@note NEEDS-HUMAN` leaves an unresolved question in the published documentation: can `mainnode` be null here despite the immediate `m.prev` dereference?",
+      "suggestion": "Confirm the intended null invariant with a maintainer, then remove the marker and document the supported null/result behavior accurately.",
+      "confidence": "medium",
+      "needs_human": true
+    },
+    {
+      "file": "library/src/scala/collection/concurrent/TrieMap.scala",
+      "symbol": "INode.GCAS",
+      "line": 126,
+      "severity": "blocker",
+      "issue": "The documentation says a GCAS update commits only when this node's generation matches the root generation. The implementation also requires `ct.nonReadOnly`; a matching generation on a read-only TrieMap is aborted.",
+      "suggestion": "State that commitment requires both a matching root generation and a mutable TrieMap, or otherwise avoid presenting generation matching as a sufficient condition.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/concurrent/TrieMap.scala",
+      "symbol": "TrieMapIterator.next",
+      "line": 1532,
+      "severity": "blocker",
+      "issue": "The new documentation omits the empty-iterator case. When neither `subiter` nor `current` is available, the implementation calls `Iterator.empty.next()`, which throws `NoSuchElementException`.",
+      "suggestion": "Add an `@throws NoSuchElementException` tag explaining that it is thrown when the iterator has no next element.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/math/BigDecimal.scala",
+      "symbol": "BigDecimal.decimal(BigDec, MathContext)",
+      "line": 122,
+      "severity": "blocker",
+      "issue": "The new throws documentation mentions a null `bd` but omits that a null `mc` also causes `bd.round(mc)` to throw `NullPointerException`.",
+      "suggestion": "Document null `mc` as an additional `NullPointerException` condition.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/math/BigDecimal.scala",
+      "symbol": "BigDecimal./, /%, quot, remainder, %",
+      "line": 643,
+      "severity": "blocker",
+      "issue": "The newly documented arithmetic methods omit material `ArithmeticException` cases delegated to `java.math.BigDecimal`, including division by zero; division can also fail when the supplied `MathContext` cannot represent the requested result without permitted rounding.",
+      "suggestion": "Add `@throws ArithmeticException` tags covering zero divisors and the applicable precision/rounding failures for each operation (or refer to the delegated Java operation precisely).",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/math/BigDecimal.scala",
+      "symbol": "BigDecimal.+, -, *, round, apply(MathContext)",
+      "line": 622,
+      "severity": "blocker",
+      "issue": "These methods now selectively document null failures but omit the `ArithmeticException` thrown by their delegated `java.math.BigDecimal` operations when rounding is necessary while the context uses `UNNECESSARY`.",
+      "suggestion": "Add an `@throws ArithmeticException` tag for inexact results requiring rounding under `UNNECESSARY` (where applicable).",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/math/Equiv.scala",
+      "symbol": "IterableEquiv.equals; OptionEquiv.equals; Tuple2Equiv–Tuple9Equiv.equals",
+      "line": 143,
+      "severity": "blocker",
+      "issue": "The added return descriptions say the underlying `Equiv` instance(s) must be “the same,” implying reference identity. The implementations compare them with `==`, so distinct but equal `Equiv` instances make these objects equal.",
+      "suggestion": "Say that the underlying `Equiv` instance(s) are equal (according to `==`), not that they are the same instance(s).",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/math/BigDecimal.scala",
+      "symbol": "BigDecimal.setScale(Int, RoundingMode)",
+      "line": 774,
+      "severity": "nit",
+      "issue": "The `@return` repeats the preceding sentence, which already begins with “Returns” and states the complete result.",
+      "suggestion": "Remove the redundant `@return` tag.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/math/Integral.scala",
+      "symbol": "Integral.quot; Integral.rem",
+      "line": 28,
+      "severity": "nit",
+      "issue": "Each `@return` restates its preceding “Returns” sentence without adding an edge case or other information.",
+      "suggestion": "Remove the redundant `@return` tags.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/math/Numeric.scala",
+      "symbol": "Numeric.abs",
+      "line": 988,
+      "severity": "blocker",
+      "issue": "The comment promises an absolute value, but the inherited implementation returns a negative value for the minimum signed primitive values: for example, `Numeric.IntIsIntegral.abs(Int.MinValue)` evaluates `negate(Int.MinValue)` and returns `Int.MinValue`. The same issue applies to `Long`, `Short`, and `Byte`.",
+      "suggestion": "Document the fixed-width overflow case, or qualify the claim to the implementation's ordering-and-negation behavior.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/math/Numeric.scala",
+      "symbol": "Numeric.parseString",
+      "line": 952,
+      "severity": "blocker",
+      "issue": "The base contract says invalid input produces `None`, but several documented built-in implementations (`IntIsIntegral`, `ShortIsIntegral`, `ByteIsIntegral`, `LongIsIntegral`, `FloatIsFractional`, and `DoubleIsFractional`) delegate to `StringParsers`, which dereferences a null `str` and throws `NullPointerException`. Their added comments repeat the same unconditional `None otherwise` claim.",
+      "suggestion": "State that null input throws `NullPointerException` and add a corresponding `@throws` tag to the affected concrete methods; do not make the base contract promise `None` for every non-valid input unless all implementations satisfy it.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/math/Numeric.scala",
+      "symbol": "BigIntIsIntegral.quot",
+      "line": 73,
+      "severity": "blocker",
+      "issue": "The added exception documentation names division by zero but omits the material null case: evaluating `x / y` dereferences either `BigInt` operand and throws `NullPointerException` when it is null. `rem` has the same omission.",
+      "suggestion": "Add `@throws NullPointerException` for null operands to both `quot` and `rem`, alongside the division-by-zero tag.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/math/Numeric.scala",
+      "symbol": "BigDecimalIsConflicted",
+      "line": 795,
+      "severity": "blocker",
+      "issue": "The added docs for reference-valued operations such as `plus`, `minus`, `times`, `negate`, and the `toX` conversions omit their null failure behavior. Their bodies dereference the supplied `BigDecimal` values; the delegated `BigDecimal` operations also document `NullPointerException` for null operands.",
+      "suggestion": "Document null handling with `@throws NullPointerException` on the affected methods, or explicitly make the methods null-safe if that is the intended contract.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/math/Numeric.scala",
+      "symbol": "BigDecimalIsFractional.div",
+      "line": 879,
+      "severity": "blocker",
+      "issue": "The `@throws` tag omits `NullPointerException` for a null divisor, although `x / y` immediately delegates to `BigDecimal./`, which dereferences `y.bigDecimal`. The tag similarly does not cover arithmetic failures caused by the receiver's `MathContext` (for example inexact division with `UNNECESSARY` rounding).",
+      "suggestion": "Add the null exception and describe all documented `ArithmeticException` conditions of the delegated division rather than only zero divisors.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/math/Numeric.scala",
+      "symbol": "BigDecimalAsIfIntegral.quot",
+      "line": 890,
+      "severity": "blocker",
+      "issue": "Both `quot` and `rem` omit `NullPointerException` for a null divisor even though their `BigDecimal` delegates dereference it. Their arithmetic-exception tags also reduce the possible failure condition to zero divisors despite the `MathContext`-dependent delegated operations.",
+      "suggestion": "Add `@throws NullPointerException` and state the additional `ArithmeticException` conditions supplied by the delegated `BigDecimal` operations.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/math/Numeric.scala",
+      "symbol": "CharIsIntegral.sign",
+      "line": 509,
+      "severity": "nit",
+      "issue": "The inline code literals contain two backslashes (`'\\\\u0001'` and `'\\\\u0000'`), which do not denote the stated single `Char` values as Scala character literals.",
+      "suggestion": "Render the values unambiguously, for example as `U+0001` and `U+0000`, or use single-backslash Scala escapes if safe for the Scaladoc source.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/math/Numeric.scala",
+      "symbol": "Numeric.apply",
+      "line": 22,
+      "severity": "nit",
+      "issue": "This and many of the added comments use an `@return` tag that merely repeats a summary already beginning with “Returns”, contrary to the project convention.",
+      "suggestion": "Remove redundant `@return` tags where the summary already completely describes the return value; retain tags that add edge-case information.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/math/Ordering.scala",
+      "symbol": "Ordering.Reverse.isReverseOf",
+      "line": 388,
+      "severity": "blocker",
+      "issue": "The documentation says `other` must be the original ordering, but the implementation uses `other == outer`, so a distinct ordering equal to `outer` also returns true.",
+      "suggestion": "Say that it returns true when `other` is equal to the original ordering, or change the implementation to use reference equality if identity is intended.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/math/Ordering.scala",
+      "symbol": "Ordering.UnitOrdering.compare",
+      "line": 586,
+      "severity": "nit",
+      "issue": "The description gives the complete result but omits an `@return` even though it does not open with “Returns”.",
+      "suggestion": "Add `@return 0, since all Unit values are equal`, or rewrite the description to begin with “Returns 0...”.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/math/Ordering.scala",
+      "symbol": "Ordering.OptionOrdering.compare",
+      "line": 1042,
+      "severity": "nit",
+      "issue": "The comparison-result contract is omitted, and the description does not meet the condition for dropping `@return`.",
+      "suggestion": "Add an `@return` describing negative, zero, and positive results, including the `None` cases.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/math/ScalaNumericConversions.scala",
+      "symbol": "ScalaNumericAnyConversions.byteValue",
+      "line": 35,
+      "severity": "blocker",
+      "issue": "For `Float` and `Double`, conversion is not direct truncation to 8 bits for an out-of-range value: it first converts to `Int`, which saturates, then narrows to `Byte`. For example, a very large positive floating-point value produces `Int.MaxValue.toByte` (`-1`), not the low eight bits of the original value.",
+      "suggestion": "Document conversion via `intValue` followed by narrowing to `Byte`, including the floating-point saturation behavior inherited from `intValue`.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/math/ScalaNumericConversions.scala",
+      "symbol": "ScalaNumericAnyConversions.shortValue",
+      "line": 37,
+      "severity": "blocker",
+      "issue": "For `Float` and `Double`, conversion first saturates through `Int` and only then narrows to `Short`; it is not direct truncation of an out-of-range floating-point value to 16 bits.",
+      "suggestion": "Document conversion via `intValue` followed by narrowing to `Short`, rather than claiming all oversized values are truncated directly to 16 bits.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/math/ScalaNumericConversions.scala",
+      "symbol": "ScalaNumericAnyConversions.intValue",
+      "line": 39,
+      "severity": "blocker",
+      "issue": "The documentation omits the material `NaN` case: the `Float` and `Double` implementations convert `NaN` to 0, not to `Int.MinValue` or `Int.MaxValue`.",
+      "suggestion": "State that `NaN` converts to 0 and that finite out-of-range values and infinities saturate to the corresponding `Int` bound.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/math/ScalaNumericConversions.scala",
+      "symbol": "ScalaNumericAnyConversions.longValue",
+      "line": 41,
+      "severity": "blocker",
+      "issue": "The documentation omits the material `NaN` case: the `Float` and `Double` implementations convert `NaN` to 0, not to `Long.MinValue` or `Long.MaxValue`.",
+      "suggestion": "State that `NaN` converts to 0 and that finite out-of-range values and infinities saturate to the corresponding `Long` bound.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/math/PartialOrdering.scala",
+      "symbol": "PartialOrdering.reverse",
+      "line": 102,
+      "severity": "ok",
+      "issue": "",
+      "suggestion": "",
+      "confidence": "high",
+      "needs_human": false
+    }
+  ],
+  "bonus_findings": [
+    {
+      "file": "library/src/scala/collection/StringParsers.scala",
+      "symbol": "StringParsers.parseByte",
+      "line": 74,
+      "issue": "The pre-existing “without throwing” documentation is false for a null input: `parseByte` immediately calls `from.length()`. The same issue occurs in the other `StringParsers` numeric parsers.",
+      "suggestion": "Document `NullPointerException` for null input or make the parsers null-safe."
+    }
+  ]
+}

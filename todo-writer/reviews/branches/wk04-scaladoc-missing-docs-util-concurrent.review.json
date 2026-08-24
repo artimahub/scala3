@@ -1,0 +1,296 @@
+{
+  "week": "4",
+  "branch": "scaladoc-missing-docs-util-concurrent",
+  "base": "190abc348060a547db89181f4bcef0559520ab95",
+  "head": "2ffbfae63f11a02ef045c477f7c2fa2880d8ac00",
+  "model": "gpt-5.6-terra",
+  "chunks": 3,
+  "verdict": "revise",
+  "blockers": 26,
+  "nits": 2,
+  "needs_human": 0,
+  "summary": "Several added comments misstate the batching and duration APIs, including the public duration DSL and the non-finite duration hierarchy.  |  Several added comments omit or misstate exceptional and non-successful completion behavior, plus duration conversion edge cases.  |  Several added Scaladoc comments omit or misstate behavior that the implementations expose.",
+  "items": [
+    {
+      "file": "library/src/scala/concurrent/BatchingExecutor.scala",
+      "symbol": "BatchingExecutorStatics.MissingParentBlockContext.blockOn",
+      "line": 39,
+      "severity": "blocker",
+      "issue": "The comment says reaching this context means `parentBlockContext` was null, but `AsyncBatch.parentBlockContext` is initialized and reset to this non-null sentinel. It is reached when no parent context has been installed, not when the field is null.",
+      "suggestion": "Describe it as the sentinel used when no parent `BlockContext` has been installed; retain the always-throws behavior.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/concurrent/BatchingExecutor.scala",
+      "symbol": "BatchingExecutorStatics.runLimit",
+      "line": 35,
+      "severity": "blocker",
+      "issue": "The claimed maximum is not a maximum for a `SyncBatch` execution: `SyncBatch.run` repeatedly calls `runN(runLimit)` until the batch is empty. It only limits each chunk, whereas asynchronous batches are resubmitted after a chunk.",
+      "suggestion": "Say it is the number of tasks processed per `runN` chunk, and distinguish the asynchronous resubmission behavior if documenting the starvation rationale.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/concurrent/duration/Duration.scala",
+      "symbol": "Duration.Infinite",
+      "line": 212,
+      "severity": "blocker",
+      "issue": "`Duration.Undefined` is also an instance of this abstract class (`val Undefined: Infinite`), but it is neither positive nor negative infinity. The class documentation therefore describes a false exhaustive set of its instances.",
+      "suggestion": "Describe `Infinite` as the superclass for non-finite durations, explicitly including `Undefined`, or narrow the documentation to the inherited behavior of `Inf` and `MinusInf`.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/concurrent/duration/DurationConversions.scala",
+      "symbol": "DurationConversions",
+      "line": 20,
+      "severity": "blocker",
+      "issue": "This trait backs the numeric duration DSL: its implementations construct `FiniteDuration` values from `Int`, `Long`, and `Double` receivers. It does not provide conversions from durations.",
+      "suggestion": "Describe it as shared operations for numeric values that construct durations in selected units and optionally convert those constructed durations.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/concurrent/duration/DurationConversions.scala",
+      "symbol": "DurationConversions.<unit>[C] overload family",
+      "line": 75,
+      "severity": "blocker",
+      "issue": "All added generic overload comments claim that `C` is the singleton type of either `span` or `fromNow`. The signature permits any `C` with a `Classifier[C]`; `Classifier` is public and unconstrained. Moreover, the supplied marker value is not inspected by the conversion body—only the implicit classifier is used. This affects the `nanoseconds`/`nanos`/`nanosecond`/`nano`, microsecond, millisecond, second, minute, hour, and day overload families.",
+      "suggestion": "Document `C` as the type used to select an implicit `Classifier[C]`, without restricting it to the two built-in marker objects; state that the method invokes `ev.convert` on the constructed `FiniteDuration`.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/concurrent/duration/DurationConversions.scala",
+      "symbol": "DurationConversions.Classifier",
+      "line": 247,
+      "severity": "blocker",
+      "issue": "The new `@tparam C` description incorrectly requires a singleton marker-object type. The declaration accepts arbitrary type arguments, and clients can define `Classifier[C]` for non-singleton types.",
+      "suggestion": "Change the tag to describe `C` simply as the type that selects the classifier/result type.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/concurrent/duration/package.scala",
+      "symbol": "durationToPair",
+      "line": 78,
+      "severity": "blocker",
+      "issue": "The comment promises a pair for every `Duration`, but `d.length` and `d.unit` throw `IllegalArgumentException` for `Duration.Inf`, `Duration.MinusInf`, and `Duration.Undefined`.",
+      "suggestion": "Restrict the stated result to finite durations and add an `@throws IllegalArgumentException` tag for non-finite inputs.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/concurrent/duration/package.scala",
+      "symbol": "DurationDouble.durationIn",
+      "line": 117,
+      "severity": "blocker",
+      "issue": "The documented `IllegalArgumentException` condition is incomplete: `Duration(d, unit)` also throws for a finite value whose nanosecond representation is out of range, before the match can determine whether it is finite.",
+      "suggestion": "Document both cases: non-finite `d` produces a non-finite `Duration`, and finite values that cannot be represented also throw `IllegalArgumentException`.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/concurrent/impl/ExecutionContextImpl.scala",
+      "symbol": "ExecutionContextImpl.createDefaultExecutorService",
+      "line": 131,
+      "severity": "blocker",
+      "issue": "The comment documents only `NumberFormatException`, but validly parsed property values can cause `IllegalArgumentException`: a negative `maxExtraThreads` fails `DefaultThreadFactory`'s `require`, and non-positive derived parallelism can be rejected by `ForkJoinPool`.",
+      "suggestion": "Add an `@throws IllegalArgumentException` tag describing invalid numeric property values.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/concurrent/impl/FutureConvertersImpl.scala",
+      "symbol": "FutureConvertersImpl.CF.thenRun",
+      "line": 65,
+      "severity": "blocker",
+      "issue": "The action is not run merely because this future completes: `thenRunAsync` runs it only after normal completion. An exceptional completion completes the returned future exceptionally without invoking `fn`.",
+      "suggestion": "Say that the action runs when this future completes normally, and describe exceptional propagation.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/concurrent/impl/FutureConvertersImpl.scala",
+      "symbol": "FutureConvertersImpl.CF.runAfterBoth",
+      "line": 92,
+      "severity": "blocker",
+      "issue": "The comment says the action runs when both stages complete, but `runAfterBothAsync` runs it only when both complete normally; a failure prevents `fn` from running.",
+      "suggestion": "Qualify the condition as normal completion of both stages and mention exceptional completion of the returned future otherwise.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/concurrent/impl/FutureConvertersImpl.scala",
+      "symbol": "FutureConvertersImpl.CF.applyToEither",
+      "line": 101,
+      "severity": "blocker",
+      "issue": "“Whichever ... completes first” is false for an exceptional first completion. `applyToEitherAsync` applies `fn` to a stage that completes normally; an early failure does not cause `fn` to run if the other stage later succeeds.",
+      "suggestion": "Describe normal completion semantics rather than a simple first-completion race.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/concurrent/impl/FutureConvertersImpl.scala",
+      "symbol": "FutureConvertersImpl.CF.acceptEither",
+      "line": 109,
+      "severity": "blocker",
+      "issue": "The comment incorrectly says the action consumes whichever stage completes first. As with `applyToEitherAsync`, an exceptional completion does not invoke the action.",
+      "suggestion": "State that the action is invoked for a normal completion and document exceptional propagation.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/concurrent/impl/FutureConvertersImpl.scala",
+      "symbol": "FutureConvertersImpl.CF.runAfterEither",
+      "line": 117,
+      "severity": "blocker",
+      "issue": "The action does not run when either stage completes exceptionally; `runAfterEitherAsync` requires a normal completion.",
+      "suggestion": "Say that the action runs after either stage completes normally, with exceptional completion propagated otherwise.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/concurrent/impl/FutureConvertersImpl.scala",
+      "symbol": "FutureConvertersImpl.CF.whenComplete",
+      "line": 132,
+      "severity": "blocker",
+      "issue": "The return description guarantees the same result as this future, but an exception thrown by `fn` can make the returned future fail instead.",
+      "suggestion": "Add the callback-throwing case to the return description.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/concurrent/impl/FutureConvertersImpl.scala",
+      "symbol": "FutureConvertersImpl.CF.get",
+      "line": 192,
+      "severity": "blocker",
+      "issue": "The comment omits material exceptional outcomes delegated to `CompletableFuture.get`, including interruption and exceptional completion (and cancellation if this mutable `CompletableFuture` was cancelled).",
+      "suggestion": "Add `@throws` tags for the delegated blocking-get exceptions, in addition to the blocking behavior.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/concurrent/impl/FutureConvertersImpl.scala",
+      "symbol": "FutureConvertersImpl.CF.get(timeout, unit)",
+      "line": 203,
+      "severity": "blocker",
+      "issue": "Only timeout is documented, but the delegated timed `CompletableFuture.get` can also throw for interruption, exceptional completion, and cancellation.",
+      "suggestion": "Add the missing delegated exception cases alongside the existing `TimeoutException` tag.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/concurrent/impl/Promise.scala",
+      "symbol": "Promise.DefaultPromise.recoverWith",
+      "line": 301,
+      "severity": "blocker",
+      "issue": "The summary implies `pf` is applied to every failure. In the transformation implementation, an undefined partial function leaves the original failure unchanged.",
+      "suggestion": "Document that an undefined `pf` propagates the original failure; also cover a failure thrown while evaluating `pf`.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/concurrent/impl/Promise.scala",
+      "symbol": "Promise.DefaultPromise.recover",
+      "line": 314,
+      "severity": "blocker",
+      "issue": "The summary omits the material case where `pf` is undefined. The implementation preserves the original failure in that case rather than recovering it.",
+      "suggestion": "State that an undefined partial function leaves the original failure unchanged, and document failures thrown by `pf`.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/concurrent/impl/Promise.scala",
+      "symbol": "Promise.DefaultPromise.result",
+      "line": 424,
+      "severity": "blocker",
+      "issue": "`tryAwait0` uses interruptible shared-lock acquisition, so this method can throw `InterruptedException`, but the added Scaladoc omits it even though the adjacent `ready` documentation includes it.",
+      "suggestion": "Add `@throws InterruptedException if the current thread is interrupted while waiting`.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/util/Properties.scala",
+      "symbol": "PropertiesTrait.javaClassPath through userName",
+      "line": 194,
+      "severity": "blocker",
+      "issue": "These comments present each member as a property value, but every implementation delegates to `propOrEmpty` and can return the empty-string sentinel when its system property is absent. This is especially material for optional properties such as `scala.home`.",
+      "suggestion": "Document the empty-string fallback for each member, or replace the family with documentation that explicitly states the shared `propOrEmpty` behavior.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/util/Try.scala",
+      "symbol": "Failure.orElse",
+      "line": 309,
+      "severity": "blocker",
+      "issue": "The summary promises that the supplied fallback `Try` is returned, but the by-name fallback is evaluated inside a `NonFatal` catch and can instead yield a new `Failure`.",
+      "suggestion": "Qualify the summary with the non-fatal-exception case, matching the `@return` text.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/util/Try.scala",
+      "symbol": "Success.map",
+      "line": 457,
+      "severity": "blocker",
+      "issue": "The summary unconditionally says this returns a `Success`, although `Try(f(value))` returns a `Failure` when `f` throws a non-fatal exception.",
+      "suggestion": "State that it returns a `Success` when `f` completes normally and a `Failure` for a non-fatal exception from `f`.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/util/Try.scala",
+      "symbol": "Failure.get",
+      "line": 296,
+      "severity": "nit",
+      "issue": "The comment documents an exception only in prose; the project convention requires an `@throws` tag for thrown exceptions.",
+      "suggestion": "Add `@throws Throwable always; throws the exception contained in this Failure`.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/util/control/Exception.scala",
+      "symbol": "Exception.Finally.and",
+      "line": 257,
+      "severity": "blocker",
+      "issue": "It claims both finally bodies execute, but `{ body; other }` does not evaluate `other` if `body` throws.",
+      "suggestion": "Document that `other` runs only after this body's normal completion, or change the implementation if both bodies must be guaranteed to run.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/util/control/Exception.scala",
+      "symbol": "Exception.Catch.or",
+      "line": 298,
+      "severity": "blocker",
+      "issue": "The comment says it combines two `Catch` objects' logic, but the implementation delegates only to `or(other.pf)`: it discards `other.fin` and `other.rethrow` and retains this instance's values.",
+      "suggestion": "Say that only `other`'s handler is used as the fallback, and explicitly document that this catch's finally and rethrow policy are retained.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/util/control/NonLocalReturns.scala",
+      "symbol": "NonLocalReturns.ReturnThrowable.throwReturn",
+      "line": 37,
+      "severity": "nit",
+      "issue": "The comment describes the always-thrown exception only in prose rather than with the required Scaladoc exception tag.",
+      "suggestion": "Add an `@throws ReturnThrowable` tag stating that the method always throws this instance after storing `result`.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/util/hashing/MurmurHash3.scala",
+      "symbol": "MurmurHash3.rangeHash",
+      "line": 471,
+      "severity": "blocker",
+      "issue": "The documentation omits the required two-or-more-element range condition. The delegated implementation expressly requires this; with fewer elements, its `start`, `step`, and `last` inputs cannot represent the sequence hash correctly.",
+      "suggestion": "Document that this overload is only for ranges with at least two elements and that shorter ranges must use `seqHash`, as the delegated implementation specifies.",
+      "confidence": "high",
+      "needs_human": false
+    }
+  ],
+  "bonus_findings": []
+}

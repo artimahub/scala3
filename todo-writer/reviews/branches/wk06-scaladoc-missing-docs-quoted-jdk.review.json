@@ -1,0 +1,224 @@
+{
+  "week": "6",
+  "branch": "scaladoc-missing-docs-quoted-jdk",
+  "base": "190abc348060a547db89181f4bcef0559520ab95",
+  "head": "21a9f4acaa2c8dc676af43a18157a14290b2b7e7",
+  "model": "gpt-5.6-terra",
+  "chunks": 6,
+  "verdict": "revise",
+  "blockers": 13,
+  "nits": 0,
+  "needs_human": 3,
+  "summary": "Two added comments need correction or human resolution before merge.  |  All added Scaladoc is comment-only, correctly placed, and matches the enrichment methods and wrapper implementations.  |  The added Scaladoc accurately describes the generated Java/Scala function wrappers; the diff changes comments only.  |  One added Scaladoc note leaves an unresolved suspected behavioral defect for human review.  |  The chunk is comment-only, but it contains duplicated Scaladoc, unresolved human-review text, and several contracts that do not match the implementations.  |  One added Scaladoc claim is false for a supported direct use of the exception.",
+  "items": [
+    {
+      "file": "library/src/scala/jdk/Accumulator.scala",
+      "symbol": "Accumulator.knownSize",
+      "line": 145,
+      "severity": "blocker",
+      "issue": "The comment says that at `Int.MaxValue` the size does not fit in an `Int`, but `Int.MaxValue` is representable. The implementation nevertheless returns `-1` at that boundary because it tests `< Int.MaxValue`.",
+      "suggestion": "Say that `-1` is returned when the accumulator holds `Int.MaxValue` or more elements, without claiming that `Int.MaxValue` does not fit in an `Int`.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/jdk/DoubleAccumulator.scala",
+      "symbol": "DoubleAccumulatorStepper.nextStep",
+      "line": 560,
+      "severity": "blocker",
+      "issue": "The added Scaladoc contains `@note NEEDS-HUMAN`. Is the `n <= 0` guard intentional, given that `hasStep` uses `N > 0` and a call after exhaustion may not reliably throw `NoSuchElementException`? The documented throw condition must be resolved against the intended behavior.",
+      "suggestion": "Have a maintainer decide whether the guard is a bug, fix it or document the intended exhausted-stepper behavior, then remove the NEEDS-HUMAN note.",
+      "confidence": "high",
+      "needs_human": true
+    },
+    {
+      "file": "library/src/scala/jdk/FunctionExtensions.scala",
+      "symbol": "Priority3FunctionExtensions",
+      "line": 26,
+      "severity": "ok",
+      "issue": "",
+      "suggestion": "",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/jdk/FunctionExtensions.scala",
+      "symbol": "enrichAsJavaBinaryOperator",
+      "line": 125,
+      "severity": "ok",
+      "issue": "",
+      "suggestion": "",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/jdk/FunctionExtensions.scala",
+      "symbol": "Priority0FunctionExtensions",
+      "line": 256,
+      "severity": "ok",
+      "issue": "",
+      "suggestion": "",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/jdk/FunctionExtensions.scala",
+      "symbol": "enrichAsScalaFromBiFunction",
+      "line": 474,
+      "severity": "ok",
+      "issue": "",
+      "suggestion": "",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/jdk/FunctionWrappers.scala",
+      "symbol": "RichFunction2AsBiConsumer.asJava",
+      "line": 75,
+      "severity": "ok",
+      "issue": "",
+      "suggestion": "",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/jdk/FunctionWrappers.scala",
+      "symbol": "RichFunction1AsDoubleFunction.asJavaDoubleFunction",
+      "line": 550,
+      "severity": "ok",
+      "issue": "",
+      "suggestion": "",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/jdk/FunctionWrappers.scala",
+      "symbol": "RichFunction2AsToLongBiFunction.asJava",
+      "line": 2287,
+      "severity": "ok",
+      "issue": "",
+      "suggestion": "",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/jdk/LongAccumulator.scala",
+      "symbol": "LongAccumulatorStepper.nextStep",
+      "line": 569,
+      "severity": "blocker",
+      "issue": "`@note NEEDS-HUMAN` explicitly reports that the `n <= 0` guard may return a stale element after `hasStep` becomes false rather than throwing. This unresolved marker must not ship as API documentation.",
+      "suggestion": "Have a maintainer determine the intended exhausted-stepper behavior and whether the guard is a code bug; then remove the marker and document only the verified contract.",
+      "confidence": "high",
+      "needs_human": true
+    },
+    {
+      "file": "library/src/scala/quoted/Quotes.scala",
+      "symbol": "Quotes.reflect.asTerm",
+      "line": 304,
+      "severity": "blocker",
+      "issue": "The new comment is a second adjacent Scaladoc comment for the same extension method; the pre-existing comment above the extension already documents `asTerm`, so one comment is orphaned/dropped.",
+      "suggestion": "Replace the existing comment with the expanded text, rather than adding a second comment immediately before `asTerm`.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/quoted/Quotes.scala",
+      "symbol": "TreeMethods.asExprOf",
+      "line": 349,
+      "severity": "blocker",
+      "issue": "The new comment duplicates the pre-existing Scaladoc immediately above the extension, leaving two doc comments for `asExprOf`.",
+      "suggestion": "Merge the type-parameter and return information into the existing comment, leaving exactly one Scaladoc comment for the method.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/quoted/Quotes.scala",
+      "symbol": "Closure.apply",
+      "line": 1903,
+      "severity": "blocker",
+      "issue": "The documented requirement that `meth` must refer to an anonymous function is not enforced in normal operation: the only check is `xCheckMacroAssert`, which runs only with `-Xcheck-macros`.",
+      "suggestion": "Do not state this as an enforced requirement, or explicitly document it as a precondition that is only validated with `-Xcheck-macros`.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/quoted/Quotes.scala",
+      "symbol": "SelectOuter.apply",
+      "line": 2400,
+      "severity": "blocker",
+      "issue": "`levels` is documented as nested inlined-tree scopes. The implementation stores it in `OuterSelectName`, and `ElimOuterSelect` uses it as the number of outer-path hops; inlining introduces these selects but is not what the number counts.",
+      "suggestion": "Describe `levels` as the number of enclosing outer paths/hops to traverse, and apply the same correction to `copy`, `unapply`, and `level`.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/quoted/Quotes.scala",
+      "symbol": "TermParamClause.apply",
+      "line": 3540,
+      "severity": "blocker",
+      "issue": "The documented all-implicit-or-all-non-implicit constraint is not enforced normally. `QuotesImpl` returns the supplied list unchanged unless `-Xcheck-macros` enables its assertion.",
+      "suggestion": "Remove the unconditional \"must\" claim or state precisely that this is a caller precondition checked only under `-Xcheck-macros`.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/quoted/Quotes.scala",
+      "symbol": "OmitSelectorMethods.name",
+      "line": 3745,
+      "severity": "blocker",
+      "issue": "NEEDS-HUMAN: should this method return the bare imported name (`bar`) or `self.imported.toString` (`Ident(bar)`)? The implementation currently does the latter, while `OmitSelector.unapply` returns the former.",
+      "suggestion": "Resolve the intended API behavior with a maintainer, then either fix `QuotesImpl` or document the actual return value; remove the internal `NEEDS-HUMAN` note from public Scaladoc.",
+      "confidence": "high",
+      "needs_human": true
+    },
+    {
+      "file": "library/src/scala/quoted/Quotes.scala",
+      "symbol": "FlexibleType.apply",
+      "line": 4912,
+      "severity": "blocker",
+      "issue": "The documentation calls the upper bound/underlying type non-nullable, but `FlexibleType.apply` accepts any value type and sets `hi` directly to it. For example, an already nullable `T | Null` remains the upper bound.",
+      "suggestion": "Remove \"non-nullable\" from the `unapply` and `hi` documentation, or qualify it to the case where the input type itself excludes `Null`.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/quoted/Quotes.scala",
+      "symbol": "TreeAccumulator.foldOverTree",
+      "line": 6840,
+      "severity": "blocker",
+      "issue": "The comment promises to fold over direct subtrees, but the `Inlined(call, bindings, expansion)` case never visits `call`, despite it being a `Tree` component of `Inlined`.",
+      "suggestion": "Document that `Inlined.call` is intentionally skipped, or change the implementation to fold it if a complete direct-subtree traversal is intended.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/quoted/Quotes.scala",
+      "symbol": "TreeMap.transformTree",
+      "line": 7001,
+      "severity": "blocker",
+      "issue": "The documentation says the mapper rebuilds from transformed subtrees, but it deliberately leaves some tree components untransformed: `Export` is returned unchanged, `Bind.pattern` is not transformed, `Inlined.call` is retained unchanged, and `transformTypeTree` similarly leaves several components unchanged.",
+      "suggestion": "Narrow the documentation to the components actually transformed, or update the mapper so its traversal matches the stated complete-subtree behavior.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/quoted/runtime/StopMacroExpansion.scala",
+      "symbol": "StopMacroExpansion.fillInStackTrace",
+      "line": 11,
+      "severity": "blocker",
+      "issue": "The explanation says only a previously reported error message is used, but callers can directly throw `StopMacroExpansion` without first reporting an error. The compiler detects that case and emits a new diagnostic stating that the macro aborted without reporting errors.",
+      "suggestion": "Limit the documentation to the implemented behavior, e.g. “Returns `this` without filling in the stack trace.”",
+      "confidence": "high",
+      "needs_human": false
+    }
+  ],
+  "bonus_findings": [
+    {
+      "file": "library/src/scala/quoted/runtime/StopMacroExpansion.scala",
+      "symbol": "StopMacroExpansion",
+      "line": 5,
+      "issue": "The pre-existing class documentation likewise implies an error was always reported before this exception is used, although direct throws are explicitly handled by the compiler.",
+      "suggestion": "Describe this as the intended use, or mention that a direct throw without a prior error causes the compiler to report an abort diagnostic."
+    }
+  ]
+}

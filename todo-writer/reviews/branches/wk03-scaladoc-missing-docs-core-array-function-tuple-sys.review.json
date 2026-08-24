@@ -1,0 +1,201 @@
+{
+  "week": "3",
+  "branch": "scaladoc-missing-docs-core-array-function-tuple-sys",
+  "base": "190abc348060a547db89181f4bcef0559520ab95",
+  "head": "5934bf4b922ca9c6828a4bbf46b9db35e9d8b920",
+  "model": "gpt-5.6-terra",
+  "chunks": 4,
+  "verdict": "revise",
+  "blockers": 8,
+  "nits": 3,
+  "needs_human": 0,
+  "summary": "Most additions match their implementations, but the new `CharSequence.charAt` docs omit their material bounds exceptions.  |  All changed lines are Scaladoc comments; the reviewed documentation matches the implementations and is correctly placed.  |  Two queue-factory comments omit enforced capacity preconditions; one Boolean zero-value comment misstates the contract.  |  Several added comments overstate I/O semantics or omit an interruptible-wait case exposed by their implementations.",
+  "items": [
+    {
+      "file": "library/src/scala/Predef.scala",
+      "symbol": "SeqCharSequence.charAt",
+      "line": 537,
+      "severity": "blocker",
+      "issue": "The documentation gives `index` only as a zero-based position, but `sequenceOfChars(index)` throws `IndexOutOfBoundsException` for an invalid index. This is a material public failure case.",
+      "suggestion": "State that `index` must be from `0` until `length`, and add `@throws IndexOutOfBoundsException` for out-of-range indices.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/Predef.scala",
+      "symbol": "ArrayCharSequence.charAt",
+      "line": 569,
+      "severity": "blocker",
+      "issue": "The documentation omits that the direct array access throws `ArrayIndexOutOfBoundsException` when `index` is negative or at least `length`.",
+      "suggestion": "State the valid index range and add `@throws ArrayIndexOutOfBoundsException` with that condition.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/Predef.scala",
+      "symbol": "Ensuring.ensuring",
+      "line": 467,
+      "severity": "nit",
+      "issue": "All four overloads describe `AssertionError` only in prose, contrary to the established convention to document thrown exceptions with `@throws` tags.",
+      "suggestion": "Replace the prose exception clauses with `@throws AssertionError if the postcondition is false` (or its predicate equivalent) on each overload.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/IArray.scala",
+      "symbol": "WithFilter.flatMap",
+      "line": 1004,
+      "severity": "ok",
+      "issue": "",
+      "suggestion": "",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/Product2.scala",
+      "symbol": "Product2.unapply",
+      "line": 25,
+      "severity": "ok",
+      "issue": "",
+      "suggestion": "",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/Tuple.scala",
+      "symbol": "Tuple.fromProductTyped",
+      "line": 397,
+      "severity": "ok",
+      "issue": "",
+      "suggestion": "",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/Tuple.scala",
+      "symbol": "*:.unapply",
+      "line": 436,
+      "severity": "ok",
+      "issue": "",
+      "suggestion": "",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/sys/process/BasicIO.scala",
+      "symbol": "LazilyListed.apply",
+      "line": 67,
+      "severity": "blocker",
+      "issue": "The documentation does not say that `capacity` must be positive and non-null. It is passed directly to `LinkedBlockingQueue`, which rejects a non-positive capacity and cannot accept `null`.",
+      "suggestion": "State the positive, non-null requirement on `capacity` and document the resulting exceptions if retaining exception details elsewhere in this API.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/sys/process/BasicIO.scala",
+      "symbol": "Streamed.apply",
+      "line": 108,
+      "severity": "blocker",
+      "issue": "The documentation does not say that `capacity` must be positive and non-null. It is passed directly to `LinkedBlockingQueue`, which rejects a non-positive capacity and cannot accept `null`.",
+      "suggestion": "State the positive, non-null requirement on `capacity` and document the resulting exceptions if retaining exception details elsewhere in this API.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/sys/BooleanProp.scala",
+      "symbol": "BooleanProp.ConstantImpl.zero",
+      "line": 102,
+      "severity": "nit",
+      "issue": "`Prop` requires a zero value of type `T`, but does not specifically require `false`; `false` is the appropriate Boolean zero value here.",
+      "suggestion": "Say that this is the Boolean zero value, rather than that `false` is required by the `Prop` contract.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/runtime/AbstractFunction1.scala",
+      "symbol": "AbstractFunction1",
+      "line": 28,
+      "severity": "ok",
+      "issue": "",
+      "suggestion": "",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/sys/ShutdownHookThread.scala",
+      "symbol": "ShutdownHookThread.remove",
+      "line": 31,
+      "severity": "ok",
+      "issue": "",
+      "suggestion": "",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/sys/process/ProcessIO.scala",
+      "symbol": "ProcessIO.daemonizeThreads",
+      "line": 61,
+      "severity": "blocker",
+      "issue": "The field documentation says it controls daemon status for threads running all three handlers, but `Simple.run` always creates the `writeInput` thread as a daemon (`daemon = true`), regardless of this value.",
+      "suggestion": "State that this flag controls the output and error handler threads (and thread builders), or change the implementation if input-handler daemon status is intended to follow it.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/sys/process/ProcessBuilderImpl.scala",
+      "symbol": "FileImpl.#<<(InputStream)",
+      "line": 580,
+      "severity": "blocker",
+      "issue": "Call-by-name reevaluates the argument; it does not ensure a newly created stream. Also, the stream is not always closed: `IStreamBuilder` protects the JVM standard input from closing.",
+      "suggestion": "Say that the expression is evaluated on each execution, and that the resulting stream is read and normally closed, except that standard input is protected from closing.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/sys/process/ProcessImpl.scala",
+      "symbol": "CompoundProcess.exitValue",
+      "line": 115,
+      "severity": "blocker",
+      "issue": "The blocking call can throw `InterruptedException` when the caller is interrupted while waiting on the result queue, but the new documentation omits this material outcome.",
+      "suggestion": "Add an `@throws InterruptedException` tag describing interruption while waiting for the exit value.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/sys/process/ProcessImpl.scala",
+      "symbol": "DummyProcess.exitValue",
+      "line": 338,
+      "severity": "blocker",
+      "issue": "The delegated `Future` result function waits with `LinkedBlockingQueue.take`, so this method can throw `InterruptedException` if the caller is interrupted; the documentation promises a result or rethrow of the computation's exception without documenting that case.",
+      "suggestion": "Add an `@throws InterruptedException` tag for interruption while waiting for the computation result.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/sys/process/ProcessBuilderImpl.scala",
+      "symbol": "AbstractBuilder.!!",
+      "line": 257,
+      "severity": "nit",
+      "issue": "The new `!!` and `!` overload documentation states return values in summaries beginning with “Starts”, but omits `@return` tags, contrary to the project convention for descriptions that do not begin with “Returns”.",
+      "suggestion": "Add concise `@return` tags to these overloads, including the exit-code-returning `!` family.",
+      "confidence": "high",
+      "needs_human": false
+    }
+  ],
+  "bonus_findings": [
+    {
+      "file": "library/src/scala/sys/process/ProcessIO.scala",
+      "symbol": "ProcessIO",
+      "line": 49,
+      "issue": "The pre-existing constructor documentation also incorrectly says `daemonizeThreads` determines the daemon status of the `writeInput` thread; `Simple.run` always makes that thread daemon.",
+      "suggestion": "Correct it alongside the new field documentation."
+    },
+    {
+      "file": "library/src/scala/sys/process/ProcessBuilder.scala",
+      "symbol": "ProcessBuilder.FileBuilder.#<<(InputStream)",
+      "line": 486,
+      "issue": "The pre-existing public API documentation says a call-by-name input stream is recreated and closed for every execution, although reevaluation need not create a distinct stream and standard input is protected from closure.",
+      "suggestion": "Align it with the actual reevaluation and standard-input-protection behavior."
+    }
+  ]
+}

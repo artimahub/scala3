@@ -1,0 +1,531 @@
+{
+  "week": "10",
+  "branch": "scaladoc-missing-docs-collection-core",
+  "base": "190abc348060a547db89181f4bcef0559520ab95",
+  "head": "727e23cb1ba086a445faa97545dfbab9f29969fb",
+  "model": "gpt-5.6-terra",
+  "chunks": 10,
+  "verdict": "revise",
+  "blockers": 41,
+  "nits": 3,
+  "needs_human": 2,
+  "summary": "Two `fromSpecific` comments incorrectly guarantee allocation despite their delegated factory reusing immutable bitsets.  |  Several iterator-view comments omit or misstate behavior for valid boundary arguments and flipped filters.  |  Three added Scaladoc comments misstate allocation or bounds behavior; the diff otherwise contains only comment additions.  |  The diff is comment-only, but several added comments misstate delegated behavior or omit material edge cases.  |  Three added comments misstate traversal timing or edge-case exceptions/bounds.  |  The chunk is comment-only, but the converter documentation omits delegated null and synchronization behavior, and two public comments retain unresolved NEEDS-HUMAN markers.  |  The documented fixed `Map(...)` format is false for map subtypes that override the string prefix.  |  Several added comments contradict eager/lazy behavior, edge cases, or inherited implementations.  |  The added docs are largely accurate, but the Java boxed primitive stepper-shape docs omit their null-unboxing failure and one summary is a fragment.  |  The parser comments incorrectly promise non-throwing parsing despite null inputs throwing `NullPointerException`.",
+  "items": [
+    {
+      "file": "library/src/scala/collection/BitSet.scala",
+      "symbol": "BitSet.fromSpecific",
+      "line": 39,
+      "severity": "blocker",
+      "issue": "The comment promises “a new bitset,” but the implementation delegates to `bitSetFactory.fromSpecific`; the standard immutable factory returns its input unchanged when it is already an immutable `BitSet`.",
+      "suggestion": "Say it “returns a bitset containing the elements of `coll`” and, if useful, state that the factory may reuse a compatible input.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/BitSet.scala",
+      "symbol": "BitSet.fromSpecific",
+      "line": 71,
+      "severity": "blocker",
+      "issue": "The public factory delegates directly to `immutable.BitSet.fromSpecific`, which explicitly returns an existing immutable bitset unchanged. It therefore does not always return a new bitset as documented.",
+      "suggestion": "Remove “new” and document that an existing immutable bitset may be returned unchanged.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/BitSet.scala",
+      "symbol": "BitSetOps.iteratorFrom",
+      "line": 169,
+      "severity": "ok",
+      "issue": "",
+      "suggestion": "",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/View.scala",
+      "symbol": "View.Filter.isEmpty",
+      "line": 209,
+      "severity": "blocker",
+      "issue": "The comment says emptiness means no element passes `p`, but `isFlipped = true` retains elements that fail `p`; in that case it is empty when every element passes `p`.",
+      "suggestion": "Describe emptiness in terms of no element being selected by `p` and `isFlipped`, or explicitly cover both polarities.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/View.scala",
+      "symbol": "View.DropRight",
+      "line": 347,
+      "severity": "blocker",
+      "issue": "The iterator and `isEmpty` comments claim the unknown-size path always uses an `n`-element lookahead and reads up to `n + 1` elements. For `n <= 0`, `dropRightIterator` returns the underlying iterator directly, so neither claim holds.",
+      "suggestion": "Qualify the buffering and read-ahead behavior with `n > 0`; document that non-positive `n` drops nothing.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/View.scala",
+      "symbol": "View.TakeRight",
+      "line": 416,
+      "severity": "blocker",
+      "issue": "The comments say an unknown-size underlying iterator is fully consumed on its first query. `takeRightIterator` instead returns an empty iterator for `n <= 0` and returns the underlying iterator unchanged for `n == Int.MaxValue`, neither of which consumes it fully.",
+      "suggestion": "Limit the full-consumption statement to `0 < n && n < Int.MaxValue`, and document the non-positive and `Int.MaxValue` cases.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/View.scala",
+      "symbol": "View.Patched.iterator",
+      "line": 678,
+      "severity": "blocker",
+      "issue": "The comment says replacement starts at `from` and drops `replaced` elements, but delegated `Iterator.patch` clamps a negative `from` to 0 and treats a non-positive `replaced` count as dropping none.",
+      "suggestion": "Document the normalization of negative `from` and non-positive `replaced`, or avoid wording that asserts the unnormalized values are applied literally.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/View.scala",
+      "symbol": "View.ScanLeft",
+      "line": 472,
+      "severity": "ok",
+      "issue": "",
+      "suggestion": "",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/Factory.scala",
+      "symbol": "SeqFactory.UnapplySeqWrapper",
+      "line": 468,
+      "severity": "blocker",
+      "issue": "The comment promises that the pattern matcher uses the wrapper without allocating an intermediate collection, but its own `drop` method allocates `c.view.drop(n).toSeq` whenever `c` is not already a `scala.Seq`.",
+      "suggestion": "Limit the no-allocation claim to extraction/`Option` allocation, or state that `drop` may materialize a `Seq` for non-`scala.Seq` inputs.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/IndexedSeq.scala",
+      "symbol": "IndexedSeqOps.slice",
+      "line": 238,
+      "severity": "blocker",
+      "issue": "The `from` tag says its value is clamped to the valid range. `IndexedSeqView.Slice` only clamps it below at zero (`from max 0`); a `from` greater than `length` remains greater than `length`, though it produces an empty result.",
+      "suggestion": "Say that negative `from` is treated as zero and that an out-of-range upper `from` yields an empty slice, rather than claiming it is clamped to the valid range.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/IndexedSeq.scala",
+      "symbol": "IndexedSeqOps.search",
+      "line": 361,
+      "severity": "blocker",
+      "issue": "The documentation says the whole interval, including `from`, is clamped to the valid index range. The implementation only changes a negative `from` to zero and only caps `to` at `length`; for example, `from = 10`, `to = 20` on a length-3 sequence returns `InsertionPoint(10)`, not a clamped insertion point.",
+      "suggestion": "Document the actual normalization: negative `from` becomes zero, `to` above `length` becomes `length`, and an empty interval returns `InsertionPoint(from)` after that normalization.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/IndexedSeqView.scala",
+      "symbol": "IndexedSeqView.Slice",
+      "line": 388,
+      "severity": "blocker",
+      "issue": "The class summary says both bounds are clamped to the valid range, but `lo` is only clamped at zero. For a three-element underlying sequence, `new Slice(_, 10, 20).lo` is 10, not 3; emptiness comes from `len`, not clamping `from`.",
+      "suggestion": "Describe the effective slice result, including emptiness when `from` exceeds the upper bound, rather than claiming both stored bounds are clamped.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/Iterable.scala",
+      "symbol": "IterableOps.repr",
+      "line": 182,
+      "severity": "blocker",
+      "issue": "The comment says this returns the collection itself, but the body returns `coll`. `coll` is abstract and can be a distinct represented collection; for example the `IsSeq[String]` adapter returns its wrapped `String`.",
+      "suggestion": "Say that it returns `coll` as an alias for `coll`, without promising receiver identity.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/Iterable.scala",
+      "symbol": "IterableOps.dropWhile",
+      "line": 562,
+      "severity": "blocker",
+      "issue": "The return description requires the resulting suffix to have a first element that fails `p`. When every element satisfies `p`, including for an empty receiver, the implementation returns an empty collection with no such first element.",
+      "suggestion": "Describe the result as the suffix remaining after dropping the longest prefix satisfying `p`, and state that it is empty when all elements satisfy `p`.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/Iterable.scala",
+      "symbol": "IterableOps.slice",
+      "line": 639,
+      "severity": "blocker",
+      "issue": "The documentation omits the negative-bound behavior. The implementation is `take(until).drop(from)`: a negative `from` is treated as zero, while a non-positive `until` yields an empty result.",
+      "suggestion": "Document the normalization of negative bounds and the resulting empty slice for non-positive `until`.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/Iterable.scala",
+      "symbol": "IterableFactoryDefaults.fromSpecific",
+      "line": 1200,
+      "severity": "blocker",
+      "issue": "The `@return` promises a new collection, but the implementation delegates to `iterableFactory.from`, which can reuse its source. For example, `immutable.Iterable.from` returns an existing immutable `Iterable` unchanged.",
+      "suggestion": "Remove “new” and document delegation to `iterableFactory.from`, which may reuse an appropriate source collection.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/Iterable.scala",
+      "symbol": "SortedSetFactoryDefaults.fromSpecific",
+      "line": 1271,
+      "severity": "blocker",
+      "issue": "The `@return` promises a new sorted set, but `sortedIterableFactory.from` may return the input unchanged. `immutable.SortedSet.from` does so when its input has the requested ordering.",
+      "suggestion": "Remove “new” and allow for reuse by the delegated factory.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/Iterable.scala",
+      "symbol": "MapFactoryDefaults.fromSpecific",
+      "line": 1314,
+      "severity": "blocker",
+      "issue": "The `@return` promises a new map, but `mapFactory.from` may reuse its input. `immutable.Map.from` returns several existing immutable map implementations unchanged.",
+      "suggestion": "Remove “new” and describe the result as the map produced by `mapFactory.from`.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/Iterable.scala",
+      "symbol": "SortedMapFactoryDefaults.fromSpecific",
+      "line": 1366,
+      "severity": "blocker",
+      "issue": "The `@return` promises a new sorted map, but `sortedMapFactory.from` may return the input unchanged. `immutable.SortedMap.from` does so when its input has the requested ordering.",
+      "suggestion": "Remove “new” and allow for reuse by the delegated factory.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/IterableOnce.scala",
+      "symbol": "IterableOnceExtensionMethods",
+      "line": 114,
+      "severity": "blocker",
+      "issue": "The class-level claim that every operation traverses and consumes the wrapped collection is false. For example, `withFilter`, `filter`, `map`, and `flatMap` return lazy iterators (or lazy collection transformations) without traversing at method call time; `toIterator` merely returns the wrapped iterator.",
+      "suggestion": "Limit the consumption statement to terminal operations, and state that operations returning iterators defer traversal until the returned iterator is consumed.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/Iterator.scala",
+      "symbol": "Iterator.slice",
+      "line": 1005,
+      "severity": "blocker",
+      "issue": "The return description uses raw `from` in `until - from`, but the implementation normalizes a negative `from` to zero. For example, `slice(-1, 3)` produces at most three elements, not four as the prose implies.",
+      "suggestion": "Describe the bound using `max(from, 0)`, or state that both the start position and length calculation use a negative `from` as zero.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/Iterator.scala",
+      "symbol": "Iterator.UnfoldIterator.next",
+      "line": 1702,
+      "severity": "blocker",
+      "issue": "`next()` calls `hasNext`, so it also throws `NullPointerException` when `f` returns `null`; the added documentation only mentions the exhausted (`None`) case. The adjacent `hasNext` documentation correctly records this null case.",
+      "suggestion": "Add `@throws NullPointerException if `f` returns `null` instead of an `Option`` to `next()`, or otherwise explicitly document that it propagates the same null-result failure as `hasNext`.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/JavaConverters.scala",
+      "symbol": "asJavaIterator and all newly documented JavaConverters conversion methods",
+      "line": 93,
+      "severity": "blocker",
+      "issue": "Every delegated conversion accepts a null source and returns null (`AsJavaConverters`/`AsScalaConverters` pattern-match on null), but each new comment promises a wrapper or view. `propertiesAsScalaMap` additionally says the result is always a new wrapper, which is false for null.",
+      "suggestion": "State in every affected conversion's contract that a null argument produces null, and qualify wrapper/view claims to non-null arguments.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/JavaConverters.scala",
+      "symbol": "mapAsScalaMap",
+      "line": 308,
+      "severity": "blocker",
+      "issue": "The delegated `AsScalaConverters.asScala(java.util.Map)` contract requires callers to synchronize all non-atomic operations themselves when wrapping a synchronized Java map, including `get` when null values are possible. The new documentation omits this material concurrency limitation.",
+      "suggestion": "Carry over the synchronized-map caveat from `AsScalaConverters.asScala(java.util.Map)` into this facade method's documentation.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/JavaConverters.scala",
+      "symbol": "propertiesAsScalaMap",
+      "line": 348,
+      "severity": "blocker",
+      "issue": "`Properties` can contain non-String keys or values, but `JPropertiesWrapper` blindly casts its entries to `String`; iteration and lookups can therefore throw `ClassCastException`. The new documentation presents it as an unconditional `Map[String, String]` view without this material limitation.",
+      "suggestion": "Document that the wrapped properties' own entries must have String keys and values (or document the possible `ClassCastException`), in addition to the null result case.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/LazyZipOps.scala",
+      "symbol": "LazyZip2.flatMap",
+      "line": 94,
+      "severity": "blocker",
+      "issue": "The added Scaladoc contains an unresolved `@note NEEDS-HUMAN` about whether this method's internal view may report non-empty when all `f` results are empty. The implementation confirms the stated discrepancy, but the intended public contract cannot be determined from the code.",
+      "suggestion": "Have a maintainer decide whether to fix the `isEmpty` implementation or document its intended semantics; remove the NEEDS-HUMAN marker from the published Scaladoc.",
+      "confidence": "high",
+      "needs_human": true
+    },
+    {
+      "file": "library/src/scala/collection/LazyZipOps.scala",
+      "symbol": "LazyZip2.filter",
+      "line": 131,
+      "severity": "blocker",
+      "issue": "The added Scaladoc contains an unresolved `@note NEEDS-HUMAN` about this internal view's inverted `isEmpty` implementation. The code shows the discrepancy, but not the intended API meaning.",
+      "suggestion": "Have a maintainer decide whether to correct `isEmpty` or document the intended behavior; remove the NEEDS-HUMAN marker from the published Scaladoc.",
+      "confidence": "high",
+      "needs_human": true
+    },
+    {
+      "file": "library/src/scala/collection/LinearSeq.scala",
+      "symbol": "apply",
+      "line": 202,
+      "severity": "ok",
+      "issue": "",
+      "suggestion": "",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/Map.scala",
+      "symbol": "Map.toString",
+      "line": 111,
+      "severity": "blocker",
+      "issue": "The comment promises the form `Map(k1 -> v1, ...)`, but this implementation delegates to `Iterable.toString`, whose prefix is dynamically selected. For example, `SeqMap` and `SortedMap` override `stringPrefix`, so inherited `toString` renders `SeqMap(...)` or `SortedMap(...)` instead.",
+      "suggestion": "Describe the representation in terms of the map's `stringPrefix` and `key -> value` entries, rather than promising a `Map(...)` prefix.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/SeqView.scala",
+      "symbol": "SeqView",
+      "line": 24,
+      "severity": "blocker",
+      "issue": "The overview says transformation elements are evaluated only during traversal or strict conversion, but `takeRight`, `dropRight`, and `sorted` immediately call `size`/`length`, which can traverse and force the underlying view.",
+      "suggestion": "Qualify the laziness claim and explicitly exclude the size-dependent operations (and `length`) that may force traversal.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/SeqView.scala",
+      "symbol": "SeqView.take",
+      "line": 63,
+      "severity": "blocker",
+      "issue": "The `@return` claim of “at most `n`” elements is false for negative `n`: the implementation clamps it to zero and returns an empty view, whose size is 0 rather than at most a negative number.",
+      "suggestion": "Document that a negative `n` returns an empty view, as the inherited collection contract does.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/SeqView.scala",
+      "symbol": "SeqView.takeRight",
+      "line": 76,
+      "severity": "blocker",
+      "issue": "Like `take`, this omits the negative-`n` behavior and claims “at most `n`” elements although negative values produce an empty view.",
+      "suggestion": "State that a negative `n` returns an empty view.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/SeqView.scala",
+      "symbol": "SeqView.Drop.drop",
+      "line": 342,
+      "severity": "blocker",
+      "issue": "“Drops `n` more elements” is not true for negative counts. For example, `new Drop(xs, -2).drop(1)` constructs `Drop(xs, -1)`, which drops none rather than one; the body merely sums raw counts before `normN` clamps them.",
+      "suggestion": "Describe the raw-count fusion accurately, including its behavior for negative counts, or fix the implementation separately if sequential-drop semantics are intended.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/SeqView.scala",
+      "symbol": "SeqView.Sorted.ReverseSorted.reversed",
+      "line": 438,
+      "severity": "blocker",
+      "issue": "`reversed` returns `outer`, whose order is the enclosing sorted order. The comment says that returned enclosing view holds the elements in reverse order, which is the order of the current `ReverseSorted` view instead.",
+      "suggestion": "Say it returns the enclosing sorted view in the reverse of this view's order.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/Set.scala",
+      "symbol": "Set.toString",
+      "line": 93,
+      "severity": "blocker",
+      "issue": "This implementation uses `Iterable.toString`, which obtains its prefix dynamically. `SortedSet` inherits this method but overrides `stringPrefix` to `\"SortedSet\"`, so it does not always produce `Set(elem1, ...)`.",
+      "suggestion": "Describe the representation as using the set's `stringPrefix`, or limit the example to receivers whose prefix is `\"Set\"`.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/SortedMap.scala",
+      "symbol": "SortedMapOps.concat",
+      "line": 288,
+      "severity": "blocker",
+      "issue": "The comment promises all bindings from both operands, but the result is built by a map factory and cannot retain multiple ordering-equivalent keys. For example, `immutable.TreeMap.from` overwrites earlier values with later pairs.",
+      "suggestion": "Document duplicate/equivalent-key resolution, such as that the result is built from the concatenated pairs and collisions are resolved by the target map factory.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/SortedOps.scala",
+      "symbol": "SortedOps.ordering",
+      "line": 25,
+      "severity": "nit",
+      "issue": "“Keys” does not fit `SortedSet`, and “used by all comparison operations” overstates the contract: sorted-set `min` and `max` can compare using their supplied ordering instead.",
+      "suggestion": "Say this ordering defines the collection's sorted order and is used by its range operations.",
+      "confidence": "medium",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/SortedMap.scala",
+      "symbol": "SortedMap.equals",
+      "line": 41,
+      "severity": "ok",
+      "issue": "",
+      "suggestion": "",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/StepperShape.scala",
+      "symbol": "jIntegerStepperShape, jLongStepperShape, jDoubleStepperShape, jByteStepperShape, jShortStepperShape, jCharacterStepperShape, jFloatStepperShape",
+      "line": 83,
+      "severity": "blocker",
+      "issue": "These docs present each `java.lang` boxed type as supported by the corresponding primitive stepper, but the shared implementation casts to a primitive shape and unboxes `st.nextStep()`. A `null` boxed element therefore throws `NullPointerException`; this material case is undocumented for every listed Java-wrapper shape.",
+      "suggestion": "State that elements must be non-null, or document that a null element causes `NullPointerException` while being unboxed, on each affected Java-wrapper shape declaration.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/StrictOptimizedIterableOps.scala",
+      "symbol": "partition",
+      "line": 35,
+      "severity": "nit",
+      "issue": "The first sentence, “A pair of, first, ...”, is a sentence fragment rather than a standalone API-index summary.",
+      "suggestion": "Use a declarative summary such as “Partitions this collection into the elements that satisfy `p` and those that do not.”",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/StrictOptimizedIterableOps.scala",
+      "symbol": "zipWithIndex",
+      "line": 302,
+      "severity": "nit",
+      "issue": "The replacement doc does not state that indices start at zero, a semantic detail the overridden collection operation documents and the implementation establishes with `var i = 0`.",
+      "suggestion": "State that the result contains `(element, index)` pairs and that indices start at `0`, in addition to the implementation detail if desired.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/StringParsers.scala",
+      "symbol": "StringParsers.parseBool",
+      "line": 68,
+      "severity": "blocker",
+      "issue": "The summary says parsing is “without throwing,” but dereferencing `from` with `from.equalsIgnoreCase` throws `NullPointerException` for null.",
+      "suggestion": "Qualify the non-throwing guarantee to non-null inputs and add `@throws NullPointerException if `from` is `null``.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/StringParsers.scala",
+      "symbol": "StringParsers.parseByte",
+      "line": 84,
+      "severity": "blocker",
+      "issue": "The summary promises parsing “without throwing,” but `from.length()` throws `NullPointerException` when `from` is null.",
+      "suggestion": "State the non-null precondition or document `@throws NullPointerException if `from` is `null``.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/StringParsers.scala",
+      "symbol": "StringParsers.parseShort",
+      "line": 113,
+      "severity": "blocker",
+      "issue": "The summary promises parsing “without throwing,” but `from.length()` throws `NullPointerException` when `from` is null.",
+      "suggestion": "State the non-null precondition or document `@throws NullPointerException if `from` is `null``.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/StringParsers.scala",
+      "symbol": "StringParsers.parseInt",
+      "line": 142,
+      "severity": "blocker",
+      "issue": "The summary promises parsing “without throwing,” but `from.length()` throws `NullPointerException` when `from` is null.",
+      "suggestion": "State the non-null precondition or document `@throws NullPointerException if `from` is `null``.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/StringParsers.scala",
+      "symbol": "StringParsers.parseLong",
+      "line": 186,
+      "severity": "blocker",
+      "issue": "The summary promises parsing “without throwing,” but `from.length()` throws `NullPointerException` when `from` is null.",
+      "suggestion": "State the non-null precondition or document `@throws NullPointerException if `from` is `null``.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/StringParsers.scala",
+      "symbol": "StringParsers.parseFloat",
+      "line": 383,
+      "severity": "blocker",
+      "issue": "The summary promises parsing “without throwing,” but it calls `checkFloatFormat(from)`, which dereferences null and throws `NullPointerException`.",
+      "suggestion": "Qualify the guarantee to non-null inputs and add `@throws NullPointerException if `from` is `null``.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/StringParsers.scala",
+      "symbol": "StringParsers.parseDouble",
+      "line": 397,
+      "severity": "blocker",
+      "issue": "The summary promises parsing “without throwing,” but it calls `checkFloatFormat(from)`, which dereferences null and throws `NullPointerException`.",
+      "suggestion": "Qualify the guarantee to non-null inputs and add `@throws NullPointerException if `from` is `null``.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/StrictOptimizedSeqOps.scala",
+      "symbol": "StrictOptimizedSeqOps.intersect",
+      "line": 196,
+      "severity": "ok",
+      "issue": "",
+      "suggestion": "",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/StringOps.scala",
+      "symbol": "StringOps.split(Array[Char])",
+      "line": 1038,
+      "severity": "ok",
+      "issue": "",
+      "suggestion": "",
+      "confidence": "high",
+      "needs_human": false
+    }
+  ],
+  "bonus_findings": [
+    {
+      "file": "library/src/scala/collection/View.scala",
+      "symbol": "View.Filter.apply",
+      "line": 229,
+      "issue": "Pre-existing filter fusion changes semantics for two nested flipped filters: stacking retains `!p1 && !p2`, while the fused `Filter(..., p1 && p2, true)` retains `!p1 || !p2`.",
+      "suggestion": "Fuse flipped filters with a disjunction, or only fuse non-flipped filters."
+    },
+    {
+      "file": "library/src/scala/collection/Map.scala",
+      "symbol": "MapOps.concat",
+      "line": 431,
+      "issue": "Pre-existing documentation similarly promises all elements from both operands even though map construction collapses duplicate keys.",
+      "suggestion": "Document duplicate-key resolution consistently with the concrete map factory behavior."
+    }
+  ]
+}

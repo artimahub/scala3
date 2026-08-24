@@ -1,0 +1,668 @@
+{
+  "week": "9",
+  "branch": "scaladoc-missing-docs-collection-mutable",
+  "base": "190abc348060a547db89181f4bcef0559520ab95",
+  "head": "8e35a625573a42c00861cf4f4a9a86092c9cd81d",
+  "model": "gpt-5.6-terra",
+  "chunks": 9,
+  "verdict": "revise",
+  "blockers": 43,
+  "nits": 16,
+  "needs_human": 6,
+  "summary": "Three added ArrayBuffer Scaladoc entries misstate or omit observable behavior; AnyRefMap checks were otherwise sound.  |  Several added comments contradict edge-case behavior or omit material failures inherited from the implementations they override.  |  The diff is comment-only, but several added docs omit or misstate observable edge-case behavior.  |  Two unresolved NEEDS-HUMAN markers and one constructor-parameter doc placement error block this documentation chunk.  |  Several added comments overstate behavior or omit an inherited failure guarantee.  |  Several ListBuffer comments misstate aliasing costs, and LongMap.empty incorrectly says the returned map has no default function.  |  The added Scaladoc contains an overbroad default-preservation claim, an inaccurate protected-method contract, an off-by-one growth threshold, and an unresolved NEEDS-HUMAN marker.  |  Two Stack comments state input guarantees that the implementation does not fully establish or document.  |  Two insertion descriptions are false for append-at-end calls, and two unresolved contract-deviation notes require maintainer decisions.",
+  "items": [
+    {
+      "file": "library/src/scala/collection/mutable/ArrayBuffer.scala",
+      "symbol": "ArrayBuffer.DefaultInitialSize",
+      "line": 489,
+      "severity": "blocker",
+      "issue": "The comment says this is the capacity that `clearAndShrink` shrinks to. `clearAndShrink()` calls `resize(16)`, which only shrinks: a buffer whose backing array is already smaller than 16 retains its smaller capacity.",
+      "suggestion": "Describe it as the default target passed to `clearAndShrink`, and note that `clearAndShrink` does not grow a smaller backing array.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/mutable/ArrayBuffer.scala",
+      "symbol": "ArrayBuffer.sliding",
+      "line": 471,
+      "severity": "blocker",
+      "issue": "The added contract omits that `size` and `step` must both be positive. The delegated `IndexedSeqOps.sliding` immediately throws `IllegalArgumentException` when either is less than 1.",
+      "suggestion": "Add `@throws IllegalArgumentException if `size` or `step` is less than 1`.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/mutable/ArrayBuffer.scala",
+      "symbol": "ArrayBufferView",
+      "line": 590,
+      "severity": "blocker",
+      "issue": "The class and iterator-family documentation present all instances as mutation-checked/fail-fast, but the public deprecated `(array, length)` constructor installs a constant mutation count. Its own added documentation says its iterators never detect concurrent mutation.",
+      "suggestion": "Qualify the fail-fast and mutation-checked claims as applying to views returned by `ArrayBuffer#view`, or explicitly preserve the legacy constructor exception in the class and affected method documentation.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/mutable/AnyRefMap.scala",
+      "symbol": "AnyRefMap.getOrElseUpdate",
+      "line": 212,
+      "severity": "ok",
+      "issue": "",
+      "suggestion": "",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/mutable/ArrayBuffer.scala",
+      "symbol": "ArrayBuffer.insertAll",
+      "line": 284,
+      "severity": "ok",
+      "issue": "",
+      "suggestion": "",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/mutable/ArrayBuilder.scala",
+      "symbol": "ArrayBuilder.capacity",
+      "line": 28,
+      "severity": "blocker",
+      "issue": "`ofUnit` has no backing array, yet `resize` records a positive capacity after additions; therefore capacity is not always 0 while no backing array is allocated.",
+      "suggestion": "Qualify the description as applying to array-backed builders, and describe the `ofUnit` exception if documenting the shared field.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/mutable/ArrayBuilder.scala",
+      "symbol": "ArrayBuilder.ensureSize",
+      "line": 46,
+      "severity": "blocker",
+      "issue": "The shared implementation also serves `ofUnit`, whose `resize` only records capacity and allocates no backing array. The summary incorrectly says it grows a backing array.",
+      "suggestion": "Say it ensures capacity, and qualify backing-array allocation as behavior of array-backed implementations.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/mutable/ArrayBuilder.scala",
+      "symbol": "ArrayBuilder.sizeHint",
+      "line": 61,
+      "severity": "blocker",
+      "issue": "`ofUnit` inherits this method but has no backing array to grow; its override of `resize` only updates `capacity`.",
+      "suggestion": "Describe reserving/recording capacity generally, with allocation limited to array-backed builders.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/mutable/ArrayBuilder.scala",
+      "symbol": "ArrayBuilder.addAll",
+      "line": 115,
+      "severity": "blocker",
+      "issue": "The documented `IllegalStateException` condition is false when `xs.knownSize` is 0: the method neither iterates `xs` nor verifies that it yields zero elements, so a mismatching iterator does not throw.",
+      "suggestion": "Narrow the exception condition to a positive reported known size, or change the implementation to validate zero-size reports too.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/mutable/ArrayBuilder.scala",
+      "symbol": "ArrayBuilder.ofUnit.addAll",
+      "line": 745,
+      "severity": "blocker",
+      "issue": "NEEDS-HUMAN: Is the override intentionally allowed to ignore `xs` and `offset`, accept a negative `length`, and inflate its count beyond the supplied slice? This differs from the base overload’s clamped-slice contract.",
+      "suggestion": "Resolve the intended contract before merge; then either repair the override to honor the base slice semantics or retain and document the deliberate divergence without the NEEDS-HUMAN marker.",
+      "confidence": "high",
+      "needs_human": true
+    },
+    {
+      "file": "library/src/scala/collection/mutable/ArrayDeque.scala",
+      "symbol": "ArrayDeque.<init>(initialSize)",
+      "line": 69,
+      "severity": "blocker",
+      "issue": "The public constructor omits its material failure case: `ArrayDeque.alloc` throws `IllegalArgumentException` for a negative or unrepresentably large initial size.",
+      "suggestion": "Add an `@throws IllegalArgumentException` tag describing invalid initial-size hints.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/mutable/ArrayDeque.scala",
+      "symbol": "ArrayDeque.insert",
+      "line": 207,
+      "severity": "blocker",
+      "issue": "The claimed O(min(idx, length - idx)) time excludes a full-buffer insertion: `mustGrow` then allocates and copies all existing elements, which is O(length), including at either endpoint.",
+      "suggestion": "Qualify the bound as excluding a resize, or document the amortized/resize cost accurately.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/mutable/ArrayDeque.scala",
+      "symbol": "ArrayDeque.insertAll",
+      "line": 251,
+      "severity": "blocker",
+      "issue": "It does not resize at most once for every input. At `idx == length`, it delegates to `addAll`; for an unknown-size source, that appends one element at a time and can resize repeatedly.",
+      "suggestion": "Limit the one-resize claim to known-size sources or revise the implementation.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/mutable/ArrayDeque.scala",
+      "symbol": "ArrayDeque.ofArray",
+      "line": 590,
+      "severity": "blocker",
+      "issue": "The documentation presents `end` as any number of leading elements, but construction calls `reset`, which requires `0 <= end < array.length`; `end == array.length` cannot represent a full deque because one circular-buffer slot remains unused.",
+      "suggestion": "Document the valid `end` range and resulting exception, and apply the same correction to `ArrayDequeOps.ofArray`.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/mutable/ArrayDeque.scala",
+      "symbol": "ArrayDeque.copyToArray",
+      "line": 602,
+      "severity": "blocker",
+      "issue": "A negative `destStart` is not a no-op: when there are elements to copy, `copySliceToArray` calls `requireBounds` and throws `IndexOutOfBoundsException`. The comment omits this material case.",
+      "suggestion": "Add an `@throws IndexOutOfBoundsException` tag for a negative destination start.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/mutable/ArrayDeque.scala",
+      "symbol": "ArrayDequeOps.sliding",
+      "line": 863,
+      "severity": "blocker",
+      "issue": "The override delegates to `IndexedSeqOps.sliding`, whose returned iterator throws `java.util.ConcurrentModificationException` if this sequence’s length changes during iteration. The new documentation omits that material exception.",
+      "suggestion": "Add the inherited `@throws java.util.ConcurrentModificationException` condition.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/mutable/ArrayDeque.scala",
+      "symbol": "ArrayDequeOps.grouped",
+      "line": 875,
+      "severity": "blocker",
+      "issue": "`grouped` delegates to this `sliding(n, n)` implementation, so its returned iterator likewise throws `java.util.ConcurrentModificationException` if the collection length changes during iteration; the documentation omits it.",
+      "suggestion": "Add the inherited concurrent-modification failure case to the documentation.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/mutable/ArrayDeque.scala",
+      "symbol": "ArrayDeque.remove",
+      "line": 314,
+      "severity": "ok",
+      "issue": "",
+      "suggestion": "",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/mutable/ArraySeq.scala",
+      "symbol": "ArraySeq.ofRef.update",
+      "line": 272,
+      "severity": "blocker",
+      "issue": "The documented exceptions omit `ArrayStoreException`. `ofRef` can wrap a covariant reference array whose runtime component type is narrower than `T`; assigning an incompatible `elem` then fails at `array(index) = elem`.",
+      "suggestion": "Add an `@throws ArrayStoreException` tag for an element incompatible with the runtime component type of the underlying array.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/mutable/BitSet.scala",
+      "symbol": "BitSet.this(Int)",
+      "line": 57,
+      "severity": "blocker",
+      "issue": "The capacity claim is false for large `initSize` values: `(initSize + 63)` overflows for values above `Int.MaxValue - 63`, and the expression allocates only one word rather than capacity through `initSize - 1`.",
+      "suggestion": "Do not promise that capacity reaches `initSize - 1` unless the implementation is fixed; describe the actual rounded word-array allocation and its limits.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/mutable/BitSet.scala",
+      "symbol": "BitSet.fromSpecific",
+      "line": 67,
+      "severity": "blocker",
+      "issue": "The new documentation says that `coll` contains only non-negative integers but omits the material failure mode. It delegates to `BitSet.fromSpecific`, whose builder calls `addOne`, which throws `IllegalArgumentException` for a negative element.",
+      "suggestion": "Add `@throws IllegalArgumentException if `coll` contains a negative element`.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/mutable/BitSet.scala",
+      "symbol": "BitSet.toImmutable",
+      "line": 258,
+      "severity": "nit",
+      "issue": "The claim that the underlying array is copied is not literally true for zero-, one-, and two-word bitsets: `immutable.BitSet.fromBitMask` represents those without copying an array. The important no-aliasing guarantee is true.",
+      "suggestion": "Say that the result does not share this bitset's backing array, rather than that the array is copied.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/mutable/CollisionProofHashMap.scala",
+      "symbol": "CollisionProofHashMap.sizeHint",
+      "line": 167,
+      "severity": "blocker",
+      "issue": "NEEDS-HUMAN: Does `sizeHint(0)` intentionally test the parameter rather than the current map size? With a sufficiently small load factor, `reallocTable` can replace a non-empty table and discard its entries without resetting `contentSize`.",
+      "suggestion": "Resolve the implementation/contract question with a maintainer, then remove the NEEDS-HUMAN marker and document the settled behavior.",
+      "confidence": "high",
+      "needs_human": true
+    },
+    {
+      "file": "library/src/scala/collection/mutable/CollisionProofHashMap.scala",
+      "symbol": "CollisionProofHashMap.put",
+      "line": 195,
+      "severity": "blocker",
+      "issue": "NEEDS-HUMAN: Should `put` satisfy the inherited `MapOps.put` contract? `put0` returns `Some(null)` for a new binding and loses the previous value for replacements in tree buckets.",
+      "suggestion": "Resolve the intended return-value behavior with a maintainer, fix or document the settled contract, and remove the NEEDS-HUMAN marker.",
+      "confidence": "high",
+      "needs_human": true
+    },
+    {
+      "file": "library/src/scala/collection/mutable/CollisionProofHashMap.scala",
+      "symbol": "CollisionProofHashMap.RBNode.key",
+      "line": 1060,
+      "severity": "blocker",
+      "issue": "The doc comment immediately before `key` describes four separate constructor fields (`key`, `hash`, `value`, and `red`). Scaladoc associates it only with the first declaration, leaving the intended per-field documentation malformed.",
+      "suggestion": "Remove this grouped field comment—the class-level `@param` tags already document all four fields—or split the declarations and put one focused comment immediately before each field.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/mutable/Buffer.scala",
+      "symbol": "IndexedBuffer.patchInPlace",
+      "line": 326,
+      "severity": "ok",
+      "issue": "",
+      "suggestion": "",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/mutable/HashMap.scala",
+      "symbol": "HashMap.updateWith",
+      "line": 175,
+      "severity": "blocker",
+      "issue": "The documentation omits the material case where `remappingFunction` throws. The inherited contract states that the exception is propagated and no update is made; this implementation likewise calls the function before entering any update case.",
+      "suggestion": "State that an exception thrown by `remappingFunction` is propagated and the method makes no update.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/mutable/HashTable.scala",
+      "symbol": "HashTable.sizeMapInitAndRebuild",
+      "line": 401,
+      "severity": "blocker",
+      "issue": "It does not populate counters for every table block as documented. `totalSizeMapBuckets` is zero for tables shorter than 32 and one for every table longer than 32, so the loop skips all entries or counts only the first 32 buckets.",
+      "suggestion": "Do not claim that every block is rebuilt unless the implementation is fixed; otherwise document its actual limited behavior.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/mutable/HashTable.scala",
+      "symbol": "HashTable.nextPositivePowerOfTwo",
+      "line": 512,
+      "severity": "blocker",
+      "issue": "The comment promises a positive power of two at least as large as any `target`, but targets above `1 << 30` produce `Int.MinValue` because of the shift, rather than a positive result.",
+      "suggestion": "Document the supported input range and overflow behavior, or fix the implementation to reject/handle oversized targets.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/mutable/ImmutableBuilder.scala",
+      "symbol": "ImmutableBuilder.result",
+      "line": 42,
+      "severity": "blocker",
+      "issue": "The returned value is the exact `elems` reference. `C` is constrained only to `IterableOnce`, and subclasses can mutate that object rather than replace it, so later additions are not universally unable to affect an earlier result.",
+      "suggestion": "Qualify the guarantee as depending on subclasses maintaining the immutable/replacement invariant, or enforce that invariant.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/mutable/ListBuffer.scala",
+      "symbol": "ListBuffer.toList",
+      "line": 102,
+      "severity": "blocker",
+      "issue": "It says the next mutating operation always copies elements first. `clear` does not copy, and `mapInPlace`/`flatMapInPlace` rebuild rather than first copying the existing elements.",
+      "suggestion": "State that later operations do not mutate the returned list, qualifying that operations which would mutate the shared list first detach it; do not claim every mutation copies first.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/mutable/ListBuffer.scala",
+      "symbol": "ListBuffer.result",
+      "line": 119,
+      "severity": "blocker",
+      "issue": "It repeats the false claim that any later mutation copies the elements first; `clear`, `mapInPlace`, and `flatMapInPlace` do not do so.",
+      "suggestion": "Say that later operations leave the returned list unchanged, without asserting that they all copy first.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/mutable/ListBuffer.scala",
+      "symbol": "ListBuffer.update",
+      "line": 270,
+      "severity": "blocker",
+      "issue": "The claimed linear-in-`idx` cost omits the full-buffer copy performed by `ensureUnaliased` after `toList` or `result`, even when `idx` is zero.",
+      "suggestion": "Qualify the complexity with the possible O(length) detachment after `toList`/`result`.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/mutable/ListBuffer.scala",
+      "symbol": "ListBuffer.insert",
+      "line": 298,
+      "severity": "blocker",
+      "issue": "The claimed constant-time prepend/append and linear-in-`idx` general cost omit the O(length) detachment performed when the buffer is aliased by `toList` or `result`.",
+      "suggestion": "Qualify all stated costs with the possible copy of an aliased buffer.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/mutable/ListBuffer.scala",
+      "symbol": "ListBuffer.prepend",
+      "line": 321,
+      "severity": "blocker",
+      "issue": "Prepending is not always constant time: it delegates to `insert`, which detaches and copies an aliased buffer.",
+      "suggestion": "Add the same aliasing qualification as `addOne`, or remove the unconditional constant-time claim.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/mutable/ListBuffer.scala",
+      "symbol": "ListBuffer.remove",
+      "line": 368,
+      "severity": "blocker",
+      "issue": "The stated linear-in-`idx` cost omits the O(length) copy caused by `ensureUnaliased` when a prior `toList` or `result` has aliased the list.",
+      "suggestion": "Qualify the complexity with the possible alias-detachment copy.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/mutable/ListBuffer.scala",
+      "symbol": "ListBuffer.remove",
+      "line": 393,
+      "severity": "blocker",
+      "issue": "The stated linear-in-`idx + count` cost omits the O(length) copy performed for an aliased buffer when `count > 0`.",
+      "suggestion": "Qualify the complexity with the possible alias-detachment copy.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/mutable/LongMap.scala",
+      "symbol": "LongMap.empty",
+      "line": 123,
+      "severity": "blocker",
+      "issue": "The result does carry a default-value function: `new LongMap()` passes `LongMap.exceptionDefault` as `defaultEntry`. That function throws for absent keys.",
+      "suggestion": "Say that the result does not preserve this map's default behavior and that its missing-key default throws `NoSuchElementException`.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/mutable/LinkedHashMap.scala",
+      "symbol": "LinkedHashMap.empty",
+      "line": 656,
+      "severity": "nit",
+      "issue": "The description begins with “Creates” but omits an `@return` tag, contrary to the return-tag convention.",
+      "suggestion": "Add `@return a new empty LinkedHashMap[K, V]`.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/mutable/LinkedHashMap.scala",
+      "symbol": "LinkedHashMap.from",
+      "line": 663,
+      "severity": "nit",
+      "issue": "The description begins with “Creates” but omits an `@return` tag.",
+      "suggestion": "Add an `@return` describing the new map and its iteration order.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/mutable/LinkedHashSet.scala",
+      "symbol": "LinkedHashSet.from",
+      "line": 422,
+      "severity": "nit",
+      "issue": "The description begins with “Creates” but omits an `@return` tag.",
+      "suggestion": "Add an `@return` describing the new set and its iteration order.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/mutable/Map.scala",
+      "symbol": "Map.WithDefault",
+      "line": 292,
+      "severity": "blocker",
+      "issue": "The class documentation says that transformer methods other than `concat`, `empty`, and `clone` do not preserve the default. This wrapper's `fromSpecific` and `newSpecificBuilder` explicitly create `WithDefault` instances, so same-type transformations such as `filter` preserve it.",
+      "suggestion": "Limit the claim to transformations that use `mapFactory` (such as `map`), or enumerate the operations whose results lose the default.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/mutable/OpenHashMap.scala",
+      "symbol": "OpenHashMap.put",
+      "line": 228,
+      "severity": "blocker",
+      "issue": "The documentation says the table grows when more than half its slots are occupied or deleted, but the pre-insertion condition `2 * (size + deleted) > mask` grows an eight-slot table when exactly four slots are occupied/deleted and another entry is being added.",
+      "suggestion": "Say that growth occurs when adding would exceed the implementation's load threshold, or correct the threshold wording to describe the actual condition.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/mutable/OpenHashMap.scala",
+      "symbol": "OpenHashMap.OpenHashMapIterator.next",
+      "line": 340,
+      "severity": "blocker",
+      "issue": "The added `@note NEEDS-HUMAN` leaves an unresolved question in Scaladoc: after exhaustion, `next()` indexes `table(index)` and throws `ArrayIndexOutOfBoundsException`, rather than the required `NoSuchElementException`.",
+      "suggestion": "Human decision needed: fix `next()` to enforce the `Iterator.next()` contract, then document that exception normally; do not leave the NEEDS-HUMAN marker in published documentation.",
+      "confidence": "high",
+      "needs_human": true
+    },
+    {
+      "file": "library/src/scala/collection/mutable/PriorityQueue.scala",
+      "symbol": "PriorityQueue.fixUp",
+      "line": 173,
+      "severity": "blocker",
+      "issue": "The comment promises to restore the heap invariant in the supplied `as` array, but the body compares values in `as` while swapping entries in `resarr.p_array`. It only has the described effect when `as` is that backing array.",
+      "suggestion": "Either fix `fixUp` to swap in `as`, or document and enforce that `as` must be this queue's backing array.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/mutable/Stack.scala",
+      "symbol": "Stack.this",
+      "line": 47,
+      "severity": "blocker",
+      "issue": "The constructor documentation omits that `ArrayDeque.alloc(initialSize)` rejects negative (and excessively large) capacity hints with `IllegalArgumentException`.",
+      "suggestion": "Add an `@throws IllegalArgumentException` tag describing invalid `initialSize` values.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/mutable/Stack.scala",
+      "symbol": "Stack.ofArray",
+      "line": 132,
+      "severity": "blocker",
+      "issue": "The comment says `array` is allocated by `ArrayDeque.alloc`, but the body only passes it to the constructor. The inherited contract requires a power-of-two-length array; it does not require that allocator.",
+      "suggestion": "Document the actual requirement: the backing array length must be a power of two, without claiming it was allocated by `ArrayDeque.alloc`.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/mutable/UnrolledBuffer.scala",
+      "symbol": "UnrolledBuffer.remove(idx, count)",
+      "line": 273,
+      "severity": "blocker",
+      "issue": "NEEDS-HUMAN: the implementation silently ignores negative counts and can remove a prefix of the requested range before failing, unlike the inherited Buffer contract. Which behavior is intended for this public override?",
+      "suggestion": "Have a maintainer decide whether to fix the implementation to the Buffer contract or explicitly retain and document this divergence; remove the NEEDS-HUMAN marker afterward.",
+      "confidence": "high",
+      "needs_human": true
+    },
+    {
+      "file": "library/src/scala/collection/mutable/UnrolledBuffer.scala",
+      "symbol": "UnrolledBuffer.insertAll",
+      "line": 317,
+      "severity": "blocker",
+      "issue": "The description unconditionally says the node is split, but insertion at `idx == length` follows the `idx == size` branch and simply appends, without splitting a node.",
+      "suggestion": "Qualify the implementation detail with the append-at-end case, or omit it from the public API documentation.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/mutable/UnrolledBuffer.scala",
+      "symbol": "UnrolledBuffer.patchInPlace",
+      "line": 355,
+      "severity": "blocker",
+      "issue": "NEEDS-HUMAN: this implementation does not honor the inherited Buffer.patchInPlace clamping contract and can partially mutate before throwing. Which behavior is intended for this public override?",
+      "suggestion": "Have a maintainer decide whether to implement the inherited contract or explicitly retain and document the divergence; remove the NEEDS-HUMAN marker afterward.",
+      "confidence": "high",
+      "needs_human": true
+    },
+    {
+      "file": "library/src/scala/collection/mutable/UnrolledBuffer.scala",
+      "symbol": "UnrolledBuffer.Unrolled.insertAll",
+      "line": 651,
+      "severity": "blocker",
+      "issue": "The description unconditionally says the node is split, but the `idx == size` branch appends directly and does not split it.",
+      "suggestion": "Describe the append-at-end branch separately, or restrict the split description to `idx < size`.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/mutable/UnrolledBuffer.scala",
+      "symbol": "evidenceIterableFactory",
+      "line": 74,
+      "severity": "nit",
+      "issue": "The opening summary is a sentence fragment.",
+      "suggestion": "Use a declarative sentence, e.g. “Returns the companion object `UnrolledBuffer` as the evidence-aware factory.”",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/mutable/UnrolledBuffer.scala",
+      "symbol": "iterableEvidence",
+      "line": 76,
+      "severity": "nit",
+      "issue": "The opening summary is a sentence fragment.",
+      "suggestion": "Use a declarative sentence beginning with “Returns”.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/mutable/UnrolledBuffer.scala",
+      "symbol": "iterableFactory",
+      "line": 83,
+      "severity": "nit",
+      "issue": "The opening summary is a sentence fragment.",
+      "suggestion": "Use a declarative sentence beginning with “Returns”.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/mutable/UnrolledBuffer.scala",
+      "symbol": "classTagCompanion",
+      "line": 106,
+      "severity": "nit",
+      "issue": "The opening summary is a sentence fragment.",
+      "suggestion": "Use a declarative sentence beginning with “Returns”.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/mutable/UnrolledBuffer.scala",
+      "symbol": "className",
+      "line": 388,
+      "severity": "nit",
+      "issue": "The opening summary is a sentence fragment.",
+      "suggestion": "Use a declarative sentence, e.g. “Returns `\"UnrolledBuffer\"` as the prefix …”.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/mutable/UnrolledBuffer.scala",
+      "symbol": "UnrolledBuffer.untagged",
+      "line": 398,
+      "severity": "nit",
+      "issue": "The opening summary is a noun phrase rather than a standalone API-index sentence.",
+      "suggestion": "Use a declarative sentence beginning with “Provides” or “Returns”.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/mutable/UnrolledBuffer.scala",
+      "symbol": "UnrolledBuffer.waterline",
+      "line": 427,
+      "severity": "nit",
+      "issue": "The opening summary is a sentence fragment.",
+      "suggestion": "Use a declarative sentence, e.g. “Defines 50 as the numerator …”.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/mutable/UnrolledBuffer.scala",
+      "symbol": "UnrolledBuffer.waterlineDenom",
+      "line": 430,
+      "severity": "nit",
+      "issue": "The opening summary is a sentence fragment.",
+      "suggestion": "Use a declarative sentence beginning with “Returns” or “Defines”.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/mutable/UnrolledBuffer.scala",
+      "symbol": "UnrolledBuffer.waterlineDelim",
+      "line": 434,
+      "severity": "nit",
+      "issue": "The opening summary is a sentence fragment.",
+      "suggestion": "Use a declarative sentence beginning with “Returns”.",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/mutable/package.scala",
+      "symbol": "WrappedArray",
+      "line": 25,
+      "severity": "nit",
+      "issue": "The opening summary is a sentence fragment.",
+      "suggestion": "Use a declarative sentence, e.g. “Provides `ArraySeq` under the deprecated `WrappedArray` name.”",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/mutable/package.scala",
+      "symbol": "Traversable",
+      "line": 32,
+      "severity": "nit",
+      "issue": "The opening summary is a sentence fragment.",
+      "suggestion": "Use a declarative sentence, e.g. “Provides `Iterable` under the deprecated `Traversable` name.”",
+      "confidence": "high",
+      "needs_human": false
+    },
+    {
+      "file": "library/src/scala/collection/mutable/package.scala",
+      "symbol": "ArrayStack",
+      "line": 39,
+      "severity": "nit",
+      "issue": "The opening summary is a sentence fragment.",
+      "suggestion": "Use a declarative sentence, e.g. “Provides `Stack` under the deprecated `ArrayStack` name.”",
+      "confidence": "high",
+      "needs_human": false
+    }
+  ],
+  "bonus_findings": [
+    {
+      "file": "library/src/scala/collection/mutable/HashTable.scala",
+      "symbol": "HashTable.totalSizeMapBuckets",
+      "line": 377,
+      "issue": "The block-count condition appears reversed: tables below 32 yield zero blocks, while tables above 32 always yield one.",
+      "suggestion": "Use one block for tables shorter than `sizeMapBucketSize` and otherwise divide the table length by that size."
+    },
+    {
+      "file": "library/src/scala/collection/mutable/LinkedHashMap.scala",
+      "symbol": "LinkedHashMap.LinkedKeySet",
+      "line": 364,
+      "issue": "The pre-existing Scaladoc comment is below `@deprecated`, so the parser drops it.",
+      "suggestion": "Move the comment above the annotation."
+    },
+    {
+      "file": "library/src/scala/collection/mutable/ListMap.scala",
+      "symbol": "ListMap",
+      "line": 21,
+      "issue": "The pre-existing class documentation says the list-backed map preserves insertion order, but `addOne` prepends every new or replaced binding, so iteration is reverse insertion order.",
+      "suggestion": "Describe the actual reverse-insertion/backing-list iteration order."
+    }
+  ]
+}
