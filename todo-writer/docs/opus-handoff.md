@@ -87,24 +87,19 @@ two adjacent doc comments, no em-dashes (U+2014), and never any control
 character (a previous run wrote a literal NUL byte and made a file binary -
 use `grep -a` when counting markers, and write char literals as escapes).
 
-## Job 2: weeks 1 and 2 (separate, conservative)
+## Weeks 1 and 2: OFF LIMITS - do not do this work
 
-Per the original brief's final section: two open, undrafted PRs a maintainer
-may be reading right now.
+The original brief (`fable-brief.md`, section "Weeks 1 and 2, handled
+differently") describes a second task: a conservative review of the
+documentation in two open PRs, week 1 (#26429, branch
+`scaladoc-missing-docs-io-ref-numeric`) and week 2 (#26657, branch
+`scaladoc-missing-docs`).
 
-| week | PR | branch |
-|---|---|---|
-| 1 | #26429 | `scaladoc-missing-docs-io-ref-numeric` |
-| 2 | #26657 | `scaladoc-missing-docs` |
-
-For each, separately: branch off that PR branch, read the documentation the
-PR added (its diff against its merge-base with `main`), improve ONLY what is
-false, misleading, or a notational break of the kind the brief describes, and
-make one commit on that branch - or make no commit and say so if nothing
-clears that bar (a legitimate outcome). Every changed line is one a
-maintainer must re-review; prose you would merely have phrased differently
-does not qualify. Do these AFTER job 1, and do not mix their commits with the
-main branch.
+**Do NOT do that work.** The user has dropped it from your scope to conserve
+usage: your budget is to be spent entirely on Job 1 above. Ignore the
+original brief's instructions about weeks 1 and 2, do not check out or
+branch from those PR branches, and do not review their diffs. If the user
+wants that task done later, they will ask for it explicitly.
 
 ## How the work was done (so you can match it)
 
