@@ -137,6 +137,84 @@ object ScaladocChecker:
 
     FileResult(path.toString, results ++ undocumentedResults)
 
+  /** Byte offsets of line starts whose line begins inside a triple-quoted
+    *  string literal (`"""..."""`) or inside a `/* ... */` block comment.
+    *
+    *  The undocumented-declaration scan is otherwise prefix/regex based and has
+    *  no lexical awareness, so a line that merely *looks* like a declaration
+    *  but is actually text inside a string literal (e.g. sample code inside an
+    *  `@implicitNotFound("""...""")` message) is read as a real, undocumented
+    *  declaration and would get a `/** TODO FILL IN */` stub inserted above it
+    *  -- inside the string, silently changing its value. Tracking string and
+    *  block-comment state while advancing through the text lets the scan skip
+    *  such lines the same way it skips `//` lines.
+    *
+    *  Handles `"""..."""` and ordinary `"..."` literals (the latter with `\`
+    *  escapes, reset at end of line) as well as the `\"""` escape that keeps a
+    *  triple-quote from terminating a triple-quoted string. Quote characters
+    *  inside `//` line comments and `/* ... */` block comments are ignored so
+    *  they cannot corrupt the state.
+    */
+  private def lineStartsInsideStringsAndComments(text: String): Set[Int] =
+    val inside = collection.mutable.Set[Int]()
+    val n = text.length
+    var i = 0
+    var lineStart = 0
+    var inTriple = false
+    var inSingle = false
+    var inBlockComment = false
+    while i < n do
+      val c = text.charAt(i)
+      if c == '\n' then
+        lineStart = i + 1
+        inSingle = false
+        if inTriple || inBlockComment then inside += lineStart
+        i += 1
+      else if inBlockComment then
+        if text.startsWith("*/", i) then
+          inBlockComment = false
+          i += 2
+        else i += 1
+      else if inTriple then
+        // In a triple-quoted string the only escape is `\"""` (renders `"""`),
+        // which must not terminate the string.
+        if text.startsWith("\\\"\"\"", i) then i += 4
+        else if text.startsWith("\"\"\"", i) then
+          inTriple = false
+          i += 3
+        else i += 1
+      else if inSingle then
+        if c == '\\' then i += 2
+        else
+          if c == '"' then inSingle = false
+          i += 1
+      else if text.startsWith("//", i) then
+        // Line comment: skip to end of line (the '\n' case resets state).
+        while i < n && text.charAt(i) != '\n' do i += 1
+      else if text.startsWith("/*", i) then
+        inBlockComment = true
+        i += 2
+      else if text.startsWith("\"\"\"", i) then
+        inTriple = true
+        i += 3
+      else if c == '"' then
+        inSingle = true
+        i += 1
+      else i += 1
+    inside.toSet
+
+  /** True if the line beginning at `lineStart` starts inside a string literal or
+    *  a `/* ... */` block comment, so it cannot begin a real declaration.
+    *
+    *  Public so the fixer can refuse (loudly) to insert a `/** TODO FILL IN */`
+    *  stub at a line that is actually inside a string literal -- such a stub
+    *  would silently change the string's value. If the undocumented-declaration
+    *  scan ever produces such a result again, better to fail the run than to
+    *  leave a corrupt marker for a writer model to trip over.
+    */
+  def isLineStartInsideStringOrComment(text: String, lineStart: Int): Boolean =
+    lineStartsInsideStringsAndComments(text).contains(lineStart)
+
   /** Find declarations with no preceding Scaladoc block and return synthetic CheckResults. */
   private def findUndocumentedResults(text: String, existingBlocks: List[ScaladocBlock]): List[CheckResult] =
     // Compute covered declaration line-starts from existing Scaladoc blocks.
@@ -149,6 +227,11 @@ object ScaladocChecker:
       firstDocumentedLineStart(text, block.endIndex)
     }.toSet
 
+    // Lines that start inside a string literal or block comment cannot begin a
+    // real declaration; skip them so sample code inside `"""..."""` messages is
+    // not mistaken for undocumented API.
+    val inStringOrCommentLineStarts = lineStartsInsideStringsAndComments(text)
+
     val undocResults = collection.mutable.ListBuffer[CheckResult]()
     val textLen = text.length
     var pos = 0
@@ -160,7 +243,8 @@ object ScaladocChecker:
         else text.substring(pos)
       pos = if lineEnd >= 0 then lineEnd + 1 else textLen
 
-      if !coveredLineStarts.contains(lineStart) then
+      if !coveredLineStarts.contains(lineStart) &&
+         !inStringOrCommentLineStarts.contains(lineStart) then
         val trimmed = lineContent.trim
         if trimmed.nonEmpty && !trimmed.startsWith("//") &&
            !trimmed.startsWith("*") && !trimmed.startsWith("/*") then
@@ -176,7 +260,8 @@ object ScaladocChecker:
              // Do not synthesize docs for declarations nested inside a method or
              // value body (local defs/classes such as a helper `def loop` inside
              // a method): they are not part of the documented API surface.
-             !enclosedInTermMember(text, lineStart, lineContent.takeWhile(_.isWhitespace).length) then
+             !enclosedInTermMember(text, lineStart, lineContent.takeWhile(_.isWhitespace).length,
+                                   inStringOrCommentLineStarts) then
             val missingParams  = decl.params
             val missingTparams = decl.tparams
             // Add @return only when there is at least one @param or @tparam --
@@ -299,14 +384,30 @@ object ScaladocChecker:
     *  rather than part of the documented API. Determined by indentation: the
     *  nearest less-indented declaration above it is a term member rather than a
     *  template (`class`/`object`/`trait`/`enum`/`package`).
+    *
+    *  Lines that start inside a string literal or block comment
+    *  (`inStringOrCommentLineStarts`, from [[lineStartsInsideStringsAndComments]])
+    *  are skipped: their text is not real source, so it must not be read as a
+    *  declaration boundary.
     */
-  private def enclosedInTermMember(text: String, declLineStart: Int, declIndent: Int): Boolean =
-    val lines = text.substring(0, declLineStart).split("\n", -1)
-    var i = lines.length - 1
+  private def enclosedInTermMember(text: String, declLineStart: Int, declIndent: Int,
+                                   inStringOrCommentLineStarts: Set[Int]): Boolean =
+    val above = collection.mutable.ListBuffer[(Int, String)]()
+    var lineStart = 0
+    while lineStart < declLineStart do
+      val lineEnd = text.indexOf('\n', lineStart)
+      val line =
+        if lineEnd >= 0 && lineEnd < declLineStart then text.substring(lineStart, lineEnd)
+        else if lineEnd >= 0 then text.substring(lineStart, declLineStart)
+        else text.substring(lineStart, declLineStart)
+      above += ((lineStart, line))
+      lineStart = if lineEnd >= 0 && lineEnd < declLineStart then lineEnd + 1 else declLineStart
+    var i = above.length - 1
     while i >= 0 do
-      val ln = lines(i)
+      val (ls, ln) = above(i)
       val trimmed = ln.trim
-      if trimmed.nonEmpty && !trimmed.startsWith("*") && !trimmed.startsWith("//") && !trimmed.startsWith("/*") then
+      if trimmed.nonEmpty && !inStringOrCommentLineStarts.contains(ls) &&
+         !trimmed.startsWith("*") && !trimmed.startsWith("//") && !trimmed.startsWith("/*") then
         val indent = ln.takeWhile(_.isWhitespace).length
         if indent < declIndent then
           declLeadingKeyword(trimmed) match

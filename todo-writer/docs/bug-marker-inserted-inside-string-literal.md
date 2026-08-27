@@ -1,7 +1,8 @@
 # Bug: `TODO FILL IN` markers get inserted inside string literals
 
-**Status:** open
+**Status:** fixed
 **Found:** 2026-08-14, during the week-4 partition run (util + concurrent)
+**Fixed:** 2026-08-16, `lineStartsInsideStringsAndComments` + fixer guard
 **Severity:** low frequency, high consequence. One occurrence in 443 declarations,
 but it silently edits compiler-visible program text and the existing code-integrity
 guard cannot see it.
@@ -59,6 +60,36 @@ The file still compiles, because any text is legal inside a triple-quoted string
 What changes is the error message the compiler prints to users who forget an
 `ExecutionContext`. Had the marker been filled rather than left behind, generated
 Scaladoc prose would have shipped inside a compiler diagnostic.
+
+## Fix implemented
+
+`findUndocumentedResults` now precomputes, with
+`ScaladocChecker.lineStartsInsideStringsAndComments`, the byte offsets of every line
+that starts inside a triple-quoted string (`"""..."""`) or a `/* ... */` block
+comment, and skips them exactly as it already skipped `//` lines. The scanner is a
+single forward pass over the text, so state is carried across line boundaries rather
+than inferred per line:
+
+- Tracks `"""..."""` and ordinary `"..."` literals. In ordinary strings `\` escapes
+  the next character, and string state resets at end of line.
+- Honors the `\"""` escape, which keeps a triple-quote from terminating a
+  triple-quoted string.
+- Ignores quote characters inside `//` line comments and `/* ... */` block comments
+  so they cannot corrupt the string state.
+
+`enclosedInTermMember` (the "is this a local def inside a method body?" check) was
+made consistent: it walks line offsets and also skips lines that start inside a
+string/comment, so an in-string `val x = 1`-shaped line can no longer masquerade as a
+term-member boundary that swallows the real declarations after the string.
+
+Defense in depth: `Fixer` refuses to insert a stub at a line that starts inside a
+string literal or block comment, throwing an `IllegalStateException` instead of
+silently corrupting the source. If the scan ever regresses, the run fails loudly
+rather than leaving a comment-shaped marker inside a string for a writer model to
+trip over.
+
+Regression tests live in
+`src/test/scala/todowriter/ScaladocCheckerStringLiteralSpec.scala`.
 
 ## Reproduction
 
@@ -243,21 +274,24 @@ for f in sorted(pathlib.Path("library/src/scala").rglob("*.scala")):
 
 ## Fix direction
 
-The real fix is to give the undocumented-declaration scan string-literal state, so a
-line inside `"""..."""` or `"..."` is skipped the same way a `//` line is. That means
+The real fix was to give the undocumented-declaration scan string-literal state, so a
+line inside `"""..."""` or `"..."` is skipped the same way a `//` line is. That meant
 tracking quote state as the scan advances through the text, in the same loop that
-already tracks line boundaries, rather than testing each line in isolation.
+already tracks line boundaries, rather than testing each line in isolation. This is
+done (see [Fix implemented](#fix-implemented)).
 
-Two things worth deciding at the same time:
+Two things were worth deciding at the same time:
 
 1. **The integrity guard should not be comment-blind.** Consider having it compare
    against the *pre-marking* baseline including string contents, or add a separate
    check that string literals are unchanged. As written it structurally cannot catch
-   this class of damage.
+   this class of damage. *Still open: this lives in the fill pipeline's scripts, not
+   in todo-writer's code.*
 
 2. **Markers inside strings should be an error, not a silent skip.** If the scan ever
    does produce one, it is better to fail the marking run loudly than to leave it for
-   a writer model to trip over several days later.
+   a writer model to trip over several days later. *Done: the fixer throws rather
+   than insert at a line that starts inside a string literal.*
 
 ## Workaround applied
 
