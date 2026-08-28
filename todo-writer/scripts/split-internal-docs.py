@@ -416,12 +416,30 @@ def noncomment(lines):
     return out
 
 
-def split(apply, only=None, prefix=""):
+def split(apply, only=None, prefix="", keepfile=None):
     recs = json.load(open(os.path.join(REPO, DATA), encoding="utf-8"))["records"]
+
+    # Declarations named in the keep file stay on the user-facing branch even
+    # though the published docs do not render them: their documentation states
+    # a protocol, an invariant, or a cross-platform contract that a reader
+    # cannot recover from the signature. Keyed by line, so verify the name
+    # still matches before honouring an entry.
+    keep, stale = set(), []
+    if keepfile:
+        for k in json.load(open(os.path.join(REPO, keepfile), encoding="utf-8"))["keepers"]:
+            keep.add((k["file"], k["decl_line"], k["name"]))
+
     by_branch = collections.defaultdict(list)
+    kept = 0
     for r in recs:
-        if r["hidden"]:
-            by_branch[r["branch"]].append(r)
+        if not r["hidden"]:
+            continue
+        if (r["file"], r["decl_line"], r["name"]) in keep:
+            kept += 1
+            continue
+        by_branch[r["branch"]].append(r)
+    if keepfile:
+        print("keeping %d hidden declaration(s) named in %s\n" % (kept, keepfile))
 
     plan = []
     for b in BRANCHES:
@@ -537,6 +555,9 @@ def main():
     sp = sub.add_parser("split", help="split the branches (dry-run unless --apply)")
     sp.add_argument("--apply", action="store_true")
     sp.add_argument("--only", help="operate on a single branch")
+    sp.add_argument("--keep", default=None,
+                    help="JSON keep-list of hidden declarations to leave in place, "
+                         "e.g. todo-writer/reviews/internal-docs-keepers.json")
     sp.add_argument("--prefix", default="",
                     help="write to <prefix><branch> instead of rewriting in place; "
                          "use for a rehearsal, e.g. --prefix trial/")
@@ -553,7 +574,7 @@ def main():
               % (hid, total, 100.0 * hid / total))
         print("wrote %s and %s" % (DATA, REPORT))
     else:
-        split(a.apply, a.only, a.prefix)
+        split(a.apply, a.only, a.prefix, a.keep)
 
 
 if __name__ == "__main__":

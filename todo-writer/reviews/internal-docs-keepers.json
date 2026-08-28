@@ -1,0 +1,3598 @@
+{
+ "count": 319,
+ "protocol_files": [
+  "library-js/src/scala/collection/immutable/LazyListBase.scala",
+  "library-js/src/scala/collection/immutable/LazyListIterableBase.scala",
+  "library/src/scala/collection/concurrent/TrieMap.scala",
+  "library/src/scala/collection/convert/impl/InOrderStepperBase.scala",
+  "library/src/scala/collection/convert/impl/IndexedStepperBase.scala",
+  "library/src/scala/collection/immutable/ChampCommon.scala",
+  "library/src/scala/collection/immutable/LazyListBase.scala",
+  "library/src/scala/collection/immutable/LazyListIterableBase.scala",
+  "library/src/scala/collection/immutable/RedBlackTree.scala",
+  "library/src/scala/collection/mutable/MutationTracker.scala",
+  "library/src/scala/collection/mutable/RedBlackTree.scala"
+ ],
+ "keepers": [
+  {
+   "branch": "scaladoc-missing-docs-collection-convert-js",
+   "file": "library-js/src/scala/collection/immutable/LazyListBase.scala",
+   "decl_line": 37,
+   "kw": "class",
+   "name": "TailUpdater",
+   "effective": "private[immutable]",
+   "reasons": [
+    "container",
+    "high-information",
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-convert-js",
+   "file": "library-js/src/scala/collection/immutable/LazyListIterableBase.scala",
+   "decl_line": 42,
+   "kw": "class",
+   "name": "TailUpdater",
+   "effective": "private[immutable]",
+   "reasons": [
+    "container",
+    "high-information",
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-convert-js",
+   "file": "library-js/src/scala/collection/immutable/LazyListBase.scala",
+   "decl_line": 96,
+   "kw": "class",
+   "name": "InRace",
+   "effective": "private[immutable]",
+   "reasons": [
+    "container",
+    "high-information",
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-convert-js",
+   "file": "library-js/src/scala/collection/immutable/LazyListIterableBase.scala",
+   "decl_line": 100,
+   "kw": "class",
+   "name": "InRace",
+   "effective": "private[immutable]",
+   "reasons": [
+    "container",
+    "high-information",
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/LazyListBase.scala",
+   "decl_line": 49,
+   "kw": "class",
+   "name": "TailUpdater",
+   "effective": "private[immutable]",
+   "reasons": [
+    "container",
+    "high-information",
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/LazyListIterableBase.scala",
+   "decl_line": 53,
+   "kw": "class",
+   "name": "TailUpdater",
+   "effective": "private[immutable]",
+   "reasons": [
+    "container",
+    "high-information",
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/LazyListBase.scala",
+   "decl_line": 98,
+   "kw": "class",
+   "name": "InRace",
+   "effective": "private[immutable]",
+   "reasons": [
+    "container",
+    "high-information",
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/LazyListIterableBase.scala",
+   "decl_line": 105,
+   "kw": "class",
+   "name": "InRace",
+   "effective": "private[immutable]",
+   "reasons": [
+    "container",
+    "high-information",
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-convert-js",
+   "file": "library-js/src/scala/collection/immutable/LazyListBase.scala",
+   "decl_line": 60,
+   "kw": "def",
+   "name": "getAndSet",
+   "effective": "private[immutable]",
+   "reasons": [
+    "high-information",
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-convert-js",
+   "file": "library-js/src/scala/collection/immutable/LazyListBase.scala",
+   "decl_line": 77,
+   "kw": "def",
+   "name": "isCurrentThread",
+   "effective": "private[immutable]",
+   "reasons": [
+    "high-information",
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-convert-js",
+   "file": "library-js/src/scala/collection/immutable/LazyListIterableBase.scala",
+   "decl_line": 64,
+   "kw": "def",
+   "name": "getAndSet",
+   "effective": "private[immutable]",
+   "reasons": [
+    "high-information",
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-convert-js",
+   "file": "library-js/src/scala/collection/immutable/LazyListIterableBase.scala",
+   "decl_line": 81,
+   "kw": "def",
+   "name": "isCurrentThread",
+   "effective": "private[immutable]",
+   "reasons": [
+    "high-information",
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-convert-js",
+   "file": "library/src/scala/collection/convert/JavaCollectionWrappers.scala",
+   "decl_line": 1160,
+   "kw": "def",
+   "name": "updateWith",
+   "effective": "private[collection]",
+   "reasons": [
+    "high-information"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-util-concurrent",
+   "file": "library/src/scala/concurrent/impl/ExecutionContextImpl.scala",
+   "decl_line": 45,
+   "kw": "class",
+   "name": "DefaultThreadFactory",
+   "effective": "private[concurrent]",
+   "reasons": [
+    "container",
+    "high-information"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-convert-js",
+   "file": "library-js/src/scala/collection/immutable/LazyListBase.scala",
+   "decl_line": 48,
+   "kw": "def",
+   "name": "compareAndSet",
+   "effective": "private[immutable]",
+   "reasons": [
+    "high-information",
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-convert-js",
+   "file": "library-js/src/scala/collection/immutable/LazyListIterableBase.scala",
+   "decl_line": 53,
+   "kw": "def",
+   "name": "compareAndSet",
+   "effective": "private[immutable]",
+   "reasons": [
+    "high-information",
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/LazyListBase.scala",
+   "decl_line": 113,
+   "kw": "def",
+   "name": "tryReleaseShared",
+   "effective": "private",
+   "reasons": [
+    "high-information",
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/LazyListIterableBase.scala",
+   "decl_line": 120,
+   "kw": "def",
+   "name": "tryReleaseShared",
+   "effective": "private",
+   "reasons": [
+    "high-information",
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-core-array-function-tuple-sys",
+   "file": "library/src/scala/sys/process/ProcessImpl.scala",
+   "decl_line": 336,
+   "kw": "class",
+   "name": "DummyProcess",
+   "effective": "private[process]",
+   "reasons": [
+    "container",
+    "high-information"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-convert-js",
+   "file": "library/src/scala/collection/convert/JavaCollectionWrappers.scala",
+   "decl_line": 466,
+   "kw": "class",
+   "name": "SetWrapper",
+   "effective": "private[collection]",
+   "reasons": [
+    "container",
+    "high-information"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-convert-js",
+   "file": "library/src/scala/collection/convert/JavaCollectionWrappers.scala",
+   "decl_line": 1076,
+   "kw": "def",
+   "name": "getOrElseUpdate",
+   "effective": "private[collection]",
+   "reasons": [
+    "high-information"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-mutable",
+   "file": "library/src/scala/collection/mutable/CheckedIndexedSeqView.scala",
+   "decl_line": 313,
+   "kw": "class",
+   "name": "Slice",
+   "effective": "private[mutable]",
+   "reasons": [
+    "container",
+    "high-information"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-vector-hashmap-arrayseq",
+   "file": "library/src/scala/collection/immutable/Vector.scala",
+   "decl_line": 3621,
+   "kw": "def",
+   "name": "prepend1IfSpace",
+   "effective": "private",
+   "reasons": [
+    "high-information"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-vector-hashmap-arrayseq",
+   "file": "library/src/scala/collection/immutable/Vector.scala",
+   "decl_line": 3660,
+   "kw": "def",
+   "name": "append1IfSpace",
+   "effective": "private",
+   "reasons": [
+    "high-information"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/RedBlackTree.scala",
+   "decl_line": 245,
+   "kw": "def",
+   "name": "mutableUpd",
+   "effective": "private[collection]",
+   "reasons": [
+    "high-information",
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/RedBlackTree.scala",
+   "decl_line": 274,
+   "kw": "def",
+   "name": "mutableUpd",
+   "effective": "private[collection]",
+   "reasons": [
+    "high-information",
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-util-concurrent",
+   "file": "library/src/scala/concurrent/impl/ExecutionContextImpl.scala",
+   "decl_line": 90,
+   "kw": "def",
+   "name": "newThread",
+   "effective": "private[concurrent]",
+   "reasons": [
+    "high-information"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-util-concurrent",
+   "file": "library/src/scala/concurrent/impl/FutureConvertersImpl.scala",
+   "decl_line": 31,
+   "kw": "class",
+   "name": "CF",
+   "effective": "private[scala]",
+   "reasons": [
+    "container",
+    "high-information"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-convert-js",
+   "file": "library/src/scala/collection/convert/JavaCollectionWrappers.scala",
+   "decl_line": 747,
+   "kw": "class",
+   "name": "MutableMapWrapper",
+   "effective": "private[collection]",
+   "reasons": [
+    "container",
+    "high-information"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-convert-js",
+   "file": "library/src/scala/collection/convert/JavaCollectionWrappers.scala",
+   "decl_line": 786,
+   "kw": "class",
+   "name": "AbstractJMapWrapper",
+   "effective": "private[collection]",
+   "reasons": [
+    "container",
+    "high-information"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-vector-hashmap-arrayseq",
+   "file": "library/src/scala/collection/immutable/HashMap.scala",
+   "decl_line": 3433,
+   "kw": "def",
+   "name": "result",
+   "effective": "private[immutable]",
+   "reasons": [
+    "high-information"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-core-array-function-tuple-sys",
+   "file": "library/src/scala/sys/process/ProcessImpl.scala",
+   "decl_line": 33,
+   "kw": "def",
+   "name": "apply",
+   "effective": "private[process]",
+   "reasons": [
+    "high-information"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-mutable",
+   "file": "library/src/scala/collection/mutable/HashTable.scala",
+   "decl_line": 485,
+   "kw": "trait",
+   "name": "HashUtils",
+   "effective": "private[collection]",
+   "reasons": [
+    "container",
+    "high-information"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-vector-hashmap-arrayseq",
+   "file": "library/src/scala/collection/immutable/HashSet.scala",
+   "decl_line": 2930,
+   "kw": "def",
+   "name": "clear",
+   "effective": "private[collection]",
+   "reasons": [
+    "high-information"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/LazyListBase.scala",
+   "decl_line": 78,
+   "kw": "def",
+   "name": "isCurrentThread",
+   "effective": "private[immutable]",
+   "reasons": [
+    "high-information",
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/LazyListBase.scala",
+   "decl_line": 88,
+   "kw": "def",
+   "name": "InRace",
+   "effective": "private[immutable]",
+   "reasons": [
+    "high-information",
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/LazyListIterableBase.scala",
+   "decl_line": 84,
+   "kw": "def",
+   "name": "isCurrentThread",
+   "effective": "private[immutable]",
+   "reasons": [
+    "high-information",
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/LazyListIterableBase.scala",
+   "decl_line": 95,
+   "kw": "def",
+   "name": "InRace",
+   "effective": "private[immutable]",
+   "reasons": [
+    "high-information",
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/TreeSeqMap.scala",
+   "decl_line": 624,
+   "kw": "class",
+   "name": "Iterator",
+   "effective": "private[immutable]",
+   "reasons": [
+    "container",
+    "high-information"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-core-array-function-tuple-sys",
+   "file": "library/src/scala/sys/process/BasicIO.scala",
+   "decl_line": 68,
+   "kw": "def",
+   "name": "apply",
+   "effective": "private[process]",
+   "reasons": [
+    "high-information"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-util-concurrent",
+   "file": "library/src/scala/concurrent/impl/FutureConvertersImpl.scala",
+   "decl_line": 235,
+   "kw": "class",
+   "name": "P",
+   "effective": "private[scala]",
+   "reasons": [
+    "container",
+    "high-information"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-math-coll-generic",
+   "file": "library/src/scala/collection/generic/BitOperations.scala",
+   "decl_line": 27,
+   "kw": "trait",
+   "name": "Int",
+   "effective": "private[collection]",
+   "reasons": [
+    "container",
+    "high-information"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-math-coll-generic",
+   "file": "library/src/scala/collection/generic/BitOperations.scala",
+   "decl_line": 89,
+   "kw": "trait",
+   "name": "Long",
+   "effective": "private[collection]",
+   "reasons": [
+    "container",
+    "high-information"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-convert-js",
+   "file": "library-js/src/scala/collection/immutable/Range.scala",
+   "decl_line": 1076,
+   "kw": "def",
+   "name": "drop",
+   "effective": "private",
+   "reasons": [
+    "high-information"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-convert-js",
+   "file": "library/src/scala/collection/convert/JavaCollectionWrappers.scala",
+   "decl_line": 43,
+   "kw": "class",
+   "name": "IteratorWrapper",
+   "effective": "private[collection]",
+   "reasons": [
+    "container",
+    "high-information"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-convert-js",
+   "file": "library/src/scala/collection/convert/JavaCollectionWrappers.scala",
+   "decl_line": 85,
+   "kw": "class",
+   "name": "JIteratorWrapper",
+   "effective": "private[collection]",
+   "reasons": [
+    "container",
+    "high-information"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-convert-js",
+   "file": "library/src/scala/collection/convert/JavaCollectionWrappers.scala",
+   "decl_line": 115,
+   "kw": "class",
+   "name": "JEnumerationWrapper",
+   "effective": "private[collection]",
+   "reasons": [
+    "container",
+    "high-information"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-convert-js",
+   "file": "library/src/scala/collection/convert/JavaCollectionWrappers.scala",
+   "decl_line": 164,
+   "kw": "class",
+   "name": "IterableWrapper",
+   "effective": "private[collection]",
+   "reasons": [
+    "container",
+    "high-information"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-convert-js",
+   "file": "library/src/scala/collection/convert/JavaCollectionWrappers.scala",
+   "decl_line": 187,
+   "kw": "class",
+   "name": "JIterableWrapper",
+   "effective": "private[collection]",
+   "reasons": [
+    "container",
+    "high-information"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-convert-js",
+   "file": "library/src/scala/collection/convert/JavaCollectionWrappers.scala",
+   "decl_line": 221,
+   "kw": "class",
+   "name": "JCollectionWrapper",
+   "effective": "private[collection]",
+   "reasons": [
+    "container",
+    "high-information"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-convert-js",
+   "file": "library/src/scala/collection/convert/JavaCollectionWrappers.scala",
+   "decl_line": 282,
+   "kw": "class",
+   "name": "MutableSeqWrapper",
+   "effective": "private[collection]",
+   "reasons": [
+    "container",
+    "high-information"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-convert-js",
+   "file": "library/src/scala/collection/convert/JavaCollectionWrappers.scala",
+   "decl_line": 313,
+   "kw": "class",
+   "name": "MutableBufferWrapper",
+   "effective": "private[collection]",
+   "reasons": [
+    "container",
+    "high-information"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-convert-js",
+   "file": "library/src/scala/collection/convert/JavaCollectionWrappers.scala",
+   "decl_line": 351,
+   "kw": "class",
+   "name": "JListWrapper",
+   "effective": "private[collection]",
+   "reasons": [
+    "container",
+    "high-information"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-convert-js",
+   "file": "library/src/scala/collection/convert/JavaCollectionWrappers.scala",
+   "decl_line": 519,
+   "kw": "class",
+   "name": "MutableSetWrapper",
+   "effective": "private[collection]",
+   "reasons": [
+    "container",
+    "high-information"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-convert-js",
+   "file": "library/src/scala/collection/convert/JavaCollectionWrappers.scala",
+   "decl_line": 1184,
+   "kw": "class",
+   "name": "DictionaryWrapper",
+   "effective": "private[collection]",
+   "reasons": [
+    "container",
+    "high-information"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-mutable",
+   "file": "library/src/scala/collection/mutable/RedBlackTree.scala",
+   "decl_line": 46,
+   "kw": "class",
+   "name": "Tree",
+   "effective": "private[collection]",
+   "reasons": [
+    "container",
+    "high-information",
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-mutable",
+   "file": "library/src/scala/collection/mutable/RedBlackTree.scala",
+   "decl_line": 63,
+   "kw": "class",
+   "name": "Node",
+   "effective": "private[collection]",
+   "reasons": [
+    "container",
+    "high-information",
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-core",
+   "file": "library/src/scala/collection/IndexedSeqView.scala",
+   "decl_line": 246,
+   "kw": "def",
+   "name": "sliceIterator",
+   "effective": "private[collection]",
+   "reasons": [
+    "high-information"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-core",
+   "file": "library/src/scala/collection/Iterator.scala",
+   "decl_line": 1556,
+   "kw": "def",
+   "name": "concat",
+   "effective": "private",
+   "reasons": [
+    "high-information"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-core",
+   "file": "library/src/scala/collection/StringParsers.scala",
+   "decl_line": 86,
+   "kw": "def",
+   "name": "parseByte",
+   "effective": "private[scala]",
+   "reasons": [
+    "high-information"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-core",
+   "file": "library/src/scala/collection/StringParsers.scala",
+   "decl_line": 116,
+   "kw": "def",
+   "name": "parseShort",
+   "effective": "private[scala]",
+   "reasons": [
+    "high-information"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-vector-hashmap-arrayseq",
+   "file": "library/src/scala/collection/immutable/HashMap.scala",
+   "decl_line": 1585,
+   "kw": "def",
+   "name": "copyAndSetValue",
+   "effective": "private",
+   "reasons": [
+    "high-information"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-vector-hashmap-arrayseq",
+   "file": "library/src/scala/collection/immutable/HashMap.scala",
+   "decl_line": 2421,
+   "kw": "def",
+   "name": "filterImpl",
+   "effective": "private",
+   "reasons": [
+    "high-information"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-vector-hashmap-arrayseq",
+   "file": "library/src/scala/collection/immutable/HashMap.scala",
+   "decl_line": 2778,
+   "kw": "def",
+   "name": "updated",
+   "effective": "private",
+   "reasons": [
+    "high-information"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-vector-hashmap-arrayseq",
+   "file": "library/src/scala/collection/immutable/HashMap.scala",
+   "decl_line": 2963,
+   "kw": "def",
+   "name": "concat",
+   "effective": "private",
+   "reasons": [
+    "high-information"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-vector-hashmap-arrayseq",
+   "file": "library/src/scala/collection/immutable/HashSet.scala",
+   "decl_line": 1492,
+   "kw": "def",
+   "name": "subsetOf",
+   "effective": "private",
+   "reasons": [
+    "high-information"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-vector-hashmap-arrayseq",
+   "file": "library/src/scala/collection/immutable/HashSet.scala",
+   "decl_line": 2553,
+   "kw": "def",
+   "name": "concat",
+   "effective": "private",
+   "reasons": [
+    "high-information"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-vector-hashmap-arrayseq",
+   "file": "library/src/scala/collection/immutable/Vector.scala",
+   "decl_line": 2335,
+   "kw": "def",
+   "name": "result",
+   "effective": "private",
+   "reasons": [
+    "high-information"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/IntMap.scala",
+   "decl_line": 285,
+   "kw": "def",
+   "name": "next",
+   "effective": "private[immutable]",
+   "reasons": [
+    "high-information"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/LongMap.scala",
+   "decl_line": 282,
+   "kw": "def",
+   "name": "next",
+   "effective": "private[immutable]",
+   "reasons": [
+    "high-information"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/Range.scala",
+   "decl_line": 1142,
+   "kw": "def",
+   "name": "drop",
+   "effective": "private",
+   "reasons": [
+    "high-information"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/RedBlackTree.scala",
+   "decl_line": 46,
+   "kw": "def",
+   "name": "validate",
+   "effective": "private[collection]",
+   "reasons": [
+    "high-information",
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/RedBlackTree.scala",
+   "decl_line": 553,
+   "kw": "def",
+   "name": "keysEqual",
+   "effective": "private[collection]",
+   "reasons": [
+    "high-information",
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/RedBlackTree.scala",
+   "decl_line": 593,
+   "kw": "def",
+   "name": "entriesEqual",
+   "effective": "private[collection]",
+   "reasons": [
+    "high-information",
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/RedBlackTree.scala",
+   "decl_line": 1250,
+   "kw": "val",
+   "name": "stackOfNexts",
+   "effective": "private",
+   "reasons": [
+    "high-information",
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/TreeSeqMap.scala",
+   "decl_line": 713,
+   "kw": "class",
+   "name": "Tip",
+   "effective": "private[immutable]",
+   "reasons": [
+    "container",
+    "high-information"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/TreeSeqMap.scala",
+   "decl_line": 744,
+   "kw": "class",
+   "name": "Bin",
+   "effective": "private[immutable]",
+   "reasons": [
+    "container",
+    "high-information"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-core-array-function-tuple-sys",
+   "file": "library/src/scala/sys/process/BasicIO.scala",
+   "decl_line": 110,
+   "kw": "def",
+   "name": "apply",
+   "effective": "private[process]",
+   "reasons": [
+    "high-information"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-core-array-function-tuple-sys",
+   "file": "library/src/scala/sys/process/ProcessBuilderImpl.scala",
+   "decl_line": 159,
+   "kw": "def",
+   "name": "run",
+   "effective": "private[process]",
+   "reasons": [
+    "high-information"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-convert-js",
+   "file": "library/src/scala/collection/convert/JavaCollectionWrappers.scala",
+   "decl_line": 142,
+   "kw": "trait",
+   "name": "IterableWrapperTrait",
+   "effective": "private[collection]",
+   "reasons": [
+    "container",
+    "high-information"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-convert-js",
+   "file": "library/src/scala/collection/convert/JavaCollectionWrappers.scala",
+   "decl_line": 639,
+   "kw": "class",
+   "name": "MapWrapper",
+   "effective": "private[collection]",
+   "reasons": [
+    "container",
+    "high-information"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-convert-js",
+   "file": "library/src/scala/collection/convert/JavaCollectionWrappers.scala",
+   "decl_line": 994,
+   "kw": "class",
+   "name": "ConcurrentMapWrapper",
+   "effective": "private[collection]",
+   "reasons": [
+    "container",
+    "high-information"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-mutable",
+   "file": "library/src/scala/collection/mutable/CheckedIndexedSeqView.scala",
+   "decl_line": 290,
+   "kw": "class",
+   "name": "Reverse",
+   "effective": "private[mutable]",
+   "reasons": [
+    "container",
+    "high-information"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-core",
+   "file": "library/src/scala/collection/ArrayOps.scala",
+   "decl_line": 180,
+   "kw": "def",
+   "name": "drop",
+   "effective": "private[collection]",
+   "reasons": [
+    "high-information"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-core",
+   "file": "library/src/scala/collection/IndexedSeqView.scala",
+   "decl_line": 199,
+   "kw": "def",
+   "name": "sliceIterator",
+   "effective": "private[collection]",
+   "reasons": [
+    "high-information"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-vector-hashmap-arrayseq",
+   "file": "library/src/scala/collection/immutable/HashMap.scala",
+   "decl_line": 1949,
+   "kw": "def",
+   "name": "mergeInto",
+   "effective": "private",
+   "reasons": [
+    "high-information"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-vector-hashmap-arrayseq",
+   "file": "library/src/scala/collection/immutable/HashSet.scala",
+   "decl_line": 1737,
+   "kw": "def",
+   "name": "diff",
+   "effective": "private",
+   "reasons": [
+    "high-information"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-vector-hashmap-arrayseq",
+   "file": "library/src/scala/collection/immutable/HashSet.scala",
+   "decl_line": 2360,
+   "kw": "def",
+   "name": "contains",
+   "effective": "private",
+   "reasons": [
+    "high-information"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-vector-hashmap-arrayseq",
+   "file": "library/src/scala/collection/immutable/HashSet.scala",
+   "decl_line": 2867,
+   "kw": "def",
+   "name": "result",
+   "effective": "private[collection]",
+   "reasons": [
+    "high-information"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/BitSet.scala",
+   "decl_line": 73,
+   "kw": "def",
+   "name": "fromBitMaskNoCopy",
+   "effective": "protected[collection]",
+   "reasons": [
+    "high-information"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/LazyList.scala",
+   "decl_line": 1775,
+   "kw": "class",
+   "name": "DeferredState",
+   "effective": "private",
+   "reasons": [
+    "container",
+    "high-information"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/LazyListBase.scala",
+   "decl_line": 106,
+   "kw": "def",
+   "name": "tryAcquireShared",
+   "effective": "private",
+   "reasons": [
+    "high-information",
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/LazyListIterableBase.scala",
+   "decl_line": 113,
+   "kw": "def",
+   "name": "tryAcquireShared",
+   "effective": "private",
+   "reasons": [
+    "high-information",
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/RedBlackTree.scala",
+   "decl_line": 1315,
+   "kw": "def",
+   "name": "sameKeys",
+   "effective": "private",
+   "reasons": [
+    "high-information",
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-util-concurrent",
+   "file": "library/src/scala/concurrent/impl/Promise.scala",
+   "decl_line": 139,
+   "kw": "class",
+   "name": "DefaultPromise",
+   "effective": "private[concurrent]",
+   "reasons": [
+    "container"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-math-coll-generic",
+   "file": "library/src/scala/collection/concurrent/TrieMap.scala",
+   "decl_line": 123,
+   "kw": "def",
+   "name": "GCAS",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-convert-js",
+   "file": "library-js/src/scala/collection/immutable/LazyListBase.scala",
+   "decl_line": 87,
+   "kw": "def",
+   "name": "InRace",
+   "effective": "private[immutable]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-convert-js",
+   "file": "library-js/src/scala/collection/immutable/LazyListIterableBase.scala",
+   "decl_line": 91,
+   "kw": "def",
+   "name": "InRace",
+   "effective": "private[immutable]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-convert-js",
+   "file": "library/src/scala/collection/convert/JavaCollectionWrappers.scala",
+   "decl_line": 261,
+   "kw": "class",
+   "name": "SeqWrapper",
+   "effective": "private[collection]",
+   "reasons": [
+    "container"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-convert-js",
+   "file": "library/src/scala/collection/convert/JavaCollectionWrappers.scala",
+   "decl_line": 1260,
+   "kw": "class",
+   "name": "JDictionaryWrapper",
+   "effective": "private[collection]",
+   "reasons": [
+    "container"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-convert-js",
+   "file": "library/src/scala/collection/convert/JavaCollectionWrappers.scala",
+   "decl_line": 1338,
+   "kw": "class",
+   "name": "JPropertiesWrapper",
+   "effective": "private[collection]",
+   "reasons": [
+    "container"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-runtime",
+   "file": "library/src/scala/runtime/ClassValueCompat.scala",
+   "decl_line": 85,
+   "kw": "trait",
+   "name": "ClassValueInterface",
+   "effective": "private[scala]",
+   "reasons": [
+    "container"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/RedBlackTree.scala",
+   "decl_line": 573,
+   "kw": "def",
+   "name": "valuesEqual",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-annotation-reflect-root",
+   "file": "library/src/scala/StringContext.scala",
+   "decl_line": 337,
+   "kw": "class",
+   "name": "InvalidUnicodeEscapeException",
+   "effective": "protected[scala]",
+   "reasons": [
+    "container"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-misc-dirs-root-misc",
+   "file": "library/src/scala/StringContext.scala",
+   "decl_line": 344,
+   "kw": "class",
+   "name": "InvalidUnicodeEscapeException",
+   "effective": "protected[scala]",
+   "reasons": [
+    "container"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-util-concurrent",
+   "file": "library/src/scala/concurrent/impl/Promise.scala",
+   "decl_line": 636,
+   "kw": "class",
+   "name": "ManyCallbacks",
+   "effective": "private[concurrent]",
+   "reasons": [
+    "container"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-convert-js",
+   "file": "library/src/scala/collection/convert/JavaCollectionWrappers.scala",
+   "decl_line": 554,
+   "kw": "class",
+   "name": "JSetWrapper",
+   "effective": "private[collection]",
+   "reasons": [
+    "container"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-convert-js",
+   "file": "library/src/scala/collection/convert/JavaCollectionWrappers.scala",
+   "decl_line": 802,
+   "kw": "trait",
+   "name": "JMapWrapperLike",
+   "effective": "private[collection]",
+   "reasons": [
+    "container"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/RedBlackTree.scala",
+   "decl_line": 1465,
+   "kw": "def",
+   "name": "transform",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/RedBlackTree.scala",
+   "decl_line": 1493,
+   "kw": "def",
+   "name": "filterEntries",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-math-coll-generic",
+   "file": "library/src/scala/collection/concurrent/TrieMap.scala",
+   "decl_line": 554,
+   "kw": "def",
+   "name": "string",
+   "effective": "private[concurrent]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-mutable",
+   "file": "library/src/scala/collection/mutable/CheckedIndexedSeqView.scala",
+   "decl_line": 181,
+   "kw": "class",
+   "name": "Id",
+   "effective": "private[mutable]",
+   "reasons": [
+    "container"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-mutable",
+   "file": "library/src/scala/collection/mutable/CheckedIndexedSeqView.scala",
+   "decl_line": 193,
+   "kw": "class",
+   "name": "Appended",
+   "effective": "private[mutable]",
+   "reasons": [
+    "container"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-mutable",
+   "file": "library/src/scala/collection/mutable/CheckedIndexedSeqView.scala",
+   "decl_line": 205,
+   "kw": "class",
+   "name": "Prepended",
+   "effective": "private[mutable]",
+   "reasons": [
+    "container"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-mutable",
+   "file": "library/src/scala/collection/mutable/CheckedIndexedSeqView.scala",
+   "decl_line": 217,
+   "kw": "class",
+   "name": "Concat",
+   "effective": "private[mutable]",
+   "reasons": [
+    "container"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-mutable",
+   "file": "library/src/scala/collection/mutable/CheckedIndexedSeqView.scala",
+   "decl_line": 229,
+   "kw": "class",
+   "name": "Take",
+   "effective": "private[mutable]",
+   "reasons": [
+    "container"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-mutable",
+   "file": "library/src/scala/collection/mutable/CheckedIndexedSeqView.scala",
+   "decl_line": 241,
+   "kw": "class",
+   "name": "TakeRight",
+   "effective": "private[mutable]",
+   "reasons": [
+    "container"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-mutable",
+   "file": "library/src/scala/collection/mutable/CheckedIndexedSeqView.scala",
+   "decl_line": 253,
+   "kw": "class",
+   "name": "Drop",
+   "effective": "private[mutable]",
+   "reasons": [
+    "container"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-mutable",
+   "file": "library/src/scala/collection/mutable/CheckedIndexedSeqView.scala",
+   "decl_line": 265,
+   "kw": "class",
+   "name": "DropRight",
+   "effective": "private[mutable]",
+   "reasons": [
+    "container"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-mutable",
+   "file": "library/src/scala/collection/mutable/CheckedIndexedSeqView.scala",
+   "decl_line": 279,
+   "kw": "class",
+   "name": "Map",
+   "effective": "private[mutable]",
+   "reasons": [
+    "container"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-mutable",
+   "file": "library/src/scala/collection/mutable/RedBlackTree.scala",
+   "decl_line": 674,
+   "kw": "def",
+   "name": "foreachEntry",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/ChampCommon.scala",
+   "decl_line": 141,
+   "kw": "def",
+   "name": "cachedJavaKeySetHashCode",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/ChampCommon.scala",
+   "decl_line": 208,
+   "kw": "def",
+   "name": "insertAnyElement",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/RedBlackTree.scala",
+   "decl_line": 1365,
+   "kw": "def",
+   "name": "sameEntries",
+   "effective": "private",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-mutable",
+   "file": "library/src/scala/collection/mutable/RedBlackTree.scala",
+   "decl_line": 957,
+   "kw": "def",
+   "name": "copyTree",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/ChampCommon.scala",
+   "decl_line": 92,
+   "kw": "def",
+   "name": "indexFrom",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/RedBlackTree.scala",
+   "decl_line": 119,
+   "kw": "def",
+   "name": "beforePublish",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/RedBlackTree.scala",
+   "decl_line": 674,
+   "kw": "def",
+   "name": "nth",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-math-coll-generic",
+   "file": "library/src/scala/collection/concurrent/TrieMap.scala",
+   "decl_line": 666,
+   "kw": "def",
+   "name": "inserted",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-math-coll-generic",
+   "file": "library/src/scala/collection/concurrent/TrieMap.scala",
+   "decl_line": 868,
+   "kw": "def",
+   "name": "toCompressed",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-math-coll-generic",
+   "file": "library/src/scala/collection/concurrent/TrieMap.scala",
+   "decl_line": 924,
+   "kw": "def",
+   "name": "dual",
+   "effective": "private[concurrent]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-math-coll-generic",
+   "file": "library/src/scala/collection/concurrent/TrieMap.scala",
+   "decl_line": 1573,
+   "kw": "def",
+   "name": "advance",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-convert-js",
+   "file": "library-js/src/scala/collection/immutable/LazyListBase.scala",
+   "decl_line": 107,
+   "kw": "def",
+   "name": "countDown",
+   "effective": "private[immutable]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-convert-js",
+   "file": "library-js/src/scala/collection/immutable/LazyListIterableBase.scala",
+   "decl_line": 111,
+   "kw": "def",
+   "name": "countDown",
+   "effective": "private[immutable]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/LazyListBase.scala",
+   "decl_line": 123,
+   "kw": "def",
+   "name": "countDown",
+   "effective": "private[immutable]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/LazyListIterableBase.scala",
+   "decl_line": 69,
+   "kw": "def",
+   "name": "getAndSet",
+   "effective": "private[immutable]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/LazyListIterableBase.scala",
+   "decl_line": 130,
+   "kw": "def",
+   "name": "countDown",
+   "effective": "private[immutable]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/RedBlackTree.scala",
+   "decl_line": 1340,
+   "kw": "def",
+   "name": "sameValues",
+   "effective": "private",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/RedBlackTree.scala",
+   "decl_line": 1523,
+   "kw": "def",
+   "name": "partitionEntries",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-math-coll-generic",
+   "file": "library/src/scala/collection/concurrent/TrieMap.scala",
+   "decl_line": 47,
+   "kw": "def",
+   "name": "WRITE",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-math-coll-generic",
+   "file": "library/src/scala/collection/concurrent/TrieMap.scala",
+   "decl_line": 56,
+   "kw": "def",
+   "name": "CAS",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-math-coll-generic",
+   "file": "library/src/scala/collection/concurrent/TrieMap.scala",
+   "decl_line": 64,
+   "kw": "def",
+   "name": "gcasRead",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-math-coll-generic",
+   "file": "library/src/scala/collection/concurrent/TrieMap.scala",
+   "decl_line": 503,
+   "kw": "def",
+   "name": "string",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-math-coll-generic",
+   "file": "library/src/scala/collection/concurrent/TrieMap.scala",
+   "decl_line": 561,
+   "kw": "def",
+   "name": "cachedSize",
+   "effective": "private[concurrent]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-math-coll-generic",
+   "file": "library/src/scala/collection/concurrent/TrieMap.scala",
+   "decl_line": 567,
+   "kw": "def",
+   "name": "knownSize",
+   "effective": "private[concurrent]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-math-coll-generic",
+   "file": "library/src/scala/collection/concurrent/TrieMap.scala",
+   "decl_line": 623,
+   "kw": "def",
+   "name": "cachedSize",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-math-coll-generic",
+   "file": "library/src/scala/collection/concurrent/TrieMap.scala",
+   "decl_line": 706,
+   "kw": "def",
+   "name": "cachedSize",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-math-coll-generic",
+   "file": "library/src/scala/collection/concurrent/TrieMap.scala",
+   "decl_line": 729,
+   "kw": "def",
+   "name": "cachedSize",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-math-coll-generic",
+   "file": "library/src/scala/collection/concurrent/TrieMap.scala",
+   "decl_line": 807,
+   "kw": "def",
+   "name": "insertedAt",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-math-coll-generic",
+   "file": "library/src/scala/collection/concurrent/TrieMap.scala",
+   "decl_line": 899,
+   "kw": "def",
+   "name": "toString",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-math-coll-generic",
+   "file": "library/src/scala/collection/concurrent/TrieMap.scala",
+   "decl_line": 1530,
+   "kw": "def",
+   "name": "next",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-math-coll-generic",
+   "file": "library/src/scala/collection/concurrent/TrieMap.scala",
+   "decl_line": 1595,
+   "kw": "def",
+   "name": "newIterator",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-convert-js",
+   "file": "library-js/src/scala/collection/immutable/LazyListBase.scala",
+   "decl_line": 103,
+   "kw": "def",
+   "name": "owner",
+   "effective": "private[immutable]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-convert-js",
+   "file": "library-js/src/scala/collection/immutable/LazyListIterableBase.scala",
+   "decl_line": 107,
+   "kw": "def",
+   "name": "owner",
+   "effective": "private[immutable]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-convert-js",
+   "file": "library/src/scala/collection/convert/impl/InOrderStepperBase.scala",
+   "decl_line": 70,
+   "kw": "def",
+   "name": "trySplit",
+   "effective": "private[convert]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-convert-js",
+   "file": "library/src/scala/collection/convert/impl/IndexedStepperBase.scala",
+   "decl_line": 56,
+   "kw": "def",
+   "name": "trySplit",
+   "effective": "private[convert]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-mutable",
+   "file": "library/src/scala/collection/mutable/RedBlackTree.scala",
+   "decl_line": 48,
+   "kw": "def",
+   "name": "treeCopy",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-mutable",
+   "file": "library/src/scala/collection/mutable/RedBlackTree.scala",
+   "decl_line": 127,
+   "kw": "def",
+   "name": "size",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-mutable",
+   "file": "library/src/scala/collection/mutable/RedBlackTree.scala",
+   "decl_line": 132,
+   "kw": "def",
+   "name": "size",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-mutable",
+   "file": "library/src/scala/collection/mutable/RedBlackTree.scala",
+   "decl_line": 355,
+   "kw": "def",
+   "name": "insert",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-mutable",
+   "file": "library/src/scala/collection/mutable/RedBlackTree.scala",
+   "decl_line": 653,
+   "kw": "def",
+   "name": "foreachKey",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-mutable",
+   "file": "library/src/scala/collection/mutable/RedBlackTree.scala",
+   "decl_line": 694,
+   "kw": "def",
+   "name": "transform",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/ChampCommon.scala",
+   "decl_line": 34,
+   "kw": "val",
+   "name": "BitPartitionSize",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/ChampCommon.scala",
+   "decl_line": 189,
+   "kw": "def",
+   "name": "insertElement",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/LazyListBase.scala",
+   "decl_line": 57,
+   "kw": "def",
+   "name": "compareAndSet",
+   "effective": "private[immutable]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/LazyListBase.scala",
+   "decl_line": 64,
+   "kw": "def",
+   "name": "getAndSet",
+   "effective": "private[immutable]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/LazyListIterableBase.scala",
+   "decl_line": 61,
+   "kw": "def",
+   "name": "compareAndSet",
+   "effective": "private[immutable]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/RedBlackTree.scala",
+   "decl_line": 293,
+   "kw": "def",
+   "name": "count",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/RedBlackTree.scala",
+   "decl_line": 460,
+   "kw": "def",
+   "name": "tail",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/RedBlackTree.scala",
+   "decl_line": 483,
+   "kw": "def",
+   "name": "init",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/RedBlackTree.scala",
+   "decl_line": 1302,
+   "kw": "def",
+   "name": "nextResult",
+   "effective": "private",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/RedBlackTree.scala",
+   "decl_line": 1686,
+   "kw": "def",
+   "name": "difference",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-util-concurrent",
+   "file": "library/src/scala/concurrent/impl/Promise.scala",
+   "decl_line": 628,
+   "kw": "trait",
+   "name": "Callbacks",
+   "effective": "private[concurrent]",
+   "reasons": [
+    "container"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-math-coll-generic",
+   "file": "library/src/scala/collection/concurrent/TrieMap.scala",
+   "decl_line": 73,
+   "kw": "def",
+   "name": "GCAS_READ",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-math-coll-generic",
+   "file": "library/src/scala/collection/concurrent/TrieMap.scala",
+   "decl_line": 147,
+   "kw": "def",
+   "name": "copyToGen",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-math-coll-generic",
+   "file": "library/src/scala/collection/concurrent/TrieMap.scala",
+   "decl_line": 538,
+   "kw": "def",
+   "name": "newRootNode",
+   "effective": "private[concurrent]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-math-coll-generic",
+   "file": "library/src/scala/collection/concurrent/TrieMap.scala",
+   "decl_line": 686,
+   "kw": "def",
+   "name": "removed",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-math-coll-generic",
+   "file": "library/src/scala/collection/concurrent/TrieMap.scala",
+   "decl_line": 775,
+   "kw": "def",
+   "name": "updatedAt",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-math-coll-generic",
+   "file": "library/src/scala/collection/concurrent/TrieMap.scala",
+   "decl_line": 789,
+   "kw": "def",
+   "name": "removedAt",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-math-coll-generic",
+   "file": "library/src/scala/collection/concurrent/TrieMap.scala",
+   "decl_line": 1502,
+   "kw": "def",
+   "name": "shouldRemove",
+   "effective": "private[concurrent]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-mutable",
+   "file": "library/src/scala/collection/mutable/RedBlackTree.scala",
+   "decl_line": 431,
+   "kw": "def",
+   "name": "delete",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-mutable",
+   "file": "library/src/scala/collection/mutable/RedBlackTree.scala",
+   "decl_line": 759,
+   "kw": "def",
+   "name": "next",
+   "effective": "private",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/ChampCommon.scala",
+   "decl_line": 69,
+   "kw": "def",
+   "name": "bitposFrom",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/ChampCommon.scala",
+   "decl_line": 80,
+   "kw": "def",
+   "name": "indexFrom",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/ChampCommon.scala",
+   "decl_line": 154,
+   "kw": "def",
+   "name": "removeElement",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/ChampCommon.scala",
+   "decl_line": 171,
+   "kw": "def",
+   "name": "removeAnyElement",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/RedBlackTree.scala",
+   "decl_line": 100,
+   "kw": "def",
+   "name": "lookup",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/RedBlackTree.scala",
+   "decl_line": 336,
+   "kw": "def",
+   "name": "rangeImpl",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/RedBlackTree.scala",
+   "decl_line": 428,
+   "kw": "def",
+   "name": "smallest",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/RedBlackTree.scala",
+   "decl_line": 442,
+   "kw": "def",
+   "name": "greatest",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/RedBlackTree.scala",
+   "decl_line": 1216,
+   "kw": "def",
+   "name": "next",
+   "effective": "private",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-math-coll-generic",
+   "file": "library/src/scala/collection/concurrent/TrieMap.scala",
+   "decl_line": 849,
+   "kw": "def",
+   "name": "toContracted",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-math-coll-generic",
+   "file": "library/src/scala/collection/concurrent/TrieMap.scala",
+   "decl_line": 1604,
+   "kw": "def",
+   "name": "dupTo",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-mutable",
+   "file": "library/src/scala/collection/mutable/MutationTracker.scala",
+   "decl_line": 81,
+   "kw": "def",
+   "name": "hasNext",
+   "effective": "private",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-mutable",
+   "file": "library/src/scala/collection/mutable/MutationTracker.scala",
+   "decl_line": 88,
+   "kw": "def",
+   "name": "next",
+   "effective": "private",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-mutable",
+   "file": "library/src/scala/collection/mutable/RedBlackTree.scala",
+   "decl_line": 154,
+   "kw": "def",
+   "name": "get",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-mutable",
+   "file": "library/src/scala/collection/mutable/RedBlackTree.scala",
+   "decl_line": 183,
+   "kw": "def",
+   "name": "min",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-mutable",
+   "file": "library/src/scala/collection/mutable/RedBlackTree.scala",
+   "decl_line": 194,
+   "kw": "def",
+   "name": "minKey",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-mutable",
+   "file": "library/src/scala/collection/mutable/RedBlackTree.scala",
+   "decl_line": 220,
+   "kw": "def",
+   "name": "max",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-mutable",
+   "file": "library/src/scala/collection/mutable/RedBlackTree.scala",
+   "decl_line": 231,
+   "kw": "def",
+   "name": "maxKey",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-mutable",
+   "file": "library/src/scala/collection/mutable/RedBlackTree.scala",
+   "decl_line": 274,
+   "kw": "def",
+   "name": "minKeyAfter",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-mutable",
+   "file": "library/src/scala/collection/mutable/RedBlackTree.scala",
+   "decl_line": 319,
+   "kw": "def",
+   "name": "maxKeyBefore",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/ChampCommon.scala",
+   "decl_line": 265,
+   "kw": "def",
+   "name": "this",
+   "effective": "private[immutable]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/ChampCommon.scala",
+   "decl_line": 357,
+   "kw": "def",
+   "name": "this",
+   "effective": "private[immutable]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/RedBlackTree.scala",
+   "decl_line": 83,
+   "kw": "def",
+   "name": "get",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/RedBlackTree.scala",
+   "decl_line": 1230,
+   "kw": "def",
+   "name": "findLeftMostOrPopOnEmpty",
+   "effective": "private",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-math-coll-generic",
+   "file": "library/src/scala/collection/concurrent/TrieMap.scala",
+   "decl_line": 40,
+   "kw": "def",
+   "name": "this",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-math-coll-generic",
+   "file": "library/src/scala/collection/concurrent/TrieMap.scala",
+   "decl_line": 480,
+   "kw": "def",
+   "name": "isNullInode",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-math-coll-generic",
+   "file": "library/src/scala/collection/concurrent/TrieMap.scala",
+   "decl_line": 487,
+   "kw": "def",
+   "name": "cachedSize",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-math-coll-generic",
+   "file": "library/src/scala/collection/concurrent/TrieMap.scala",
+   "decl_line": 495,
+   "kw": "def",
+   "name": "knownSize",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-math-coll-generic",
+   "file": "library/src/scala/collection/concurrent/TrieMap.scala",
+   "decl_line": 571,
+   "kw": "def",
+   "name": "toString",
+   "effective": "private[concurrent]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-math-coll-generic",
+   "file": "library/src/scala/collection/concurrent/TrieMap.scala",
+   "decl_line": 578,
+   "kw": "def",
+   "name": "kvPair",
+   "effective": "private[concurrent]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-math-coll-generic",
+   "file": "library/src/scala/collection/concurrent/TrieMap.scala",
+   "decl_line": 601,
+   "kw": "def",
+   "name": "string",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-math-coll-generic",
+   "file": "library/src/scala/collection/concurrent/TrieMap.scala",
+   "decl_line": 632,
+   "kw": "def",
+   "name": "string",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-math-coll-generic",
+   "file": "library/src/scala/collection/concurrent/TrieMap.scala",
+   "decl_line": 645,
+   "kw": "def",
+   "name": "this",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-math-coll-generic",
+   "file": "library/src/scala/collection/concurrent/TrieMap.scala",
+   "decl_line": 655,
+   "kw": "def",
+   "name": "this",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-math-coll-generic",
+   "file": "library/src/scala/collection/concurrent/TrieMap.scala",
+   "decl_line": 700,
+   "kw": "def",
+   "name": "get",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-math-coll-generic",
+   "file": "library/src/scala/collection/concurrent/TrieMap.scala",
+   "decl_line": 717,
+   "kw": "def",
+   "name": "string",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-math-coll-generic",
+   "file": "library/src/scala/collection/concurrent/TrieMap.scala",
+   "decl_line": 895,
+   "kw": "def",
+   "name": "string",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-math-coll-generic",
+   "file": "library/src/scala/collection/concurrent/TrieMap.scala",
+   "decl_line": 946,
+   "kw": "var",
+   "name": "committed",
+   "effective": "private[concurrent]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-convert-js",
+   "file": "library/src/scala/collection/convert/impl/InOrderStepperBase.scala",
+   "decl_line": 49,
+   "kw": "def",
+   "name": "semiclone",
+   "effective": "private[convert]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-convert-js",
+   "file": "library/src/scala/collection/convert/impl/IndexedStepperBase.scala",
+   "decl_line": 37,
+   "kw": "def",
+   "name": "semiclone",
+   "effective": "private[convert]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-mutable",
+   "file": "library/src/scala/collection/mutable/RedBlackTree.scala",
+   "decl_line": 74,
+   "kw": "var",
+   "name": "parent",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-mutable",
+   "file": "library/src/scala/collection/mutable/RedBlackTree.scala",
+   "decl_line": 77,
+   "kw": "def",
+   "name": "toString",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-mutable",
+   "file": "library/src/scala/collection/mutable/RedBlackTree.scala",
+   "decl_line": 86,
+   "kw": "def",
+   "name": "empty",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-mutable",
+   "file": "library/src/scala/collection/mutable/RedBlackTree.scala",
+   "decl_line": 104,
+   "kw": "def",
+   "name": "unapply",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-mutable",
+   "file": "library/src/scala/collection/mutable/RedBlackTree.scala",
+   "decl_line": 113,
+   "kw": "def",
+   "name": "isRed",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-mutable",
+   "file": "library/src/scala/collection/mutable/RedBlackTree.scala",
+   "decl_line": 118,
+   "kw": "def",
+   "name": "isBlack",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-mutable",
+   "file": "library/src/scala/collection/mutable/RedBlackTree.scala",
+   "decl_line": 137,
+   "kw": "def",
+   "name": "isEmpty",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-mutable",
+   "file": "library/src/scala/collection/mutable/RedBlackTree.scala",
+   "decl_line": 142,
+   "kw": "def",
+   "name": "clear",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-mutable",
+   "file": "library/src/scala/collection/mutable/RedBlackTree.scala",
+   "decl_line": 174,
+   "kw": "def",
+   "name": "contains",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-mutable",
+   "file": "library/src/scala/collection/mutable/RedBlackTree.scala",
+   "decl_line": 210,
+   "kw": "def",
+   "name": "minNodeNonNull",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-mutable",
+   "file": "library/src/scala/collection/mutable/RedBlackTree.scala",
+   "decl_line": 247,
+   "kw": "def",
+   "name": "maxNodeNonNull",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-mutable",
+   "file": "library/src/scala/collection/mutable/RedBlackTree.scala",
+   "decl_line": 635,
+   "kw": "def",
+   "name": "foreach",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-mutable",
+   "file": "library/src/scala/collection/mutable/RedBlackTree.scala",
+   "decl_line": 715,
+   "kw": "def",
+   "name": "iterator",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-mutable",
+   "file": "library/src/scala/collection/mutable/RedBlackTree.scala",
+   "decl_line": 726,
+   "kw": "def",
+   "name": "keysIterator",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-mutable",
+   "file": "library/src/scala/collection/mutable/RedBlackTree.scala",
+   "decl_line": 739,
+   "kw": "def",
+   "name": "valuesIterator",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-mutable",
+   "file": "library/src/scala/collection/mutable/RedBlackTree.scala",
+   "decl_line": 749,
+   "kw": "def",
+   "name": "nextResult",
+   "effective": "private",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-mutable",
+   "file": "library/src/scala/collection/mutable/RedBlackTree.scala",
+   "decl_line": 785,
+   "kw": "def",
+   "name": "nextResult",
+   "effective": "private",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-mutable",
+   "file": "library/src/scala/collection/mutable/RedBlackTree.scala",
+   "decl_line": 795,
+   "kw": "def",
+   "name": "nextResult",
+   "effective": "private",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-mutable",
+   "file": "library/src/scala/collection/mutable/RedBlackTree.scala",
+   "decl_line": 805,
+   "kw": "def",
+   "name": "nextResult",
+   "effective": "private",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/ChampCommon.scala",
+   "decl_line": 45,
+   "kw": "val",
+   "name": "MaxDepth",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/ChampCommon.scala",
+   "decl_line": 60,
+   "kw": "def",
+   "name": "maskFrom",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/ChampCommon.scala",
+   "decl_line": 109,
+   "kw": "def",
+   "name": "getNode",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/ChampCommon.scala",
+   "decl_line": 122,
+   "kw": "def",
+   "name": "getPayload",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/ChampCommon.scala",
+   "decl_line": 130,
+   "kw": "def",
+   "name": "getHash",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/ChampCommon.scala",
+   "decl_line": 239,
+   "kw": "var",
+   "name": "currentValueCursor",
+   "effective": "private[immutable]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/ChampCommon.scala",
+   "decl_line": 324,
+   "kw": "def",
+   "name": "hasNext",
+   "effective": "private[immutable]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/ChampCommon.scala",
+   "decl_line": 405,
+   "kw": "def",
+   "name": "hasNext",
+   "effective": "private[immutable]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/RedBlackTree.scala",
+   "decl_line": 66,
+   "kw": "def",
+   "name": "isEmpty",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/RedBlackTree.scala",
+   "decl_line": 74,
+   "kw": "def",
+   "name": "contains",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/RedBlackTree.scala",
+   "decl_line": 311,
+   "kw": "def",
+   "name": "update",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/RedBlackTree.scala",
+   "decl_line": 323,
+   "kw": "def",
+   "name": "delete",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/RedBlackTree.scala",
+   "decl_line": 351,
+   "kw": "def",
+   "name": "range",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/RedBlackTree.scala",
+   "decl_line": 360,
+   "kw": "def",
+   "name": "from",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/RedBlackTree.scala",
+   "decl_line": 369,
+   "kw": "def",
+   "name": "to",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/RedBlackTree.scala",
+   "decl_line": 378,
+   "kw": "def",
+   "name": "until",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/RedBlackTree.scala",
+   "decl_line": 392,
+   "kw": "def",
+   "name": "drop",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/RedBlackTree.scala",
+   "decl_line": 405,
+   "kw": "def",
+   "name": "take",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/RedBlackTree.scala",
+   "decl_line": 418,
+   "kw": "def",
+   "name": "slice",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/RedBlackTree.scala",
+   "decl_line": 537,
+   "kw": "def",
+   "name": "foreach",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/RedBlackTree.scala",
+   "decl_line": 613,
+   "kw": "def",
+   "name": "foreachKey",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/RedBlackTree.scala",
+   "decl_line": 629,
+   "kw": "def",
+   "name": "foreachEntry",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/RedBlackTree.scala",
+   "decl_line": 644,
+   "kw": "def",
+   "name": "iterator",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/RedBlackTree.scala",
+   "decl_line": 651,
+   "kw": "def",
+   "name": "keysIterator",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/RedBlackTree.scala",
+   "decl_line": 659,
+   "kw": "def",
+   "name": "valuesIterator",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/RedBlackTree.scala",
+   "decl_line": 685,
+   "kw": "def",
+   "name": "isBlack",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/RedBlackTree.scala",
+   "decl_line": 1201,
+   "kw": "def",
+   "name": "nextResult",
+   "effective": "private",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/RedBlackTree.scala",
+   "decl_line": 1269,
+   "kw": "var",
+   "name": "lookahead",
+   "effective": "private",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/RedBlackTree.scala",
+   "decl_line": 1386,
+   "kw": "def",
+   "name": "nextResult",
+   "effective": "private",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/RedBlackTree.scala",
+   "decl_line": 1394,
+   "kw": "def",
+   "name": "nextResult",
+   "effective": "private",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/RedBlackTree.scala",
+   "decl_line": 1402,
+   "kw": "def",
+   "name": "nextResult",
+   "effective": "private",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/RedBlackTree.scala",
+   "decl_line": 1657,
+   "kw": "def",
+   "name": "union",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/RedBlackTree.scala",
+   "decl_line": 1672,
+   "kw": "def",
+   "name": "intersect",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-math-coll-generic",
+   "file": "library/src/scala/collection/concurrent/TrieMap.scala",
+   "decl_line": 524,
+   "kw": "val",
+   "name": "KEY_PRESENT",
+   "effective": "private[concurrent]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-math-coll-generic",
+   "file": "library/src/scala/collection/concurrent/TrieMap.scala",
+   "decl_line": 527,
+   "kw": "val",
+   "name": "KEY_ABSENT",
+   "effective": "private[concurrent]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-convert-js",
+   "file": "library-js/src/scala/collection/immutable/LazyListBase.scala",
+   "decl_line": 105,
+   "kw": "def",
+   "name": "await",
+   "effective": "private[immutable]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-convert-js",
+   "file": "library-js/src/scala/collection/immutable/LazyListIterableBase.scala",
+   "decl_line": 109,
+   "kw": "def",
+   "name": "await",
+   "effective": "private[immutable]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/LazyListBase.scala",
+   "decl_line": 121,
+   "kw": "def",
+   "name": "await",
+   "effective": "private[immutable]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/LazyListIterableBase.scala",
+   "decl_line": 128,
+   "kw": "def",
+   "name": "await",
+   "effective": "private[immutable]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-math-coll-generic",
+   "file": "library/src/scala/collection/concurrent/TrieMap.scala",
+   "decl_line": 530,
+   "kw": "val",
+   "name": "KEY_PRESENT_OR_ABSENT",
+   "effective": "private[concurrent]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-math-coll-generic",
+   "file": "library/src/scala/collection/concurrent/TrieMap.scala",
+   "decl_line": 586,
+   "kw": "def",
+   "name": "copy",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-math-coll-generic",
+   "file": "library/src/scala/collection/concurrent/TrieMap.scala",
+   "decl_line": 589,
+   "kw": "def",
+   "name": "copyTombed",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-math-coll-generic",
+   "file": "library/src/scala/collection/concurrent/TrieMap.scala",
+   "decl_line": 592,
+   "kw": "def",
+   "name": "copyUntombed",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-math-coll-generic",
+   "file": "library/src/scala/collection/concurrent/TrieMap.scala",
+   "decl_line": 595,
+   "kw": "def",
+   "name": "kvPair",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-math-coll-generic",
+   "file": "library/src/scala/collection/concurrent/TrieMap.scala",
+   "decl_line": 609,
+   "kw": "def",
+   "name": "copy",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-math-coll-generic",
+   "file": "library/src/scala/collection/concurrent/TrieMap.scala",
+   "decl_line": 612,
+   "kw": "def",
+   "name": "copyTombed",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-math-coll-generic",
+   "file": "library/src/scala/collection/concurrent/TrieMap.scala",
+   "decl_line": 615,
+   "kw": "def",
+   "name": "copyUntombed",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-math-coll-generic",
+   "file": "library/src/scala/collection/concurrent/TrieMap.scala",
+   "decl_line": 618,
+   "kw": "def",
+   "name": "kvPair",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-math-coll-generic",
+   "file": "library/src/scala/collection/concurrent/TrieMap.scala",
+   "decl_line": 626,
+   "kw": "def",
+   "name": "knownSize",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-math-coll-generic",
+   "file": "library/src/scala/collection/concurrent/TrieMap.scala",
+   "decl_line": 710,
+   "kw": "def",
+   "name": "knownSize",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-math-coll-generic",
+   "file": "library/src/scala/collection/concurrent/TrieMap.scala",
+   "decl_line": 741,
+   "kw": "def",
+   "name": "knownSize",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-math-coll-generic",
+   "file": "library/src/scala/collection/concurrent/TrieMap.scala",
+   "decl_line": 1485,
+   "kw": "val",
+   "name": "Always",
+   "effective": "private[concurrent]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-math-coll-generic",
+   "file": "library/src/scala/collection/concurrent/TrieMap.scala",
+   "decl_line": 1488,
+   "kw": "val",
+   "name": "FullEquals",
+   "effective": "private[concurrent]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-math-coll-generic",
+   "file": "library/src/scala/collection/concurrent/TrieMap.scala",
+   "decl_line": 1491,
+   "kw": "val",
+   "name": "ReferenceEq",
+   "effective": "private[concurrent]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-math-coll-generic",
+   "file": "library/src/scala/collection/concurrent/TrieMap.scala",
+   "decl_line": 1524,
+   "kw": "def",
+   "name": "hasNext",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-convert-js",
+   "file": "library/src/scala/collection/convert/impl/InOrderStepperBase.scala",
+   "decl_line": 52,
+   "kw": "def",
+   "name": "hasStep",
+   "effective": "private[convert]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-convert-js",
+   "file": "library/src/scala/collection/convert/impl/InOrderStepperBase.scala",
+   "decl_line": 57,
+   "kw": "def",
+   "name": "characteristics",
+   "effective": "private[convert]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-convert-js",
+   "file": "library/src/scala/collection/convert/impl/InOrderStepperBase.scala",
+   "decl_line": 62,
+   "kw": "def",
+   "name": "estimateSize",
+   "effective": "private[convert]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-convert-js",
+   "file": "library/src/scala/collection/convert/impl/IndexedStepperBase.scala",
+   "decl_line": 40,
+   "kw": "def",
+   "name": "hasStep",
+   "effective": "private[convert]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-convert-js",
+   "file": "library/src/scala/collection/convert/impl/IndexedStepperBase.scala",
+   "decl_line": 45,
+   "kw": "def",
+   "name": "characteristics",
+   "effective": "private[convert]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-convert-js",
+   "file": "library/src/scala/collection/convert/impl/IndexedStepperBase.scala",
+   "decl_line": 48,
+   "kw": "def",
+   "name": "estimateSize",
+   "effective": "private[convert]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-mutable",
+   "file": "library/src/scala/collection/mutable/RedBlackTree.scala",
+   "decl_line": 65,
+   "kw": "var",
+   "name": "key",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-mutable",
+   "file": "library/src/scala/collection/mutable/RedBlackTree.scala",
+   "decl_line": 68,
+   "kw": "var",
+   "name": "left",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-mutable",
+   "file": "library/src/scala/collection/mutable/RedBlackTree.scala",
+   "decl_line": 71,
+   "kw": "var",
+   "name": "right",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-mutable",
+   "file": "library/src/scala/collection/mutable/RedBlackTree.scala",
+   "decl_line": 752,
+   "kw": "def",
+   "name": "hasNext",
+   "effective": "private",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/ChampCommon.scala",
+   "decl_line": 27,
+   "kw": "val",
+   "name": "HashCodeLength",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/ChampCommon.scala",
+   "decl_line": 39,
+   "kw": "val",
+   "name": "BitPartitionMask",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/ChampCommon.scala",
+   "decl_line": 50,
+   "kw": "val",
+   "name": "BranchingFactor",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/ChampCommon.scala",
+   "decl_line": 99,
+   "kw": "def",
+   "name": "hasNodes",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/ChampCommon.scala",
+   "decl_line": 102,
+   "kw": "def",
+   "name": "nodeArity",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/ChampCommon.scala",
+   "decl_line": 112,
+   "kw": "def",
+   "name": "hasPayload",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/ChampCommon.scala",
+   "decl_line": 115,
+   "kw": "def",
+   "name": "payloadArity",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/ChampCommon.scala",
+   "decl_line": 243,
+   "kw": "var",
+   "name": "currentValueLength",
+   "effective": "private[immutable]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/ChampCommon.scala",
+   "decl_line": 247,
+   "kw": "var",
+   "name": "currentValueNode",
+   "effective": "private[immutable]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/ChampCommon.scala",
+   "decl_line": 341,
+   "kw": "var",
+   "name": "currentValueCursor",
+   "effective": "private[immutable]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/ChampCommon.scala",
+   "decl_line": 345,
+   "kw": "var",
+   "name": "currentValueNode",
+   "effective": "private[immutable]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/RedBlackTree.scala",
+   "decl_line": 959,
+   "kw": "def",
+   "name": "toString",
+   "effective": "private[collection]",
+   "reasons": [
+    "protocol file"
+   ]
+  },
+  {
+   "branch": "scaladoc-missing-docs-collection-immutable-list-lazylist-sorted",
+   "file": "library/src/scala/collection/immutable/RedBlackTree.scala",
+   "decl_line": 1204,
+   "kw": "def",
+   "name": "hasNext",
+   "effective": "private",
+   "reasons": [
+    "protocol file"
+   ]
+  }
+ ]
+}
