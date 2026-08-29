@@ -194,16 +194,25 @@ object ListMap extends MapFactory[ListMap] {
 
     override private[immutable] def value: V = _value
 
+    /** Returns the number of entries in this map, counted by walking the chain, which costs `O(n)`. */
     override def size: Int = sizeInternal(this, 0)
 
     @tailrec private def sizeInternal(cur: ListMap[K, V], acc: Int): Int =
       if (cur.isEmpty) acc
       else sizeInternal(cur.next, acc + 1)
 
+    /** Returns `false`; a node always holds at least its own binding. */
     override def isEmpty: Boolean = false
 
+    /** Returns `-1`; the size of a non-empty list map is not known without walking the chain. */
     override def knownSize: Int = -1
 
+    /** Returns the value bound to `k`, searching the chain from the most recently
+     *  inserted key towards the oldest, which costs `O(n)`.
+     *
+     *  @param k the key to look for
+     *  @throws NoSuchElementException if no key of this map is `==` to `k`
+     */
     @throws[NoSuchElementException]
     override def apply(k: K): V = applyInternal(this, k)
 
@@ -212,6 +221,11 @@ object ListMap extends MapFactory[ListMap] {
       else if (k == cur.key) cur.value
       else applyInternal(cur.next, k)
 
+    /** Returns the value bound to `k` in a `Some`, or `None` if there is no such
+     *  binding; the chain is searched in `O(n)`.
+     *
+     *  @param k the key to look for
+     */
     override def get(k: K): Option[V] = getInternal(this, k)
 
     @tailrec private def getInternal(cur: ListMap[K, V], k: K): Option[V] =
@@ -219,6 +233,11 @@ object ListMap extends MapFactory[ListMap] {
       else if (k == cur.key) Some(cur.value)
       else getInternal(cur.next, k)
 
+    /** Returns `true` if this map binds a key that is `==` to `k`; the chain is searched
+     *  in `O(n)`.
+     *
+     *  @param k the key to look for
+     */
     override def contains(k: K): Boolean = containsInternal(this, k)
 
     @tailrec private def containsInternal(cur: ListMap[K, V], k: K): Boolean =
@@ -226,6 +245,21 @@ object ListMap extends MapFactory[ListMap] {
       else if (k == cur.key) true
       else containsInternal(cur.next, k)
 
+    /** Returns a map that binds `k` to `v` and agrees with this map on every other key.
+     *
+     *  If `k` is already bound, the new binding takes the place of the old one, so `k`
+     *  keeps its position in the insertion order; the entries inserted after it are
+     *  rebuilt and the ones inserted before it are shared. If `k` is already bound to
+     *  the very same value, meaning the same object, this map is returned as is. An
+     *  unbound `k` becomes the most recently inserted key.
+     *
+     *  This costs `O(n)`.
+     *
+     *  @tparam V1 the type of the new value, a supertype of `V`
+     *  @param k the key to bind
+     *  @param v the value to bind it to
+     *  @return a list map with `k` bound to `v`
+     */
     override def updated[V1 >: V](k: K, v: V1): ListMap[K, V1] = {
 
       var index = -1 // the index (in reverse) where the key to update exists, if it is found
@@ -282,11 +316,24 @@ object ListMap extends MapFactory[ListMap] {
       else if (k == cur.key) acc.foldLeft(cur.next) { (t, h) => new Node(h.key, h.value, t) }
       else removeInternal(k, cur.next, cur :: acc)
 
+    /** Returns a map with all bindings of this map except the one for `k`, in their
+     *  original insertion order. Returns this map itself if `k` is not bound;
+     *  otherwise the entries inserted after `k` are rebuilt and the ones inserted
+     *  before it are shared, which costs `O(n)`.
+     *
+     *  @param k the key to remove
+     */
     override def removed(k: K): ListMap[K, V] = removeInternal(k, this, Nil)
 
     override private[immutable] def next: ListMap[K, V] = _init.nn
 
+    /** Returns the most recently inserted binding of this map, which is this node's own
+     *  entry and therefore costs `O(1)`.
+     */
     override def last: (K, V) = (key, value)
+    /** Returns this map without its most recently inserted binding, which is the chain
+     *  below this node and therefore costs `O(1)`.
+     */
     override def init: ListMap[K, V] = next
 
   }
@@ -366,17 +413,30 @@ private[immutable] final class ListMapBuilder[K, V] extends mutable.ReusableBuil
   private var isAliased: Boolean = false
   private var underlying: ListMap[K, V] = ListMap.empty
 
+  /** Discards everything added so far, so that this builder starts again from the empty
+   *  list map; a map already handed out by `result()` is left untouched.
+   */
   override def clear(): Unit = {
     underlying = ListMap.empty
     isAliased = false
   }
 
+  /** Returns the list map built so far.
+   *
+   *  The map is handed out without being copied, so any further addition to this
+   *  builder switches to the immutable `updated` and leaves the returned map alone.
+   */
   override def result(): ListMap[K, V] = {
     isAliased = true
     releaseFence()
     underlying
   }
 
+  /** Adds the binding `elem` to this builder.
+   *
+   *  @param elem the key-value pair to add
+   *  @return this builder
+   */
   override def addOne(elem: (K, V)): this.type = addOne(elem._1, elem._2)
 
   @tailrec
@@ -391,6 +451,16 @@ private[immutable] final class ListMapBuilder[K, V] extends mutable.ReusableBuil
     case _ => false
   }
 
+  /** Adds the binding of `key` to `value` to this builder.
+   *
+   *  If `key` was already added, it keeps the position it had and is rebound to
+   *  `value`; otherwise it becomes the most recently inserted key. Either way the
+   *  search through the entries added so far costs `O(n)`.
+   *
+   *  @param key the key to bind
+   *  @param value the value to bind it to
+   *  @return this builder
+   */
   def addOne(key: K, value: V): this.type = {
     if (isAliased) {
       underlying = underlying.updated(key, value)
@@ -401,6 +471,14 @@ private[immutable] final class ListMapBuilder[K, V] extends mutable.ReusableBuil
     }
     this
   }
+  /** Adds all bindings of `xs` to this builder, in the order `xs` gives them out.
+   *
+   *  A `Map`, `MapView` or `LinkedHashMap` cannot repeat a key, which lets the
+   *  duplicate check be skipped or narrowed to the entries already present.
+   *
+   *  @param xs the bindings to add
+   *  @return this builder
+   */
   override def addAll(xs: IterableOnce[(K, V)]^): this.type = {
     if (isAliased) {
       super.addAll(xs)
