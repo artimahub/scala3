@@ -1482,11 +1482,6 @@ object Iterator extends IterableFactory[Iterator] {
     private var last: ConcatIteratorCell[A @uncheckedVariance] | Null = null
     private var currentHasNextChecked = false
 
-    /** Tests whether an element remains in any of the concatenated iterators.
-     *
-     *  Advances past exhausted constituent iterators, merging any nested
-     *  `ConcatIterator` encountered into this one to keep the chain flat.
-     */
     def hasNext =
       if (currentHasNextChecked) true
       else if (current == null) false
@@ -1532,10 +1527,6 @@ object Iterator extends IterableFactory[Iterator] {
         advance()
       }
 
-    /** Returns the next element of the first non-exhausted constituent iterator.
-     *
-     *  @throws NoSuchElementException if all constituent iterators are exhausted
-     */
     def next()  =
       if (hasNext) {
         currentHasNextChecked = false
@@ -1569,7 +1560,6 @@ object Iterator extends IterableFactory[Iterator] {
   }
 
   private final class ConcatIteratorCell[A](head: => IterableOnce[A]^, var tail: (ConcatIteratorCell[A]^) | Null) {
-    /** Returns an iterator over this cell's collection, evaluating the by-name `head` expression. */
     def headIterator: Iterator[A]^{this} = head.iterator
   }
 
@@ -1593,12 +1583,6 @@ object Iterator extends IterableFactory[Iterator] {
         } else
           dropping = 0
       }
-    /** Returns the number of remaining elements if the underlying iterator's
-     *  size is known, `-1` otherwise.
-     *
-     *  Accounts for elements not yet skipped and, if bounded, for the
-     *  remaining limit.
-     */
     override def knownSize: Int = {
       val size = underlying.knownSize
       if (size < 0) -1
@@ -1608,13 +1592,7 @@ object Iterator extends IterableFactory[Iterator] {
         else remaining min dropSize
       }
     }
-    /** Tests whether an element remains within the limit, first skipping any leading elements still to be dropped. */
     def hasNext = { skip(); remaining != 0 && underlying.hasNext }
-    /** Returns the next element, first skipping any leading elements still to be dropped.
-     *
-     *  @throws NoSuchElementException if the limit has been reached or the
-     *          underlying iterator is exhausted
-     */
     def next()  = {
       skip()
       if (remaining > 0) {
@@ -1624,20 +1602,6 @@ object Iterator extends IterableFactory[Iterator] {
       else if (unbounded) underlying.next()
       else empty.next()
     }
-    /** Creates an optionally bounded slice of this slice, unbounded if `until` is negative.
-     *
-     *  Instead of wrapping this iterator in a further `SliceIterator`, this
-     *  implementation adjusts the drop count and limit of this iterator in
-     *  place and returns it, avoiding daisy-chained iterators. Only when the
-     *  combined drop count overflows `Int` is a second `SliceIterator`
-     *  chained on to absorb the excess.
-     *
-     *  @param from the index of the first element in the slice
-     *  @param until the index of the first element following the slice, or negative for unbounded
-     *  @return this iterator with adjusted bounds, the empty iterator if the
-     *          slice is empty, or a chained iterator if the combined drop
-     *          count overflows `Int`
-     */
     override protected def sliceIterator(from: Int, until: Int): Iterator[A]^{this} = {
       val lo = from max 0
       def adjustedBound =
@@ -1677,12 +1641,6 @@ object Iterator extends IterableFactory[Iterator] {
     private var state: S = init
     private var nextResult: Option[(A, S)] | Null = null
 
-    /** Tests whether another element can be produced, applying `f` to the
-     *  current state and caching the result for `next()` if it is not already
-     *  cached.
-     *
-     *  @throws NullPointerException if `f` returns `null` instead of an `Option`
-     */
     override def hasNext: Boolean = {
       if (nextResult eq null) {
         nextResult = {
@@ -1695,12 +1653,6 @@ object Iterator extends IterableFactory[Iterator] {
       nextResult.nn.isDefined
     }
 
-    /** Returns the element cached by `hasNext` and advances the internal state.
-     *
-     *  @throws NoSuchElementException if `f` has returned `None`, i.e. the
-     *          iterator is exhausted
-     *  @throws NullPointerException if `f` returns `null`, since this calls `hasNext`
-     */
     override def next(): A = {
       if (hasNext) {
         val (value, newState) = nextResult.nn.get
