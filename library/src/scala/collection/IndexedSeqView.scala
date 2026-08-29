@@ -150,9 +150,16 @@ object IndexedSeqView {
   private[collection] class IndexedSeqViewIterator[A](self: IndexedSeqView[A]^) extends AbstractIterator[A] with Serializable {
     private var current = 0
     private var remainder = self.length
+    /** Returns the number of elements remaining in this iterator. */
     override def knownSize: Int = remainder
     @inline private def _hasNext: Boolean = remainder > 0
+    /** Returns `true` if this iterator has more elements. */
     def hasNext: Boolean = _hasNext
+    /** Returns the next element, read from the view at this iterator's
+     *  current index, and advances the iterator.
+     *
+     *  @throws NoSuchElementException if no elements remain
+     */
     def next(): A =
       if (_hasNext) {
         val r = self(current)
@@ -161,6 +168,15 @@ object IndexedSeqView {
         r
       } else Iterator.empty.next()
 
+    /** Advances this iterator past the next `n` elements in constant time,
+     *  without accessing them.
+     *
+     *  A non-positive `n` has no effect; at most the remaining elements are
+     *  dropped.
+     *
+     *  @param n the number of elements to drop
+     *  @return this iterator
+     */
     override def drop(n: Int): Iterator[A]^{this} = {
       if (n > 0) {
         current += n
@@ -196,7 +212,13 @@ object IndexedSeqView {
     private var remainder = self.length
     private var pos = remainder - 1
     @inline private def _hasNext: Boolean = remainder > 0
+    /** Returns `true` if this iterator has more elements. */
     def hasNext: Boolean = _hasNext
+    /** Returns the next element in reverse order, read from the view at this
+     *  iterator's current position, and moves the position backward.
+     *
+     *  @throws NoSuchElementException if no elements remain
+     */
     def next(): A =
       if (_hasNext) {
         val r = self(pos)
