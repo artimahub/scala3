@@ -417,15 +417,6 @@ object StringContext {
       case  i => replace(str, i)
     }
 
-  /** Returns the given string with its Unicode escape sequences replaced by the
-   *  characters they denote.
-   *  A `\u` sequence is processed as an escape only when preceded by an odd number of
-   *  backslashes; otherwise the backslash is taken to be literal.
-   *  A sequence that is processed as an escape but is not a well-formed four
-   *  hex-digit Unicode escape raises an `InvalidUnicodeEscapeException`.
-   *
-   *  @param str a string that may contain Unicode escape sequences
-   */
   protected[scala] def processUnicode(str: String): String =
     str.indexOf("\\u") match {
       case -1 => str
