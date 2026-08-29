@@ -39,11 +39,8 @@ object BasicIO {
   final val Newline: String = System.lineSeparator
 
   private[process] final class LazilyListed[T](
-    /** Enqueues the given element for `lazyList`, blocking while the underlying queue is full. */
     val  process:   T => Unit,
-    /** Signals with the process exit code that no more elements follow, which determines how `lazyList` terminates. */
     val     done: Int => Unit,
-    /** The elements passed to `process`, in order; evaluating a cell blocks until the next element or the exit code arrives. */
     val lazyList: LazyList[T]
   )
 
@@ -80,11 +77,8 @@ object BasicIO {
 
   @deprecated("internal", since = "2.13.4")
   private[process] final class Streamed[T](
-    /** Enqueues the given element for the stream, blocking while the underlying queue is full. */
     val process:   T => Unit,
-    /** Signals with the process exit code that no more elements follow, which determines how the stream terminates. */
     val    done: Int => Unit,
-    /** Returns the elements passed to `process`, in order; evaluating a cell blocks until the next element or the exit code arrives. */
     val  stream:  () => Stream[T]
   )
 
@@ -119,33 +113,12 @@ object BasicIO {
   }
 
   private[process] trait Uncloseable extends Closeable {
-    /** Does nothing, leaving the underlying resource open. */
     final override def close(): Unit = ()
   }
   private[process] object Uncloseable {
-    /** Returns a view of `in` that reads through to it but whose `close` does nothing.
-     *
-     *  @param in the input stream to shield from closing
-     */
     def apply(in: InputStream): InputStream      = new FilterInputStream(in) with Uncloseable { }
-    /** Returns a view of `out` that writes through to it but whose `close` does nothing.
-     *
-     *  @param out the output stream to shield from closing
-     */
     def apply(out: OutputStream): OutputStream   = new FilterOutputStream(out) with Uncloseable { }
-    /** Shields the standard input stream from being closed by code that consumes it.
-     *
-     *  @param in the input stream to check
-     *  @return an uncloseable view of `in` if it is `stdin`, otherwise `in` itself
-     */
     def protect(in: InputStream): InputStream    = if (in eq stdin) Uncloseable(in) else in
-    /** Shields the standard output and error streams from being closed by code that writes
-     *  to them.
-     *
-     *  @param out the output stream to check
-     *  @return an uncloseable view of `out` if it is `stdout` or `stderr`, otherwise `out`
-     *          itself
-     */
     def protect(out: OutputStream): OutputStream = if ((out eq stdout) || (out eq stderr)) Uncloseable(out) else out
   }
 
