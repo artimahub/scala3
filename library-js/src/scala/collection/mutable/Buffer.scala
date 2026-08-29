@@ -243,6 +243,7 @@ trait Buffer[A]
     this
   }
 
+  /** The prefix of this buffer's `toString` representation, `"Buffer"`. */
   @deprecatedOverriding("Compatibility override", since="2.13.0")
   override protected[this] def stringPrefix = "Buffer"
 }
