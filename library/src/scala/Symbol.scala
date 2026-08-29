@@ -73,26 +73,9 @@ private[scala] abstract class UniquenessCache[K, V] {
   private val wlock = rwl.writeLock
   private val map = new WeakHashMap[K, WeakReference[V]]
 
-  /** Constructs the value to be cached for the given key.
-   *
-   *  @param k the key to construct a value from
-   *  @return the value corresponding to `k`
-   */
   protected def valueFromKey(k: K): V
-  /** Extracts the key under which the given value is cached.
-   *
-   *  @param v the value whose key is needed
-   *  @return the key for `v`, or `None` if it has none
-   */
   protected def keyFromValue(v: V): Option[K]
 
-  /** Returns the cached value for the given key, constructing and caching it on
-   *  first access. Values are held via weak references, so the cached value may
-   *  be reconstructed for a key after its previous value has been
-   *  garbage-collected. Access is thread-safe.
-   *
-   *  @param name the key to look up
-   */
   def apply(name: K): V = {
     def cached(): V | Null = {
       rlock.lock
@@ -126,11 +109,5 @@ private[scala] abstract class UniquenessCache[K, V] {
       case res  => res
     }
   }
-  /** Extracts the key associated with the given value, enabling use as an
-   *  extractor in pattern matches.
-   *
-   *  @param other the value to extract from
-   *  @return the key for `other`, or `None` if it has none
-   */
   def unapply(other: V): Option[K] = keyFromValue(other)
 }

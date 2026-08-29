@@ -340,20 +340,7 @@ object StringContext {
 
   private def readUEscape(src: String, startindex: Int): (Char, Int) = {
     val len = src.length()
-    /** Skips any leading `u` characters of the escape and then reads the four
-     *  hex-digit code unit.
-     *
-     *  @param uindex the index in `src` at which to look for a `u` character or the first hex digit
-     *  @return the decoded character paired with the number of characters consumed since `startindex`
-     */
     def loop(uindex: Int): (Char, Int) = {
-      /** Reads the four hex digits of the code unit, accumulating them into
-       *  `codepoint`.
-       *
-       *  @param dindex the number of hex digits read so far (0 to 4)
-       *  @param codepoint the code point accumulated from the hex digits read so far
-       *  @return the decoded character paired with the number of characters consumed since `startindex`
-       */
       def loopCP(dindex: Int, codepoint: Int): (Char, Int) = {
         //supports BMP + surrogate escapes 
         //but only in four hex-digit code units (uxxxx)
@@ -405,11 +392,6 @@ object StringContext {
       case  i => replace(str, i)
     }
 
-  /** Expands Unicode escape sequences (`\u`) in `str`.
-   *
-   *  @param str a string that may contain Unicode escape sequences
-   *  @return the string with all Unicode escape sequences expanded
-   */
   protected[scala] def processUnicode(str: String): String =
     str.indexOf("\\u") match {
       case -1 => str
@@ -477,12 +459,6 @@ object StringContext {
     @tailrec def loop(i: Int, next: Int): String = {
       if (next >= 0) {
         //require(str(next) == '\\' && str(next + 1) == 'u')
-        /** Tests whether an odd number of consecutive backslashes immediately
-         *  precede the `u` of the current escape.
-         *
-         *  @param ibackslash an index within the run of backslashes preceding the `u`, scanned leftward
-         *  @return `true` if the run contains an odd number of backslashes
-         */
         def oddBackslashes(ibackslash: Int): Boolean =
           if (ibackslash > 0 && str(ibackslash - 1) == '\\') oddBackslashes(ibackslash - 1)
           else ((next - ibackslash) % 2) == 0

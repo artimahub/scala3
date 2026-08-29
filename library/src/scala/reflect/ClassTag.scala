@@ -137,22 +137,9 @@ object ClassTag {
 
   private val cacheDisabled = java.lang.Boolean.getBoolean("scala.reflect.classtag.cache.disable")
   private object cache extends ClassValueCompat[jWeakReference[ClassTag[?]]] {
-    /** Computes the value to cache for `runtimeClass`, a weak reference to its
-     *  `ClassTag`.
-     *
-     *  @param runtimeClass the class for which to compute a `ClassTag`
-     *  @return a weak reference to the `ClassTag` for `runtimeClass`
-     */
     override def computeValue(runtimeClass: jClass[?]): jWeakReference[ClassTag[?]] =
       new jWeakReference(computeTag(runtimeClass))
 
-    /** Computes the `ClassTag` for `runtimeClass`, returning a predefined tag
-     *  for primitive, `Object`, `Nothing`, and `Null` classes, or a generic tag
-     *  otherwise.
-     *
-     *  @param runtimeClass the runtime class to wrap
-     *  @return the `ClassTag` representing `runtimeClass`
-     */
     def computeTag(runtimeClass: jClass[?]): ClassTag[?] =
       runtimeClass match {
         case x if x.isPrimitive => primitiveClassTag(runtimeClass)
@@ -178,11 +165,6 @@ object ClassTag {
 
   @SerialVersionUID(1L)
   private class GenericClassTag[T](val runtimeClass: jClass[?]) extends ClassTag[T] {
-    /** Produces a new array with element type `T` and length `len`.
-     *
-     *  @param len the length of the new array
-     *  @return a new array of `T` of length `len`
-     */
     override def newArray(len: Int): Array[T] = {
       java.lang.reflect.Array.newInstance(runtimeClass, len).asInstanceOf[Array[T]]
     }
