@@ -299,8 +299,12 @@ object ClassManifestFactory {
 
   @SerialVersionUID(1L)
   private class AbstractTypeClassManifest[T](prefix: OptManifest[?], name: String, clazz: jClass[?], args: OptManifest[?]*) extends ClassManifest[T] {
+    /** Returns the runtime `Class` used as the erasure of this abstract type. */
     override def runtimeClass = clazz
     override val typeArguments = args.toList
+    /** Returns a string representation of this manifest in the form
+     *  `prefix#name` followed by its type arguments.
+     */
     override def toString() = prefix.toString+"#"+name+argString
   }
 
@@ -342,6 +346,9 @@ private class ClassTypeManifest[T](
   val runtimeClass: jClass[?],
   override val typeArguments: List[OptManifest[?]]) extends ClassManifest[T]
 {
+  /** Returns a string representation of this manifest, combining the optional
+   *  prefix, the class name (or `Array`), and its type arguments.
+   */
   override def toString() =
     (if (prefix.isEmpty) "" else prefix.get.toString+"#") +
     (if (runtimeClass.isArray) "Array" else runtimeClass.getName) +
