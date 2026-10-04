@@ -196,9 +196,6 @@ sealed class Queue[+A] protected(protected val in: List[A], protected val out: L
    *  @throws NoSuchElementException if the queue is empty
    */
   def front: A = head
-
-  /** Returns a string representation of this queue. */
-  override def toString(): String = mkString("Queue(", ", ", ")")
 }
 
 /** $factoryInfo

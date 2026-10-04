@@ -388,7 +388,7 @@ sealed class NumericRange[T](
     val empty = if (isEmpty) "empty " else ""
     val preposition = if (isInclusive) "to" else "until"
     val stepped = if (step == 1) "" else s" by $step"
-    s"${empty}NumericRange $start $preposition $end$stepped"
+    s"${empty}${className} $start $preposition $end$stepped"
   }
 
   override protected def className = "NumericRange"
