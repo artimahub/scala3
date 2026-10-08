@@ -551,7 +551,7 @@ sealed abstract class Range(
       else (lastElement + step) != end
 
     val prefix = if (isEmpty) "empty " else if (isInexact) "inexact " else ""
-    s"${prefix}Range $start $preposition $end$stepped"
+    s"${prefix}${className} $start $preposition $end$stepped"
   }
 
   override protected def className = "Range"

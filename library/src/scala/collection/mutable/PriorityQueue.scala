@@ -355,12 +355,6 @@ sealed class PriorityQueue[A](implicit val ord: Ordering[A])
    */
   def toQueue: Queue[A] = new Queue[A] ++= this.iterator
 
-  /** Returns a textual representation of a queue as a string.
-   *
-   *  @return the string representation of this queue.
-   */
-  override def toString() = toList.mkString("PriorityQueue(", ", ", ")")
-
   /** Converts this $coll to a list.
    *
    *  Note: the order of elements is undefined.
