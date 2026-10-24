@@ -133,6 +133,12 @@ final class Tuple3Zipped[El1, It1 <: Iterable[El1], El2, It2 <: Iterable[El2], E
    *  @tparam To2 the type of the second result collection
    *  @tparam To3 the type of the third result collection
    *  @param f the predicate applied to each triple of corresponding elements
+   *  @param bf1 the builder factory that creates the first result collection
+   *             from the first collection
+   *  @param bf2 the builder factory that creates the second result collection
+   *             from the second collection
+   *  @param bf3 the builder factory that creates the third result collection
+   *             from the third collection
    */
   def filter[To1, To2, To3](f: (El1, El2, El3) => Boolean)(
                implicit bf1: BuildFrom[It1, El1, To1],

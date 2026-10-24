@@ -102,13 +102,15 @@ trait IntegralProxy[T] extends Any with ScalaWholeNumberProxy[T] with RangedProx
   /** Returns a range from the wrapped value up to but not including `end`,
    *  advancing by `step`.
    *
+   *  The arguments are not validated here. A zero `step`, or a range of more
+   *  than `Int.MaxValue` elements, makes the returned range throw an
+   *  `IllegalArgumentException` when its length is first computed.
+   *
    *  @param end the exclusive end point of the range
    *  @param step the increment between consecutive elements; may be negative
+   *          but must not be zero
    *  @return an exclusive [[scala.collection.immutable.NumericRange]] from this
    *          value until `end` with the given step
-   *  @throws IllegalArgumentException if `step` is zero, or if the range has more
-   *          than `Int.MaxValue` elements; both are raised when the range's length
-   *          is first computed, not when it is constructed
    */
   def until(end: T, step: T): NumericRange.Exclusive[T] = NumericRange(self, end, step)
   /** Returns a range from the wrapped value up to and including `end`, in
@@ -122,13 +124,15 @@ trait IntegralProxy[T] extends Any with ScalaWholeNumberProxy[T] with RangedProx
   /** Returns a range from the wrapped value up to and including `end`,
    *  advancing by `step`.
    *
+   *  The arguments are not validated here. A zero `step`, or a range of more
+   *  than `Int.MaxValue` elements, makes the returned range throw an
+   *  `IllegalArgumentException` when its length is first computed.
+   *
    *  @param end the inclusive end point of the range
    *  @param step the increment between consecutive elements; may be negative
+   *          but must not be zero
    *  @return an inclusive [[scala.collection.immutable.NumericRange]] from this
    *          value to `end` with the given step
-   *  @throws IllegalArgumentException if `step` is zero, or if the range has more
-   *          than `Int.MaxValue` elements; both are raised when the range's length
-   *          is first computed, not when it is constructed
    */
   def to(end: T, step: T): NumericRange.Inclusive[T]    = NumericRange.inclusive(self, end, step)
 }

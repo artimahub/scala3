@@ -25,9 +25,11 @@ import scala.util.control.ControlThrowable
  *  class, and wraps the body of the returned-from method in a handler that
  *  catches it: the handler compares `key` with its own marker object by
  *  reference and completes the method with `value` on a match, rethrowing
- *  otherwise, so a throw always unwinds to the invocation it belongs to. As a
- *  [[scala.util.control.ControlThrowable]] it carries no stack trace and is
- *  not matched by `NonFatal`.
+ *  otherwise, so a throw always unwinds to the invocation it belongs to. It
+ *  carries no stack trace, keeping the throw cheap: its
+ *  [[scala.util.control.ControlThrowable]] parent disables stack traces, and
+ *  `fillInStackTrace` is overridden to the same effect. As a `ControlThrowable`
+ *  it is also not matched by `NonFatal`.
  *
  *  @param key the marker object identifying the method invocation to return
  *             from; compared by reference by each enclosing handler

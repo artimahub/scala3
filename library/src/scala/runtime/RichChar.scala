@@ -40,7 +40,10 @@ final class RichChar(val self: Char) extends AnyVal with IntegralProxy[Char] {
   override def longValue   = self.toLong
   /** Returns this character's integer value (its UTF-16 code unit) as an `Int`. */
   override def intValue    = self.toInt
-  /** Returns the low 8 bits of this character's integer value as a `Byte`. */
+  /** Returns the low 8 bits of this character's integer value as a `Byte`,
+   *  discarding the high 8 bits; only characters whose code unit is below 128
+   *  keep their numeric value.
+   */
   override def byteValue   = self.toByte
   /** Returns this character's 16-bit integer value reinterpreted as a signed `Short`. */
   override def shortValue  = self.toShort
