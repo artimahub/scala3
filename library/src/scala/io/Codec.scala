@@ -230,7 +230,7 @@ object Codec extends LowPriorityCodecImplicits {
   /** Converts a `Charset` to a `Codec`.
    *
    *  @param c the character set to wrap
-   *  @return a `Codec` backed by the `CharSet` `c`
+   *  @return a `Codec` that uses `c`
    */
   implicit def charset2codec(c: Charset): Codec         = apply(c)
   /** Converts a `CharsetDecoder` to a `Codec`.
