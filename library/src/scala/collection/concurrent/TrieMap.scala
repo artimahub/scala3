@@ -1179,9 +1179,9 @@ final class TrieMap[K, V] private (r: AnyRef, rtupd: AtomicReferenceFieldUpdater
    *
    *  The result is always -1 if this TrieMap is mutable, since it may be
    *  modified concurrently. For a read-only snapshot it is the size cached in
-   *  the root, when the root has one. A -1 is not necessarily transient: some
-   *  root representations never cache a size, and for those the result stays
-   *  -1 however often it is asked for.
+   *  the root, or -1 if none has been cached yet. This method never computes
+   *  the size itself; calling `size` on the snapshot computes and caches it,
+   *  after which `knownSize` reports it.
    */
   override def knownSize: Int =
     if (nonReadOnly) -1
