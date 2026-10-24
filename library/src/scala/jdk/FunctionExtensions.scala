@@ -20,8 +20,8 @@ import language.implicitConversions
 
 /** Provides the lowest-priority implicit conversion from a Scala function to a Java functional
  *  interface wrapper. It applies only when no conversion declared in
- *  [[Priority2FunctionExtensions]] or one of its subtraits does, so that a Scala function is
- *  enriched with the most specific Java function type that fits it.
+ *  [[Priority2FunctionExtensions]] or one of its subtraits is applicable, so that a Scala
+ *  function is enriched with the most specific Java function type that fits it.
  */
 trait Priority3FunctionExtensions {
   import FunctionWrappers._
