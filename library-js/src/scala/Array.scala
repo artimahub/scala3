@@ -710,7 +710,9 @@ object Array {
    *  to `Array[AnyRef]`. Arrays are covariant in their
    *  element type at run time.
    *
-   *  `Array.equals(xs.asInstanceOf[Array[AnyRef]], ys.asInstanceOf[Array[AnyRef]])`
+   *  {{{
+   *  Array.equals(xs.asInstanceOf[Array[AnyRef]], ys.asInstanceOf[Array[AnyRef]])
+   *  }}}
    *
    *  @param xs an array of AnyRef
    *  @param ys an array of AnyRef

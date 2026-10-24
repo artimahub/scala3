@@ -26,9 +26,10 @@ import scala.language.`2.13`
  *  @since    2.8
  */
 trait NoStackTrace extends Throwable {
-  /** Overrides the default stack trace filling behavior to optionally suppress stack traces for efficiency.
+  /** Returns this throwable, filling in its stack trace first only if stack trace
+   *  suppression has been disabled globally via [[NoStackTrace.noSuppression]].
    *
-   *  @return this `Throwable` instance without filling in the stack trace if suppression is enabled, otherwise the result of the superclass implementation
+   *  On Scala.js suppression cannot be disabled, so the stack trace is never filled in.
    */
   override def fillInStackTrace(): Throwable =
     if (NoStackTrace.noSuppression) super.fillInStackTrace()

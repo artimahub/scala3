@@ -42,11 +42,14 @@ final class MatchError(@transient obj: Any) extends RuntimeException {
     this
   }
 
-  /** Returns a message describing the object that failed to match.
+  /** Returns a detail message describing the object that failed to match any pattern.
    *
-   *  The message contains the object's string representation and its class name,
-   *  falling back to the class name alone if its `toString` throws, and naming
-   *  the class "a JS class" if the object has no Java class. The message is
+   *  The message is the object's `toString` representation followed by its class name
+   *  in parentheses, as in `foo (of class java.lang.String)`. If the object is `null`,
+   *  the message is just `"null"`; if invoking `toString` on it throws, the message
+   *  omits the representation and is `"an instance of class "` followed by the class
+   *  name. An object with no Java class, one whose `getClass` returns `null`, is
+   *  described as "of a JS class" in place of its class name. The message is
    *  computed at most once.
    */
   override def getMessage() = objString
