@@ -156,7 +156,11 @@ object IndexedSeqDefaults {
    *
    *  It is read from the system property
    *  `scala.collection.immutable.IndexedSeq.defaultApplyPreferredMaxLength` and is
-   *  `64` when that property is unset or cannot be read.
+   *  `64` when that property is unset or a `SecurityException` prevents reading it.
+   *
+   *  @throws NumberFormatException if the property is set to a value that does not parse
+   *          as an `Int`; the failure surfaces when `IndexedSeqDefaults` is first
+   *          initialized
    */
   val defaultApplyPreferredMaxLength: Int =
     try System.getProperty(
@@ -199,8 +203,8 @@ transparent trait IndexedSeqOps[+A, +CC[B] <: caps.Pure, +C]
    *
    *  @param from the index of the first element of the slice
    *  @param until the index one past the last element of the slice
-   *  @return a sequence of the elements at the indices in the interval, empty if
-   *          `until` is not greater than `from`
+   *  @return a sequence of the elements at the indices in the interval, empty if the
+   *          interval contains no index of this sequence
    */
   override def slice(from: Int, until: Int): C = {
     // since we are immutable we can just share the same collection

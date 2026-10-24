@@ -385,9 +385,9 @@ sealed class NumericRange[T](
    *  Returns this range itself if it is empty.
    *
    *  @throws ArithmeticException if this range is non-empty and negating its step
-   *          cannot change the step's sign, either because the element type is
-   *          unsigned or because the step is the minimum value of a signed
-   *          fixed-width type
+   *          does not change the step's sign: because the step is zero, because the
+   *          element type is unsigned, or because the step is the minimum value of
+   *          a signed fixed-width type
    */
   override def reverse: NumericRange[T] =
     if (isEmpty) this
@@ -584,8 +584,9 @@ sealed class NumericRange[T](
     s"${empty}NumericRange $start $preposition $end$stepped"
   }
 
-  /** The name `"NumericRange"`, used as the collection-name prefix in string
-   *  representations.
+  /** The collection name `"NumericRange"`. This class's own `toString` prints the
+   *  bounds and step in its own format rather than the inherited `NumericRange(...)`
+   *  form built from this name.
    */
   override protected def className = "NumericRange"
 }

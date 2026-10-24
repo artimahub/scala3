@@ -57,9 +57,10 @@ object SeqMap extends MapFactory[SeqMap] {
   /** Returns a [[SeqMap]] containing the key-value pairs of `it`, in its iteration order.
    *
    *  If `it` is already one of the `SeqMap` implementations ([[ListMap]],
-   *  [[TreeSeqMap]], [[VectorMap]], or a small `SeqMap`), it is returned unchanged.
-   *  Otherwise a new map is built; if a key occurs more than once in `it`, its first
-   *  occurrence determines its position and its last occurrence determines its value.
+   *  [[TreeSeqMap]], [[VectorMap]], or a small `SeqMap`), it is returned unchanged, and
+   *  an empty `Iterable` gives the empty map. Otherwise a new map is built; if a key
+   *  occurs more than once in `it`, its first occurrence determines its position and its
+   *  last occurrence determines its value.
    *
    *  @tparam K the type of the keys
    *  @tparam V the type of the values

@@ -154,7 +154,9 @@ sealed class Queue[+A] protected(protected val in: List[A], protected val out: L
   override def exists(p: A => Boolean): Boolean =
     in.exists(p) || out.exists(p)
 
-  /** The prefix of this queue's string representation: `"Queue"`. */
+  /** The collection name `"Queue"`. This class's own `toString` spells the `Queue(...)`
+   *  form directly rather than building it from this name.
+   */
   override protected def className = "Queue"
 
   /** Returns the length of the queue. */

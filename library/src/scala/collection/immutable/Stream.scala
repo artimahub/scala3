@@ -29,7 +29,8 @@ import scala.runtime.ScalaRunTime.nullForGC
  *
  *  A non-empty stream holds its head as an already computed value and its tail as an
  *  expression that is evaluated the first time the tail is asked for and remembered
- *  afterwards, so no element is ever computed twice. Building a cons cell therefore
+ *  afterwards, so a tail that has been produced is never computed again (one whose
+ *  evaluation throws is retried on the next access). Building a cons cell therefore
  *  computes one element and nothing beyond it, which lets a stream stand for a series
  *  that has no end:
  *

@@ -42,6 +42,8 @@ import scala.annotation.tailrec
   *
   *  @tparam K the type of the keys contained in this map.
   *  @tparam V the type of the values associated with the keys in this map.
+  *  @param orderedBy the ordering this map maintains for traversal: by insertion or by
+  *                   modification.
   * @define coll immutable tree seq map
   * @define Coll `immutable.TreeSeqMap`
   */
@@ -49,7 +51,6 @@ final class TreeSeqMap[K, +V] private (
     private val ordering: TreeSeqMap.Ordering[K],
     private val mapping: TreeSeqMap.Mapping[K, V],
     private val ordinal: Int,
-    /** The ordering this map maintains for traversal: by insertion or by modification. */
     val orderedBy: TreeSeqMap.OrderBy)
   extends AbstractMap[K, V]
     with SeqMap[K, V]
@@ -472,12 +473,13 @@ object TreeSeqMap extends MapFactory[TreeSeqMap] {
     else EmptyByInsertion
   }.asInstanceOf[TreeSeqMap[K, V]]
 
-  /** Returns a `TreeSeqMap`, ordered by insertion, containing the key/value
-   *  pairs of the given collection.
+  /** Returns a `TreeSeqMap` containing the key/value pairs of the given
+   *  collection.
    *
-   *  Returns the collection itself if it is already a `TreeSeqMap`; otherwise
-   *  the pairs are inserted in iteration order, later pairs overwriting earlier
-   *  ones with the same key.
+   *  Returns the collection itself if it is already a `TreeSeqMap`, whatever its
+   *  ordering mode; otherwise the pairs are inserted in iteration order into a
+   *  new map ordered by insertion, later pairs overwriting earlier ones with the
+   *  same key.
    *
    *  @tparam K the type of the keys
    *  @tparam V the type of the values

@@ -783,7 +783,10 @@ sealed abstract class Range(
     s"${prefix}Range $start $preposition $end$stepped"
   }
 
-  /** The name of this collection type, `"Range"`, used in string representations. */
+  /** The collection name `"Range"`. This class's own `toString` prints the bounds and
+   *  step in its own format rather than the inherited `Range(...)` form built from
+   *  this name.
+   */
   override protected def className = "Range"
 
   /** Returns this range: the elements of a range are always pairwise distinct. */

@@ -92,8 +92,9 @@ final class TreeSet[A] private[immutable] (private[immutable] val tree: RB.Tree[
 
   /** Returns the smallest element of this tree set with respect to `ord`.
    *
-   *  When `ord` is the same object as this set's ordering, this is the first element, found in
-   *  logarithmic time; otherwise all elements are scanned.
+   *  When `ord` is this set's ordering (the same object, or one equal to it), this is the first
+   *  element, found in logarithmic time; when one of the two orderings is the reverse of the
+   *  other, it is the last element, found the same way; otherwise all elements are scanned.
    *
    *  @tparam A1 the type on which `ord` is defined, a supertype of the element type
    *  @param ord the ordering used to compare elements
@@ -110,8 +111,9 @@ final class TreeSet[A] private[immutable] (private[immutable] val tree: RB.Tree[
 
   /** Returns the largest element of this tree set with respect to `ord`.
    *
-   *  When `ord` is the same object as this set's ordering, this is the last element, found in
-   *  logarithmic time; otherwise all elements are scanned.
+   *  When `ord` is this set's ordering (the same object, or one equal to it), this is the last
+   *  element, found in logarithmic time; when one of the two orderings is the reverse of the
+   *  other, it is the first element, found the same way; otherwise all elements are scanned.
    *
    *  @tparam A1 the type on which `ord` is defined, a supertype of the element type
    *  @param ord the ordering used to compare elements
@@ -417,12 +419,13 @@ final class TreeSet[A] private[immutable] (private[immutable] val tree: RB.Tree[
 
   /** Returns `true` if `obj` is a set containing the same elements as this set.
    *
-   *  If `obj` is a `TreeSet` with the same ordering, this is decided by an efficient structural
-   *  comparison in which elements are compared with the ordering; otherwise falls back to the
-   *  general set equality, which tests the sizes and then looks each element of this set up in
-   *  `obj`. That lookup uses whatever notion of equality `obj` implements, so comparing against
-   *  a `TreeSet` with a different ordering compares by that ordering, and the result need not
-   *  be symmetric.
+   *  If `obj` is a `TreeSet` with the same ordering, the two trees are walked in order and their
+   *  elements compared pairwise with the ordering. If `obj` is any other sorted set with the same
+   *  ordering, the inherited sorted-set equality does the same pairwise walk over the two
+   *  iterators. Otherwise the general set equality applies: the sizes must match and each
+   *  element of this set is looked up in `obj` with whatever notion of membership `obj`
+   *  implements, so comparing against a sorted set with a different ordering uses that
+   *  ordering for the lookup, and the result need not be symmetric.
    *
    *  @param obj the object to compare with
    */

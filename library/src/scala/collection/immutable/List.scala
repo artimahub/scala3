@@ -242,8 +242,8 @@ sealed abstract class List[+A]
    *
    *  @param from the index of the first element of the slice
    *  @param until the index one past the last element of the slice
-   *  @return a list of the elements at the indices in the interval, `Nil` if `until` is
-   *          not greater than `from`
+   *  @return a list of the elements at the indices in the interval, `Nil` if the interval
+   *          contains no index of this list
    */
   override def slice(from: Int, until: Int): List[A] = {
     val lo = scala.math.max(from, 0)

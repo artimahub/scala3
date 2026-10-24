@@ -1508,8 +1508,8 @@ object LazyList extends SeqFactory[LazyList] {
   /** Returns a lazy list of the elements of all the given collections, one collection
    *  after another.
    *
-   *  $initiallyLazy Each collection is iterated only as the result is forced past its
-   *  predecessors.
+   *  Nothing is evaluated until an operation is performed on the result. Each collection
+   *  is iterated only as the result is forced past its predecessors.
    *
    *  @tparam A the element type
    *  @param xss the collections to concatenate
@@ -1564,9 +1564,9 @@ object LazyList extends SeqFactory[LazyList] {
   /** Returns a lazy list of `n` elements, each the result of a separate evaluation of
    *  `elem`.
    *
-   *  $initiallyLazy An element is computed only when the lazy list is forced that far,
-   *  so `elem` is evaluated once per element and never more often than that. A
-   *  non-positive `n` gives the empty lazy list.
+   *  Nothing is evaluated until an operation is performed on the result. An element is
+   *  computed only when the lazy list is forced that far, so `elem` is evaluated once per
+   *  element and never more often than that. A non-positive `n` gives the empty lazy list.
    *
    *  @tparam A the element type
    *  @param n the number of elements
@@ -1577,8 +1577,9 @@ object LazyList extends SeqFactory[LazyList] {
 
   /** Returns a lazy list of `n` elements, the element at index `i` being `f(i)`.
    *
-   *  $initiallyLazy `f` is applied to an index only when the lazy list is forced that
-   *  far. A non-positive `n` gives the empty lazy list.
+   *  Nothing is evaluated until an operation is performed on the result. `f` is applied
+   *  to an index only when the lazy list is forced that far. A non-positive `n` gives the
+   *  empty lazy list.
    *
    *  @tparam A the element type
    *  @param n the number of elements
@@ -1595,8 +1596,9 @@ object LazyList extends SeqFactory[LazyList] {
   /** Returns a lazy list produced by repeatedly applying `f` to a state, starting from
    *  `init`, for as long as it returns an element and the next state.
    *
-   *  $initiallyLazy `f` is applied to a state only when the lazy list is forced that
-   *  far; the first `None` it returns ends the lazy list.
+   *  Nothing is evaluated until an operation is performed on the result. `f` is applied
+   *  to a state only when the lazy list is forced that far; the first `None` it returns
+   *  ends the lazy list.
    *
    *  @tparam A the element type
    *  @tparam S the type of the state

@@ -249,7 +249,8 @@ object BitSet extends SpecificIterableFactory[Int, BitSet] {
     else new BitSetN(elems)
   }
 
-  /** An immutable bitset holding the elements `0` to `63` in a single word.
+  /** An immutable bitset whose elements all lie between `0` and `63`, stored as the bits
+   *  of a single word.
    *
    *  @param elems the word holding the bits of this bitset
    */
@@ -298,7 +299,8 @@ object BitSet extends SpecificIterableFactory[Int, BitSet] {
     }
   }
 
-  /** An immutable bitset holding the elements `0` to `127` in two words.
+  /** An immutable bitset whose elements all lie between `0` and `127`, stored as the bits
+   *  of two words.
    *
    *  @param elems0 the word holding the bits of the elements `0` to `63`
    *  @param elems1 the word holding the bits of the elements `64` to `127`
