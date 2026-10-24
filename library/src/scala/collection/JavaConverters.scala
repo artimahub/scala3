@@ -121,9 +121,11 @@ object JavaConverters extends AsJavaConverters with AsScalaConverters {
 
   /** Converts a Scala mutable `Seq` to a Java `List`.
    *
-   *  The conversion returns a wrapper, not a copy: changes made through either interface are
-   *  visible through the other. A sequence that was itself obtained through `asScala` is
-   *  unwrapped, returning the original Java `List`.
+   *  The conversion returns a wrapper, not a copy: changes to the sequence are visible
+   *  through the Java view, and `set` on the Java `List` writes through to the sequence.
+   *  The Java `List` is fixed-size, so `add`, `remove` and its other size-changing
+   *  operations throw `UnsupportedOperationException`. A sequence that was itself obtained
+   *  through `asScala` is unwrapped, returning the original Java `List`.
    *
    *  @tparam A the element type of the sequence
    *  @param s the Scala mutable `Seq` to convert

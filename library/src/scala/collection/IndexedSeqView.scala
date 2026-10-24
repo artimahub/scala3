@@ -29,10 +29,13 @@ trait IndexedSeqView[+A] extends IndexedSeqOps[A, View, View[A]] with SeqView[A]
   override def view: IndexedSeqView[A]^{this} = this
 
   /** Returns a view of the elements of this view between index `from`
-   *  (inclusive) and index `until` (exclusive), like `slice`.
+   *  (inclusive) and index `until` (exclusive), like `slice`, with both bounds
+   *  clamped to the valid range.
    *
-   *  @param from the index of the first element of the returned view
-   *  @param until the index one past the last element of the returned view
+   *  @param from the lowest index to include; a negative value is treated as 0
+   *  @param until the lowest index to exclude; a value beyond the end of this
+   *               view is treated as its length, and a value not above `from`
+   *               gives an empty view
    *  @return a view of the selected elements
    */
   @deprecated("Use .view.slice(from, until) instead of .view(from, until)", "2.13.0")
@@ -105,8 +108,10 @@ trait IndexedSeqView[+A] extends IndexedSeqOps[A, View, View[A]] with SeqView[A]
    *  (inclusive) and index `until` (exclusive), with both bounds clamped to
    *  the valid range.
    *
-   *  @param from the index of the first element of the slice
-   *  @param until the index one past the last element of the slice
+   *  @param from the lowest index to include; a negative value is treated as 0
+   *  @param until the lowest index to exclude; a value beyond the end of this
+   *               view is treated as its length, and a value not above `from`
+   *               gives an empty view
    */
   override def slice(from: Int, until: Int): IndexedSeqView[A]^{this} = new IndexedSeqView.Slice(this, from, until)
   /** Returns a view over the same elements that applies the side-effecting
@@ -139,7 +144,11 @@ trait IndexedSeqView[+A] extends IndexedSeqOps[A, View, View[A]] with SeqView[A]
    */
   def prependedAll[B >: A](prefix: IndexedSeqView.SomeIndexedSeqOps[B]^): IndexedSeqView[B]^{this, prefix} = new IndexedSeqView.Concat(prefix, this)
 
-  /** The prefix of this view's string representation, `"IndexedSeqView"`. */
+  /** Returns `"IndexedSeqView"`, the prefix used by `toString` via `className`, whose
+   *  default implementation returns this value.
+   *
+   *  Overriding `stringPrefix` is deprecated since 2.13.0; override `className` instead.
+   */
   @nowarn("""cat=deprecation&origin=scala\.collection\.Iterable\.stringPrefix""")
   override protected def stringPrefix: String = "IndexedSeqView"
 }
@@ -311,7 +320,7 @@ object IndexedSeqView {
     extends SeqView.Map(underlying, f) with IndexedSeqView[B]
 
   /** A view of the elements of `underlying` in reverse order: index `i` of
-   *  the view reads index `length - 1 - i` of the underlying sequence.
+   *  the view reads index `size - 1 - i` of the underlying sequence.
    *
    *  @tparam A the element type of the view
    *  @param underlying the indexed sequence being viewed
@@ -338,8 +347,8 @@ object IndexedSeqView {
    *
    *  @tparam A the element type of the view
    *  @param underlying the indexed sequence being viewed
-   *  @param from the index of the first element of the slice
-   *  @param until the index one past the last element of the slice
+   *  @param from the lowest index to include, before clamping
+   *  @param until the lowest index to exclude, before clamping
    */
   @SerialVersionUID(3L)
   class Slice[A](underlying: SomeIndexedSeqOps[A]^, from: Int, until: Int) extends AbstractIndexedSeqView[A] {

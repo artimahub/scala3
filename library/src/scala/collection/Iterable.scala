@@ -445,7 +445,7 @@ transparent trait IterableOps[+A, +CC[_], +C] extends Any with IterableOnce[A] w
    *
    *  @param pred the predicate used to test elements
    *  @return a new $coll consisting of all elements of this $coll that do not satisfy the
-   *          given predicate `pred`. Their order may not be preserved.
+   *          given predicate `pred`. The order of the elements is preserved.
    */
   def filterNot(pred: A => Boolean): C^{this, pred} = fromSpecific(new View.Filter(this, pred, isFlipped = true))
 

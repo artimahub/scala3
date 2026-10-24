@@ -104,13 +104,17 @@ trait Map[K, +V]
   @deprecated("Use -- or removedAll on an immutable Map", "2.13.0")
   def - (key1: K, key2: K, keys: K*): Map[K, V]
 
-  /** Returns `"Map"`, the prefix used by `toString`. */
+  /** Returns `"Map"`, the prefix used by `toString` via `className`, whose default
+   *  implementation returns this value.
+   *
+   *  Overriding `stringPrefix` is deprecated since 2.13.0; override `className` instead.
+   */
   @nowarn("""cat=deprecation&origin=scala\.collection\.Iterable\.stringPrefix""")
   override protected def stringPrefix: String = "Map"
 
   /** Returns a string representation of this map, of the form `Map(k1 -> v1, k2 -> v2, ...)`,
-   *  with the prefix taken from `stringPrefix`, so a `SeqMap` or `SortedMap` names itself
-   *  instead.
+   *  with the prefix taken from `className` (by default `stringPrefix`), so a `SeqMap` or
+   *  `SortedMap` names itself instead.
    *
    *  Reinstates `Iterable`'s `toString`, which the `toString` inherited through `Function1`
    *  would otherwise replace.

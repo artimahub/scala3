@@ -124,16 +124,17 @@ object ArrayOps {
       b.result()
     }
 
-    /** Builds a new array by applying a function to all elements of this array
-     *  and using the elements of the results after converting them to `Iterable`s.
+    /** Builds a new array by applying a function to the elements of this array
+     *  that satisfy the predicate `p`, and using the elements of the results
+     *  after converting them to `Iterable`s.
      *
      *  @tparam BS the type returned by `f`, convertible to an `Iterable` of `B`
      *  @tparam B the element type of the returned array
-     *  @param f the function to apply to each element
+     *  @param f the function to apply to each element that satisfies `p`
      *  @param asIterable the conversion applied to each result of `f`
      *  @param m the class tag for the element type `B`, required to create the result array
      *  @return a new array resulting from applying `f` to each element of this
-     *          array and concatenating the converted results
+     *          array that satisfies `p` and concatenating the converted results
      */
     def flatMap[BS, B](f: A => BS)(implicit asIterable: BS => Iterable[B], m: ClassTag[B]): Array[B] =
       flatMap[B](x => asIterable(f(x)))

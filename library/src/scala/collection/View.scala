@@ -46,7 +46,11 @@ trait View[+A] extends Iterable[A] with IterableOps[A, View, View[A]] with Itera
    */
   override def toString(): String  = className + "(<not computed>)"
 
-  /** Returns `"View"`, the prefix used in the string representation of this view. */
+  /** Returns `"View"`, the prefix used by `toString` via `className`, whose default
+   *  implementation returns this value.
+   *
+   *  Overriding `stringPrefix` is deprecated since 2.13.0; override `className` instead.
+   */
   @nowarn("""cat=deprecation&origin=scala\.collection\.Iterable\.stringPrefix""")
   override protected def stringPrefix: String = "View"
 

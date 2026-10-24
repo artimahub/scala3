@@ -215,24 +215,16 @@ final class StringOps(private val s: String) extends AnyVal { self =>
   /** Compares the length of this string to a test value.
    *
    *  @param otherSize the test value that gets compared with the length
-   *  @return a value `x` where
-   *  ```
-   *       x <  0       if this.length <  otherSize
-   *       x == 0       if this.length == otherSize
-   *       x >  0       if this.length >  otherSize
-   *  ```
+   *  @return a negative value if this string is shorter than `otherSize` chars, zero
+   *          if its length is exactly `otherSize`, and a positive value if it is longer
    */
   def sizeCompare(otherSize: Int): Int = Integer.compare(s.length, otherSize)
 
   /** Compares the length of this string to a test value.
    *
    *  @param len the test value that gets compared with the length
-   *  @return a value `x` where
-   *  ```
-   *       x <  0       if this.length <  len
-   *       x == 0       if this.length == len
-   *       x >  0       if this.length >  len
-   *  ```
+   *  @return a negative value if this string is shorter than `len` chars, zero if its
+   *          length is exactly `len`, and a positive value if it is longer
    */
   def lengthCompare(len: Int): Int = Integer.compare(s.length, len)
 

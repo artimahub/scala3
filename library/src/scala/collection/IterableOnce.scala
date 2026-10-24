@@ -102,13 +102,17 @@ trait IterableOnce[+A] extends Any { this: IterableOnce[A]^ =>
 }
 
 /** A value class providing the operations of Scala 2.12's `TraversableOnce` as deprecated
- *  extension methods on [[IterableOnce]], each implemented by delegating to the
- *  corresponding operation on `it.iterator`.
+ *  extension methods on [[IterableOnce]], most implemented by delegating to the
+ *  corresponding operation on `it.iterator`; the conversions such as `toList` build the
+ *  target collection from `it` directly.
  *
  *  A strict operation traverses the wrapped collection, and consumes it if it can be
- *  traversed only once. The lazy ones, such as `map`, `flatMap`, `filter` and
- *  `withFilter`, build an iterator without traversing anything until it is consumed, and
- *  `toIterator` simply hands back the wrapped iterator.
+ *  traversed only once. `filter` and `withFilter` return an iterator that traverses
+ *  nothing until it is consumed, and `toIterator` returns `it.iterator`, a fresh iterator
+ *  over the wrapped collection (or the collection itself, if it is an iterator). `map`
+ *  and `flatMap` are only as lazy as the wrapped collection: on an [[Iterable]] they
+ *  delegate to its own `map` or `flatMap`, which a strict collection such as `List`
+ *  evaluates eagerly; on any other `IterableOnce` they return a lazy iterator.
  *
  *  @tparam A the element type of the wrapped collection
  *  @param it the wrapped collection

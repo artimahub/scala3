@@ -86,12 +86,17 @@ trait Set[A]
   /** Returns the `Set` companion object as the factory for sets of this kind. */
   override def iterableFactory: IterableFactory[Set] = Set
 
-  /** Returns `"Set"`, the prefix used by `toString`. */
+  /** Returns `"Set"`, the prefix used by `toString` via `className`, whose default
+   *  implementation returns this value.
+   *
+   *  Overriding `stringPrefix` is deprecated since 2.13.0; override `className` instead.
+   */
   @nowarn("""cat=deprecation&origin=scala\.collection\.Iterable\.stringPrefix""")
   override protected def stringPrefix: String = "Set"
 
   /** Returns a string representation of this set, of the form `Set(elem1, elem2, ...)`,
-   *  with the prefix taken from `stringPrefix`, so a `SortedSet` names itself instead.
+   *  with the prefix taken from `className` (by default `stringPrefix`), so a `SortedSet`
+   *  names itself instead.
    *
    *  Reinstates `Iterable`'s `toString`, which the `toString` inherited through `Function1`
    *  would otherwise replace.

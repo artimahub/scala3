@@ -49,7 +49,11 @@ trait BitSet extends SortedSet[Int] with BitSetOps[BitSet] { self: BitSet =>
   override protected def newSpecificBuilder: Builder[Int, BitSet] = bitSetFactory.newBuilder
   /** Returns an empty bitset of the same kind as this bitset, obtained from `bitSetFactory`. */
   override def empty: BitSet = bitSetFactory.empty
-  /** The prefix used in the string representation of this set, `"BitSet"`. */
+  /** Returns `"BitSet"`, the prefix used by `toString` via `className`, whose default
+   *  implementation returns this value.
+   *
+   *  Overriding `stringPrefix` is deprecated since 2.13.0; override `className` instead.
+   */
   @nowarn("""cat=deprecation&origin=scala\.collection\.Iterable\.stringPrefix""")
   override protected def stringPrefix = "BitSet"
   /** Returns this bitset viewed as an unsorted `Set[Int]`.
@@ -69,10 +73,12 @@ object BitSet extends SpecificIterableFactory[Int, BitSet] {
   def empty: BitSet = immutable.BitSet.empty
   /** Returns a builder for immutable bitsets. */
   def newBuilder: Builder[Int, BitSet] = immutable.BitSet.newBuilder
-  /** Creates an immutable bitset containing the elements of the given collection.
+  /** Creates an immutable bitset containing the elements of the given collection,
+   *  delegating to [[immutable.BitSet]].
    *
    *  @param it the collection of elements to include; all must be non-negative
-   *  @return a new immutable bitset containing the elements of `it`
+   *  @return an immutable bitset containing the elements of `it`: `it` itself when it
+   *          is already an immutable bitset, a new bitset otherwise
    *  @throws IllegalArgumentException if `it` contains a negative element
    */
   def fromSpecific(it: IterableOnce[Int]^): BitSet = immutable.BitSet.fromSpecific(it)

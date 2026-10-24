@@ -437,10 +437,12 @@ object SeqFactory {
   /** The wrapper returned by `unapplySeq`, exposing the matched sequence's elements
    *  to the pattern matcher.
    *
-   *  This is a name-based extractor result: the pattern matcher calls `isEmpty`,
-   *  `get`, `lengthCompare`, `apply`, `drop` and `toSeq` as needed. Being a value
-   *  class, the wrapper itself costs no allocation and no intermediate `Option` is
-   *  built; a vararg pattern still allocates through `drop` and `toSeq`.
+   *  This is a name-based extractor result. Since it has `lengthCompare`, `apply`,
+   *  `drop` and `toSeq`, the Scala 3 pattern matcher treats it as a sequence match and
+   *  calls those members as needed; it never calls `isEmpty` or `get`, which are kept
+   *  for Scala 2's protocol, where the matcher reads the sequence through `get`. Being
+   *  a value class, the wrapper itself costs no allocation and no intermediate `Option`
+   *  is built; a vararg pattern still allocates through `drop` and `toSeq`.
    *
    *  @tparam A the type of the sequence's elements
    *  @param c the matched sequence
