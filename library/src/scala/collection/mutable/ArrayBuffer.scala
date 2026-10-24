@@ -590,6 +590,11 @@ object ArrayBuffer extends StrictOptimizedSeqFactory[ArrayBuffer] {
  *  iterators never detect mutation.
  *
  *  @tparam A the element type of the underlying buffer
+ *  @param underlying the buffer whose elements this view presents; `apply` and
+ *                    `length` read through to it
+ *  @param mutationCount a function returning the buffer's current mutation
+ *                       count; iterators record its value on creation and
+ *                       re-evaluate it on each `hasNext` to detect mutation
  */
 final class ArrayBufferView[A] private[mutable](underlying: ArrayBuffer[A], mutationCount: () => Int)
   extends AbstractIndexedSeqView[A] {
