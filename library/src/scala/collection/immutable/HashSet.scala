@@ -49,7 +49,7 @@ final class HashSet[A] private[immutable](private[immutable] val rootNode: Bitma
   private def newHashSetOrThis(newRootNode: BitmapIndexedSetNode[A]): HashSet[A] =
     if (rootNode eq newRootNode) this else new HashSet(newRootNode)
 
-  /** Returns the [[HashSet]] companion object, the factory used to build new sets of this kind. */
+  /** Returns the [[HashSet$ HashSet]] companion object, the factory used to build new sets of this kind. */
   override def iterableFactory: IterableFactory[HashSet] = HashSet
 
   /** Returns the number of elements in this set. The size of a `HashSet` is always
@@ -507,10 +507,13 @@ final class HashSet[A] private[immutable](private[immutable] val rootNode: Bitma
   }
 
   /** Returns a set containing the first `n` elements of this set's iteration
-   *  order, or this whole set if it has at most `n` elements. This override only
+   *  order, or all of its elements if it has at most `n`. This override only
    *  forwards to the inherited implementation; it exists so that an optimized
    *  implementation can be introduced in a minor release without breaking binary
    *  compatibility.
+   *
+   *  A non-empty result is always a newly built set, never this set itself; an
+   *  empty result is the shared empty set.
    *
    *  @param n the number of elements to take; a negative value is treated as 0
    *  @return a set containing the first `n` elements, all of them if there are fewer
@@ -523,9 +526,12 @@ final class HashSet[A] private[immutable](private[immutable] val rootNode: Bitma
   }
 
   /** Returns a set containing the last `n` elements of this set's iteration order,
-   *  or this whole set if it has at most `n` elements. This override only forwards
+   *  or all of its elements if it has at most `n`. This override only forwards
    *  to the inherited implementation; it exists so that an optimized implementation
    *  can be introduced in a minor release without breaking binary compatibility.
+   *
+   *  A non-empty result is always a newly built set, never this set itself; an
+   *  empty result is the shared empty set.
    *
    *  @param n the number of elements to take; a negative value is treated as 0
    *  @return a set containing the last `n` elements, all of them if there are fewer
@@ -557,8 +563,11 @@ final class HashSet[A] private[immutable](private[immutable] val rootNode: Bitma
    *  optimized implementation can be introduced in a minor release without breaking
    *  binary compatibility.
    *
+   *  A non-empty result is always a newly built set, never this set itself; an
+   *  empty result is the shared empty set.
+   *
    *  @param n the number of elements to drop; a negative value is treated as 0
-   *  @return a set containing all but the first `n` elements, or this whole set if `n`
+   *  @return a set containing all but the first `n` elements, or all of them if `n`
    *          is not positive
    */
   override def drop(n: Int): HashSet[A] = {
@@ -573,8 +582,11 @@ final class HashSet[A] private[immutable](private[immutable] val rootNode: Bitma
    *  optimized implementation can be introduced in a minor release without breaking
    *  binary compatibility.
    *
+   *  A non-empty result is always a newly built set, never this set itself; an
+   *  empty result is the shared empty set.
+   *
    *  @param n the number of elements to drop; a negative value is treated as 0
-   *  @return a set containing all but the last `n` elements, or this whole set if `n`
+   *  @return a set containing all but the last `n` elements, or all of them if `n`
    *          is not positive
    */
   override def dropRight(n: Int): HashSet[A] = {

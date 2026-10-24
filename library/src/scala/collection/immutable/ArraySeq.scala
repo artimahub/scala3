@@ -215,16 +215,20 @@ sealed abstract class ArraySeq[+A]
    *  When `suffix` is also an `ArraySeq`, an empty operand results in the other
    *  operand being returned unchanged, and two operands backed by the same kind of
    *  array (both object arrays, or both primitive arrays of the same element type)
-   *  are concatenated directly, a primitive representation being preserved. In all
-   *  other cases the elements are copied into a new boxed array, so the result is
-   *  backed by an `Array[AnyRef]`; if `suffix` is known to be empty, this immutable
-   *  array is returned unchanged.
+   *  are concatenated directly, a primitive representation being preserved. When
+   *  one operand is backed by an object array and the other by a primitive array,
+   *  or when `suffix` is not an `ArraySeq`, the elements are copied into a new
+   *  boxed array, so the result is backed by an `Array[AnyRef]`; if `suffix` is
+   *  known to be empty, this immutable array is returned unchanged. The remaining
+   *  case, two operands backed by primitive arrays of different element types, is
+   *  not copied into a boxed array: it takes the direct path and throws, as
+   *  described below.
    *
    *  @tparam B the element type of the returned immutable array, a supertype of `A`
    *  @param suffix the elements to append
    *  @return the concatenated immutable array
    *  @throws ArrayStoreException if this immutable array and `suffix` are both backed
-   *          by primitive arrays but of different element types, as in
+   *          by primitive arrays of different element types, as in
    *          `ArraySeq(1) ++ ArraySeq(1L)`: the direct path then writes the elements
    *          of `suffix` into an array of this immutable array's element type
    */
@@ -257,16 +261,20 @@ sealed abstract class ArraySeq[+A]
    *  When `prefix` is also an `ArraySeq`, an empty operand results in the other
    *  operand being returned unchanged, and two operands backed by the same kind of
    *  array (both object arrays, or both primitive arrays of the same element type)
-   *  are concatenated directly, a primitive representation being preserved. In all
-   *  other cases the elements are copied into a new boxed array, so the result is
-   *  backed by an `Array[AnyRef]`; if `prefix` is known to be empty, this immutable
-   *  array is returned unchanged.
+   *  are concatenated directly, a primitive representation being preserved. When
+   *  one operand is backed by an object array and the other by a primitive array,
+   *  or when `prefix` is not an `ArraySeq`, the elements are copied into a new
+   *  boxed array, so the result is backed by an `Array[AnyRef]`; if `prefix` is
+   *  known to be empty, this immutable array is returned unchanged. The remaining
+   *  case, two operands backed by primitive arrays of different element types, is
+   *  not copied into a boxed array: it takes the direct path and throws, as
+   *  described below.
    *
    *  @tparam B the element type of the returned immutable array, a supertype of `A`
    *  @param prefix the elements to prepend
    *  @return the concatenated immutable array
    *  @throws ArrayStoreException if `prefix` and this immutable array are both backed
-   *          by primitive arrays but of different element types, as in
+   *          by primitive arrays of different element types, as in
    *          `ArraySeq(1L).prependedAll(ArraySeq(1))`: the direct path then writes the
    *          elements of this immutable array into an array of `prefix`'s element type
    */
@@ -482,8 +490,10 @@ sealed abstract class ArraySeq[+A]
   }
 
   /** Returns `Int.MaxValue`, indicating that indexed access via `apply` is never more
-   *  expensive than `iterator`, so element scans such as `sameElements` always use
-   *  indexed access.
+   *  expensive than `iterator`. When `sameElements` compares two immutable indexed
+   *  sequences it uses `apply` up to the smaller of the two operands' preferred
+   *  lengths, so this value never limits indexed access on this immutable array's
+   *  side; the other operand's preference, such as a `Vector`'s, still can.
    */
   override protected final def applyPreferredMaxLength: Int = Int.MaxValue
 

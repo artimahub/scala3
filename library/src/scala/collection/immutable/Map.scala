@@ -37,7 +37,8 @@ trait Map[K, +V]
   /** Returns the `immutable.Map` companion object as the factory for maps of this kind. */
   override def mapFactory: scala.collection.MapFactory[Map] = Map
 
-  /** Returns this map, typed as an immutable `Map[K2, V2]`.
+  /** Returns an immutable `Map[K2, V2]` with the bindings of this map, normally this
+   *  map itself.
    *
    *  Since this map is already immutable, a non-empty default map implementation is
    *  returned unchanged, without copying; implementations with a reified key type,
@@ -49,7 +50,8 @@ trait Map[K, +V]
    *  @tparam V2 the value type of the resulting map, a supertype of `V`
    *  @param ev evidence that the element type `(K, V)` conforms to `(K2, V2)`;
    *            never called
-   *  @return this map, widened to `Map[K2, V2]`
+   *  @return normally this map itself, widened to `Map[K2, V2]`; otherwise a default
+   *          `Map` rebuilt from its bindings
    */
   override final def toMap[K2, V2](implicit ev: (K, V) <:< (K2, V2)): Map[K2, V2] = Map.from(this.asInstanceOf[Map[K2, V2]])
 
