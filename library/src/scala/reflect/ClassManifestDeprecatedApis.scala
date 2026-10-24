@@ -20,18 +20,18 @@ import java.lang.{Class => jClass}
 
 import scala.annotation.{nowarn, tailrec}
 
-@deprecated("use scala.reflect.ClassTag instead", "2.10.0")
 /** Provides the deprecated members of the `ClassManifest` API. [[scala.reflect.ClassTag]] extends
  *  this trait for source compatibility with `ClassManifest`, which is an alias for `ClassTag`.
  *
  *  @tparam T the type described by the manifest
  */
+@deprecated("use scala.reflect.ClassTag instead", "2.10.0")
 trait ClassManifestDeprecatedApis[T] extends OptManifest[T] {
   self: ClassManifest[T] =>
 
   // Still in use in target test.junit.comp.
-  @deprecated("use runtimeClass instead", "2.10.0")
   /** Returns the runtime class of the type described by this manifest. */
+  @deprecated("use runtimeClass instead", "2.10.0")
   def erasure: jClass[?] = runtimeClass
 
   private def subtype(sub: jClass[?], sup: jClass[?]): Boolean = {
@@ -131,32 +131,32 @@ trait ClassManifestDeprecatedApis[T] extends OptManifest[T] {
     java.lang.reflect.Array.newInstance(arrayClass[T](runtimeClass), len)
       .asInstanceOf[Array[Array[T]]]
 
-  @deprecated("use wrap.wrap.newArray instead", "2.10.0")
   /** Returns a new three-dimensional array of `T` whose outermost dimension has length `len`.
    *
    *  @param len the length of the outermost array
    *  @return a new `Array[Array[Array[T]]]` of length `len`, whose elements are all `null`
    */
+  @deprecated("use wrap.wrap.newArray instead", "2.10.0")
   def newArray3(len: Int): Array[Array[Array[T]]] =
     java.lang.reflect.Array.newInstance(arrayClass[Array[T]](arrayClass[T](runtimeClass)), len)
       .asInstanceOf[Array[Array[Array[T]]]]
 
-  @deprecated("use wrap.wrap.wrap.newArray instead", "2.10.0")
   /** Returns a new four-dimensional array of `T` whose outermost dimension has length `len`.
    *
    *  @param len the length of the outermost array
    *  @return a new `Array[Array[Array[Array[T]]]]` of length `len`, whose elements are all `null`
    */
+  @deprecated("use wrap.wrap.wrap.newArray instead", "2.10.0")
   def newArray4(len: Int): Array[Array[Array[Array[T]]]] =
     java.lang.reflect.Array.newInstance(arrayClass[Array[Array[T]]](arrayClass[Array[T]](arrayClass[T](runtimeClass))), len)
       .asInstanceOf[Array[Array[Array[Array[T]]]]]
 
-  @deprecated("use wrap.wrap.wrap.wrap.newArray instead", "2.10.0")
   /** Returns a new five-dimensional array of `T` whose outermost dimension has length `len`.
    *
    *  @param len the length of the outermost array
    *  @return a new `Array[Array[Array[Array[Array[T]]]]]` of length `len`, whose elements are all `null`
    */
+  @deprecated("use wrap.wrap.wrap.wrap.newArray instead", "2.10.0")
   def newArray5(len: Int): Array[Array[Array[Array[Array[T]]]]] =
     java.lang.reflect.Array.newInstance(arrayClass[Array[Array[Array[T]]]](arrayClass[Array[Array[T]]](arrayClass[Array[T]](arrayClass[T](runtimeClass)))), len)
       .asInstanceOf[Array[Array[Array[Array[Array[T]]]]]]
